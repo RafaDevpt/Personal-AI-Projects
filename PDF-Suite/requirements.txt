@@ -1,0 +1,72 @@
+# ===========================================================================
+# PT-PT: Dependências de execução.
+#        Instalar com:  pip install -r requirements.txt
+#
+# EN-UK: Runtime dependencies.
+#        Install with:  pip install -r requirements.txt
+# ===========================================================================
+
+# PT-PT: Leitura de PDF com respeito pela disposição das colunas. Numa tabela
+#        de preços é a diferença entre ler «Artigo A 250,00» e ler a coluna dos
+#        artigos toda seguida da coluna dos preços toda.
+# EN-UK: PDF reading that respects column layout. On a price table that is the
+#        difference between reading "Item A 250.00" and reading the whole item
+#        column followed by the whole price column.
+pdfplumber>=0.11,<0.12
+
+# PT-PT: Escrita do AcroForm e preenchimento de formulários.
+# EN-UK: AcroForm writing and form filling.
+pypdf>=5.0,<6.0
+
+# PT-PT: Leitura de documentos Word, incluindo as tabelas — que é onde os
+#        preços de uma proposta comercial quase sempre estão.
+# EN-UK: Word document reading, tables included — which is where a commercial
+#        quote's prices almost always are.
+python-docx>=1.1,<2.0
+
+# PT-PT: Exportação da comparação para Excel, com fórmulas vivas.
+# EN-UK: Comparison export to Excel, with live formulas.
+openpyxl>=3.1,<4.0
+
+# PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
+#        não traz nenhum motor gráfico próprio. Licença MIT.
+#        Não é necessária na linha de comandos.
+# EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
+#        brings no graphics engine of its own. MIT-licensed.
+#        Not required on the command line.
+customtkinter>=5.2.2,<6.0
+
+# PT-PT: Mostrar a página no editor visual de campos. Sem o Pillow, o editor
+#        abre em modo de lista e a aplicação funciona à mesma.
+# EN-UK: Showing the page in the visual field editor. Without Pillow the editor
+#        opens in list mode and the application still works.
+Pillow>=10.0
+
+# PT-PT: Gerar os ficheiros de exemplo (tools/gerar_exemplos.py). Não é
+#        necessária para usar a aplicação.
+# EN-UK: Generating the sample files. Not needed to use the application.
+reportlab>=4.0,<5.0
+
+# ===========================================================================
+# PT-PT: OPCIONAL — análise assistida por modelo.
+#        Tudo funciona sem isto. Instale só se quiser a análise qualitativa,
+#        e leia antes o cabeçalho de src/pdfsuite/ai.py: ligá-la significa
+#        enviar o texto dos documentos para fora da empresa.
+#            pip install anthropic
+#
+# EN-UK: OPTIONAL — model-assisted analysis. Everything works without it.
+#        Enabling it means sending the documents' text outside the company.
+# ===========================================================================
+
+# ===========================================================================
+# PT-PT: O editor visual precisa do poppler para desenhar a página:
+#          Windows  → https://github.com/oschwartz10612/poppler-windows
+#          macOS    → brew install poppler
+#          Linux    → sudo apt install poppler-utils
+#        Sem ele, o editor abre em modo de lista.
+#
+#        Em Linux pode faltar o Tkinter: sudo apt install python3-tk
+#
+# EN-UK: The visual editor needs poppler to draw the page. Without it, the
+#        editor opens in list mode.
+# ===========================================================================
