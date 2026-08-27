@@ -1,0 +1,28 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use as Definições na aplicação. A aplicação grava a sua própria cópia em %APPDATA%\\ITToolkit (Windows) ou ~/.config/ITToolkit (Linux e macOS), nunca dentro desta pasta — os relatórios contêm dados da máquina e não devem acabar no repositório.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings window. The application writes its own copy to %APPDATA%\\ITToolkit (Windows) or ~/.config/ITToolkit (Linux and macOS), never inside this folder — reports carry machine data and must not end up in the repository.",
+
+  "reports_dir": "C:\\Users\\utilizador\\Documents\\IT Toolkit\\Relatorios",
+  "abrir_relatorio_apos_gerar": true,
+
+  "periodo_horas": 24,
+  "incluir_system": true,
+  "incluir_application": true,
+  "incluir_security": false,
+  "incluir_avisos": true,
+  "max_eventos": 3000,
+
+  "disco_percent_min": 10,
+  "disco_gb_min": 15,
+  "uptime_dias_max": 30,
+  "ram_percent_max": 90,
+  "cpu_percent_max": 90,
+
+  "host_teste": "8.8.8.8",
+  "dominio_teste": "www.google.com",
+  "timeout_ping": 15,
+  "timeout_porta": 1.5,
+
+  "analisar_ao_arrancar": true,
+  "tema": "system"
+}
