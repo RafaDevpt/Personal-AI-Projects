@@ -235,22 +235,6 @@ pip install -r requirements.txt
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
-## 🗺️ Roadmap
-
-```mermaid
-%%{init: {'theme':'dark'}}%%
-timeline
-    title Project pipeline
-    Shipped   : IT Toolkit v2.0.0
-              : FormModernizer
-              : HP Toner Monitor
-    Building  : PDF Suite — GUI and reports
-    Next      : Messaging bots (WhatsApp / Telegram)
-              : Unified launcher for all tools
-```
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
 ## 👤 About
 
 <table>
@@ -269,7 +253,20 @@ These projects are personal work, published under GPL-3.0 so anyone facing the s
 </td>
 <td valign="top" width="40%">
 
-<img src="https://github-readme-stats.vercel.app/api?username=RafaDevpt&show_icons=true&hide_border=true&bg_color=0D1117&title_color=1F6FEB&icon_color=6E5494&text_color=c9d1d9" width="100%" />
+**Working with**
+
+![Python](https://img.shields.io/badge/Python-0D1117?style=flat-square&logo=python&logoColor=3776AB)
+![PowerShell](https://img.shields.io/badge/PowerShell-0D1117?style=flat-square&logo=powershell&logoColor=5391FE)
+![Windows Server](https://img.shields.io/badge/Windows_Server-0D1117?style=flat-square&logo=windows&logoColor=0078D6)
+![VMware](https://img.shields.io/badge/VMware-0D1117?style=flat-square&logo=vmware&logoColor=607078)
+![Microsoft 365](https://img.shields.io/badge/Microsoft_365-0D1117?style=flat-square&logo=microsoft365&logoColor=EA3E23)
+![Networking](https://img.shields.io/badge/Networking-0D1117?style=flat-square&logo=ubiquiti&logoColor=0559C9)
+![Git](https://img.shields.io/badge/Git-0D1117?style=flat-square&logo=git&logoColor=F05032)
+
+**Focus**
+
+`Automation` · `IT operations`
+`Systems integration` · `Compliance`
 
 </td>
 </tr>
