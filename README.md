@@ -29,7 +29,6 @@
 <a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
 <a href="#-branch-strategy"><img src="https://img.shields.io/badge/🌿_Branches-6E5494?style=for-the-badge&logoColor=white" /></a>
 <a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
-<a href="#-roadmap"><img src="https://img.shields.io/badge/🗺️_Roadmap-E3B341?style=for-the-badge&logoColor=black" /></a>
 
 </div>
 
