@@ -1,92 +1,211 @@
 <!--
-  Personal-AI-Projects — README
+  Personal-AI-Projects — README v2
   Created by Redfox using Claude
 -->
 
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:6E5494,100:1F6FEB&height=180&section=header&text=Personal-AI-Projects&fontSize=42&fontColor=ffffff&fontAlignY=35&desc=AI-assisted%20tools%20for%20IT%20operations%20and%20everyday%20automation&descAlignY=58&descSize=16" alt="Personal AI Projects" />
+<img src="https://capsule-render.vercel.app/api?type=venom&color=0:0D1117,50:6E5494,100:1F6FEB&height=230&section=header&text=PERSONAL%20AI%20PROJECTS&fontSize=44&fontColor=ffffff&fontAlignY=38&desc=Automation%20%E2%80%A2%20IT%20Operations%20%E2%80%A2%20AI-assisted%20tooling&descAlignY=56&descSize=16&animation=fadeIn" alt="Personal AI Projects" />
 
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=500&size=20&duration=3200&pause=900&color=1F6FEB&center=true&vCenter=true&width=620&lines=Automating+IT+operations.;Turning+repetitive+tasks+into+tools.;Built+with+Python%2C+PowerShell+and+AI." alt="Typing intro" />
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3000&pause=800&color=1F6FEB&center=true&vCenter=true&multiline=false&width=700&lines=%3E+Turning+repetitive+IT+work+into+tools.;%3E+Legacy+forms+in.+Modern+PDFs+out.;%3E+24+printers%2C+zero+manual+checks.;%3E+Built+with+Python%2C+PowerShell+and+AI." alt="Typing intro" />
+
+<br /><br />
+
+<!-- ── Core stack ─────────────────────────────── -->
+<img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/PowerShell-5.1+-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
+<img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
+<img src="https://img.shields.io/badge/GPL--3.0-2EA043?style=for-the-badge&logo=gnu&logoColor=white" />
 
 <br />
 
-![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
-![License](https://img.shields.io/badge/License-GPL--3.0-green?style=for-the-badge)
+<!-- ── Live repo telemetry ────────────────────── -->
+<img src="https://img.shields.io/github/last-commit/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=1F6FEB&logo=git&logoColor=white" />
+<img src="https://img.shields.io/github/commit-activity/m/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=6E5494" />
+<img src="https://img.shields.io/github/languages/top/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=3776AB" />
+<img src="https://img.shields.io/github/repo-size/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341" />
+<img src="https://img.shields.io/github/stars/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341&logo=github" />
 
-![Last commit](https://img.shields.io/github/last-commit/RafaDevpt/Personal-AI-Projects?style=flat-square&color=1F6FEB)
-![Repo size](https://img.shields.io/github/repo-size/RafaDevpt/Personal-AI-Projects?style=flat-square&color=6E5494)
-![Stars](https://img.shields.io/github/stars/RafaDevpt/Personal-AI-Projects?style=flat-square&color=E3B341)
+<br /><br />
+
+<a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
+<a href="#-branch-strategy"><img src="https://img.shields.io/badge/🌿_Branches-6E5494?style=for-the-badge&logoColor=white" /></a>
+<a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
+<a href="#-roadmap"><img src="https://img.shields.io/badge/🗺️_Roadmap-E3B341?style=for-the-badge&logoColor=black" /></a>
 
 </div>
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
-## Overview
+## 🧭 Overview
 
-A collection of personal AI-assisted projects built to automate tasks, improve productivity and support both professional and personal activities.
+> **A collection of personal AI-assisted projects built to automate tasks, improve productivity and support both professional and personal activities.**
 
-Most of these tools were born from real problems in day-to-day hospitality IT operations — repetitive checks, legacy forms, manual reporting — and were rebuilt as small, self-contained applications.
+Every tool here started as a real friction point in day-to-day hospitality IT operations — a manual check repeated 24 times, a form nobody could edit, a report someone typed by hand every Monday — and ended up as a small, self-contained application.
 
----
+<div align="center">
 
-## Branch Strategy
-
-Rather than creating separate repositories, each project lives in its own dedicated branch. This keeps everything centralised while allowing each project to evolve independently.
-
-```
-main ──────────────► repository overview, documentation and project index
- ├── it-toolkit ───► Windows IT diagnostics suite
- ├── form-modernizer ► legacy Excel/VBA → fillable PDF converter
- ├── pdf-suite ────► fillable PDFs + document comparison
- └── toner-monitor ► HP printer supply monitoring
-```
-
-| Branch | Purpose |
+| 🎯 Principle | What it means in practice |
 | :--- | :--- |
-| `main` | Repository overview, documentation and project index |
-| *Project branches* | Individual projects with their own codebase and documentation |
-
----
-
-## Project Index
-
-<div align="center">
-
-| Project | Description | Stack | Status |
-| :--- | :--- | :--- | :---: |
-| **IT Toolkit** | Desktop suite for daily IT work: Windows event log analysis with suggested fixes, network tools, disks, services, inventory and a reporting centre. | `Python` `CustomTkinter` | ![Active](https://img.shields.io/badge/active-brightgreen?style=flat-square) |
-| **FormModernizer** | Converts legacy Excel forms with VBA macros into modern fillable PDF or Word documents. Fully offline, rule-based VBA interpretation. | `Python` `PDF` | ![Stable](https://img.shields.io/badge/stable-blue?style=flat-square) |
-| **PDF Suite** | Two tools in one: turn PDFs into fillable forms, and compare or summarise multiple documents (e.g. supplier proposals) into a detailed report. | `Python` `PDF` `DOCX` | ![WIP](https://img.shields.io/badge/in%20progress-orange?style=flat-square) |
-| **HP Toner Monitor** | Queries the embedded web servers of HP printers, flags toner levels below 15%, identifies cartridge references and drafts the reorder request. | `Python` `SNMP` `Selenium` | ![Active](https://img.shields.io/badge/active-brightgreen?style=flat-square) |
+| **Offline first** | No external API dependency where a rule-based approach will do |
+| **Safe by default** | Read-only operations unless explicitly told otherwise |
+| **Single-file deploy** | A `.bat` launcher and a folder — no installers, no admin rights |
+| **Documented** | Every branch ships its own README, requirements and screenshots |
 
 </div>
 
-> Each project branch contains its own `README.md` with setup instructions, requirements and screenshots.
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
----
+## 🌿 Branch Strategy
 
-## Tech Stack
+Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles.
+
+```mermaid
+%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1F6FEB','lineColor':'#6E5494','fontFamily':'monospace'}}}%%
+gitGraph
+    commit id: "Initial commit"
+    commit id: "README + LICENSE"
+    branch it-toolkit
+    commit id: "Event log engine"
+    commit id: "v2.0.0"
+    checkout main
+    branch form-modernizer
+    commit id: "VBA parser"
+    commit id: "PDF output"
+    checkout main
+    branch pdf-suite
+    commit id: "Fillable core"
+    checkout main
+    branch toner-monitor
+    commit id: "LEDM / SNMP"
+    commit id: "Browser fallback"
+    checkout main
+    commit id: "Project index"
+```
 
 <div align="center">
 
-<img src="https://skillicons.dev/icons?i=python,powershell,windows,git,github,vscode&theme=dark" alt="Tech stack" />
+| Branch | Role | Contents |
+| :--- | :--- | :--- |
+| `main` | 🏛️ **Hub** | Overview, documentation, project index |
+| `it-toolkit` | 🔧 Project | Windows diagnostics suite |
+| `form-modernizer` | 📄 Project | Legacy Excel/VBA → fillable PDF |
+| `pdf-suite` | 📚 Project | Fillable PDFs + document comparison |
+| `toner-monitor` | 🖨️ Project | HP printer supply monitoring |
 
 </div>
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
-## Getting Started
+## 📦 Project Index
 
-Clone a specific project branch:
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🔧 IT Toolkit
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Version](https://img.shields.io/badge/version-2.0.0-1F6FEB?style=flat-square)
+
+Desktop suite for daily IT work. Reads and interprets Windows event logs, detects errors and potential issues, **suggests fixes**, and compiles them into a report.
+
+`Python` · `CustomTkinter` · `WMI`
+
+<details>
+<summary><b>Modules</b></summary>
+
+- Dashboard
+- Event log analysis + remediation hints
+- Network tools
+- Quick tools
+- Disks
+- Services
+- Inventory / system info
+- Reporting centre
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+
+### 📄 FormModernizer
+![Status](https://img.shields.io/badge/status-stable-1F6FEB?style=flat-square)
+![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
+
+Converts legacy Excel forms carrying VBA macros into modern **fillable PDF or Word** documents, preserving — or improving — the original automations.
+
+`Python` · `openpyxl` · `pypdf`
+
+<details>
+<summary><b>Why rule-based?</b></summary>
+
+VBA is parsed and translated offline with a deterministic rule engine. No AI API call, no data leaving the machine — a hard requirement for corporate forms.
+
+</details>
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📚 PDF Suite
+![Status](https://img.shields.io/badge/status-in%20progress-E3B341?style=flat-square)
+![Progress](https://img.shields.io/badge/progress-60%25-E3B341?style=flat-square)
+
+Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
+
+`Python` · `PDF` · `DOCX`
+
+<details>
+<summary><b>Remaining work</b></summary>
+
+- [ ] Graphical interface
+- [ ] Report generation
+- [ ] Test coverage
+- [ ] Packaging
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+
+### 🖨️ HP Toner Monitor
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
+
+Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
+
+`Python` · `SNMP` · `Selenium`
+
+<details>
+<summary><b>Collection chain</b></summary>
+
+`LEDM` → `SNMP` → `HTML scrape` → `browser fallback`
+
+Each method falls through to the next, so a proxy or a self-signed certificate warning never stops the run.
+
+</details>
+
+</td>
+</tr>
+</table>
+
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+
+## ⚡ Getting Started
+
+<details open>
+<summary><b>Clone a single project branch</b></summary>
 
 ```bash
-git clone --branch <branch-name> --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
+git clone --branch <branch-name> --single-branch \
+  https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
 
-Or clone everything and switch locally:
+</details>
+
+<details>
+<summary><b>Clone everything and switch locally</b></summary>
 
 ```bash
 git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
@@ -95,40 +214,79 @@ git branch -a
 git checkout <branch-name>
 ```
 
+</details>
+
 <details>
 <summary><b>Requirements</b></summary>
 
-<br />
+| Requirement | Version |
+| :--- | :--- |
+| Windows | 10 / 11 |
+| Python | 3.11+ |
+| Dependencies | per project, see `requirements.txt` in each branch |
 
-- Windows 10 / 11
-- Python 3.11 or newer
-- Dependencies are listed per project in the respective branch (`requirements.txt`)
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
 
 </details>
 
----
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
-## About
+## 🗺️ Roadmap
 
-Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, focused on automation, systems integration and making operational work less manual.
+```mermaid
+%%{init: {'theme':'dark'}}%%
+timeline
+    title Project pipeline
+    Shipped   : IT Toolkit v2.0.0
+              : FormModernizer
+              : HP Toner Monitor
+    Building  : PDF Suite — GUI and reports
+    Next      : Messaging bots (WhatsApp / Telegram)
+              : Unified launcher for all tools
+```
 
-<div align="center">
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+
+## 👤 About
+
+<table>
+<tr>
+<td valign="top" width="60%">
+
+Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, working across PMS, POS, networking and compliance, with a habit of turning manual operations into tooling.
+
+These projects are personal work, published under GPL-3.0 so anyone facing the same problems can reuse them.
+
+<br />
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RafaDevpt)
 
-</div>
+</td>
+<td valign="top" width="40%">
 
----
+<img src="https://github-readme-stats.vercel.app/api?username=RafaDevpt&show_icons=true&hide_border=true&bg_color=0D1117&title_color=1F6FEB&icon_color=6E5494&text_color=c9d1d9" width="100%" />
 
-## License
+</td>
+</tr>
+</table>
 
-Distributed under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for details.
+<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
 <div align="center">
 
+## 📜 License
+
+Distributed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+
+<br />
+
 <sub>Created by Redfox using Claude</sub>
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1F6FEB,100:6E5494&height=100&section=footer" alt="" />
+<img src="https://capsule-render.vercel.app/api?type=venom&color=0:1F6FEB,50:6E5494,100:0D1117&height=140&section=footer" alt="" />
 
 </div>
