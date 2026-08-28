@@ -5,9 +5,7 @@
 
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=venom&color=0:0D1117,50:6E5494,100:1F6FEB&height=230&section=header&text=PERSONAL%20AI%20PROJECTS&fontSize=44&fontColor=ffffff&fontAlignY=38&desc=Automation%20%E2%80%A2%20IT%20Operations%20%E2%80%A2%20AI-assisted%20tooling&descAlignY=56&descSize=16&animation=fadeIn" alt="Personal AI Projects" />
-
-<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=22&duration=3000&pause=800&color=1F6FEB&center=true&vCenter=true&multiline=false&width=700&lines=%3E+Turning+repetitive+IT+work+into+tools.;%3E+Legacy+forms+in.+Modern+PDFs+out.;%3E+24+printers%2C+zero+manual+checks.;%3E+Built+with+Python%2C+PowerShell+and+AI." alt="Typing intro" />
+<img src="Assets/header-terminal.svg" width="100%" alt="Personal AI Projects" />
 
 <br /><br />
 
