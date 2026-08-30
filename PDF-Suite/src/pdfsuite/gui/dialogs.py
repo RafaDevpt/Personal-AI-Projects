@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janelas auxiliares — definicoes e pesos dos criterios.
 
@@ -10,9 +9,9 @@ Created by Redfox using Claude
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
 from tkinter import filedialog, messagebox
-from typing import Callable
 
 import customtkinter as ctk
 

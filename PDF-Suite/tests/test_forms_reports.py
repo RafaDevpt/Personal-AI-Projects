@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes da deteccao de campos, da escrita do AcroForm, da leitura de
        documentos e dos relatorios.
@@ -26,7 +25,7 @@ from pathlib import Path
 import pytest
 
 from pdfsuite import extract, reports
-from pdfsuite.models import Campo, Documento, Origem, TipoCampo, nome_seguro_campo
+from pdfsuite.models import Campo, Documento, TipoCampo, nome_seguro_campo
 
 
 @pytest.fixture

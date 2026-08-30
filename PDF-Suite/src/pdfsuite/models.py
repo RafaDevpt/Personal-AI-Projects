@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Estruturas de dados partilhadas pelos dois modulos.
        Sem dependencias de GUI, de PDF ou de rede — e o que torna a logica

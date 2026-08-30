@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Analise de propostas — extraccao dos sinais que permitem compara-las.
 
@@ -206,7 +205,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
             if not re.search(r"\d", resto_da_linha):
                 continue
 
-            for valor, moeda_local, bruto, confianca_numero in montantes:
+            for valor, _moeda_local, bruto, confianca_numero in montantes:
                 # PT-PT: A procura e estritamente para a frente. Permitir uns
                 #        caracteres para tras parecia inofensivo e nao era: numa
                 #        tabela, a linha imediatamente acima do total acaba com

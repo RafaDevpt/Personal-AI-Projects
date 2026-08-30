@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pdf-suite"
-version = "1.0.0"
+version = "1.0.1"
 description = "Formulários PDF preenchíveis e comparação de documentos / Fillable PDF forms and document comparison"
 readme = "README.md"
 requires-python = ">=3.10"

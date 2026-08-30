@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Resumo de documentos.
 
@@ -46,22 +45,7 @@ log = logging.getLogger(__name__)
 #        as palavras-chave de qualquer documento sao «de», «a» e «para».
 # EN-UK: Words with no informational value, in Portuguese and English.
 VAZIAS: frozenset[str] = frozenset(
-    """
-    a o as os um uma uns umas de do da dos das em no na nos nas por para com
-    sem sob sobre ao aos à às e ou mas que se como quando onde qual quais
-    quem cujo cuja este esta estes estas esse essa esses essas aquele aquela
-    isto isso aquilo seu sua seus suas meu minha nosso nossa dele dela deles
-    delas lhe lhes me te nos vos já não sim também mais menos muito pouco
-    todo toda todos todas outro outra outros outras mesmo mesma cada qualquer
-    ser estar ter haver fazer poder dever ir vir dar ver saber é são foi foram
-    era eram será serão tem têm tinha havia há está estão pode podem deve
-    devem entre até desde após antes durante através bem mal assim então
-    porque pois logo ainda apenas só mesmo enquanto embora caso conforme
-    the of and to in for on with at by from as is are was were be been being
-    this that these those it its he she they we you i not no yes but or if
-    which who whom whose what when where how than then there here have has
-    had do does did can could shall should will would may might must
-    """.split()
+    ["a", "o", "as", "os", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em", "no", "na", "nos", "nas", "por", "para", "com", "sem", "sob", "sobre", "ao", "aos", "à", "às", "e", "ou", "mas", "que", "se", "como", "quando", "onde", "qual", "quais", "quem", "cujo", "cuja", "este", "esta", "estes", "estas", "esse", "essa", "esses", "essas", "aquele", "aquela", "isto", "isso", "aquilo", "seu", "sua", "seus", "suas", "meu", "minha", "nosso", "nossa", "dele", "dela", "deles", "delas", "lhe", "lhes", "me", "te", "nos", "vos", "já", "não", "sim", "também", "mais", "menos", "muito", "pouco", "todo", "toda", "todos", "todas", "outro", "outra", "outros", "outras", "mesmo", "mesma", "cada", "qualquer", "ser", "estar", "ter", "haver", "fazer", "poder", "dever", "ir", "vir", "dar", "ver", "saber", "é", "são", "foi", "foram", "era", "eram", "será", "serão", "tem", "têm", "tinha", "havia", "há", "está", "estão", "pode", "podem", "deve", "devem", "entre", "até", "desde", "após", "antes", "durante", "através", "bem", "mal", "assim", "então", "porque", "pois", "logo", "ainda", "apenas", "só", "mesmo", "enquanto", "embora", "caso", "conforme", "the", "of", "and", "to", "in", "for", "on", "with", "at", "by", "from", "as", "is", "are", "was", "were", "be", "been", "being", "this", "that", "these", "those", "it", "its", "he", "she", "they", "we", "you", "i", "not", "no", "yes", "but", "or", "if", "which", "who", "whom", "whose", "what", "when", "where", "how", "than", "then", "there", "here", "have", "has", "had", "do", "does", "did", "can", "could", "shall", "should", "will", "would", "may", "might", "must"]
 )
 
 # PT-PT: Fim de frase. O olhar para tras evita cortar em abreviaturas comuns e

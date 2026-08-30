@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Definicoes da aplicacao.
 
@@ -206,8 +205,8 @@ class AppConfig:
         PT-PT: Criterios com os pesos configurados aplicados.
         EN-UK: Criteria with the configured weights applied.
         """
-        from .scoring import CRITERIOS_OMISSAO
         from .models import Criterio
+        from .scoring import CRITERIOS_OMISSAO
 
         return [
             Criterio(

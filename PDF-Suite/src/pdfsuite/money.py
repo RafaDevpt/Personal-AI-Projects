@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Interpretacao de numeros, moeda e IVA.
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Matriz de decisao ponderada.
 
@@ -224,7 +223,7 @@ def comparar(
         ]
         conhecidos = [v for v in valores if v is not None]
 
-        for pontuacao, valor in zip(pontuacoes, valores):
+        for pontuacao, valor in zip(pontuacoes, valores, strict=True):
             pontuacao.valores[criterio.chave] = valor
             if valor is None:
                 pontuacao.em_falta.append(criterio.etiqueta)
@@ -237,9 +236,9 @@ def comparar(
             continue
 
         escala = normalizar(conhecidos, criterio.maior_melhor)
-        mapa = dict(zip(conhecidos, escala))
+        mapa = dict(zip(conhecidos, escala, strict=True))
 
-        for pontuacao, valor in zip(pontuacoes, valores):
+        for pontuacao, valor in zip(pontuacoes, valores, strict=True):
             if valor is not None:
                 pontuacao.por_criterio[criterio.chave] = mapa[valor]
 

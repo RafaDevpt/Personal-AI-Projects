@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janela principal do PDF Suite.
 
@@ -32,15 +31,16 @@ import logging
 import queue
 import threading
 import webbrowser
+from collections.abc import Callable
 from pathlib import Path
 from tkinter import filedialog, messagebox
-from typing import Any, Callable
+from typing import Any
 
 import customtkinter as ctk
 
 from .. import __app_name__, __credit__, __version__
 from ..config import AppConfig
-from ..extract import EXTENSOES, EXTENSOES_PDF, formatos_suportados
+from ..extract import EXTENSOES, formatos_suportados
 from ..models import Campo, Comparacao, Resumo
 from . import theme
 from .dialogs import JanelaDefinicoes, JanelaPesos

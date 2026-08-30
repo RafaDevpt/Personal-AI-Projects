@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Analise assistida por modelo — opcional.
 
@@ -56,14 +55,24 @@ log = logging.getLogger(__name__)
 #        on appendices that do not change the analysis.
 MAX_CARACTERES_POR_DOCUMENTO = 12_000
 
+# PT-PT: Os identificadores sao completos tal como estao — nao levam sufixo
+#        de data. O primeiro da lista e o que a aplicacao usa por omissao.
+#        Opus 5 para analise comparativa, Sonnet 5 quando o volume importa
+#        mais do que a profundidade, Haiku 4.5 para resumos simples e baratos.
+# EN-UK: The identifiers are complete as they stand — they take no date
+#        suffix. The first in the list is what the application uses by
+#        default. Opus 5 for comparative analysis, Sonnet 5 when volume
+#        matters more than depth, Haiku 4.5 for simple, cheap summaries.
 MODELOS: tuple[str, ...] = (
-    "claude-sonnet-4-6",
-    "claude-opus-4-5",
+    "claude-opus-5",
+    "claude-sonnet-5",
     "claude-haiku-4-5",
 )
 
+MODELO_OMISSAO = MODELOS[0]
 
-class IANaoDisponivel(RuntimeError):
+
+class IANaoDisponivelError(RuntimeError):
     """PT-PT: A analise assistida nao pode correr. / EN-UK: Assisted analysis cannot run."""
 
 
@@ -128,13 +137,26 @@ def resumo_do_envio(textos: list[tuple[str, str]]) -> str:
     if len(textos) > 6:
         nomes += f" e mais {len(textos) - 6}"
 
+    # PT-PT: O separador de milhares e convertido a parte. Aplicar o
+    #        .replace(",", ".") a frase inteira — como acontecia antes — trocava
+    #        tambem as virgulas do texto corrido e as que separam os nomes dos
+    #        documentos por pontos finais. Numa caixa de confirmacao que decide
+    #        se dados comerciais saem da maquina, o texto tem de estar certo.
+    # EN-UK: The thousands separator is converted on its own. Applying
+    #        .replace(",", ".") to the whole sentence — as it did before — also
+    #        turned the prose commas, and those separating the document names,
+    #        into full stops. In a confirmation box that decides whether
+    #        commercial data leaves the machine, the wording has to be right.
+    total_formatado = f"{total:,}".replace(",", ".")
+
     return (
-        f"Vão ser enviados {len(textos)} documento(s) — cerca de {total:,} "
-        f"caracteres — para a API da Anthropic.\n\n{nomes}\n\n"
+        f"Vão ser enviados {len(textos)} documento(s) — cerca de "
+        f"{total_formatado} caracteres — para a API da Anthropic."
+        f"\n\n{nomes}\n\n"
         "O conteúdo sai desta máquina. Se as propostas tiverem preços, "
         "contactos ou condições comerciais que não devam sair da empresa, "
         "cancele e use apenas a análise local, que faz tudo o resto."
-    ).replace(",", ".")
+    )
 
 
 def _cortar(texto: str) -> str:
@@ -154,7 +176,7 @@ def _pedir(prompt: str, sistema: str, chave: str, modelo: str, max_tokens: int =
     """
     pode, motivo = disponivel(chave)
     if not pode:
-        raise IANaoDisponivel(motivo)
+        raise IANaoDisponivelError(motivo)
 
     import anthropic
 
@@ -165,11 +187,32 @@ def _pedir(prompt: str, sistema: str, chave: str, modelo: str, max_tokens: int =
             model=modelo,
             max_tokens=max_tokens,
             system=sistema,
+            # PT-PT: Comparar propostas e uma tarefa de raciocinio, nao de
+            #        redaccao. O modo adaptativo deixa o modelo decidir quanto
+            #        precisa de pensar em cada documento.
+            # EN-UK: Comparing quotes is a reasoning task, not a writing one.
+            #        Adaptive mode lets the model decide how much thinking each
+            #        document needs.
+            thinking={"type": "adaptive"},
             messages=[{"role": "user", "content": prompt}],
         )
     except Exception as exc:  # noqa: BLE001 — a biblioteca tem a sua própria árvore
         log.error("Pedido à API falhou: %s", exc)
-        raise IANaoDisponivel(f"O pedido falhou: {exc}") from exc
+        raise IANaoDisponivelError(f"O pedido falhou: {exc}") from exc
+
+    # PT-PT: Uma recusa chega como resposta valida (HTTP 200) com
+    #        stop_reason "refusal" e conteudo vazio. Sem esta guarda, o
+    #        utilizador via uma analise em branco e nenhuma explicacao.
+    # EN-UK: A refusal arrives as a valid response (HTTP 200) with stop_reason
+    #        "refusal" and empty content. Without this guard the user saw a
+    #        blank analysis and no explanation.
+    if getattr(resposta, "stop_reason", "") == "refusal":
+        detalhe = getattr(resposta, "stop_details", None)
+        motivo = getattr(detalhe, "explanation", "") or "sem explicação"
+        raise IANaoDisponivelError(
+            f"O modelo recusou analisar este conteúdo ({motivo}). "
+            "A análise local continua disponível."
+        )
 
     partes = [
         bloco.text for bloco in resposta.content if getattr(bloco, "type", "") == "text"
@@ -198,7 +241,7 @@ SISTEMA_RESUMO = (
 
 
 def comparar_com_ia(
-    textos: list[tuple[str, str]], chave: str = "", modelo: str = "claude-sonnet-4-6"
+    textos: list[tuple[str, str]], chave: str = "", modelo: str = MODELO_OMISSAO
 ) -> str:
     """
     PT-PT: Analise qualitativa de varias propostas.
@@ -234,7 +277,7 @@ def comparar_com_ia(
 
 
 def resumir_com_ia(
-    nome: str, texto: str, chave: str = "", modelo: str = "claude-sonnet-4-6"
+    nome: str, texto: str, chave: str = "", modelo: str = MODELO_OMISSAO
 ) -> str:
     """
     PT-PT: Resumo em prosa de um documento.

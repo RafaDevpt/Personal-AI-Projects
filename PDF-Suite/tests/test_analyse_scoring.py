@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes da analise de propostas e da matriz de decisao.
        Trabalham sobre `Documento` construidos a mao, sem abrir ficheiro nenhum.

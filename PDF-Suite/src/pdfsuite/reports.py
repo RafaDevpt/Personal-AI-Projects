@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Relatorios em HTML e em Excel.
 
@@ -223,6 +222,18 @@ def relatorio_comparacao(comparacao: Comparacao) -> str:
         corpo.append(
             f'<div class="cartao"><div class="n" style="font-size:16px">{escape(barata)}</div>'
             '<div class="r">preço mais baixo</div></div>'
+        )
+        # PT-PT: A proposta mais cara era desempacotada e nunca mostrada. O
+        #        cartao dizia «entre a mais barata e a mais cara» e so
+        #        identificava uma das duas, obrigando a procurar a outra na
+        #        tabela.
+        # EN-UK: The most expensive quote was unpacked and never shown. The
+        #        card read "between the cheapest and the dearest" while naming
+        #        only one of the two, forcing a hunt through the table for the
+        #        other.
+        corpo.append(
+            f'<div class="cartao"><div class="n" style="font-size:16px">{escape(cara)}</div>'
+            '<div class="r">preço mais alto</div></div>'
         )
     corpo.append(
         f'<div class="cartao"><div class="n">{comparacao.taxa_iva_omissao:g}%</div>'
