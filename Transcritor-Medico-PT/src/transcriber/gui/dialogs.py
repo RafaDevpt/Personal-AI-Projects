@@ -19,6 +19,7 @@ import customtkinter as ctk
 from ..config import COMPUTE_TYPES, DEVICES, MODEL_SIZES, THEMES, AppConfig
 from ..corrections import CorrectionEngine
 from ..engine import MODEL_PROFILES
+from ..languages import choices as language_choices
 from . import theme
 
 _log = logging.getLogger(__name__)
@@ -168,6 +169,46 @@ class SettingsDialog(ctk.CTkToplevel):
             variable=self.vad_var,
         ).pack(anchor="w", pady=(0, theme.PAD_M))
 
+        # --- PT-PT: Língua / EN-UK: Language --------------------------------
+        self._section(container, "Língua / Language")
+
+        # PT-PT: A escolha da língua faz duas coisas ao mesmo tempo, e é útil
+        #        saber disso: diz ao modelo em que língua há-de ouvir, e escolhe
+        #        o pacote clínico — vocabulário, conversão de variante e
+        #        pontuação ditada. Em detecção automática o modelo continua a
+        #        transcrever bem, mas não há pacote nenhum a aplicar.
+        # EN-UK: The language choice does two things at once, and it helps to
+        #        know it: it tells the model which language to listen for, and
+        #        it picks the clinical pack — vocabulary, variant conversion and
+        #        dictated punctuation. Under automatic detection the model still
+        #        transcribes well, but there is no pack to apply.
+        self._escolhas_de_lingua = dict(language_choices())
+        self._rotulos_de_lingua = {v: k for k, v in self._escolhas_de_lingua.items()}
+
+        self.language_var = ctk.StringVar(
+            value=self._escolhas_de_lingua.get(
+                self.config_obj.language, next(iter(self._escolhas_de_lingua.values()))
+            )
+        )
+        self._label(container, "Língua do ditado / Dictation language")
+        ctk.CTkOptionMenu(
+            container,
+            variable=self.language_var,
+            values=list(self._escolhas_de_lingua.values()),
+            width=360,
+        ).pack(anchor="w", pady=(0, theme.PAD_S))
+
+        ctk.CTkLabel(
+            container,
+            text=(
+                "Em detecção automática não é aplicado nenhum pacote clínico.\n"
+                "Under automatic detection no clinical pack is applied."
+            ),
+            justify="left", anchor="w",
+            font=(theme.FONT_UI, theme.SIZE_SMALL),
+            text_color=theme.TEXT_MUTED,
+        ).pack(anchor="w", pady=(0, theme.PAD_M))
+
         # --- PT-PT: Correcções / EN-UK: Corrections ------------------------
         self._section(container, "Correcção de texto / Text correction")
 
@@ -183,6 +224,37 @@ class SettingsDialog(ctk.CTkToplevel):
             container,
             text="Aprender com as minhas edições / Learn from my edits",
             variable=self.learn_var,
+        ).pack(anchor="w", pady=(0, theme.PAD_S))
+
+        # PT-PT: Interruptor próprio porque é a transformação mais arriscada da
+        #        aplicação: quem disser «a vírgula decimal» vê a palavra virar
+        #        sinal. Quem não dita a pontuação em voz alta deve desligá-la.
+        # EN-UK: Its own switch because it is the riskiest transformation in the
+        #        application: anyone saying "the decimal comma" sees the word
+        #        turn into a mark. Anyone not dictating punctuation aloud should
+        #        switch it off.
+        self.punctuation_var = ctk.BooleanVar(
+            value=self.config_obj.spoken_punctuation
+        )
+        ctk.CTkSwitch(
+            container,
+            text=(
+                "Converter pontuação ditada / Convert dictated punctuation"
+            ),
+            variable=self.punctuation_var,
+        ).pack(anchor="w", pady=(0, theme.PAD_XS))
+
+        ctk.CTkLabel(
+            container,
+            text=(
+                "«ponto final» passa a «.», «novo parágrafo» passa a "
+                "quebra de linha.\n"
+                "\"full stop\" becomes \".\", \"new paragraph\" becomes a "
+                "line break."
+            ),
+            justify="left", anchor="w",
+            font=(theme.FONT_UI, theme.SIZE_SMALL),
+            text_color=theme.TEXT_MUTED,
         ).pack(anchor="w", pady=(0, theme.PAD_M))
 
         # --- PT-PT: Aspecto / EN-UK: Appearance ----------------------------
@@ -319,11 +391,12 @@ class SettingsDialog(ctk.CTkToplevel):
             model_size=self.model_var.get(),
             device=self.device_var.get(),
             compute_type=self.compute_var.get(),
-            language=self.config_obj.language,
+            language=self._rotulos_de_lingua[self.language_var.get()],
             beam_size=int(self.beam_var.get()),
             vad_filter=bool(self.vad_var.get()),
             apply_corrections=bool(self.corrections_var.get()),
             learn_from_edits=bool(self.learn_var.get()),
+            spoken_punctuation=bool(self.punctuation_var.get()),
             theme=self.theme_var.get(),
             editor_font_size=int(self.font_size_var.get()),
             include_timestamps=bool(self.timestamps_var.get()),

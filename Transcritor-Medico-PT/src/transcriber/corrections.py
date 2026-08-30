@@ -40,7 +40,7 @@ from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
 
-from .medical_terms import BRAZILIAN_TO_EUROPEAN, SPELLING_CORRECTIONS
+from .languages import DEFAULT_CODE, LanguagePack, resolve
 
 _log = logging.getLogger(__name__)
 
@@ -61,8 +61,15 @@ class CorrectionEngine:
     EN-UK: Applies and learns clinical text corrections.
     """
 
-    def __init__(self, store_path: Path) -> None:
+    def __init__(self, store_path: Path, language: str = DEFAULT_CODE) -> None:
         """
+        :param language:
+            PT-PT: Código do pacote de língua a usar. Uma língua sem pacote
+                   curado é aceite: o motor fica sem tabelas embutidas e
+                   trabalha apenas com o que o utilizador lhe ensinar.
+            EN-UK: Code of the language pack to use. A language with no curated
+                   pack is accepted: the engine is left with no built-in tables
+                   and works only from what the user teaches it.
         :param store_path:
             PT-PT: Ficheiro JSON onde as correcções aprendidas são guardadas.
                    Contém texto derivado de transcrições reais, pelo que é
@@ -72,13 +79,17 @@ class CorrectionEngine:
                    data and must never go into version control.
         """
         self.store_path = store_path
+        self.pack: LanguagePack | None = resolve(language)
         self.learned: dict[str, str] = {}
+        self._punct_pattern: re.Pattern[str] | None = None
+        self._punct_lookup: dict[str, str] = {}
         self.stats: dict[str, object] = {"total_edits": 0, "last_updated": None}
         self._pattern: re.Pattern[str] | None = None
         self._lookup: dict[str, str] = {}
 
         self.load()
         self._rebuild_pattern()
+        self._rebuild_punctuation()
 
     # -----------------------------------------------------------------------
     # PT-PT: Persistência / EN-UK: Persistence
@@ -152,9 +163,14 @@ class CorrectionEngine:
                that matches, not the longest one.
         """
         self._lookup = {}
+        embutidas: tuple[dict[str, str] | object, ...] = (
+            (self.pack.spelling_corrections, self.pack.regional_conversions)
+            if self.pack
+            else ()
+        )
         # PT-PT: Prioridade crescente — o aprendido sobrepõe-se ao embutido.
         # EN-UK: Increasing priority — learned overrides built-in.
-        for source in (SPELLING_CORRECTIONS, BRAZILIAN_TO_EUROPEAN, self.learned):
+        for source in (*embutidas, self.learned):
             for wrong, right in source.items():
                 if wrong.strip() and wrong.lower() != right.lower():
                     self._lookup[wrong.lower()] = right
@@ -174,6 +190,126 @@ class CorrectionEngine:
             rf"(?<!\w)(?:{joined})(?!\w)",
             re.IGNORECASE | re.UNICODE,
         )
+
+    def _rebuild_punctuation(self) -> None:
+        r"""
+        PT-PT: Compila as expressões de pontuação ditada numa única regex.
+
+               O `\s*` inicial é o que faz a diferença entre «isto ponto
+               final» dar «isto.» e dar «isto .». O espaço que precedia a
+               expressão falada é consumido pela substituição, porque em
+               tipografia o sinal cola-se à palavra anterior.
+
+               Nas línguas que exigem espaço antes do sinal — o francês, com o
+               seu espaço fino inseparável — esse espaço vem já dentro do
+               próprio sinal, definido no pacote. Consumir o espaço anterior e
+               deixar o pacote repor o que a norma manda é o que permite tratar
+               todas as línguas com o mesmo código.
+
+        EN-UK: Compiles the dictated punctuation expressions into one regex.
+
+               The leading `\s*` is what separates "this full stop" yielding
+               "this." from yielding "this .". The space preceding the spoken
+               expression is consumed by the replacement, because typography
+               attaches the mark to the preceding word.
+
+               In languages requiring a space before the mark — French, with
+               its narrow no-break space — that space is carried inside the
+               mark itself, defined in the pack. Consuming the preceding space
+               and letting the pack restore what the standard requires is what
+               allows one piece of code to serve every language.
+        """
+        pares = self.pack.spoken_punctuation if self.pack else ()
+        if not pares:
+            self._punct_pattern = None
+            self._punct_lookup = {}
+            return
+
+        self._punct_lookup = {frase.lower(): sinal for frase, sinal in pares}
+        # PT-PT: A ordem vem do pacote, da expressão mais longa para a mais
+        #        curta, e o sanity_check recusa qualquer pacote que a quebre.
+        # EN-UK: The order comes from the pack, longest expression to shortest,
+        #        and sanity_check rejects any pack that breaks it.
+        juntas = "|".join(re.escape(frase) for frase, _ in pares)
+        self._punct_pattern = re.compile(
+            rf"\s*(?<!\w)(?:{juntas})(?!\w)",
+            re.IGNORECASE | re.UNICODE,
+        )
+
+    def apply_spoken_punctuation(self, text: str) -> str:
+        """
+        PT-PT: Converte pontuação dita em voz alta nos sinais correspondentes.
+
+               Em ditado clínico é prática corrente dizer «ponto final» e
+               «novo parágrafo» em voz alta, e o modelo transcreve-os como
+               palavras. Esta é a conversão inversa.
+
+               É também a transformação mais arriscada da aplicação, e por isso
+               tem um interruptor próprio nas definições: se alguém disser «a
+               vírgula decimal», a palavra é substituída pelo sinal. Não há
+               forma de distinguir os dois casos sem perceber a frase, e uma
+               aplicação que corrige texto clínico não deve adivinhar.
+
+        EN-UK: Converts punctuation spoken aloud into the matching marks.
+
+               In clinical dictation it is standard practice to say "full stop"
+               and "new paragraph" aloud, and the model transcribes them as
+               words. This is the inverse conversion.
+
+               It is also the riskiest transformation in the application, which
+               is why it has its own switch in the settings: if somebody says
+               "the decimal comma", the word is replaced by the mark. There is
+               no way to tell the two apart without understanding the sentence,
+               and an application correcting clinical text should not guess.
+
+        :param text:
+            PT-PT: Texto transcrito. / EN-UK: Transcribed text.
+        :return:
+            PT-PT: Texto com os sinais no lugar das palavras.
+            EN-UK: Text with marks in place of the words.
+        """
+        if not text or self._punct_pattern is None:
+            return text
+
+        def _trocar(match: re.Match[str]) -> str:
+            frase = match.group(0).strip().lower()
+            return self._punct_lookup.get(frase, match.group(0))
+
+        text = self._punct_pattern.sub(_trocar, text)
+
+        # PT-PT: Os sinais que abrem linha — parágrafo, nova linha — deixam
+        #        atrás de si o espaço que separava as duas palavras faladas:
+        #        «novo parágrafo objectivo» dava «\n\n objectivo», com a linha
+        #        a começar por um espaço. Só a quebra de linha tem este
+        #        problema, porque é o único sinal a seguir ao qual um espaço
+        #        não é bem-vindo.
+        # EN-UK: Marks that open a line — paragraph, new line — leave behind
+        #        the space that separated the two spoken words: "new paragraph
+        #        on examination" gave "\n\n on examination", with the line
+        #        starting on a space. Only the line break has this problem,
+        #        being the one mark after which a space is unwelcome.
+        return re.sub(r"[ \t]*\n[ \t]*", "\n", text)
+
+    def set_language(self, language: str) -> None:
+        """
+        PT-PT: Troca o pacote de língua e recompila as expressões regulares.
+
+               As correcções aprendidas não são tocadas: são do utilizador, não
+               da língua, e quem dita em duas línguas costuma corrigir os mesmos
+               nomes próprios em ambas.
+
+        EN-UK: Switches the language pack and recompiles the regular expressions.
+
+               Learned corrections are left alone: they belong to the user, not
+               to the language, and anyone dictating in two languages tends to
+               correct the same proper nouns in both.
+
+        :param language:
+            PT-PT: Código do novo pacote. / EN-UK: Code of the new pack.
+        """
+        self.pack = resolve(language)
+        self._rebuild_pattern()
+        self._rebuild_punctuation()
 
     # -----------------------------------------------------------------------
     # PT-PT: Aplicação / EN-UK: Application
@@ -264,21 +400,41 @@ class CorrectionEngine:
         text = re.sub(r"\n{3,}", "\n\n", text)
         return text.strip()
 
-    def apply(self, text: str) -> str:
+    def apply(self, text: str, spoken_punctuation: bool = True) -> str:
         """
         PT-PT: Executa a cadeia completa de correcção.
         EN-UK: Runs the full correction chain.
 
-        PT-PT: A ordem é deliberada — o dicionário primeiro (pode introduzir
-               pontuação, como em "raio x" -> "raio-x"), a capitalização
-               depois, e a limpeza de espaços no fim.
-        EN-UK: The order is deliberate — dictionary first (it can introduce
-               punctuation, as in "raio x" -> "raio-x"), capitalisation next,
-               and whitespace tidying last.
+        PT-PT: A ordem é deliberada, e cada passo depende do anterior. O
+               dicionário primeiro, porque pode introduzir pontuação — «raio x»
+               dá «raio-x». A pontuação ditada a seguir, porque é ela que cria
+               os fins de frase. A capitalização depois disso, para apanhar as
+               frases que a pontuação acabou de criar; ao contrário, «ponto
+               final» seria convertido depois de a capitalização já ter
+               passado, e a frase seguinte ficaria em minúscula. A limpeza de
+               espaços no fim, para varrer o que os passos anteriores deixaram.
+
+        EN-UK: The order is deliberate, and each step depends on the one
+               before. Dictionary first, because it can introduce punctuation —
+               "raio x" gives "raio-x". Dictated punctuation next, because it
+               is what creates the sentence endings. Capitalisation after that,
+               to catch the sentences punctuation has just created; the other
+               way round, "full stop" would be converted after capitalisation
+               had already run, and the following sentence would stay in lower
+               case. Whitespace tidying last, to sweep up what the earlier
+               steps left behind.
+
+        :param text:
+            PT-PT: Texto a corrigir. / EN-UK: Text to correct.
+        :param spoken_punctuation:
+            PT-PT: Converter pontuação dita em voz alta.
+            EN-UK: Convert punctuation spoken aloud.
         """
         if not text:
             return text
         text = self.apply_dictionary(text)
+        if spoken_punctuation:
+            text = self.apply_spoken_punctuation(text)
         text = self.normalise_capitalisation(text)
         return self.tidy_whitespace(text)
 
@@ -411,7 +567,13 @@ class CorrectionEngine:
         EN-UK: Figures for display in the interface.
         """
         return {
-            "built_in_terms": len(SPELLING_CORRECTIONS) + len(BRAZILIAN_TO_EUROPEAN),
+            "language": self.pack.code if self.pack else "—",
+            "language_name": self.pack.name_native if self.pack else "sem pacote",
+            "built_in_terms": (
+                len(self.pack.spelling_corrections) + len(self.pack.regional_conversions)
+                if self.pack
+                else 0
+            ),
             "learned_terms": len(self.learned),
             "total_edits": self.stats.get("total_edits", 0),
             "last_updated": self.stats.get("last_updated"),

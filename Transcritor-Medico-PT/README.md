@@ -15,6 +15,8 @@
 ## Índice · Contents
 
 - [O que faz](#o-que-faz--what-it-does)
+- [Ditado](#ditado--dictation)
+- [Línguas](#línguas--languages)
 - [Instalação](#instalação--installation)
 - [Utilização](#utilização--usage)
 - [Escolher o modelo](#escolher-o-modelo--choosing-the-model)
@@ -45,6 +47,157 @@ and applied to subsequent transcriptions.
 | **Aprende consigo** | Cada edição sua vira regra, revisível e removível na janela *Dicionário*. |
 | **Exportação** | `.txt` (UTF-8 com BOM, quebras de linha Windows) e `.md` com metadados. |
 | **Modo lote** | `--batch` transcreve uma pasta inteira sem interface, para o Agendador de Tarefas. |
+
+---
+
+## Ditado · Dictation
+
+**PT** · A aplicação grava directamente do microfone. Carregue em **Ditar**
+(ou `F2`) e a janela de ditado abre em ecrã inteiro.
+
+**EN** · The application records straight from the microphone. Press
+**Dictate** (or `F2`) and the dictation window opens full screen.
+
+| Tecla · Key | Acção · Action |
+| :--- | :--- |
+| `Espaço` · `Space` | Gravar; depois alterna pausa e retoma · Record; then toggles pause and resume |
+| `Enter` | Terminar e transcrever · Finish and transcribe |
+| `Esc` | Fechar sem transcrever · Close without transcribing |
+
+**PT** · A janela foi desenhada para ser lida do outro lado da secretária,
+porque durante uma consulta ninguém está a olhar para o ecrã. O cronómetro é
+grande de propósito, e o **medidor de nível** é a peça mais importante: um
+cronómetro a andar prova que a aplicação está viva, mas não prova que o
+microfone está ligado. A diferença entre as duas coisas é uma consulta inteira
+ditada para o vazio. Se o nível ficar no fundo mais de três segundos com a
+gravação a correr, a janela avisa.
+
+**EN** · The window is designed to be read from across the desk, because during
+a consultation nobody is looking at the screen. The timer is large on purpose,
+and the **level meter** is the most important part: a running timer proves the
+application is alive, but it does not prove the microphone is connected. The
+difference between the two is a whole consultation dictated into nothing. If
+the level sits on the floor for more than three seconds while recording, the
+window says so.
+
+### O que é gravado · What is recorded
+
+**PT** · 16 kHz, mono, 16 bits — exactamente o que o modelo consome, sem
+reamostragem. Um minuto ocupa 1,9 MB. O ficheiro é escrito em disco à medida
+que grava, e não acumulado em memória: uma falha de energia a meio deixa o que
+já foi dito.
+
+**O áudio nunca é apagado**, nem depois de transcrito, nem ao cancelar. O áudio
+é a fonte e o texto é a interpretação; quem revê uma nota clínica tem de poder
+voltar ao que foi realmente dito.
+
+**EN** · 16 kHz, mono, 16-bit — exactly what the model consumes, with no
+resampling. A minute takes 1.9 MB. The file is written to disk as it records
+rather than accumulated in memory: a power cut halfway through leaves what was
+already said.
+
+**The audio is never deleted**, neither after transcription nor on cancelling.
+The audio is the source and the text is the interpretation; anyone reviewing a
+clinical note must be able to return to what was actually said.
+
+**PT** · O ditado precisa da biblioteca `sounddevice`, que é opcional. Sem ela,
+ou sem microfone, a aplicação transcreve ficheiros como sempre fez e o botão de
+ditado explica o que falta.
+
+**EN** · Dictation needs the `sounddevice` library, which is optional. Without
+it, or without a microphone, the application transcribes files as it always did
+and the dictation button explains what is missing.
+
+---
+
+## Línguas · Languages
+
+**PT** · A transcrição funciona em qualquer das cerca de cem línguas que o
+modelo reconhece. O que **não** é automático é a camada clínica: os erros que o
+modelo comete são próprios de cada língua, a pontuação ditada diz-se por
+palavras diferentes, e o vocabulário a proteger muda com o país. Essa parte é
+escrita à mão, e existe para quatro línguas.
+
+**EN** · Transcription works in any of the hundred or so languages the model
+recognises. What is **not** automatic is the clinical layer: the mistakes the
+model makes are particular to each language, dictated punctuation is spoken
+with different words, and the vocabulary worth protecting changes with the
+country. That part is written by hand, and exists for four languages.
+
+| Pacote · Pack | Conversão de variante · Variant conversion |
+| :--- | :--- |
+| **Português (Portugal)** | Brasileiro → europeu · Brazilian → European |
+| **English (United Kingdom)** | Americano → britânico · American → British |
+| **Español (España)** | Latino-americano → de Espanha · Latin American → Spain |
+| **Français (France)** | Canadiano → de França · Canadian → France |
+
+**PT** · A conversão de variante é a correcção de maior impacto de toda a
+aplicação, e a razão é a mesma nas quatro línguas: os modelos são treinados
+sobretudo com a variante maioritária, que não é a europeia. Em português
+escrevem «vômito» e «usuário»; em inglês, «hemoglobin» e «anemia»; em espanhol,
+«computadora»; em francês, formas do Quebeco.
+
+**EN** · Variant conversion is the highest-impact correction in the whole
+application, and the reason is the same in all four languages: the models are
+trained mostly on the majority variant, which is not the European one. In
+Portuguese they write "vômito" and "usuário"; in English, "hemoglobin" and
+"anemia"; in Spanish, "computadora"; in French, Quebec forms.
+
+### Duas notas de segurança · Two safety notes
+
+**PT** · Os pacotes **não** corrigem nomes de fármacos parecidos entre si.
+Trocar «hydralazine» por «hydroxyzine» mata pessoas, e um dicionário de
+substituição automática não tem informação nenhuma para decidir qual era. Esses
+nomes estão no vocabulário protegido — que ajuda o modelo a ouvir bem à
+primeira — e nunca nas tabelas de substituição.
+
+Pela mesma razão, as abreviaturas da lista proibida do ISMP não são expandidas
+automaticamente. Estão nessa lista precisamente por serem ambíguas.
+
+**EN** · The packs do **not** correct between look-alike drug names. Turning
+"hydralazine" into "hydroxyzine" kills people, and an automatic substitution
+dictionary has no information with which to decide which was meant. Those names
+live in the protected vocabulary — which helps the model hear correctly first
+time — and never in the substitution tables.
+
+For the same reason, abbreviations on the ISMP do-not-use list are not expanded
+automatically. They are on that list precisely because they are ambiguous.
+
+### Pontuação ditada · Dictated punctuation
+
+**PT** · Dizer «ponto final» ou «novo parágrafo» em voz alta é prática corrente
+em ditado clínico, e o modelo transcreve-as como palavras. A aplicação
+converte-as nos sinais correspondentes, em cada uma das quatro línguas — e no
+francês respeita o espaço fino inseparável que a norma exige antes dos sinais
+duplos.
+
+É a transformação mais arriscada da aplicação, e por isso tem interruptor
+próprio nas definições: quem disser «a vírgula decimal» vê a palavra virar
+sinal. Não há forma de distinguir os dois casos sem perceber a frase, e uma
+aplicação que corrige texto clínico não deve adivinhar.
+
+**EN** · Saying "full stop" or "new paragraph" aloud is standard practice in
+clinical dictation, and the model transcribes them as words. The application
+converts them into the matching marks, in each of the four languages — and in
+French it respects the narrow no-break space the standard requires before
+double marks.
+
+It is the riskiest transformation in the application, and so has its own switch
+in the settings: anyone saying "the decimal comma" sees the word turn into a
+mark. There is no way to tell the two apart without understanding the sentence,
+and an application correcting clinical text should not guess.
+
+### Acrescentar uma língua · Adding a language
+
+**PT** · Copie um ficheiro de `src/transcriber/languages/`, traduza as quatro
+tabelas e registe o pacote em `PACKS`. Não é preciso escrever um único teste:
+os testes correm sobre todos os pacotes registados, e recusam tabelas com
+entradas inúteis ou com a pontuação fora de ordem.
+
+**EN** · Copy a file from `src/transcriber/languages/`, translate the four
+tables and register the pack in `PACKS`. There is no need to write a single
+test: the tests run over every registered pack, and reject tables with useless
+entries or out-of-order punctuation.
 
 ---
 
@@ -122,6 +275,9 @@ No Windows pode usar o `EXECUTAR.bat` incluído.
 5. **Exportar .txt** (`Ctrl+S`)
 
 ### Atalhos · Shortcuts
+
+**PT** · `F2` abre o modo de ditado. É a única tecla necessária para começar a trabalhar.
+**EN** · `F2` opens dictation mode. It is the only key needed to start working.
 
 | Atalho | Ação · Action |
 |---|---|
@@ -242,11 +398,18 @@ portuguese-medical-transcriber/
 │   ├── config.py          Definições persistidas em JSON
 │   ├── logging_setup.py   Registo rotativo
 │   ├── engine.py          faster-whisper
+│   ├── recorder.py        Gravação pelo microfone
 │   ├── corrections.py     Dicionário e aprendizagem
-│   ├── medical_terms.py   Vocabulário clínico (editável sem saber programar)
 │   ├── exporters.py       .txt e .md
+│   ├── languages/         Pacotes clínicos, um por língua
+│   │   ├── __init__.py    LanguagePack e registo
+│   │   ├── pt_pt.py       Português europeu
+│   │   ├── en_gb.py       Inglês britânico
+│   │   ├── es_es.py       Espanhol de Espanha
+│   │   └── fr_fr.py       Francês de França
 │   └── gui/
 │       ├── app.py         Janela principal
+│       ├── dictation.py   Modo de ditado em ecrã inteiro
 │       ├── dialogs.py     Definições, dicionário, localizar
 │       └── theme.py       Cores, tipos de letra, espaçamentos
 ├── tests/
@@ -255,7 +418,7 @@ portuguese-medical-transcriber/
 ```
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-O ficheiro `medical_terms.py` contém apenas dados, para poder ser revisto por
+Os ficheiros de `languages/` contêm apenas dados, para poderem ser revistos por
 pessoal clínico sem conhecimentos de programação.
 
 **EN** · All code is commented in European Portuguese and British English. The

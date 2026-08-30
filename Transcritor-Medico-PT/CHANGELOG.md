@@ -8,6 +8,52 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [5.0.0] — 2026-08-30
+
+**PT** · Ditado pelo microfone e suporte multilingue.
+**EN** · Microphone dictation and multilingual support.
+
+### Adicionado · Added
+
+- **Modo de ditado em ecrã inteiro** (`F2`). A aplicação passa a gravar do
+  microfone: até aqui só transcrevia ficheiros gravados noutro lado, o que
+  obrigava a um gravador de mão e a copiar ficheiros para uma pasta antes de
+  ver texto. Cronómetro grande, medidor de nível, e aviso quando não se ouve
+  nada há mais de três segundos — a diferença entre «a aplicação está viva» e
+  «o microfone está ligado» é uma consulta inteira ditada para o vazio
+- **Quatro pacotes clínicos**: português europeu, inglês britânico, espanhol de
+  Espanha e francês de França, cada um com vocabulário protegido, conversão de
+  variante regional e pontuação ditada próprios. A transcrição passa a
+  funcionar em qualquer língua que o modelo reconheça; a camada clínica aplica-
+  se nestas quatro
+- `recorder.py` — gravação a 16 kHz mono, escrita em disco à medida que grava.
+  O `sounddevice` é opcional: sem ele a aplicação transcreve ficheiros como
+  sempre fez e o ditado explica o que falta
+- Escolha de língua e interruptor de pontuação ditada nas definições
+
+### Corrigido · Fixed
+
+- **A pontuação ditada nunca era aplicada.** A tabela `SPOKEN_PUNCTUATION`
+  existia desde a primeira versão, era validada pelos testes e estava
+  documentada — mas nenhum código a usava. Dizer «ponto final» em voz alta
+  deixava a palavra escrita no texto. Passa a ser convertida, nas quatro
+  línguas, com um interruptor próprio por ser a transformação mais arriscada da
+  aplicação
+
+### Alterado · Changed
+
+- **`medical_terms.py` deixou de existir.** Os dados vivem agora em
+  `languages/`, um ficheiro por língua, com a mesma regra de sempre: apenas
+  dados, revisíveis por pessoal clínico sem perceber de código
+- Configurações antigas continuam a funcionar: o código curto `"pt"` é
+  reconhecido e convertido para `"pt-PT"` ao carregar
+- Escala tipográfica subiu um ponto em todos os níveis. Não é estética: a 12
+  pontos, num painel de 14 polegadas, o corpo de texto obrigava a aproximar-se
+  do ecrã — e aproximar-se do ecrã durante uma consulta é tempo em que não se
+  está a olhar para o doente
+
+---
+
 ## [4.0.1] — 2026-08-30
 
 **PT** · Correcções, saneamento e integração contínua.

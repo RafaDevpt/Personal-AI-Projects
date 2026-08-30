@@ -36,6 +36,7 @@ from ..engine import MODEL_PROFILES, TranscriptionEngine, TranscriptionError, Tr
 from ..exporters import build_header, export_markdown, export_txt, safe_filename
 from . import theme
 from .dialogs import CorrectionsDialog, FindReplaceDialog, SettingsDialog
+from .dictation import DictationWindow
 
 _log = logging.getLogger(__name__)
 
@@ -58,7 +59,10 @@ class TranscriberApp(ctk.CTk):
         self.config_obj = config
         self.config_obj.ensure_directories()
 
-        self.corrections = CorrectionEngine(default_data_dir() / "learned_corrections.json")
+        self.corrections = CorrectionEngine(
+            default_data_dir() / "learned_corrections.json",
+            language=config.language,
+        )
         self.engine = TranscriptionEngine(config)
 
         # PT-PT: Estado da sessão / EN-UK: Session state
@@ -196,6 +200,20 @@ class TranscriberApp(ctk.CTk):
         )
         self.model_label.pack(fill="x", pady=(0, theme.PAD_S))
         self._update_model_label()
+
+        # PT-PT: O ditado vem primeiro porque é o começo do trabalho: numa
+        #        consulta dita-se e só depois se transcreve. Transcrever um
+        #        ficheiro já existente é o caso menos frequente, e fica abaixo.
+        # EN-UK: Dictation comes first because it is where the work starts: in a
+        #        consultation you dictate and only then transcribe.
+        #        Transcribing an existing file is the rarer case, and sits below.
+        self.dictate_button = ctk.CTkButton(
+            actions, text="●  Ditar / Dictate      F2", height=44,
+            font=(self.ui_font, theme.SIZE_BODY, "bold"),
+            fg_color=theme.DANGER, hover_color=theme.ACCENT_HOVER,
+            command=self.open_dictation,
+        )
+        self.dictate_button.pack(fill="x", pady=(0, theme.PAD_S))
 
         self.transcribe_button = ctk.CTkButton(
             actions, text="Transcrever  ▸", height=40,
@@ -349,6 +367,66 @@ class TranscriberApp(ctk.CTk):
         )
         self.count_label.grid(row=1, column=1, sticky="e")
 
+    def open_dictation(self) -> None:
+        """
+        PT-PT: Abre o modo de ditado em ecrã inteiro.
+
+               A janela fica modal por decisão: ditar é uma coisa de cada vez, e
+               deixar a janela principal acessível por trás convidava a mexer na
+               lista de ficheiros a meio de uma gravação.
+
+        EN-UK: Opens full-screen dictation mode.
+
+               The window is modal by decision: dictating is one thing at a
+               time, and leaving the main window reachable behind it invited
+               fiddling with the file list mid-recording.
+        """
+        if self.worker and self.worker.is_alive():
+            self.set_status(
+                "Aguarde o fim da transcrição. / Wait for the transcription to finish."
+            )
+            return
+
+        DictationWindow(self, self.config_obj, self._on_dictation_finished)
+
+    def _on_dictation_finished(self, audio_path: Path) -> None:
+        """
+        PT-PT: Recebe a gravação e transcreve-a de imediato.
+
+               A lista é relida para o ficheiro novo aparecer, e a selecção
+               salta para ele. Quem acabou de ditar quer ver o texto, não
+               procurar o ficheiro numa lista.
+
+        EN-UK: Receives the recording and transcribes it straight away.
+
+               The list is re-read so the new file appears, and the selection
+               jumps to it. Whoever has just dictated wants to see the text,
+               not hunt for the file in a list.
+
+        :param audio_path:
+            PT-PT: WAV acabado de gravar. / EN-UK: The WAV just recorded.
+        """
+        self.refresh_file_list()
+
+        try:
+            índice = self.audio_files.index(audio_path)
+        except ValueError:
+            # PT-PT: Gravado fora da pasta de trabalho. Não é erro; apenas não
+            #        há nada na lista para seleccionar.
+            # EN-UK: Recorded outside the working folder. Not an error; there is
+            #        simply nothing in the list to select.
+            self.set_status(
+                f"Gravado: {audio_path.name} / Recorded: {audio_path.name}"
+            )
+            return
+
+        self.select_file(índice)
+        self.set_status(
+            f"Ditado gravado ({audio_path.name}). A transcrever… / "
+            f"Dictation recorded. Transcribing…"
+        )
+        self.start_transcription()
+
     def _bind_shortcuts(self) -> None:
         """
         PT-PT: Atalhos de teclado.
@@ -367,6 +445,11 @@ class TranscriberApp(ctk.CTk):
         self.bind("<Control-d>", lambda _e: self.apply_dictionary_to_editor())
         self.bind("<Control-r>", lambda _e: self.start_transcription())
         self.bind("<F5>", lambda _e: self.refresh_file_list())
+        # PT-PT: F2 abre o ditado. É uma tecla só, alcançável sem olhar, e não
+        #        colide com nada do editor de texto.
+        # EN-UK: F2 opens dictation. A single key, reachable without looking,
+        #        colliding with nothing in the text editor.
+        self.bind("<F2>", lambda _e: self.open_dictation())
 
     # -----------------------------------------------------------------------
     # PT-PT: Gestão de ficheiros / EN-UK: File management
@@ -630,7 +713,9 @@ class TranscriberApp(ctk.CTk):
         )
 
         if self.config_obj.apply_corrections:
-            text = self.corrections.apply(text)
+            text = self.corrections.apply(
+                text, spoken_punctuation=self.config_obj.spoken_punctuation
+            )
 
         self.editor.delete("1.0", "end")
         self.editor.insert("1.0", text)
@@ -709,7 +794,9 @@ class TranscriberApp(ctk.CTk):
         if not current.strip():
             return
 
-        corrected = self.corrections.apply(current)
+        corrected = self.corrections.apply(
+            current, spoken_punctuation=self.config_obj.spoken_punctuation
+        )
         if corrected == current:
             self.set_status("Nenhuma correcção a aplicar. / No corrections to apply.")
             return
@@ -854,6 +941,17 @@ class TranscriberApp(ctk.CTk):
         SettingsDialog(self, self.config_obj, self._apply_settings)
 
     def _apply_settings(self, new_config: AppConfig) -> None:
+        # PT-PT: Trocar de língua nas definições tem de trocar as tabelas
+        #        carregadas. Sem esta linha a interface mostrava francês e a
+        #        aplicação continuava a corrigir português, sem indício nenhum
+        #        de que algo estava errado.
+        # EN-UK: Changing language in the settings must change the loaded
+        #        tables. Without this line the interface said French while the
+        #        application went on correcting Portuguese, with no hint at all
+        #        that anything was wrong.
+        if new_config.language != self.config_obj.language:
+            self.corrections.set_language(new_config.language)
+
         """
         PT-PT: Aplica definições novas e recarrega o que for necessário.
 

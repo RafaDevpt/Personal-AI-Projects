@@ -17,6 +17,14 @@ faster-whisper>=1.0.3,<2.0
 #        não traz nenhum motor gráfico próprio. Licença MIT.
 # EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
 #        brings no graphics engine of its own. MIT-licensed.
+# PT-PT: Gravacao pelo microfone, para o modo de ditado. E opcional: sem ela a
+#        aplicacao transcreve ficheiros como sempre fez, e o ditado diz porque
+#        e que nao esta disponivel em vez de rebentar.
+# EN-UK: Microphone recording, for dictation mode. Optional: without it the
+#        application transcribes files as it always did, and dictation explains
+#        why it is unavailable rather than crashing.
+sounddevice>=0.4.6,<0.6
+
 customtkinter>=5.2.2,<6.0
 
 # ===========================================================================

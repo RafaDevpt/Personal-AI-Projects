@@ -120,7 +120,10 @@ def run_batch(config: AppConfig) -> int:
         return 2
 
     engine = TranscriptionEngine(config)
-    corrections = CorrectionEngine(default_data_dir() / "learned_corrections.json")
+    corrections = CorrectionEngine(
+        default_data_dir() / "learned_corrections.json",
+        language=config.language,
+    )
     failures = 0
 
     print(f"{len(files)} ficheiro(s) a transcrever com o modelo '{config.model_size}'.\n")
@@ -136,7 +139,9 @@ def run_batch(config: AppConfig) -> int:
 
         text = result.plain_text()
         if config.apply_corrections:
-            text = corrections.apply(text)
+            text = corrections.apply(
+                text, spoken_punctuation=config.spoken_punctuation
+            )
 
         destination = config.output_dir / f"{safe_filename(audio_path.stem)}.txt"
         try:

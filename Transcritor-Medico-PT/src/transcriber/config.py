@@ -22,6 +22,8 @@ from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
+from . import languages
+
 _log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -33,6 +35,14 @@ MODEL_SIZES: tuple[str, ...] = ("tiny", "base", "small", "medium", "large-v3")
 COMPUTE_TYPES: tuple[str, ...] = ("int8", "int8_float16", "float16", "float32")
 DEVICES: tuple[str, ...] = ("auto", "cpu", "cuda")
 THEMES: tuple[str, ...] = ("system", "light", "dark")
+
+# PT-PT: Línguas oferecidas na interface. "auto" deixa o modelo detectar a
+#        língua a partir do áudio; nesse caso não há pacote clínico aplicável e
+#        o texto sai como o modelo o escreveu, sem correcção de variante.
+# EN-UK: Languages offered in the interface. "auto" lets the model detect the
+#        language from the audio; in that case no clinical pack applies and the
+#        text comes out as the model wrote it, with no variant correction.
+LANGUAGES: tuple[str, ...] = (languages.AUTO_CODE, *languages.PACKS)
 
 # PT-PT: Formatos de áudio aceites pelo ffmpeg que a aplicação lista.
 # EN-UK: Audio formats supported by ffmpeg that the application lists.
@@ -87,7 +97,7 @@ class AppConfig:
     model_size: str = "small"
     device: str = "auto"
     compute_type: str = "int8"
-    language: str = "pt"
+    language: str = languages.DEFAULT_CODE
     beam_size: int = 5
 
     # PT-PT: Detecção de voz — descarta silêncio antes de o modelo o processar.
@@ -100,6 +110,16 @@ class AppConfig:
 
     # --- PT-PT: Pós-processamento / EN-UK: Post-processing -----------------
     apply_corrections: bool = True
+
+    # PT-PT: A conversão de pontuação dita em voz alta tem interruptor próprio
+    #        por ser a transformação mais arriscada da aplicação: quem disser
+    #        «a vírgula decimal» vê a palavra virar sinal. Quem não dita a
+    #        pontuação deve desligá-la.
+    # EN-UK: Converting punctuation spoken aloud has its own switch, being the
+    #        riskiest transformation in the application: anyone saying "the
+    #        decimal comma" sees the word turn into a mark. Anyone who does not
+    #        dictate punctuation should switch it off.
+    spoken_punctuation: bool = True
     learn_from_edits: bool = True
 
     # --- PT-PT: Interface / EN-UK: Interface -------------------------------
@@ -119,6 +139,21 @@ class AppConfig:
         """
         self.audio_dir = Path(self.audio_dir).expanduser()
         self.output_dir = Path(self.output_dir).expanduser()
+
+        # PT-PT: A língua é normalizada antes de ser validada, para que as
+        #        configurações antigas — que guardavam o código curto do
+        #        Whisper, "pt" — continuem a funcionar sem ninguém reconfigurar
+        #        nada. "pt" passa a "pt-PT"; um código sem pacote reverte para
+        #        o valor por omissão.
+        # EN-UK: The language is normalised before being validated, so that old
+        #        configurations — which stored Whisper's short code, "pt" —
+        #        keep working with nobody reconfiguring anything. "pt" becomes
+        #        "pt-PT"; a code with no pack falls back to the default.
+        if self.language != languages.AUTO_CODE:
+            pack = languages.resolve(self.language)
+            if pack is not None:
+                self.language = pack.code
+        self._validate_choice("language", LANGUAGES, languages.DEFAULT_CODE)
 
         self._validate_choice("model_size", MODEL_SIZES, "small")
         self._validate_choice("compute_type", COMPUTE_TYPES, "int8")

@@ -11,7 +11,7 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
-__version__ = "4.0.1"
+__version__ = "5.0.0"
 __author__ = "Redfox"
 __license__ = "MIT"
 

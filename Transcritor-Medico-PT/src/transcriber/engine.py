@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .config import AppConfig
-from .medical_terms import build_initial_prompt
+from .languages import resolve, whisper_code_for
 
 _log = logging.getLogger(__name__)
 
@@ -300,6 +300,30 @@ class TranscriptionEngine:
         """
         self._cancel.set()
 
+    def _initial_prompt(self) -> str | None:
+        """
+        PT-PT: Contexto inicial do pacote de língua configurado, se houver.
+
+               Em detecção automática não há pacote, e devolver None é a
+               resposta certa: um contexto em português entregue a áudio em
+               francês não enviesa apenas o vocabulário — enviesa a própria
+               identificação da língua, e o modelo acaba a transcrever francês
+               com palavras portuguesas. Sem pacote, sem contexto.
+
+        EN-UK: Initial context from the configured language pack, if any.
+
+               Under automatic detection there is no pack, and returning None
+               is the right answer: a Portuguese context handed to French audio
+               does not merely bias the vocabulary — it biases the language
+               identification itself, and the model ends up transcribing French
+               with Portuguese words. No pack, no context.
+
+        :return:
+            PT-PT: Texto de contexto, ou None. / EN-UK: Context text, or None.
+        """
+        pack = resolve(self.config.language)
+        return pack.build_initial_prompt() if pack else None
+
     def transcribe(
         self,
         audio_path: Path,
@@ -336,7 +360,7 @@ class TranscriptionEngine:
         try:
             segments_iter, info = self._model.transcribe(
                 str(audio_path),
-                language=self.config.language,
+                language=whisper_code_for(self.config.language),
                 beam_size=self.config.beam_size,
                 vad_filter=self.config.vad_filter,
                 # PT-PT: Enviesa o descodificador com vocabulário clínico. É a
@@ -345,7 +369,7 @@ class TranscriptionEngine:
                 # EN-UK: Biases the decoder with clinical vocabulary. This is
                 #        the most effective correction: the term comes out
                 #        right first time rather than being patched afterwards.
-                initial_prompt=build_initial_prompt(),
+                initial_prompt=self._initial_prompt(),
                 # PT-PT: Suprime segmentos que o modelo repete em ciclo quando
                 #        apanha ruído de fundo.
                 # EN-UK: Suppresses segments the model loops on when it picks
