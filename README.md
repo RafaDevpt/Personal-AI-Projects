@@ -1,5 +1,17 @@
 <!--
-  Personal-AI-Projects — README v2
+  PT-PT: Personal-AI-Projects — README do hub.
+         O `main` não contém código de aplicação: é o índice. Cada projeto vive
+         no seu próprio branch, com o seu README, os seus requisitos e o seu
+         ciclo de vida. A tabela de branches abaixo tem de corresponder
+         exactamente a `git branch -r` — se divergir, o Quick Start deixa de
+         funcionar para quem clonar.
+
+  EN-UK: Personal-AI-Projects — hub README.
+         `main` carries no application code: it is the index. Each project
+         lives in its own branch with its own README, requirements and
+         lifecycle. The branch table below must match `git branch -r` exactly —
+         if it drifts, the Quick Start stops working for anyone cloning.
+
   Created by Redfox using Claude
 -->
 
@@ -13,7 +25,7 @@
 <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
 <img src="https://img.shields.io/badge/PowerShell-5.1+-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
 <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
-<img src="https://img.shields.io/badge/GPL--3.0-2EA043?style=for-the-badge&logo=gnu&logoColor=white" />
+<img src="https://img.shields.io/badge/MIT-2EA043?style=for-the-badge&logo=opensourceinitiative&logoColor=white" />
 
 <br />
 
@@ -44,38 +56,48 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 
 | 🎯 Principle | What it means in practice |
 | :--- | :--- |
-| **Offline first** | No external API dependency where a rule-based approach will do |
+| **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A `.bat` launcher and a folder — no installers, no admin rights |
 | **Documented** | Every branch ships its own README, requirements and screenshots |
+| **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
 </div>
+
+<a name="nota-offline"></a>
+<sub>
+
+**[1]** One deliberate exception: the **PDF Suite** carries an optional model-assisted analysis that sends document text to the Anthropic API. It is **disabled by default**, it states how many documents and characters will leave the machine before sending anything, and everything it returns is labelled as coming from the model. Every other feature of every project runs entirely offline.
+
+*Uma excepção deliberada: a análise assistida do PDF Suite. Está desligada por omissão, avisa antes de enviar, e o que devolve vem sempre identificado como vindo do modelo.*
+
+</sub>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
 ## 🌿 Branch Strategy
 
-Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles.
+Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles. `main` holds only the index, the licence and the header asset.
 
 ```mermaid
-%%{init: {'theme':'dark', 'themeVariables': {'primaryColor':'#1F6FEB','lineColor':'#6E5494','fontFamily':'monospace'}}}%%
 gitGraph
     commit id: "Initial commit"
     commit id: "README + LICENSE"
-    branch it-toolkit
-    commit id: "Event log engine"
-    commit id: "v2.0.0"
-    checkout main
-    branch form-modernizer
-    commit id: "VBA parser"
-    commit id: "PDF output"
-    checkout main
-    branch pdf-suite
-    commit id: "Fillable core"
-    checkout main
-    branch toner-monitor
+    branch Printer-Remote-Toner-Monitor
     commit id: "LEDM / SNMP"
     commit id: "Browser fallback"
+    checkout main
+    branch IT-Tool-Kit
+    commit id: "Event log engine"
+    commit id: "Knowledge base"
+    checkout main
+    branch PDF-Suite
+    commit id: "Fillable forms"
+    commit id: "Compare + report"
+    checkout main
+    branch Medical-Audio-to-Text
+    commit id: "Whisper engine"
+    commit id: "PT-PT corrections"
     checkout main
     commit id: "Project index"
 ```
@@ -85,10 +107,10 @@ gitGraph
 | Branch | Role | Contents |
 | :--- | :--- | :--- |
 | `main` | 🏛️ **Hub** | Overview, documentation, project index |
-| `it-toolkit` | 🔧 Project | Windows diagnostics suite |
-| `form-modernizer` | 📄 Project | Legacy Excel/VBA → fillable PDF |
-| `pdf-suite` | 📚 Project | Fillable PDFs + document comparison |
-| `toner-monitor` | 🖨️ Project | HP printer supply monitoring |
+| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite |
+| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison |
+| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
+| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
 
 </div>
 
@@ -102,7 +124,8 @@ gitGraph
 
 ### 🔧 IT Toolkit
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Version](https://img.shields.io/badge/version-2.0.0-1F6FEB?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-69_passing-2EA043?style=flat-square)
+![Branch](https://img.shields.io/badge/branch-IT--Tool--Kit-1F6FEB?style=flat-square)
 
 Desktop suite for daily IT work. Reads and interprets Windows event logs, detects errors and potential issues, **suggests fixes**, and compiles them into a report.
 
@@ -125,18 +148,21 @@ Desktop suite for daily IT work. Reads and interprets Windows event logs, detect
 </td>
 <td width="50%" valign="top">
 
-### 📄 FormModernizer
-![Status](https://img.shields.io/badge/status-stable-1F6FEB?style=flat-square)
-![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
+### 📚 PDF Suite
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-121_passing-2EA043?style=flat-square)
+![Branch](https://img.shields.io/badge/branch-PDF--Suite-1F6FEB?style=flat-square)
 
-Converts legacy Excel forms carrying VBA macros into modern **fillable PDF or Word** documents, preserving — or improving — the original automations.
+Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
 
-`Python` · `openpyxl` · `pypdf`
+`Python` · `pdfplumber` · `pypdf` · `reportlab`
 
 <details>
-<summary><b>Why rule-based?</b></summary>
+<summary><b>What it refuses to do</b></summary>
 
-VBA is parsed and translated offline with a deterministic rule engine. No AI API call, no data leaving the machine — a hard requirement for corporate forms.
+- **Does not invent missing values.** A quote with no stated warranty is not worth zero — it is "does not say", and the criterion is dropped with its weight redistributed.
+- **Does not declare a winner on a thin margin.** Below five points in a hundred it says there is no clear winner.
+- **Does not convert currencies.** Different currencies means a warning, not a comparison.
 
 </details>
 
@@ -145,29 +171,9 @@ VBA is parsed and translated offline with a deterministic rule engine. No AI API
 <tr>
 <td width="50%" valign="top">
 
-### 📚 PDF Suite
-![Status](https://img.shields.io/badge/status-in%20progress-E3B341?style=flat-square)
-![Progress](https://img.shields.io/badge/progress-60%25-E3B341?style=flat-square)
-
-Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
-
-`Python` · `PDF` · `DOCX`
-
-<details>
-<summary><b>Remaining work</b></summary>
-
-- [ ] Graphical interface
-- [ ] Report generation
-- [ ] Test coverage
-- [ ] Packaging
-
-</details>
-
-</td>
-<td width="50%" valign="top">
-
 ### 🖨️ HP Toner Monitor
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-49_passing-2EA043?style=flat-square)
 ![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
 
 Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
@@ -180,6 +186,27 @@ Queries the embedded web server of every HP printer on the fleet, flags any tone
 `LEDM` → `SNMP` → `HTML scrape` → `browser fallback`
 
 Each method falls through to the next, so a proxy or a self-signed certificate warning never stops the run.
+
+It **drafts** the order e-mail as an `.eml` and never sends it: quantities depend on the stock already in the store room, which the tool knows nothing about.
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+
+### 🩺 Transcritor Médico PT
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-40_passing-2EA043?style=flat-square)
+![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
+
+Turns dictated audio into written text in **European Portuguese**, with a correction layer built for clinical vocabulary — drug names, dosages, abbreviations and units that a general-purpose transcriber gets wrong.
+
+`Python` · `Whisper` · `CustomTkinter`
+
+<details>
+<summary><b>Why it runs offline</b></summary>
+
+The audio is clinical. It never leaves the machine: transcription and correction both run locally, with no API call and no upload step anywhere in the pipeline.
 
 </details>
 
@@ -195,9 +222,10 @@ Each method falls through to the next, so a proxy or a self-signed certificate w
 <summary><b>Clone a single project branch</b></summary>
 
 ```bash
-git clone --branch <branch-name> --single-branch \
-  https://github.com/RafaDevpt/Personal-AI-Projects.git
+git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
+
+Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor` or `Medical-Audio-to-Text`. Branch names are **case-sensitive**.
 
 </details>
 
@@ -206,9 +234,10 @@ git clone --branch <branch-name> --single-branch \
 
 ```bash
 git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
-cd Personal-AI-Projects
-git branch -a
-git checkout <branch-name>
+```
+
+```bash
+cd Personal-AI-Projects && git branch -a && git checkout PDF-Suite
 ```
 
 </details>
@@ -223,10 +252,21 @@ git checkout <branch-name>
 | Dependencies | per project, see `requirements.txt` in each branch |
 
 ```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
+python -m venv .venv && .venv\Scripts\activate && pip install -r requirements.txt
 ```
+
+Every project also ships an `EXECUTAR.bat` launcher that builds the environment on first run, so the manual steps above are only needed for development.
+
+</details>
+
+<details>
+<summary><b>Running the tests</b></summary>
+
+```bash
+pip install -r requirements-dev.txt && python -m pytest
+```
+
+Each project branch is checked on every push by GitHub Actions — see `.github/workflows/ci.yml` on that branch.
 
 </details>
 
@@ -240,11 +280,11 @@ pip install -r requirements.txt
 
 Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, working across PMS, POS, networking and compliance, with a habit of turning manual operations into tooling.
 
-These projects are personal work, published under GPL-3.0 so anyone facing the same problems can reuse them.
+These projects are personal work, published under the MIT licence so anyone facing the same problems can reuse them.
 
 <br />
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelsantosit/)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RafaDevpt)
 
 </td>
@@ -275,7 +315,9 @@ These projects are personal work, published under GPL-3.0 so anyone facing the s
 
 ## 📜 License
 
-Distributed under the **GNU General Public License v3.0** — see [`LICENSE`](LICENSE).
+Distributed under the **MIT License** — see [`LICENSE`](LICENSE).
+
+The same licence applies to every project branch, each of which carries its own copy.
 
 <br />
 
