@@ -99,6 +99,10 @@ gitGraph
     commit id: "Whisper engine"
     commit id: "PT-PT corrections"
     checkout main
+    branch Network-Config-Builder
+    commit id: "Vendor generators"
+    commit id: "Read / diff / push"
+    checkout main
     commit id: "Project index"
 ```
 
@@ -111,6 +115,7 @@ gitGraph
 | `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison |
 | `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
 | `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
+| `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti |
 
 </div>
 
@@ -212,6 +217,32 @@ The audio is clinical. It never leaves the machine: transcription and correction
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🌐 Network Config Builder
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-216_passing-2EA043?style=flat-square)
+![Branch](https://img.shields.io/badge/branch-Network--Config--Builder-1F6FEB?style=flat-square)
+
+Describe a switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. Then reads what is running on the device, diffs it, and pushes.
+
+`Python` · `Netmiko` · `CustomTkinter`
+
+<details>
+<summary><b>Safe by default</b></summary>
+
+- **Reads before it writes.** The backup is the entry condition for a push, not an extra. If the read fails, nothing is sent.
+- **Simulates by default.** Writing for real needs `--confirmar`, or typing the device's name into the confirmation box.
+- **Never writes a password.** Generated files carry a placeholder; credentials live in memory for the session only.
+- On **UniFi** the configuration belongs to the controller, so those files carry a warning and no `write memory` — the tool says so rather than pretending otherwise.
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+</td>
+</tr>
 </table>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
@@ -225,7 +256,7 @@ The audio is clinical. It never leaves the machine: transcription and correction
 git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor` or `Medical-Audio-to-Text`. Branch names are **case-sensitive**.
+Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text` or `Network-Config-Builder`. Branch names are **case-sensitive**.
 
 </details>
 
