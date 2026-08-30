@@ -103,6 +103,10 @@ gitGraph
     commit id: "Vendor generators"
     commit id: "Read / diff / push"
     checkout main
+    branch Network-Topology-Mapper
+    commit id: "LLDP crawl"
+    commit id: "MAC correlation"
+    checkout main
     commit id: "Project index"
 ```
 
@@ -116,6 +120,7 @@ gitGraph
 | `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
 | `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
 | `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti |
+| `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port |
 
 </div>
 
@@ -241,6 +246,27 @@ Describe a switch once — VLANs, ports, services, hardening — and it writes t
 
 </td>
 <td width="50%" valign="top">
+
+### 🗺️ Network Topology Mapper
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-155_passing-2EA043?style=flat-square)
+![Read only](https://img.shields.io/badge/read--only-6E5494?style=flat-square)
+
+Give it one core switch — or a UniFi controller — and it walks the network on its own, neighbour to neighbour, reading MAC tables, ARP, port state and PoE. Produces the thing nobody has: **every device, which switch and port it is on, and what it appears to be**.
+
+`Python` · `Netmiko` · `LLDP / CDP` · `reportlab`
+
+<details>
+<summary><b>How it decides what something is</b></summary>
+
+Every classification carries a **confidence level and the signals behind it**. An AP identified by LLDP is a fact; a "workstation" inferred from an Intel OUI is a fair guess that could be a printer.
+
+When signals disagree, confidence drops and the conflict is recorded — HP makes workstations and printers under the same OUI, and answering "workstation" would be right half the time.
+
+The finding that earns its keep: a port with six MACs and no LLDP neighbour has an **unmanaged switch** on the far side. It explains the loops and the socket that "sometimes drops".
+
+</details>
+
 </td>
 </tr>
 </table>
@@ -256,7 +282,7 @@ Describe a switch once — VLANs, ports, services, hardening — and it writes t
 git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text` or `Network-Config-Builder`. Branch names are **case-sensitive**.
+Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder` or `Network-Topology-Mapper`. Branch names are **case-sensitive**.
 
 </details>
 
