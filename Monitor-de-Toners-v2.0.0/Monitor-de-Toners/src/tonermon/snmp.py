@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: SNMP v2c mínimo, implementado apenas com a biblioteca padrão.
 
@@ -423,7 +422,7 @@ class SnmpClient:
                     data, _ = sock.recvfrom(4096)
                 _, value = _parse_response(data)
                 return value
-            except (socket.timeout, OSError, SnmpError) as exc:
+            except (TimeoutError, OSError, SnmpError) as exc:
                 last_error = exc
                 _log.debug(
                     "SNMP %s %s tentativa %d falhou: %s",
@@ -484,7 +483,7 @@ class SnmpClient:
                     data, _ = sock.recvfrom(4096)
 
                 oid, value = _parse_response(data)
-            except (socket.timeout, OSError, SnmpError) as exc:
+            except (TimeoutError, OSError, SnmpError) as exc:
                 _log.debug("SNMP walk terminou em %s: %s", current, exc)
                 break
 

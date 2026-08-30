@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Configuração da aplicação.
        Tudo o que na versão anterior estava escrito dentro do código — limite de
@@ -129,10 +128,10 @@ class AppConfig:
     ews_user: str = "admin"
 
     # PT-PT: O proxy corporativo foi a causa dos timeouts nos primeiros testes:
-    #        pedidos para 10.162.84.x eram encaminhados para fora e morriam. A
+    #        pedidos para 192.168.1.x eram encaminhados para fora e morriam. A
     #        aplicação ignora o proxy por omissão para endereços locais.
     # EN-UK: The corporate proxy caused the timeouts in the first tests:
-    #        requests to 10.162.84.x were routed outbound and died. The
+    #        requests to 192.168.1.x were routed outbound and died. The
     #        application bypasses the proxy for local addresses by default.
     bypass_proxy: bool = True
 
@@ -194,7 +193,7 @@ class AppConfig:
         return default_data_dir() / "config.json"
 
     @classmethod
-    def load(cls, path: Path | None = None) -> "AppConfig":
+    def load(cls, path: Path | None = None) -> AppConfig:
         """
         PT-PT: Carrega a configuração do disco. Qualquer falha resulta nos
                valores por omissão, nunca numa excepção.

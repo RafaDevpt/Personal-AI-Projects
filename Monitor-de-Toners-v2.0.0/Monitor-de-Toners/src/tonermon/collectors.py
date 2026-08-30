@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Recolha dos níveis de consumíveis.
 
@@ -133,14 +132,14 @@ def _build_opener(bypass_proxy: bool) -> urllib.request.OpenerDirector:
 
            O ProxyHandler vazio é o detalhe que resolveu os timeouts nos
            primeiros testes: numa máquina de domínio, os pedidos para
-           10.162.84.x eram encaminhados para o proxy corporativo, que os
+           192.168.1.x eram encaminhados para o proxy corporativo, que os
            enviava para fora e os deixava morrer ao fim de 35 segundos. Um proxy
            vazio desliga esse encaminhamento por completo.
 
     EN-UK: Builds the HTTP opener used for every request.
 
            The empty ProxyHandler is the detail that fixed the timeouts in the
-           first tests: on a domain machine, requests to 10.162.84.x were routed
+           first tests: on a domain machine, requests to 192.168.1.x were routed
            to the corporate proxy, which sent them outbound and let them die
            after 35 seconds. An empty proxy switches that routing off entirely.
 

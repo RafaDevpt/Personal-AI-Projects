@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Descoberta de impressoras na rede.
 
@@ -39,9 +38,9 @@ from __future__ import annotations
 import ipaddress
 import logging
 import socket
+from collections.abc import Callable, Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import Callable, Iterable
 
 from .models import Printer
 from .snmp import OID_SERIAL, OID_SYS_DESCR, OID_SYS_LOCATION, OID_SYS_NAME, SnmpClient
@@ -96,18 +95,18 @@ def parse_range(text: str) -> list[str]:
 
            Aceita três formas, porque é isso que as pessoas escrevem
            naturalmente:
-             - CIDR:      10.162.84.0/24
-             - intervalo: 10.162.84.100-10.162.84.160  ou  10.162.84.100-160
-             - avulso:    10.162.84.144
+             - CIDR:      192.168.1.0/24
+             - intervalo: 192.168.1.100-192.168.1.160  ou  192.168.1.100-160
+             - avulso:    192.168.1.144
 
            Várias entradas podem ser separadas por vírgula.
 
     EN-UK: Converts the range given by the user into a list of addresses.
 
            It accepts three forms, because that is what people naturally type:
-             - CIDR:   10.162.84.0/24
-             - range:  10.162.84.100-10.162.84.160  or  10.162.84.100-160
-             - single: 10.162.84.144
+             - CIDR:   192.168.1.0/24
+             - range:  192.168.1.100-192.168.1.160  or  192.168.1.100-160
+             - single: 192.168.1.144
 
            Several entries may be separated by commas.
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Inventário de impressoras em Excel.
 
@@ -589,7 +588,7 @@ def _add_instructions_sheet(workbook) -> None:
         ("", ""),
         ("COLUNAS", ""),
         ("IP", "Obrigatório. Endereço da impressora na rede, por exemplo "
-               "10.162.84.144. É o único campo sem o qual a linha é ignorada."),
+               "192.168.1.144. É o único campo sem o qual a linha é ignorada."),
         ("Localização", "Nome pelo qual as pessoas conhecem a impressora "
                         "(Recepção, Cozinha, Contabilidade). É este nome que "
                         "aparece na aplicação e nos ficheiros PDF gerados."),

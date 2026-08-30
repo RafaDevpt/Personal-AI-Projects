@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "printer-toner-monitor"
-version = "2.0.0"
+version = "2.0.1"
 description = "Monitorizacao de consumiveis de impressoras de rede com inventario em Excel / Network printer supplies monitoring with an Excel inventory"
 readme = "README.md"
 requires-python = ">=3.10"

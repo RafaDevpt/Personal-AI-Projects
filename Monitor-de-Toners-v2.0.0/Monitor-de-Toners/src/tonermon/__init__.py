@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Monitor de Toners — pacote principal.
        Lê os níveis de consumíveis das impressoras da rede, assinala as que
@@ -21,7 +20,7 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __app_name__ = "Monitor de Toners"
 __author__ = "Redfox"
 __license__ = "MIT"

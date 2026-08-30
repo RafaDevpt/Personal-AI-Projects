@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Camada de interface gráfica, construída sobre CustomTkinter.
        CustomTkinter assenta no Tkinter que já vem com o Python, tem licença

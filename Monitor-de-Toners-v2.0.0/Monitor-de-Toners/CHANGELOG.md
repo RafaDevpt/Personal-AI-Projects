@@ -8,6 +8,36 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.0.1] — 2026-08-30
+
+**PT** · Correcções, saneamento e integração contínua.
+**EN** · Fixes, sanitisation and continuous integration.
+
+### Infra-estrutura · Infrastructure
+
+- `.gitignore` — o repositório não tinha nenhum. Impede que `config.json`,
+  relatórios gerados, `.venv/` e `__pycache__/` cheguem a ser versionados
+- Integração contínua em GitHub Actions: `ruff` e `pytest` em `windows-latest`
+  a cada `push` e cada `pull request` sobre este branch
+- Árvore limpa de avisos do `ruff` sob a configuração que o projecto já
+  declarava em `pyproject.toml`, que até aqui não passava
+
+### Segurança · Security
+
+- **Gama de rede interna substituída por uma de exemplo.** O
+  `config.example.json`, o README, os exemplos da linha de comandos, os textos
+  de ajuda da interface, os testes e o Excel modelo traziam a gama real
+  `10.162.84.0/24`, e um dos testes trazia o hostname de uma impressora real.
+  Num repositório público isso é topologia interna a mais; tudo passa a
+  `192.168.1.0/24` e a nomes genéricos
+
+### Corrigido · Fixed
+
+- `gui/dialogs.py` — 23 instruções unidas por ponto e vírgula separadas em
+  linhas próprias, alinhando o ficheiro com o estilo dos restantes projectos
+
+---
+
 ## [2.0.0] — 2026-08-27
 
 **PT** · Reescrita completa. A versão anterior (1.5, ficheiro único) fica

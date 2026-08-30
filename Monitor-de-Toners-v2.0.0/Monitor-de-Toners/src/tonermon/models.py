@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Modelos de dados da aplicação.
        Este módulo não sabe nada sobre rede, Excel ou interface — contém apenas

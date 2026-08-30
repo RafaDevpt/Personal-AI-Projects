@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Ponto de entrada da aplicação.
 
@@ -17,7 +16,7 @@ PT-PT: Uso / EN-UK: Usage
     python -m tonermon
     python -m tonermon --cli
     python -m tonermon --cli --inventory "D:\\Impressoras.xlsx" --threshold 20
-    python -m tonermon --discover 10.162.84.0/24
+    python -m tonermon --discover 192.168.1.0/24
     python -m tonermon --criar-modelo "D:\\Impressoras.xlsx"
 
 Created by Redfox using Claude

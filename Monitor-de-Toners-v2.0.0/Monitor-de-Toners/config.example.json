@@ -9,7 +9,7 @@
   "order_email_to": "",
   "pdf_on_alert": true,
 
-  "scan_range": "10.162.84.0/24",
+  "scan_range": "192.168.1.0/24",
   "snmp_community": "public",
   "use_snmp": true,
   "ews_user": "admin",

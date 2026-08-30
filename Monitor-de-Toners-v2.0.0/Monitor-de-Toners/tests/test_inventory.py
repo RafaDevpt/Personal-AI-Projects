@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes do inventário em Excel.
 
@@ -31,7 +30,6 @@ from tonermon.inventory import (
     InventoryError,
     create_template,
     load,
-    load_csv,
     save_xlsx,
 )
 from tonermon.models import Printer
@@ -133,13 +131,13 @@ class TestLoading:
         """
         path = _write_sheet(tmp_path / "p.xlsx", [
             list(COLUMNS),
-            ["10.162.84.144", "Purchase", "LISRZPUR01HP", "HP M527",
+            ["192.168.1.144", "Purchase", "EXEMPLO01HP", "HP M527",
              "CZCBR1B02F", "7C5758AFBAA3", "https", "Sim", ""],
         ])
         printers = load(path)
 
         assert len(printers) == 1
-        assert printers[0].ip == "10.162.84.144"
+        assert printers[0].ip == "192.168.1.144"
         assert printers[0].location == "Purchase"
         assert printers[0].scheme == "https"
         assert printers[0].enabled is True

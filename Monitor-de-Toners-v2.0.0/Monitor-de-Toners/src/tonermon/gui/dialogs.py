@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janelas secundárias: definições e procura na rede.
 
@@ -149,33 +148,41 @@ class SettingsDialog(_ModalWindow):
         row = 0
 
         # --- PT-PT: Ficheiros / EN-UK: Files --------------------------------
-        self._heading(self, "FICHEIROS", row); row += 1
+        self._heading(self, "FICHEIROS", row)
+        row += 1
 
         self._label(self, "Inventário", row)
         self.inventory_var = ctk.StringVar(value=str(self.config_obj.inventory_path))
-        self._path_row(self, self.inventory_var, row, pick_file=True); row += 1
-        self._hint(self, "Ficheiro Excel com a lista de impressoras.", row); row += 1
+        self._path_row(self, self.inventory_var, row, pick_file=True)
+        row += 1
+        self._hint(self, "Ficheiro Excel com a lista de impressoras.", row)
+        row += 1
 
         self._label(self, "Pasta de saída", row)
         self.output_var = ctk.StringVar(value=str(self.config_obj.output_dir))
-        self._path_row(self, self.output_var, row, pick_file=False); row += 1
-        self._hint(self, "Onde ficam os PDF e os rascunhos de email.", row); row += 1
+        self._path_row(self, self.output_var, row, pick_file=False)
+        row += 1
+        self._hint(self, "Onde ficam os PDF e os rascunhos de email.", row)
+        row += 1
 
         # --- PT-PT: Alertas / EN-UK: Alerts ---------------------------------
-        self._heading(self, "ALERTAS", row); row += 1
+        self._heading(self, "ALERTAS", row)
+        row += 1
 
         self._label(self, "Limite de alerta", row)
         self.threshold_var = ctk.StringVar(value=str(self.config_obj.alert_threshold))
         ctk.CTkEntry(
             self, textvariable=self.threshold_var, width=80,
             corner_radius=theme.RADIUS, border_color=theme.BORDER,
-        ).grid(row=row, column=1, sticky="w", pady=6); row += 1
+        ).grid(row=row, column=1, sticky="w", pady=6)
+        row += 1
         self._hint(
             self,
             "Percentagem abaixo da qual um toner é assinalado. "
             "15% dá tempo para encomendar sem acumular stock.",
             row,
-        ); row += 1
+        )
+        row += 1
 
         self._label(self, "Email do pedido", row)
         self.email_var = ctk.StringVar(value=self.config_obj.order_email_to)
@@ -183,7 +190,8 @@ class SettingsDialog(_ModalWindow):
             self, textvariable=self.email_var, corner_radius=theme.RADIUS,
             border_color=theme.BORDER, placeholder_text="compras@exemplo.pt",
         ).grid(row=row, column=1, columnspan=2, sticky="ew",
-               padx=(0, theme.PAD_L), pady=6); row += 1
+               padx=(0, theme.PAD_L), pady=6)
+        row += 1
 
         self.pdf_var = ctk.BooleanVar(value=self.config_obj.pdf_on_alert)
         ctk.CTkCheckBox(
@@ -191,43 +199,50 @@ class SettingsDialog(_ModalWindow):
             variable=self.pdf_var, font=ctk.CTkFont(size=theme.SIZE_BODY),
             fg_color=theme.ACCENT, hover_color=theme.ACCENT_HOVER,
         ).grid(row=row, column=0, columnspan=3, sticky="w",
-               padx=theme.PAD_L, pady=6); row += 1
+               padx=theme.PAD_L, pady=6)
+        row += 1
 
         # --- PT-PT: Rede / EN-UK: Network -----------------------------------
-        self._heading(self, "REDE", row); row += 1
+        self._heading(self, "REDE", row)
+        row += 1
 
         self._label(self, "Gama de procura", row)
         self.range_var = ctk.StringVar(value=self.config_obj.scan_range)
         ctk.CTkEntry(
             self, textvariable=self.range_var, corner_radius=theme.RADIUS,
-            border_color=theme.BORDER, placeholder_text="10.162.84.0/24",
+            border_color=theme.BORDER, placeholder_text="192.168.1.0/24",
         ).grid(row=row, column=1, columnspan=2, sticky="ew",
-               padx=(0, theme.PAD_L), pady=6); row += 1
+               padx=(0, theme.PAD_L), pady=6)
+        row += 1
         self._hint(
             self,
             "Aceita 10.0.0.0/24, 10.0.0.100-160 ou endereços separados por "
             "vírgula. Varra apenas redes que administra.",
             row,
-        ); row += 1
+        )
+        row += 1
 
         self._label(self, "Comunidade SNMP", row)
         self.community_var = ctk.StringVar(value=self.config_obj.snmp_community)
         ctk.CTkEntry(
             self, textvariable=self.community_var, width=160,
             corner_radius=theme.RADIUS, border_color=theme.BORDER,
-        ).grid(row=row, column=1, sticky="w", pady=6); row += 1
+        ).grid(row=row, column=1, sticky="w", pady=6)
+        row += 1
 
         self._label(self, "Utilizador do EWS", row)
         self.user_var = ctk.StringVar(value=self.config_obj.ews_user)
         ctk.CTkEntry(
             self, textvariable=self.user_var, width=160,
             corner_radius=theme.RADIUS, border_color=theme.BORDER,
-        ).grid(row=row, column=1, sticky="w", pady=6); row += 1
+        ).grid(row=row, column=1, sticky="w", pady=6)
+        row += 1
         self._hint(
             self,
             "A password é pedida na janela principal e nunca é gravada em disco.",
             row,
-        ); row += 1
+        )
+        row += 1
 
         self.snmp_var = ctk.BooleanVar(value=self.config_obj.use_snmp)
         ctk.CTkCheckBox(
@@ -235,7 +250,8 @@ class SettingsDialog(_ModalWindow):
             font=ctk.CTkFont(size=theme.SIZE_BODY),
             fg_color=theme.ACCENT, hover_color=theme.ACCENT_HOVER,
         ).grid(row=row, column=0, columnspan=3, sticky="w",
-               padx=theme.PAD_L, pady=6); row += 1
+               padx=theme.PAD_L, pady=6)
+        row += 1
 
         self.proxy_var = ctk.BooleanVar(value=self.config_obj.bypass_proxy)
         ctk.CTkCheckBox(
@@ -243,16 +259,19 @@ class SettingsDialog(_ModalWindow):
             variable=self.proxy_var, font=ctk.CTkFont(size=theme.SIZE_BODY),
             fg_color=theme.ACCENT, hover_color=theme.ACCENT_HOVER,
         ).grid(row=row, column=0, columnspan=3, sticky="w",
-               padx=theme.PAD_L, pady=6); row += 1
+               padx=theme.PAD_L, pady=6)
+        row += 1
         self._hint(
             self,
             "Numa máquina de domínio, o proxy corporativo encaminha os pedidos "
             "às impressoras para fora da rede e eles morrem em timeout.",
             row,
-        ); row += 1
+        )
+        row += 1
 
         # --- PT-PT: Automatização / EN-UK: Automation -----------------------
-        self._heading(self, "AUTOMATIZAÇÃO", row); row += 1
+        self._heading(self, "AUTOMATIZAÇÃO", row)
+        row += 1
 
         self.auto_var = ctk.BooleanVar(value=self.config_obj.auto_refresh)
         ctk.CTkCheckBox(
@@ -269,10 +288,12 @@ class SettingsDialog(_ModalWindow):
         ctk.CTkLabel(
             self, text="minutos", font=ctk.CTkFont(size=theme.SIZE_SMALL),
             text_color=theme.TEXT_MUTED,
-        ).grid(row=row, column=2, sticky="w"); row += 1
+        ).grid(row=row, column=2, sticky="w")
+        row += 1
 
         # --- PT-PT: Aspecto / EN-UK: Appearance -----------------------------
-        self._heading(self, "ASPECTO", row); row += 1
+        self._heading(self, "ASPECTO", row)
+        row += 1
 
         self._label(self, "Tema", row)
         self.theme_var = ctk.StringVar(value=self.config_obj.theme)
@@ -281,7 +302,8 @@ class SettingsDialog(_ModalWindow):
             corner_radius=theme.RADIUS, fg_color=theme.SURFACE_RAISED,
             button_color=theme.ACCENT, button_hover_color=theme.ACCENT_HOVER,
             text_color=theme.TEXT_PRIMARY,
-        ).grid(row=row, column=1, sticky="w", pady=6); row += 1
+        ).grid(row=row, column=1, sticky="w", pady=6)
+        row += 1
 
         # --- PT-PT: Botões / EN-UK: Buttons ---------------------------------
         buttons = ctk.CTkFrame(self, fg_color="transparent")
@@ -451,7 +473,7 @@ class DiscoveryDialog(_ModalWindow):
             self, textvariable=self.range_var, height=36,
             font=ctk.CTkFont(size=theme.SIZE_BODY),
             corner_radius=theme.RADIUS, border_color=theme.BORDER,
-            placeholder_text="10.162.84.0/24",
+            placeholder_text="192.168.1.0/24",
         )
         entry.grid(row=2, column=0, sticky="ew", padx=theme.PAD_L, pady=(0, theme.PAD_XS))
         entry.focus_set()
@@ -459,7 +481,7 @@ class DiscoveryDialog(_ModalWindow):
         ctk.CTkLabel(
             self,
             text=(
-                "Exemplos:  10.162.84.0/24  ·  10.162.84.130-160  ·  "
+                "Exemplos:  192.168.1.0/24  ·  192.168.1.130-160  ·  "
                 "192.168.1.5, 192.168.1.20-30"
             ),
             font=ctk.CTkFont(size=theme.SIZE_TINY),

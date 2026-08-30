@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes do SNMP, dos modelos de dados e da descoberta na rede.
 
@@ -323,7 +322,7 @@ class TestParseRange:
         EN-UK: A /24 yields 254 addresses — the network and broadcast addresses
                are excluded because they are never printers.
         """
-        assert len(parse_range("10.162.84.0/24")) == 254
+        assert len(parse_range("192.168.1.0/24")) == 254
 
     def test_short_range(self) -> None:
         """

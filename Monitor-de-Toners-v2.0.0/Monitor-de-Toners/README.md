@@ -86,7 +86,7 @@ Em Linux pode faltar o Tkinter: `sudo apt install python3-tk`
 2. Escolha um dos caminhos:
    - **Preencher à mão** — carregue em *Abrir Excel*, escreva o IP e a
      localização de cada impressora, grave, e carregue em *Recarregar*.
-   - **Procurar na rede** — indique a gama (ex. `10.162.84.0/24`) e a aplicação
+   - **Procurar na rede** — indique a gama (ex. `192.168.1.0/24`) e a aplicação
      encontra-as e preenche o Excel por si.
 3. Carregue em *Verificar níveis*.
 
@@ -104,7 +104,7 @@ a **Localização** vale a pena: é o nome que aparece na aplicação e nos PDF.
 
 | Coluna | Obrigatória | Notas |
 |---|---|---|
-| **IP** | Sim | `10.162.84.144`. Uma linha sem IP válido é ignorada. |
+| **IP** | Sim | `192.168.1.144`. Uma linha sem IP válido é ignorada. |
 | **Localização** | Não | `Cozinha`, `Contabilidade`. É o nome do ficheiro PDF gerado. |
 | **Nome de rede** | Não | Hostname, se existir. |
 | **Modelo** | Não | Preenchido pela procura na rede. |
@@ -132,9 +132,9 @@ confirma por SNMP o que encontrar.
 Formatos aceites:
 
 ```
-10.162.84.0/24                     rede inteira
-10.162.84.130-160                  intervalo
-10.162.84.144                      um endereço
+192.168.1.0/24                     rede inteira
+192.168.1.130-160                  intervalo
+192.168.1.144                      um endereço
 192.168.1.5, 10.0.0.20-30          vários, separados por vírgula
 ```
 
@@ -172,7 +172,7 @@ Outros comandos:
 
 ```bash
 python -m tonermon --criar-modelo "D:\Impressoras.xlsx"
-python -m tonermon --discover 10.162.84.0/24
+python -m tonermon --discover 192.168.1.0/24
 python -m tonermon --cli --no-email --no-pdf
 python -m tonermon --verbose
 ```
@@ -261,7 +261,7 @@ Confirme que *Ignorar o proxy do sistema* está ligado nas Definições (está p
 omissão). Se persistir, teste um endereço isolado:
 
 ```bash
-python -m tonermon --discover 10.162.84.144 --verbose
+python -m tonermon --discover 192.168.1.144 --verbose
 ```
 </details>
 

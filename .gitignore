@@ -1,0 +1,69 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositorio.
+#
+#        A entrada que mais importa e o config.json: o ficheiro versionado e o
+#        config.example.json, com valores de exemplo. O config.json real leva a
+#        rede interna, caminhos da maquina e o destinatario dos emails, e num
+#        repositorio publico isso e informacao a mais.
+#
+# EN-UK: What must never enter the repository.
+#
+#        The entry that matters most is config.json: the versioned file is
+#        config.example.json, carrying example values. The real config.json
+#        holds the internal network, machine paths and the e-mail recipient,
+#        and in a public repository that is more than anyone needs.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# --- PT-PT: Bytecode e cache / EN-UK: Bytecode and cache -------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- PT-PT: Ambientes virtuais / EN-UK: Virtual environments ---------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- PT-PT: Empacotamento / EN-UK: Packaging -------------------------------
+build/
+dist/
+*.egg-info/
+*.spec
+
+# --- PT-PT: Configuracao real / EN-UK: Real configuration ------------------
+config.json
+*.local.json
+.env
+.env.*
+
+# --- PT-PT: Saidas geradas / EN-UK: Generated output -----------------------
+Relatorios/
+Reports/
+Saida/
+Output/
+*.eml
+*.log
+logs/
+
+# --- PT-PT: Modelos de voz descarregados / EN-UK: Downloaded speech models --
+models/
+*.bin
+*.onnx
+
+# --- PT-PT: Sistema operativo e editores / EN-UK: OS and editors -----------
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
