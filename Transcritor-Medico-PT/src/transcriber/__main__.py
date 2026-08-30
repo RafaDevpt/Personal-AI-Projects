@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Ponto de entrada da aplicação.
        Suporta modo gráfico (por omissão) e modo de linha de comandos, útil

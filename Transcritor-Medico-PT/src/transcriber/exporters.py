@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Exportação de transcrições para ficheiro.
        Formatos suportados: texto simples (.txt) e Markdown (.md).

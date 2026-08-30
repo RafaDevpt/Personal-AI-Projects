@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes do motor de correcção de texto.
 EN-UK: Tests for the text correction engine.

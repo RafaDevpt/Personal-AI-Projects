@@ -8,6 +8,38 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.1] — 2026-08-30
+
+**PT** · Correcções, saneamento e integração contínua.
+**EN** · Fixes, sanitisation and continuous integration.
+
+### Infra-estrutura · Infrastructure
+
+- `.gitignore` — o repositório não tinha nenhum. Impede que `config.json`,
+  relatórios gerados, `.venv/` e `__pycache__/` cheguem a ser versionados
+- Integração contínua em GitHub Actions: `ruff` e `pytest` em `windows-latest`
+  a cada `push` e cada `pull request` sobre este branch
+- Árvore limpa de avisos do `ruff` sob a configuração que o projecto já
+  declarava em `pyproject.toml`, que até aqui não passava
+
+### Corrigido · Fixed
+
+- `medical_terms.py` — a validação da ordem das expressões de pontuação passa a
+  usar `itertools.pairwise`, que diz o que faz, em vez de `zip(l, l[1:])`
+- `corrections.py` — o `zip()` sobre os blocos alinhados declara `strict=True`.
+  A guarda acima já garante comprimentos iguais; agora essa garantia está
+  escrita no código
+- `gui/dialogs.py` — a reposição do cursor após substituição passa a
+  `contextlib.suppress`, com a razão documentada: perder a posição do cursor é
+  aceitável, rebentar com a caixa de texto não é
+
+### Adicionado · Added
+
+- `CLI.bat` — lançador de linha de comandos, para transcrever lotes de
+  gravações sem abrir a interface gráfica
+
+---
+
 ## [4.0.0] — 2026-08-27
 
 **PT** · Reescrita completa. Versão anterior (3.0 Premium) descontinuada.

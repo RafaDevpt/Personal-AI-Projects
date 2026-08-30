@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Transcritor Médico PT — transcrição de áudio clínico em português
        europeu, totalmente offline.
@@ -12,7 +11,7 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
-__version__ = "4.0.0"
+__version__ = "4.0.1"
 __author__ = "Redfox"
 __license__ = "MIT"
 

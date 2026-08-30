@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Configuração da aplicação.
        Substitui os caminhos fixos ("A:\\Portuguese_Transcriber\\Audios") da
@@ -152,7 +151,7 @@ class AppConfig:
     # -----------------------------------------------------------------------
 
     @classmethod
-    def load(cls, path: Path | None = None) -> "AppConfig":
+    def load(cls, path: Path | None = None) -> AppConfig:
         """
         PT-PT: Carrega a configuração do disco. Qualquer falha — ficheiro
                inexistente, JSON inválido, chaves desconhecidas — resulta numa

@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "portuguese-medical-transcriber"
-version = "4.0.0"
+version = "4.0.1"
 description = "Transcricao de audio clinico em portugues europeu, offline / Offline European Portuguese clinical audio transcription"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Vocabulário médico em português europeu.
        Este módulo contém apenas dados — sem lógica — para que possa ser
@@ -27,6 +26,8 @@ Created by Redfox using Claude
 """
 
 from __future__ import annotations
+
+from itertools import pairwise
 
 # ---------------------------------------------------------------------------
 # PT-PT: 1. Correcções ortográficas — erros frequentes de transcrição.
@@ -282,7 +283,7 @@ def sanity_check() -> list[str]:
     # EN-UK: Dictated punctuation must run from longest to shortest expression,
     #        otherwise replacement cuts phrases in half.
     lengths = [len(phrase.split()) for phrase, _ in SPOKEN_PUNCTUATION]
-    for earlier, later in zip(lengths, lengths[1:]):
+    for earlier, later in pairwise(lengths):
         if later > earlier:
             problems.append(
                 "SPOKEN_PUNCTUATION: expressões têm de estar ordenadas da mais "

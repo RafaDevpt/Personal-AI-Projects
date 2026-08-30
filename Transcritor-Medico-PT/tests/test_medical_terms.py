@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes do vocabulário médico.
        Este ficheiro é sobretudo uma rede de segurança para futuras edições do

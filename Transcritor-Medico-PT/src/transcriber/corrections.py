@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Motor de correcção de texto.
        Aplica o dicionário médico, as correcções aprendidas com o utilizador e
@@ -37,9 +36,9 @@ import difflib
 import json
 import logging
 import re
+from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
 
 from .medical_terms import BRAZILIAN_TO_EUROPEAN, SPELLING_CORRECTIONS
 
@@ -325,7 +324,7 @@ class CorrectionEngine:
             if tag != "replace" or (i2 - i1) != (j2 - j1):
                 continue
 
-            for wrong_raw, right_raw in zip(before[i1:i2], after[j1:j2]):
+            for wrong_raw, right_raw in zip(before[i1:i2], after[j1:j2], strict=True):
                 wrong = self._strip_punctuation(wrong_raw)
                 right = self._strip_punctuation(right_raw)
 

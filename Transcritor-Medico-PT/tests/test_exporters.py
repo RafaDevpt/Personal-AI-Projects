@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes da exportação de ficheiros e da configuração.
 EN-UK: Tests for file export and configuration.

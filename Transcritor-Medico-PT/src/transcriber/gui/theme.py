@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Tema visual da interface.
        Centraliza cores, tipos de letra e espaçamentos, para que uma alteração

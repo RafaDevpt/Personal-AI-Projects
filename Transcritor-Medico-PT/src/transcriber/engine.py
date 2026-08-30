@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Motor de transcrição.
        Envolve o faster-whisper (CTranslate2) e isola o resto da aplicação dos
@@ -32,9 +31,9 @@ from __future__ import annotations
 
 import logging
 import threading
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterator
 
 from .config import AppConfig
 from .medical_terms import build_initial_prompt

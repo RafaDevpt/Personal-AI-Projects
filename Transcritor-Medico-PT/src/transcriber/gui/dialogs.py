@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janelas secundárias — definições, gestão de correções e localizar.
 
@@ -10,6 +9,7 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from pathlib import Path
 from tkinter import filedialog
@@ -567,10 +567,14 @@ class FindReplaceDialog(ctk.CTkToplevel):
             cursor = self.textbox.index("insert")
             self.textbox.delete("1.0", "end")
             self.textbox.insert("1.0", updated)
-            try:
+            # PT-PT: A posição antiga do cursor pode cair fora do texto
+            #        novo, se a substituição o encurtou. Perder o cursor é
+            #        aceitável; rebentar com a caixa de texto não é.
+            # EN-UK: The old cursor position may fall outside the new text if
+            #        the replacement shortened it. Losing the cursor is
+            #        acceptable; breaking the text box is not.
+            with contextlib.suppress(Exception):
                 self.textbox.mark_set("insert", cursor)
-            except Exception:  # noqa: BLE001
-                pass
 
         self.on_status(
             f"{count} substituição(ões) / {count} replacement(s)."
