@@ -1,0 +1,70 @@
+# ===========================================================================
+# PT-PT: Integracao continua do Network Config Builder.
+#
+#        Corre em Windows porque e onde a aplicacao vive: o launcher e um .bat,
+#        os caminhos de omissao sao %APPDATA%, e e num portatil de Windows que
+#        alguem a vai abrir no bastidor. Testar noutro sistema daria um verde
+#        que nao significa nada.
+#
+#        Cada projeto vive no seu branch, por isso o gatilho aponta a este e so
+#        a este. O working-directory aponta a subpasta do projeto, porque a raiz
+#        do branch so tem a pasta e a licenca.
+#
+#        Nenhum teste abre uma ligacao de rede. Tudo o que fala com equipamento
+#        esta atras de uma fronteira que os testes nao atravessam - o que se
+#        verifica e o que decide *o que* seria enviado, nao o envio.
+#
+# EN-UK: Continuous integration for Network Config Builder.
+#
+#        Runs on Windows because that is where the application lives: the
+#        launcher is a .bat, the default paths are %APPDATA%, and it is on a
+#        Windows laptop that somebody will open it in the comms room. Testing
+#        elsewhere would give a green tick that means nothing.
+#
+#        Each project lives in its own branch, so the trigger names this one and
+#        only this one. working-directory points at the project subfolder,
+#        because the branch root holds only that folder and the licence.
+#
+#        No test opens a network connection. Everything that talks to equipment
+#        sits behind a boundary the tests do not cross — what is verified is
+#        what decides *what* would be sent, not the sending.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: CI
+
+on:
+  push:
+    branches: [Network-Config-Builder]
+  pull_request:
+    branches: [Network-Config-Builder]
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Lint + testes / Lint + tests
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: Network-Config-Builder
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Instalar dependencias / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Testes (pytest) / Tests (pytest)
+        run: python -m pytest

@@ -1,328 +1,132 @@
 <!--
-  PT-PT: Personal-AI-Projects — README do hub.
-         O `main` não contém código de aplicação: é o índice. Cada projeto vive
-         no seu próprio branch, com o seu README, os seus requisitos e o seu
-         ciclo de vida. A tabela de branches abaixo tem de corresponder
-         exactamente a `git branch -r` — se divergir, o Quick Start deixa de
-         funcionar para quem clonar.
-
-  EN-UK: Personal-AI-Projects — hub README.
-         `main` carries no application code: it is the index. Each project
-         lives in its own branch with its own README, requirements and
-         lifecycle. The branch table below must match `git branch -r` exactly —
-         if it drifts, the Quick Start stops working for anyone cloning.
-
+  Network Config Builder — README
   Created by Redfox using Claude
 -->
 
 <div align="center">
 
-<img src="Assets/header-terminal.svg" width="100%" alt="Personal AI Projects" />
+# 🌐 Network Config Builder
 
-<br /><br />
+**Switch configuration for Aruba, Cisco and Ubiquiti — build it, diff it, then push it**
 
-<!-- ── Core stack ─────────────────────────────── -->
-<img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-<img src="https://img.shields.io/badge/PowerShell-5.1+-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
-<img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
-<img src="https://img.shields.io/badge/MIT-2EA043?style=for-the-badge&logo=opensourceinitiative&logoColor=white" />
+![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.0-1F6FEB?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
-<br />
-
-<!-- ── Live repo telemetry ────────────────────── -->
-<img src="https://img.shields.io/github/last-commit/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=1F6FEB&logo=git&logoColor=white" />
-<img src="https://img.shields.io/github/commit-activity/m/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=6E5494" />
-<img src="https://img.shields.io/github/languages/top/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=3776AB" />
-<img src="https://img.shields.io/github/repo-size/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341" />
-<img src="https://img.shields.io/github/stars/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341&logo=github" />
-
-<br /><br />
-
-<a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
-<a href="#-branch-strategy"><img src="https://img.shields.io/badge/🌿_Branches-6E5494?style=for-the-badge&logoColor=white" /></a>
-<a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
+<a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+---
 
-## 🧭 Overview
+## What it does
 
-> **A collection of personal AI-assisted projects built to automate tasks, improve productivity and support both professional and personal activities.**
+Configuring a floor of switches is the same twenty minutes repeated per device: the same VLANs, the same uplink trunk, the same NTP server — retyped into a different CLI syntax depending on which brand happens to be in that comms room.
 
-Every tool here started as a real friction point in day-to-day hospitality IT operations — a manual check repeated 24 times, a form nobody could edit, a report someone typed by hand every Monday — and ended up as a small, self-contained application.
+Network Config Builder collapses that into one form. Describe the switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. The same voice VLAN is not written three times because the network has three brands.
 
-<div align="center">
+Then, optionally, it connects: reads what is actually running on the device, shows the difference against what you built, and pushes — in that order, with a backup taken before any write.
 
-| 🎯 Principle | What it means in practice |
+---
+
+## Modules
+
+### 📝 The builder
+
+A form and a live preview. Identity, management addressing, VLANs, ports, NTP/syslog/SNMP, hardening. Four starting templates for the shapes that repeat — a 48-port access switch, an office switch with voice, an AP switch — none of which carry addressing or names.
+
+Ports accept ranges in the vendor's own notation: `1/1/1-1/1/24` configures 24 at once.
+
+### 🔍 Validation
+
+Runs before generation. Only things that would produce a file the device rejects, or that would cut off the person applying it, count as errors — everything else is a warning, and warnings are written into the generated file's header.
+
+It catches the gateway outside the management subnet, the address written without a prefix, the VLAN referenced but never declared, the port name copied from another vendor, and portfast on a switch-to-switch trunk.
+
+### 🔌 Read, compare, push
+
+Reads the running configuration over SSH, normalises away the firmware banner and the hundreds of default lines that would otherwise swamp a diff, and answers one question: *what will this push change?*
+
+Push is dry-run by default. The real thing requires typing the device's name.
+
+### 📋 Inventory
+
+Reads the switch list that already exists in somebody's spreadsheet — `.xlsx`, `.csv`, `.json` — and writes it back. A TCP reachability sweep tells you what is up before you start.
+
+---
+
+## Safe by default
+
+| Rule | In practice |
 | :--- | :--- |
-| **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
-| **Safe by default** | Read-only operations unless explicitly told otherwise |
-| **Single-file deploy** | A `.bat` launcher and a folder — no installers, no admin rights |
-| **Documented** | Every branch ships its own README, requirements and screenshots |
-| **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
+| **Read before writing** | The backup is the entry condition for a push, not an extra. Read fails → push does not happen. |
+| **Simulate by default** | `push()` starts at dry run. Writing for real takes `--confirmar`, or typing the device name in the GUI. |
+| **No passwords, ever** | Generated files carry `<DEFINIR-PALAVRA-PASSE>`. Credentials live in memory for the session and are never written to disk. |
+| **One red button** | Generate, save and compare are neutral. The only red control in the application is the one that writes to a switch. |
 
-</div>
+The generation half depends on **nothing but the standard library** — deliberately, so it runs on a domain machine where installing packages is blocked by policy.
 
-<a name="nota-offline"></a>
-<sub>
+---
 
-**[1]** One deliberate exception: the **PDF Suite** carries an optional model-assisted analysis that sends document text to the Anthropic API. It is **disabled by default**, it states how many documents and characters will leave the machine before sending anything, and everything it returns is labelled as coming from the model. Every other feature of every project runs entirely offline.
+## About UniFi
 
-*Uma excepção deliberada: a análise assistida do PDF Suite. Está desligada por omissão, avisa antes de enviar, e o que devolve vem sempre identificado como vindo do modelo.*
+A UniFi switch runs the same CLI as an EdgeSwitch underneath, but its configuration belongs to the **controller**. Anything written over SSH disappears at the next provisioning run — a controller change, a re-adoption, a restart.
 
-</sub>
+It is supported anyway, because reading a UniFi is useful: inventory, diagnosis, recording the state before touching anything. But every file generated for UniFi carries a warning at the top, gets no `write memory`, and needs an extra confirmation to push.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+The right place to configure a UniFi is the controller. The tool says so rather than pretending otherwise.
 
-## 🌿 Branch Strategy
+---
 
-Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles. `main` holds only the index, the licence and the header asset.
+## Current state
 
-```mermaid
-gitGraph
-    commit id: "Initial commit"
-    commit id: "README + LICENSE"
-    branch Printer-Remote-Toner-Monitor
-    commit id: "LEDM / SNMP"
-    commit id: "Browser fallback"
-    checkout main
-    branch IT-Tool-Kit
-    commit id: "Event log engine"
-    commit id: "Knowledge base"
-    checkout main
-    branch PDF-Suite
-    commit id: "Fillable forms"
-    commit id: "Compare + report"
-    checkout main
-    branch Medical-Audio-to-Text
-    commit id: "Whisper engine"
-    commit id: "PT-PT corrections"
-    checkout main
-    commit id: "Project index"
-```
+- **216 tests**, none of which opens a network connection
+- Four platform generators, each covering identity, VLANs, SVIs, ports, services and hardening
+- GUI and headless CLI, with distinct exit codes for the scheduler
+- Bilingual source — every module, class and function documented in PT-PT and EN-UK
 
-<div align="center">
+---
 
-| Branch | Role | Contents |
-| :--- | :--- | :--- |
-| `main` | 🏛️ **Hub** | Overview, documentation, project index |
-| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite |
-| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison |
-| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
-| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
+## Installation
 
-</div>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-## 📦 Project Index
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### 🔧 IT Toolkit
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-69_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-IT--Tool--Kit-1F6FEB?style=flat-square)
-
-Desktop suite for daily IT work. Reads and interprets Windows event logs, detects errors and potential issues, **suggests fixes**, and compiles them into a report.
-
-`Python` · `CustomTkinter` · `WMI`
-
-<details>
-<summary><b>Modules</b></summary>
-
-- Dashboard
-- Event log analysis + remediation hints
-- Network tools
-- Quick tools
-- Disks
-- Services
-- Inventory / system info
-- Reporting centre
-
-</details>
-
-</td>
-<td width="50%" valign="top">
-
-### 📚 PDF Suite
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-121_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-PDF--Suite-1F6FEB?style=flat-square)
-
-Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
-
-`Python` · `pdfplumber` · `pypdf` · `reportlab`
-
-<details>
-<summary><b>What it refuses to do</b></summary>
-
-- **Does not invent missing values.** A quote with no stated warranty is not worth zero — it is "does not say", and the criterion is dropped with its weight redistributed.
-- **Does not declare a winner on a thin margin.** Below five points in a hundred it says there is no clear winner.
-- **Does not convert currencies.** Different currencies means a warning, not a comparison.
-
-</details>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🖨️ HP Toner Monitor
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-49_passing-2EA043?style=flat-square)
-![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
-
-Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
-
-`Python` · `SNMP` · `Selenium`
-
-<details>
-<summary><b>Collection chain</b></summary>
-
-`LEDM` → `SNMP` → `HTML scrape` → `browser fallback`
-
-Each method falls through to the next, so a proxy or a self-signed certificate warning never stops the run.
-
-It **drafts** the order e-mail as an `.eml` and never sends it: quantities depend on the stock already in the store room, which the tool knows nothing about.
-
-</details>
-
-</td>
-<td width="50%" valign="top">
-
-### 🩺 Transcritor Médico PT
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-40_passing-2EA043?style=flat-square)
-![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
-
-Turns dictated audio into written text in **European Portuguese**, with a correction layer built for clinical vocabulary — drug names, dosages, abbreviations and units that a general-purpose transcriber gets wrong.
-
-`Python` · `Whisper` · `CustomTkinter`
-
-<details>
-<summary><b>Why it runs offline</b></summary>
-
-The audio is clinical. It never leaves the machine: transcription and correction both run locally, with no API call and no upload step anywhere in the pipeline.
-
-</details>
-
-</td>
-</tr>
-</table>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-## ⚡ Getting Started
-
-<details open>
-<summary><b>Clone a single project branch</b></summary>
+Double-click **`EXECUTAR.bat`**. First run builds the environment; after that it starts straight away. No elevation required — this tool reads nothing from the local machine.
 
 ```bash
-git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m netconfig
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor` or `Medical-Audio-to-Text`. Branch names are **case-sensitive**.
+---
 
-</details>
-
-<details>
-<summary><b>Clone everything and switch locally</b></summary>
+## Usage
 
 ```bash
-git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
+python -m netconfig                                              # GUI
+python -m netconfig modelo acesso --saida piso1.json             # starting profile
+python -m netconfig gerar piso1.json --saida SW-PISO1.cfg        # generate
+python -m netconfig backup --todos                               # back up the fleet
+python -m netconfig comparar piso1.json --equipamento SW-01      # diff
+python -m netconfig enviar piso1.json --equipamento SW-01 --confirmar
 ```
 
-```bash
-cd Personal-AI-Projects && git branch -a && git checkout PDF-Suite
-```
+Full documentation, including the per-vendor quirks that each generator exists to handle, in [`Network-Config-Builder/README.md`](Network-Config-Builder/README.md).
 
-</details>
+---
 
-<details>
-<summary><b>Requirements</b></summary>
+## Known limits
 
-| Requirement | Version |
-| :--- | :--- |
-| Windows | 10 / 11 |
-| Python | 3.11+ |
-| Dependencies | per project, see `requirements.txt` in each branch |
+- **No Aruba AOS-S (ProCurve).** The 2530/2540/2930 line is a different syntax entirely — effectively a fifth platform, not a variation of AOS-CX.
+- **No configuration removal.** A push adds and changes. Deciding what to take away belongs to whoever knows the network.
+- **No model detection.** Where a command depends on the model rather than the platform — IOS's `switchport trunk encapsulation dot1q` — it is emitted commented, with the reason beside it.
+- **No port-notation translation between vendors.** Flagged with a warning, and left alone.
 
-```bash
-python -m venv .venv && .venv\Scripts\activate && pip install -r requirements.txt
-```
+---
 
-Every project also ships an `EXECUTAR.bat` launcher that builds the environment on first run, so the manual steps above are only needed for development.
+## License
 
-</details>
-
-<details>
-<summary><b>Running the tests</b></summary>
-
-```bash
-pip install -r requirements-dev.txt && python -m pytest
-```
-
-Each project branch is checked on every push by GitHub Actions — see `.github/workflows/ci.yml` on that branch.
-
-</details>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-## 👤 About
-
-<table>
-<tr>
-<td valign="top" width="60%">
-
-Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, working across PMS, POS, networking and compliance, with a habit of turning manual operations into tooling.
-
-These projects are personal work, published under the MIT licence so anyone facing the same problems can reuse them.
-
-<br />
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelsantosit/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RafaDevpt)
-
-</td>
-<td valign="top" width="40%">
-
-**Working with**
-
-![Python](https://img.shields.io/badge/Python-0D1117?style=flat-square&logo=python&logoColor=3776AB)
-![PowerShell](https://img.shields.io/badge/PowerShell-0D1117?style=flat-square&logo=powershell&logoColor=5391FE)
-![Windows Server](https://img.shields.io/badge/Windows_Server-0D1117?style=flat-square&logo=windows&logoColor=0078D6)
-![VMware](https://img.shields.io/badge/VMware-0D1117?style=flat-square&logo=vmware&logoColor=607078)
-![Microsoft 365](https://img.shields.io/badge/Microsoft_365-0D1117?style=flat-square&logo=microsoft365&logoColor=EA3E23)
-![Networking](https://img.shields.io/badge/Networking-0D1117?style=flat-square&logo=ubiquiti&logoColor=0559C9)
-![Git](https://img.shields.io/badge/Git-0D1117?style=flat-square&logo=git&logoColor=F05032)
-
-**Focus**
-
-`Automation` · `IT operations`
-`Systems integration` · `Compliance`
-
-</td>
-</tr>
-</table>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-<div align="center">
-
-## 📜 License
-
-Distributed under the **MIT License** — see [`LICENSE`](LICENSE).
-
-The same licence applies to every project branch, each of which carries its own copy.
-
-<br />
+MIT — see [`LICENSE`](LICENSE).
 
 <sub>Created by Redfox using Claude</sub>
-
-<img src="https://capsule-render.vercel.app/api?type=venom&color=0:1F6FEB,50:6E5494,100:0D1117&height=140&section=footer" alt="" />
-
-</div>

@@ -1,0 +1,84 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositorio.
+#
+#        Aqui a entrada que mais importa nao e o config.json — sao os .cfg. Uma
+#        configuracao de switch, gerada ou lida do equipamento, e um mapa da
+#        rede: diz que VLANs existem, onde estao os servidores, que portas estao
+#        abertas e quem gere o que. Um `git add .` distraido numa pasta de
+#        trabalho publica isso tudo, e um repositorio lembra-se para sempre.
+#
+#        Por isso a aplicacao escreve os ficheiros na pasta do utilizador e
+#        nunca aqui dentro. Estas regras sao a segunda linha de defesa, para o
+#        caso de alguem apontar a pasta de saida para dentro do repositorio.
+#
+# EN-UK: What must never enter the repository.
+#
+#        Here the entry that matters most is not config.json — it is the .cfg
+#        files. A switch configuration, generated or read from the device, is a
+#        map of the network: which VLANs exist, where the servers are, which
+#        ports are open and who manages what. An absent-minded `git add .` in a
+#        working folder publishes all of it, and a repository remembers forever.
+#
+#        That is why the application writes its files into the user's folder and
+#        never in here. These rules are the second line of defence, in case
+#        somebody points the output folder inside the repository.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# --- PT-PT: Configuracoes e backups / EN-UK: Configurations and backups ----
+*.cfg
+Configuracoes/
+Backups/
+running-config*
+startup-config*
+
+# --- PT-PT: Perfis reais / EN-UK: Real profiles ----------------------------
+# PT-PT: Os perfis de exemplo devem chamar-se exemplo-*.json para escaparem.
+# EN-UK: Sample profiles must be named exemplo-*.json to be kept.
+inventario.json
+inventario.xlsx
+perfil*.json
+!exemplo-*.json
+
+# --- PT-PT: Bytecode e cache / EN-UK: Bytecode and cache -------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- PT-PT: Ambientes virtuais / EN-UK: Virtual environments ---------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- PT-PT: Empacotamento / EN-UK: Packaging -------------------------------
+build/
+dist/
+*.egg-info/
+*.spec
+
+# --- PT-PT: Configuracao real / EN-UK: Real configuration ------------------
+config.json
+*.local.json
+.env
+.env.*
+
+# --- PT-PT: Registos / EN-UK: Logs -----------------------------------------
+*.log
+logs/
+
+# --- PT-PT: Sistema operativo e editores / EN-UK: OS and editors -----------
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
