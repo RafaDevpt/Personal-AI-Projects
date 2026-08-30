@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 PT-PT: Configuração do registo de eventos.
        Um ficheiro rotativo e um nível de detalhe controlável, em vez de print()

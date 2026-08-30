@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Estado geral da maquina — processador, memoria, tempo ligado e
        reinicio pendente.

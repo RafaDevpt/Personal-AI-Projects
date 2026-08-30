@@ -8,6 +8,32 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [2.0.1] — 2026-08-30
+
+**PT** · Correcções, saneamento e integração contínua.
+**EN** · Fixes, sanitisation and continuous integration.
+
+### Infra-estrutura · Infrastructure
+
+- `.gitignore` — o repositório não tinha nenhum. Impede que `config.json`,
+  relatórios gerados, `.venv/` e `__pycache__/` cheguem a ser versionados
+- Integração contínua em GitHub Actions: `ruff` e `pytest` em `windows-latest`
+  a cada `push` e cada `pull request` sobre este branch
+- Árvore limpa de avisos do `ruff` sob a configuração que o projecto já
+  declarava em `pyproject.toml`, que até aqui não passava
+
+### Corrigido · Fixed
+
+- `gui/dialogs.py` — o reagendamento do temporizador usava `try`/`except`/`pass`
+  para tolerar a janela já fechada; passa a `contextlib.suppress`, com a razão
+  escrita no código em vez de implícita
+- Importações mortas removidas (`pathlib.Path` em `gui/app.py`); `Callable`
+  passa a vir de `collections.abc`
+- Declarações `# -*- coding: utf-8 -*-` retiradas: são desnecessárias em
+  Python 3 e induziam em erro quanto ao que o ficheiro precisa
+
+---
+
 ## [2.0.0] — 2026-08-27
 
 **PT** · Reescrita completa. A versão anterior (1.0, ficheiro único) fica

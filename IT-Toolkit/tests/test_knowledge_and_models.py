@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes da base de conhecimento e das estruturas de dados.
 EN-UK: Tests for the knowledge base and the data structures.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Ponto de entrada do IT Toolkit.
 

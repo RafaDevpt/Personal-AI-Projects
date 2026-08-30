@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "it-toolkit"
-version = "2.0.0"
+version = "2.0.1"
 description = "Diagnóstico e manutenção de máquinas Windows / Windows machine diagnostics and maintenance"
 readme = "README.md"
 requires-python = ">=3.10"

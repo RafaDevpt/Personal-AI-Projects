@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Base de conhecimento de Event IDs do Windows.
 

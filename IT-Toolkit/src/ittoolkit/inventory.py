@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Inventario da maquina — modelo, numero de serie, BIOS e software.
 

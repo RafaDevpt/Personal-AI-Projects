@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Relatorios em HTML.
 
@@ -269,7 +268,7 @@ def relatorio_saude(
     """
     corpo = [_cabecalho("Relatório de Saúde da Máquina", identificacao)]
 
-    por_gravidade = {g: 0 for g in Gravidade}
+    por_gravidade = dict.fromkeys(Gravidade, 0)
     for achado in achados:
         por_gravidade[achado.gravidade] += 1
 

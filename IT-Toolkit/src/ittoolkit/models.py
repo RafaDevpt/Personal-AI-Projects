@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Estruturas de dados partilhadas. Sem dependencias de GUI, de Windows ou
        de rede — e o que torna a logica testavel numa maquina qualquer.

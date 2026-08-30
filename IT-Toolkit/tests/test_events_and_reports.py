@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Testes da analise de eventos, da geracao de relatorios e da configuracao.
        Nenhum destes testes toca no Windows nem le event logs reais.
@@ -384,7 +383,7 @@ class TestRedeAuxiliares:
         from ittoolkit.network import _e_apipa
 
         assert _e_apipa("169.254.10.5") is True
-        assert _e_apipa("10.162.84.20") is False
+        assert _e_apipa("192.168.1.20") is False
         assert _e_apipa("não é um ip") is False
 
 

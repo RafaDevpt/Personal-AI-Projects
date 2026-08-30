@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Rede — configuracao, diagnostico e testes pontuais.
 

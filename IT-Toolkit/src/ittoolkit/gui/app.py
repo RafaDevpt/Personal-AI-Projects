@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janela principal do IT Toolkit.
 
@@ -35,9 +34,9 @@ import logging
 import queue
 import threading
 import webbrowser
-from pathlib import Path
+from collections.abc import Callable
 from tkinter import messagebox
-from typing import Any, Callable
+from typing import Any
 
 import customtkinter as ctk
 

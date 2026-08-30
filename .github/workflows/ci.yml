@@ -1,0 +1,60 @@
+# ===========================================================================
+# PT-PT: Integracao continua do IT Toolkit.
+#
+#        Corre em Windows porque e onde a aplicacao vive: o IT Toolkit le
+#        registos de eventos do Windows e todos usam caminhos %APPDATA%.
+#        Testar noutro sistema daria um verde que nao significa nada.
+#
+#        Cada projeto vive no seu branch, por isso o gatilho aponta a este e
+#        so a este. O working-directory aponta a subpasta do projeto, porque a
+#        raiz do branch so tem a pasta e a licenca.
+#
+# EN-UK: Continuous integration for IT Toolkit.
+#
+#        Runs on Windows because that is where the application lives: the IT
+#        Toolkit reads Windows event logs and every project uses %APPDATA%
+#        paths. Testing elsewhere would give a green tick that means nothing.
+#
+#        Each project lives in its own branch, so the trigger names this one
+#        and only this one. working-directory points at the project subfolder,
+#        because the branch root holds only that folder and the licence.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: CI
+
+on:
+  push:
+    branches: [IT-Tool-Kit]
+  pull_request:
+    branches: [IT-Tool-Kit]
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Lint + testes / Lint + tests
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: IT-Toolkit
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Instalar dependencias / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Testes (pytest) / Tests (pytest)
+        run: python -m pytest

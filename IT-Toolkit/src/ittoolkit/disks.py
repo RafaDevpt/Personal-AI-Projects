@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Discos — espaco livre por particao, estado SMART e pastas maiores.
 

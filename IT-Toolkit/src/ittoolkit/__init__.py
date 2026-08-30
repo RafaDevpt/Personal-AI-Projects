@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: IT Toolkit — ferramenta de diagnostico e manutencao do dia a dia de IT
        em maquinas Windows. Le e interpreta os event logs, diagnostica a rede,
@@ -11,7 +10,7 @@ EN-UK: IT Toolkit — day-to-day IT diagnostics and maintenance tool for Windows
 Created by Redfox using Claude
 """
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 __app_name__ = "IT Toolkit"
 __author__ = "Rafael Santos (Redfox)"
 __license__ = "MIT"

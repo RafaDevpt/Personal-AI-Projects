@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Janelas auxiliares — definicoes e testes de rede pontuais.
 
@@ -9,12 +8,14 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import queue
 import threading
+from collections.abc import Callable
 from pathlib import Path
 from tkinter import filedialog, messagebox
-from typing import Any, Callable
+from typing import Any
 
 import customtkinter as ctk
 
@@ -345,10 +346,14 @@ class JanelaTesteRede(_JanelaBase):
                 self._escrever(self._fila.get_nowait())
         except queue.Empty:
             pass
-        try:
+        # PT-PT: A janela pode já ter sido fechada quando o temporizador
+        #        dispara. Reagendar sobre um widget destruído levanta excepção
+        #        no Tk, e isso não é um erro: é o fim normal do diálogo.
+        # EN-UK: The window may already have been closed when the timer fires.
+        #        Rescheduling on a destroyed widget raises in Tk, and that is
+        #        not an error: it is the dialogue's normal end.
+        with contextlib.suppress(Exception):
             self.after(120, self._pump)
-        except Exception:  # noqa: BLE001 — a janela pode já ter sido fechada
-            pass
 
     def _correr(self, funcao: Callable[[str], Any]) -> None:
         destino = self.destino.get().strip()

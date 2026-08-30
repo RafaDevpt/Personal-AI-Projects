@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Ferramentas rapidas — accoes pontuais de manutencao.
 

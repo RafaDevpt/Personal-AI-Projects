@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Execucao de comandos externos (cmd.exe e PowerShell).
 

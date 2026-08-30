@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 PT-PT: Servicos do Windows — listagem, deteccao dos que deviam estar a correr
        e arranque manual.
