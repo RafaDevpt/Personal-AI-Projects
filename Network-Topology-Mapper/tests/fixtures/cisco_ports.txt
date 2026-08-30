@@ -1,0 +1,9 @@
+Port      Name               Status       Vlan       Duplex  Speed Type
+Gi1/0/1   Uplink SW-PISO1    connected    trunk      a-full a-1000 10/100/1000BaseTX
+Gi1/0/2   Uplink SW-COZINHA  connected    trunk      a-full a-1000 10/100/1000BaseTX
+Gi1/0/10  AP Lobby           connected    10         a-full  a-100 10/100/1000BaseTX
+Gi1/0/20  Reception PC       connected    20         a-full a-1000 10/100/1000BaseTX
+Gi1/0/21  Impressora piso 0  connected    20         a-full  a-100 10/100/1000BaseTX
+Gi1/0/22                     connected    20         a-full a-1000 10/100/1000BaseTX
+Gi1/0/30  Telefone recepcao  connected    30         a-full  a-100 10/100/1000BaseTX
+Gi1/0/44                     notconnect   20           auto   auto 10/100/1000BaseTX

@@ -1,0 +1,58 @@
+# ===========================================================================
+# PT-PT: Integracao continua do Network Topology Mapper.
+#
+#        Corre em Windows porque e onde a aplicacao vive: o launcher e um .bat,
+#        os caminhos de omissao sao %APPDATA%, e e num portatil de Windows que
+#        alguem a vai abrir no bastidor.
+#
+#        Nenhum teste abre uma ligacao de rede. Os leitores de CLI sao testados
+#        contra ficheiros de output guardados em tests/fixtures, e o crawl
+#        inteiro corre com um recolector substituido. Um teste que precisasse
+#        de um switch a responder nao correria aqui e, por isso, nao correria
+#        nunca.
+#
+# EN-UK: Continuous integration for Network Topology Mapper.
+#
+#        Runs on Windows because that is where the application lives. No test
+#        opens a network connection: the CLI readers are tested against saved
+#        output files, and the whole crawl runs with a substituted collector.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: CI
+
+on:
+  push:
+    branches: [Network-Topology-Mapper]
+  pull_request:
+    branches: [Network-Topology-Mapper]
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Lint + testes / Lint + tests
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: Network-Topology-Mapper
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Instalar dependencias / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Testes (pytest) / Tests (pytest)
+        run: python -m pytest

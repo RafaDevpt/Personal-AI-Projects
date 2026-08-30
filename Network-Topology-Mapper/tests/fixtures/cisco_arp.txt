@@ -1,0 +1,8 @@
+Protocol  Address          Age (min)  Hardware Addr   Type   Interface
+Internet  10.0.10.1               -   000c.0caa.bb01  ARPA   Vlan10
+Internet  10.0.10.11             12   000b.8611.2233  ARPA   Vlan10
+Internet  10.0.10.31             44   24a4.3c55.6677  ARPA   Vlan10
+Internet  10.0.10.51              3   000c.0cde.ad01  ARPA   Vlan10
+Internet  10.0.20.101             8   a4c3.f012.3456  ARPA   Vlan20
+Internet  10.0.20.150            21   a45d.36aa.bbcc  ARPA   Vlan20
+Internet  10.0.30.44              1   805e.c011.2233  ARPA   Vlan30

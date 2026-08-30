@@ -1,0 +1,74 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositorio.
+#
+#        Aqui a entrada que mais importa sao os relatorios. Um mapa de rede
+#        diz que VLANs existem, que enderecos tem cada equipamento, em que
+#        porta esta cada posto e onde estao os servidores. E a planta do
+#        edificio: exactamente o que alguem precisaria para comecar.
+#
+#        Por isso a aplicacao escreve os relatorios na pasta do utilizador e
+#        nunca aqui dentro. Estas regras sao a segunda linha de defesa, para o
+#        caso de alguem apontar a pasta de saida para dentro do repositorio.
+#
+# EN-UK: What must never enter the repository.
+#
+#        Here the entries that matter most are the reports. A network map says
+#        which VLANs exist, which addresses each device has, which port every
+#        workstation is on and where the servers are. It is the building's
+#        floor plan: exactly what somebody would need to get started.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# --- PT-PT: Relatorios e mapas / EN-UK: Reports and maps -------------------
+mapa-rede-*.xlsx
+mapa-rede-*.pdf
+*.xlsx
+*.pdf
+!docs/**/*.pdf
+
+# --- PT-PT: Listas de fabricantes descarregadas / EN-UK: Downloaded OUI lists
+oui.csv
+oui.txt
+
+# --- PT-PT: Bytecode e cache / EN-UK: Bytecode and cache -------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- PT-PT: Ambientes virtuais / EN-UK: Virtual environments ---------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- PT-PT: Empacotamento / EN-UK: Packaging -------------------------------
+build/
+dist/
+*.egg-info/
+*.spec
+
+# --- PT-PT: Configuracao real / EN-UK: Real configuration ------------------
+config.json
+*.local.json
+.env
+.env.*
+
+# --- PT-PT: Registos / EN-UK: Logs -----------------------------------------
+*.log
+logs/
+
+# --- PT-PT: Sistema operativo e editores / EN-UK: OS and editors -----------
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

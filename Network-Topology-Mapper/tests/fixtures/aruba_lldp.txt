@@ -1,0 +1,44 @@
+Port                          : 1/1/49
+Neighbor Entries              : 1
+Neighbor Entries Deleted      : 0
+Neighbor Entries Dropped      : 0
+Neighbor Entries Age-Out      : 0
+
+Neighbor index                : 1
+Updated                       : 2 mins ago
+Chassis-id                    : 00:0c:0c:aa:bb:01
+Port-id                       : Gi1/0/1
+Port-description              : Uplink SW-PISO1
+System-Name                   : SW-CORE-01
+System-Description            : Cisco IOS Software, C9300 Software
+Chassis Capabilities Available: Bridge, Router
+Chassis Capabilities Enabled  : Bridge, Router
+Management Address            : 10.0.10.1
+
+Port                          : 1/1/12
+Neighbor Entries              : 1
+Neighbor Entries Deleted      : 0
+
+Neighbor index                : 1
+Updated                       : 1 min ago
+Chassis-id                    : 24:a4:3c:99:88:77
+Port-id                       : eth0
+Port-description              : eth0
+System-Name                   : AP-PISO1-12
+System-Description            : UAP-AC-PRO, 6.5.28
+Chassis Capabilities Available: Bridge, WLAN Access Point
+Chassis Capabilities Enabled  : Bridge, WLAN Access Point
+Management Address            : 10.0.10.62
+
+Port                          : 1/1/6
+Neighbor Entries              : 1
+
+Neighbor index                : 1
+Chassis-id                    : 80:5e:c0:44:55:66
+Port-id                       : 805ec0445566
+Port-description              : LAN port
+System-Name                   : SIP-T46S
+System-Description            : Yealink SIP-T46S 66.85.0.5
+Chassis Capabilities Available: Bridge, Telephone
+Chassis Capabilities Enabled  : Bridge, Telephone
+Management Address            : 10.0.30.71

@@ -1,359 +1,130 @@
 <!--
-  PT-PT: Personal-AI-Projects — README do hub.
-         O `main` não contém código de aplicação: é o índice. Cada projeto vive
-         no seu próprio branch, com o seu README, os seus requisitos e o seu
-         ciclo de vida. A tabela de branches abaixo tem de corresponder
-         exactamente a `git branch -r` — se divergir, o Quick Start deixa de
-         funcionar para quem clonar.
-
-  EN-UK: Personal-AI-Projects — hub README.
-         `main` carries no application code: it is the index. Each project
-         lives in its own branch with its own README, requirements and
-         lifecycle. The branch table below must match `git branch -r` exactly —
-         if it drifts, the Quick Start stops working for anyone cloning.
-
+  Network Topology Mapper — README
   Created by Redfox using Claude
 -->
 
 <div align="center">
 
-<img src="Assets/header-terminal.svg" width="100%" alt="Personal AI Projects" />
+# 🗺️ Network Topology Mapper
 
-<br /><br />
+**Walks the network from the controller to the socket, and tells you what is on the other end**
 
-<!-- ── Core stack ─────────────────────────────── -->
-<img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-<img src="https://img.shields.io/badge/PowerShell-5.1+-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
-<img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
-<img src="https://img.shields.io/badge/MIT-2EA043?style=for-the-badge&logo=opensourceinitiative&logoColor=white" />
+![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.0.0-1F6FEB?style=for-the-badge)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Read only](https://img.shields.io/badge/read--only-6E5494?style=for-the-badge)
 
-<br />
-
-<!-- ── Live repo telemetry ────────────────────── -->
-<img src="https://img.shields.io/github/last-commit/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=1F6FEB&logo=git&logoColor=white" />
-<img src="https://img.shields.io/github/commit-activity/m/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=6E5494" />
-<img src="https://img.shields.io/github/languages/top/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=3776AB" />
-<img src="https://img.shields.io/github/repo-size/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341" />
-<img src="https://img.shields.io/github/stars/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341&logo=github" />
-
-<br /><br />
-
-<a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
-<a href="#-branch-strategy"><img src="https://img.shields.io/badge/🌿_Branches-6E5494?style=for-the-badge&logoColor=white" /></a>
-<a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
+<a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
 </div>
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+---
 
-## 🧭 Overview
+## What it does
 
-> **A collection of personal AI-assisted projects built to automate tasks, improve productivity and support both professional and personal activities.**
+Nobody knows what is plugged into port 27 of the second-floor switch. The label says "office" and was written in 2019. Finding out means walking to the comms room, following a cable, and hoping the patch panel matches the drawing.
 
-Every tool here started as a real friction point in day-to-day hospitality IT operations — a manual check repeated 24 times, a form nobody could edit, a report someone typed by hand every Monday — and ended up as a small, self-contained application.
+Network Topology Mapper answers it from a desk. Give it one core switch — or a UniFi controller — and it walks the network on its own, neighbour to neighbour, down to the last access switch. On each one it reads the MAC address table, the ARP table, the port state and the PoE draw. Then it crosses all of it and produces the thing nobody has: **a list of every device, which switch and port it is on, and what it appears to be**.
 
-<div align="center">
+Excel to work with, PDF with the topology drawn.
 
-| 🎯 Principle | What it means in practice |
-| :--- | :--- |
-| **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
-| **Safe by default** | Read-only operations unless explicitly told otherwise |
-| **Single-file deploy** | A `.bat` launcher and a folder — no installers, no admin rights |
-| **Documented** | Every branch ships its own README, requirements and screenshots |
-| **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
+---
 
-</div>
+## How it finds things
 
-<a name="nota-offline"></a>
-<sub>
+### The walk
 
-**[1]** One deliberate exception: the **PDF Suite** carries an optional model-assisted analysis that sends document text to the Anthropic API. It is **disabled by default**, it states how many documents and characters will leave the machine before sending anything, and everything it returns is labelled as coming from the model. Every other feature of every project runs entirely offline.
+LLDP and CDP, breadth-first from the seeds. Every neighbour announcing itself as a switch joins the queue.
 
-*Uma excepção deliberada: a análise assistida do PDF Suite. Está desligada por omissão, avisa antes de enviar, e o que devolve vem sempre identificado como vindo do modelo.*
+Two things deliberately do not: **access points**, which have no MAC table to give, and **IP phones**, which announce themselves as bridges because they genuinely contain a two-port switch. Without that second exception, mapping a hotel would try to authenticate against every room phone in the building.
 
-</sub>
+### The correlation
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+A MAC address appears in the table of *every* switch between it and the rest of the network — on the uplink port each time, except on one, where it appears on the port it is actually plugged into. Finding that one is finding the device. LLDP is what tells an uplink from a socket.
 
-## 🌿 Branch Strategy
+Three cases get explicit handling rather than a guess: a MAC on **two sockets at once** (bonded NIC, or a loop) is flagged ambiguous with both locations; a MAC appearing **only on uplinks** is reported as sitting beyond a switch that could not be reached; and an **access point's port** is where the AP lives, not where its wireless clients live.
 
-Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles. `main` holds only the index, the licence and the header asset.
+---
 
-```mermaid
-gitGraph
-    commit id: "Initial commit"
-    commit id: "README + LICENSE"
-    branch Printer-Remote-Toner-Monitor
-    commit id: "LEDM / SNMP"
-    commit id: "Browser fallback"
-    checkout main
-    branch IT-Tool-Kit
-    commit id: "Event log engine"
-    commit id: "Knowledge base"
-    checkout main
-    branch PDF-Suite
-    commit id: "Fillable forms"
-    commit id: "Compare + report"
-    checkout main
-    branch Medical-Audio-to-Text
-    commit id: "Whisper engine"
-    commit id: "PT-PT corrections"
-    checkout main
-    branch Network-Config-Builder
-    commit id: "Vendor generators"
-    commit id: "Read / diff / push"
-    checkout main
-    commit id: "Project index"
-```
+## What it will and will not claim
 
-<div align="center">
+Every classification carries a **confidence level and the list of signals behind it**.
 
-| Branch | Role | Contents |
+| Signal | Worth | Example |
 | :--- | :--- | :--- |
-| `main` | 🏛️ **Hub** | Overview, documentation, project index |
-| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite |
-| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison |
-| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
-| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
-| `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti |
+| LLDP / CDP | High — the device speaks for itself | Announces itself as a WLAN AP → it **is** an AP |
+| Factory hostname | High | `NPI1A2B3C` is an HP JetDirect |
+| Virtualisation OUI | High | A VMware MAC **is** a virtual machine |
+| PoE draw | Medium | 14 W is an AP; 5 W is a phone; 0 W is neither |
+| Vendor OUI | Low to medium | An Intel NIC lives in a PC, a server or a high-end printer |
+| Nothing | None | It says so |
 
-</div>
+**When signals disagree, confidence drops and the conflict is recorded.** HP is the case that forced the rule: it makes workstations and printers under the same OUI, and answering "workstation" would be right half the time and misleading the other half.
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+### The finding that earns its keep
 
-## 📦 Project Index
+A port with six MAC addresses and no LLDP neighbour has an **unmanaged switch** on the far side — the desk switch somebody plugged in. It explains the loops, the traffic where it should not be, and the socket that "sometimes drops". The conclusion is attached to the *port*, not to any of the six devices, because none of them is the switch.
 
-<table>
-<tr>
-<td width="50%" valign="top">
+---
 
-### 🔧 IT Toolkit
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-69_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-IT--Tool--Kit-1F6FEB?style=flat-square)
+## Read-only, by construction
 
-Desktop suite for daily IT work. Reads and interprets Windows event logs, detects errors and potential issues, **suggests fixes**, and compiles them into a report.
+Every command is checked against a list of allowed verbs before it is sent — `show`, `display`, and the `telnet localhost` needed to reach a UniFi's CLI. Chained commands are refused. A test walks every reader's command set and fails if any of them stops being a read.
 
-`Python` · `CustomTkinter` · `WMI`
+A mapping tool enters an entire property's infrastructure, often with administrative credentials, out of hours, with nobody watching. That guarantee cannot depend on someone remembering.
 
-<details>
-<summary><b>Modules</b></summary>
+Credentials are never written to disk — not the switches', not the controller's.
 
-- Dashboard
-- Event log analysis + remediation hints
-- Network tools
-- Quick tools
-- Disks
-- Services
-- Inventory / system info
-- Reporting centre
+---
 
-</details>
+## Current state
 
-</td>
-<td width="50%" valign="top">
+- **155 tests**, none of which opens a network connection
+- Three platform readers — Aruba AOS-CX, Cisco IOS/IOS-XE, Ubiquiti EdgeSwitch/UniFi — tested against saved output of the documented formats
+- UniFi controller support for seeding and for exact wired-client locations
+- GUI and headless CLI with distinct exit codes
+- Bilingual source, PT-PT and EN-UK
 
-### 📚 PDF Suite
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-121_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-PDF--Suite-1F6FEB?style=flat-square)
+---
 
-Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
+## Installation
 
-`Python` · `pdfplumber` · `pypdf` · `reportlab`
-
-<details>
-<summary><b>What it refuses to do</b></summary>
-
-- **Does not invent missing values.** A quote with no stated warranty is not worth zero — it is "does not say", and the criterion is dropped with its weight redistributed.
-- **Does not declare a winner on a thin margin.** Below five points in a hundred it says there is no clear winner.
-- **Does not convert currencies.** Different currencies means a warning, not a comparison.
-
-</details>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🖨️ HP Toner Monitor
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-49_passing-2EA043?style=flat-square)
-![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
-
-Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
-
-`Python` · `SNMP` · `Selenium`
-
-<details>
-<summary><b>Collection chain</b></summary>
-
-`LEDM` → `SNMP` → `HTML scrape` → `browser fallback`
-
-Each method falls through to the next, so a proxy or a self-signed certificate warning never stops the run.
-
-It **drafts** the order e-mail as an `.eml` and never sends it: quantities depend on the stock already in the store room, which the tool knows nothing about.
-
-</details>
-
-</td>
-<td width="50%" valign="top">
-
-### 🩺 Transcritor Médico PT
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-40_passing-2EA043?style=flat-square)
-![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
-
-Turns dictated audio into written text in **European Portuguese**, with a correction layer built for clinical vocabulary — drug names, dosages, abbreviations and units that a general-purpose transcriber gets wrong.
-
-`Python` · `Whisper` · `CustomTkinter`
-
-<details>
-<summary><b>Why it runs offline</b></summary>
-
-The audio is clinical. It never leaves the machine: transcription and correction both run locally, with no API call and no upload step anywhere in the pipeline.
-
-</details>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### 🌐 Network Config Builder
-![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-216_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-Network--Config--Builder-1F6FEB?style=flat-square)
-
-Describe a switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. Then reads what is running on the device, diffs it, and pushes.
-
-`Python` · `Netmiko` · `CustomTkinter`
-
-<details>
-<summary><b>Safe by default</b></summary>
-
-- **Reads before it writes.** The backup is the entry condition for a push, not an extra. If the read fails, nothing is sent.
-- **Simulates by default.** Writing for real needs `--confirmar`, or typing the device's name into the confirmation box.
-- **Never writes a password.** Generated files carry a placeholder; credentials live in memory for the session only.
-- On **UniFi** the configuration belongs to the controller, so those files carry a warning and no `write memory` — the tool says so rather than pretending otherwise.
-
-</details>
-
-</td>
-<td width="50%" valign="top">
-</td>
-</tr>
-</table>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-## ⚡ Getting Started
-
-<details open>
-<summary><b>Clone a single project branch</b></summary>
+Double-click **`EXECUTAR.bat`**. No elevation required — this tool reads nothing from the local machine.
 
 ```bash
-git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python -m netmap
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text` or `Network-Config-Builder`. Branch names are **case-sensitive**.
+---
 
-</details>
-
-<details>
-<summary><b>Clone everything and switch locally</b></summary>
+## Usage
 
 ```bash
-git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
+python -m netmap                                             # GUI
+python -m netmap mapear --semente 10.0.10.1                  # map from a core switch
+python -m netmap mapear --unifi https://10.0.10.5:8443       # seed from the controller
+python -m netmap oui --importar oui.csv                      # load the full IEEE vendor list
 ```
 
-```bash
-cd Personal-AI-Projects && git branch -a && git checkout PDF-Suite
-```
+Full documentation — including how to prepare the network so the map comes out complete — in [`Network-Topology-Mapper/README.md`](Network-Topology-Mapper/README.md).
 
-</details>
+---
 
-<details>
-<summary><b>Requirements</b></summary>
+## Known limits
 
-| Requirement | Version |
-| :--- | :--- |
-| Windows | 10 / 11 |
-| Python | 3.11+ |
-| Dependencies | per project, see `requirements.txt` in each branch |
+- **Three platforms.** A Juniper or a MikroTik appears on the map as a neighbour but is not visited.
+- **CLI readers follow documented formats.** A firmware that lays its tables out differently is read partially — and the tool **counts the lines it did not understand** and says so, rather than presenting a map with a silent hole.
+- **No LLDP, no topology.** Tables can still be read per switch, but nothing links them.
+- **A device that has not spoken recently is not in the MAC table.** A printer switched off for three days is not there.
+- **The UniFi controller only knows the UniFi world.** On a mixed network it is a head start, not a source of truth.
 
-```bash
-python -m venv .venv && .venv\Scripts\activate && pip install -r requirements.txt
-```
+---
 
-Every project also ships an `EXECUTAR.bat` launcher that builds the environment on first run, so the manual steps above are only needed for development.
+## License
 
-</details>
-
-<details>
-<summary><b>Running the tests</b></summary>
-
-```bash
-pip install -r requirements-dev.txt && python -m pytest
-```
-
-Each project branch is checked on every push by GitHub Actions — see `.github/workflows/ci.yml` on that branch.
-
-</details>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-## 👤 About
-
-<table>
-<tr>
-<td valign="top" width="60%">
-
-Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, working across PMS, POS, networking and compliance, with a habit of turning manual operations into tooling.
-
-These projects are personal work, published under the MIT licence so anyone facing the same problems can reuse them.
-
-<br />
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelsantosit/)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RafaDevpt)
-
-</td>
-<td valign="top" width="40%">
-
-**Working with**
-
-![Python](https://img.shields.io/badge/Python-0D1117?style=flat-square&logo=python&logoColor=3776AB)
-![PowerShell](https://img.shields.io/badge/PowerShell-0D1117?style=flat-square&logo=powershell&logoColor=5391FE)
-![Windows Server](https://img.shields.io/badge/Windows_Server-0D1117?style=flat-square&logo=windows&logoColor=0078D6)
-![VMware](https://img.shields.io/badge/VMware-0D1117?style=flat-square&logo=vmware&logoColor=607078)
-![Microsoft 365](https://img.shields.io/badge/Microsoft_365-0D1117?style=flat-square&logo=microsoft365&logoColor=EA3E23)
-![Networking](https://img.shields.io/badge/Networking-0D1117?style=flat-square&logo=ubiquiti&logoColor=0559C9)
-![Git](https://img.shields.io/badge/Git-0D1117?style=flat-square&logo=git&logoColor=F05032)
-
-**Focus**
-
-`Automation` · `IT operations`
-`Systems integration` · `Compliance`
-
-</td>
-</tr>
-</table>
-
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
-
-<div align="center">
-
-## 📜 License
-
-Distributed under the **MIT License** — see [`LICENSE`](LICENSE).
-
-The same licence applies to every project branch, each of which carries its own copy.
-
-<br />
+MIT — see [`LICENSE`](LICENSE).
 
 <sub>Created by Redfox using Claude</sub>
-
-<img src="https://capsule-render.vercel.app/api?type=venom&color=0:1F6FEB,50:6E5494,100:0D1117&height=140&section=footer" alt="" />
-
-</div>

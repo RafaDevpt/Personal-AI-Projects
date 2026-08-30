@@ -1,0 +1,13 @@
+Module   Available     Used     Remaining
+          (Watts)     (Watts)    (Watts)
+------   ---------   --------   ---------
+1           857.0       31.6       825.4
+
+Interface Admin  Oper       Power   Device              Class Max
+                            (Watts)
+--------- ------ ---------- ------- ------------------- ----- ----
+Gi1/0/1   auto   off        0.0     n/a                 n/a   30.0
+Gi1/0/10  auto   on         15.4    Ieee PD             4     30.0
+Gi1/0/20  auto   off        0.0     n/a                 n/a   30.0
+Gi1/0/21  auto   off        0.0     n/a                 n/a   30.0
+Gi1/0/30  auto   on         6.4     Ieee PD             2     30.0
