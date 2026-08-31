@@ -24,7 +24,7 @@ O **Tkinter** vem com o instalador oficial do Python. Se faltar, foi desmarcado 
 ## Sem interface gráfica
 
 ```
-Windows\CLI.bat --help
+CLI.bat --help
 ```
 
 Para agendar: Agendador de Tarefas → Criar Tarefa → Acção «Iniciar um programa» → `CLI.bat` com os argumentos.

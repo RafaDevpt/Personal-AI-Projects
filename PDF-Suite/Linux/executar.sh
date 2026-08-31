@@ -18,8 +18,7 @@
 
 set -euo pipefail
 
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECTO="$(dirname "$AQUI")"
+PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
 VERMELHO="\033[0;31m"
@@ -105,7 +104,7 @@ fi
 if ! python3 -c "import tkinter" >/dev/null 2>&1; then
     aviso "O Tkinter nao esta instalado: a interface grafica nao vai abrir."
     passo "$(comando_para tkinter)"
-    passo "sem ele resta o modo sem interface: Linux/cli.sh --help"
+    passo "sem ele resta o modo sem interface: ./cli.sh --help"
 fi
 
 # ---------------------------------------------------------------------------

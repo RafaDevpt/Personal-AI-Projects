@@ -23,7 +23,7 @@ EN-UK: PDF Suite — two tools sharing the same document reading layer.
 Created by Redfox using Claude
 """
 
-__version__ = "1.0.1"
+__version__ = "2.0.0"
 __app_name__ = "PDF Suite"
 __author__ = "Rafael Santos (Redfox)"
 __license__ = "MIT"

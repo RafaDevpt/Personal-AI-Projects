@@ -1,0 +1,75 @@
+# PT-PT: Metadados do projecto e configuracao das ferramentas.
+# EN-UK: Project metadata and tool configuration.
+#
+# Created by Redfox using Claude
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdf-suite-windows"
+version = "2.0.0"
+description = "Formulários PDF preenchíveis e comparação de documentos / Fillable PDF forms and document comparison"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Rafael Santos (Redfox)" }]
+keywords = ["pdf", "acroform", "forms", "procurement", "quotes", "comparison", "portuguese"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Portuguese",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = [
+    "pdfplumber>=0.11,<0.12",
+    "pypdf>=5.0,<6.0",
+    "python-docx>=1.1,<2.0",
+    "openpyxl>=3.1,<4.0",
+    "customtkinter>=5.2.2,<6.0",
+    "Pillow>=10.0",
+    "reportlab>=4.0,<5.0",
+]
+
+[project.optional-dependencies]
+# PT-PT: A analise assistida e opcional de proposito — ver src/pdfsuite/ai.py.
+# EN-UK: Assisted analysis is optional by design — see src/pdfsuite/ai.py.
+ia = ["anthropic>=0.40"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+pdfsuite = "pdfsuite.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests", "tools"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+# PT-PT: E501 fica de fora porque os comentarios bilingues sao naturalmente
+#        longos, e cortar frases a meio para caber tornaria-os ilegiveis.
+# EN-UK: E501 is excluded because the bilingual comments are naturally long.
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

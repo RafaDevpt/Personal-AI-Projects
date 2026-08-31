@@ -1,0 +1,28 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use as Definições na aplicação. A aplicação grava a sua própria cópia em %APPDATA%\\PDFSuite (Windows) ou ~/.config/PDFSuite (Linux e macOS), nunca dentro desta pasta. A chave da API NUNCA é gravada em ficheiro nenhum — é lida de ANTHROPIC_API_KEY ou escrita na interface e mantida só em memória.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings window. The application writes its own copy to %APPDATA%\\PDFSuite (Windows) or ~/.config/PDFSuite (Linux and macOS), never inside this folder. The API key is NEVER written to any file.",
+
+  "output_dir": "C:\\Users\\utilizador\\Documents\\PDF Suite",
+  "abrir_apos_gerar": true,
+
+  "detectar_dois_pontos": true,
+  "confianca_minima": 0.5,
+  "substituir_campos_existentes": false,
+
+  "taxa_iva": 23.0,
+  "pesos": {
+    "preco": 45.0,
+    "garantia": 20.0,
+    "entrega": 15.0,
+    "pagamento": 12.0,
+    "validade": 8.0
+  },
+  "penalizar_em_falta": 0.0,
+
+  "frases_resumo": 6,
+
+  "usar_ia": false,
+  "modelo_ia": "claude-sonnet-4-6",
+
+  "tema": "system"
+}

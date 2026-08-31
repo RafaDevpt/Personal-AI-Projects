@@ -13,7 +13,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0.."
+cd /d "%~dp0"
 title PDF Suite
 
 python --version >nul 2>&1
@@ -52,7 +52,7 @@ if not exist ".venv\Scripts\python.exe" (
     echo.
 )
 
-set PYTHONPATH=%CD%\src
+set PYTHONPATH=%~dp0src
 ".venv\Scripts\python.exe" -m pdfsuite %*
 
 REM --- PT-PT: Codigo 1 significa "nao havia nada a fazer", nao e um erro.

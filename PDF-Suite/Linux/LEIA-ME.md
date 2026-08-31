@@ -7,8 +7,8 @@
 ## Como abrir
 
 ```bash
-chmod +x Linux/executar.sh      # só na primeira vez, se o bit não tiver vindo do Git
-./Linux/executar.sh
+chmod +x executar.sh      # só na primeira vez, se o bit não tiver vindo do Git
+./executar.sh
 ```
 
 Na primeira execução verifica os pré-requisitos, cria o ambiente virtual e instala as dependências.
@@ -46,7 +46,7 @@ O lançador reconhece a distribuição pelo `/etc/os-release` e, se faltar algum
 ## Sem interface gráfica
 
 ```bash
-./Linux/cli.sh --help
+./cli.sh --help
 ```
 
 Para agendar com o cron:
