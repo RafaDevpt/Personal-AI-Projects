@@ -59,7 +59,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
-| **One launcher per system** | Every portable project ships `Windows/`, `Linux/` and `macOS/` folders. One shared `src/`: what differs between systems is the launch and the prerequisites, not the application |
+| **Three versions, one per system** | Every portable project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained copy with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[3](#nota-tres)</sup> |
 | **Documented** | Every branch ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
@@ -124,6 +124,15 @@ gitGraph
 | `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port | Windows · Linux · macOS |
 
 </div>
+
+<a name="nota-tres"></a>
+<sub>
+
+**[3]** The cost is stated up front in every project: **a fix to shared code has to be applied three times.** That is the price of three independent versions rather than one with branches, and it is a deliberate choice — each version reads more simply, carries no code that does not concern it, and a user takes to their machine only what they need. Each project's `CONTRIBUTING.md` carries the `diff` command that confirms the three have not drifted apart.
+
+CI runs every version on its own native runner — `windows-latest`, `ubuntu-latest`, `macos-latest`. A Linux version tested on a Windows runner proves nothing about what it does on Linux.
+
+</sub>
 
 <a name="nota-windows"></a>
 <sub>
