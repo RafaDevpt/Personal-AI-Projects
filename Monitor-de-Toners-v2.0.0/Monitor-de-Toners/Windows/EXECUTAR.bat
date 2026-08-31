@@ -16,7 +16,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title Monitor de Toners
 
 REM --- PT-PT: Confirmar que o Python existe / EN-UK: Check Python is present
@@ -59,7 +59,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 REM --- PT-PT: Arrancar / EN-UK: Launch
-set PYTHONPATH=%~dp0src
+set PYTHONPATH=%CD%\src
 ".venv\Scripts\python.exe" -m tonermon %*
 
 REM --- PT-PT: Codigo 1 significa "ha toners em alerta", nao e um erro.
