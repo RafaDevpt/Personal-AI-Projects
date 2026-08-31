@@ -21,7 +21,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 if not exist ".venv\Scripts\python.exe" (
     echo [ERRO] Ambiente nao preparado. Execute EXECUTAR.bat uma vez primeiro.
@@ -29,7 +29,7 @@ if not exist ".venv\Scripts\python.exe" (
     exit /b 1
 )
 
-set PYTHONPATH=%~dp0src
+set PYTHONPATH=%CD%\src
 ".venv\Scripts\python.exe" -m pdfsuite %*
 
 endlocal
