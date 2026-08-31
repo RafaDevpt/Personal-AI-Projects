@@ -59,7 +59,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
-| **Three versions, one per system** | Every portable project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained copy with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[3](#nota-tres)</sup> |
+| **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[3](#nota-tres)</sup> |
 | **Documented** | Every branch ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
@@ -116,7 +116,7 @@ gitGraph
 | Branch | Role | Contents | Runs on |
 | :--- | :--- | :--- | :--- |
 | `main` | 🏛️ **Hub** | Overview, documentation, project index | — |
-| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite | Windows only<sup>[2](#nota-windows)</sup> |
+| `IT-Tool-Kit` | 🔧 Project | Machine diagnostics suite | Windows · Linux · macOS<sup>[2](#nota-windows)</sup> |
 | `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison | Windows · Linux · macOS |
 | `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring | Windows · Linux · macOS |
 | `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation | Windows · Linux · macOS |
@@ -130,6 +130,8 @@ gitGraph
 
 **[3]** The cost is stated up front in every project: **a fix to shared code has to be applied three times.** That is the price of three independent versions rather than one with branches, and it is a deliberate choice — each version reads more simply, carries no code that does not concern it, and a user takes to their machine only what they need. Each project's `CONTRIBUTING.md` carries the `diff` command that confirms the three have not drifted apart.
 
+How much is actually shared varies by project, and the IT Toolkit is the extreme case: there, the three versions share the report format and the module layout and almost nothing else, because reading a Windows event log and reading a systemd journal are not the same job written twice.
+
 CI runs every version on its own native runner — `windows-latest`, `ubuntu-latest`, `macos-latest`. A Linux version tested on a Windows runner proves nothing about what it does on Linux.
 
 </sub>
@@ -137,7 +139,11 @@ CI runs every version on its own native runner — `windows-latest`, `ubuntu-lat
 <a name="nota-windows"></a>
 <sub>
 
-**[2]** The IT Toolkit is Windows-only by construction, not for want of porting. It reads Windows event logs through `wevtutil`, inventory through WMI, services through `sc` and PowerShell, and SMART through `wmic` — it is not an application written on Windows, it is an application *about* Windows. Its `Linux/` and `macOS/` folders exist anyway, and explain what each module reads, what the equivalent would be on that system, and why porting it would mean writing a different application rather than porting this one.
+**[2]** The IT Toolkit used to be Windows-only, and its `Linux/` and `macOS/` folders held an explanation of why: reading Windows event logs through `wevtutil`, inventory through WMI and SMART through `wmic` is not something you port — porting it would mean writing a different application that does the same job elsewhere.
+
+That explanation was right, and in v4.0.0 the other two applications were written. The Linux version reads the systemd journal, `/proc`, `/sys` and `systemctl`; the macOS version reads the unified log, the crash reports in `DiagnosticReports`, `launchd` and `diskutil`. They share the report format, the eight modules and the shape of the knowledge base — and, unlike the sibling projects, very little code, because there is very little that could honestly be shared.
+
+Each also knows what it *cannot* see, and says so: elevation on Windows, the `systemd-journal` group on Linux, Full Disk Access on macOS. On all three the command runs, returns zero and shows less — and a report that fails to flag that looks like a clean machine.
 
 </sub>
 
@@ -151,12 +157,12 @@ CI runs every version on its own native runner — `windows-latest`, `ubuntu-lat
 
 ### 🔧 IT Toolkit
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-69_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
 ![Branch](https://img.shields.io/badge/branch-IT--Tool--Kit-1F6FEB?style=flat-square)
 
-Desktop suite for daily IT work. Reads and interprets Windows event logs, detects errors and potential issues, **suggests fixes**, and compiles them into a report.
+Desktop suite for daily IT work. Reads and interprets the system's event record — event logs on Windows, the systemd journal on Linux, the unified log on macOS — detects errors and potential issues, **suggests fixes**, and compiles them into a report.
 
-`Python` · `CustomTkinter` · `WMI`
+`Python` · `CustomTkinter` · `WMI` · `systemd` · `launchd`
 
 <details>
 <summary><b>Modules</b></summary>
@@ -322,14 +328,29 @@ cd Personal-AI-Projects && git branch -a && git checkout PDF-Suite
 | Requirement | Version |
 | :--- | :--- |
 | Windows | 10 / 11 |
-| Python | 3.11+ |
-| Dependencies | per project, see `requirements.txt` in each branch |
+| Linux | any current distribution |
+| macOS | 11 (Big Sur) or later |
+| Python | 3.10+ |
+| Dependencies | per project **and per system**, see `requirements.txt` inside each `Windows/`, `Linux/` or `macOS/` folder |
+
+Pick your system's folder first — each is a complete application:
 
 ```bash
-python -m venv .venv && .venv\Scripts\activate && pip install -r requirements.txt
+cd <Project>/Linux                      # or Windows, or macOS
+python -m venv .venv
+source .venv/bin/activate               # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Every project also ships an `EXECUTAR.bat` launcher that builds the environment on first run, so the manual steps above are only needed for development.
+Every project ships a launcher per system that builds the environment on first run, so the manual steps above are only needed for development:
+
+| System | Launcher |
+| :--- | :--- |
+| Windows | `EXECUTAR.bat` — double-click |
+| Linux | `./executar.sh` |
+| macOS | `executar.command` — double-click |
+
+On Linux and macOS, a repository cloned by a Windows machine loses the executable bit: `chmod +x executar.sh cli.sh` restores it.
 
 </details>
 
