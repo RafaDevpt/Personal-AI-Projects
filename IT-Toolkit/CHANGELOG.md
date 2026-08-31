@@ -8,6 +8,43 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [3.0.0] — 2026-08-31
+
+**PT** · Arrumação por sistema, e a explicação de porque é que só há um.
+**EN** · Per-system layout, and the explanation of why there is only one.
+
+### A reorganização · The restructure
+
+A aplicação passou para a pasta `Windows/`, ao lado de `Linux/` e `macOS/` — que
+existem, mas não têm código. Esta ferramenta corre **apenas em Windows**, e por
+construção: lê registos de eventos por `wevtutil`, inventário por WMI, serviços
+por `sc` e PowerShell, e SMART por `wmic`.
+
+As duas pastas vazias de código levam a explicação: o que cada módulo lê, qual
+seria o equivalente naquele sistema, e porque é que portar isto não seria portar
+mas escrever outra aplicação. Deixá-las de fora deixaria a pergunta por
+responder; pô-las com um lançador que não funciona seria pior.
+
+### Novo · Added
+
+- `platform_support.py` — o módulo de sistema, só de Windows. Deteta o
+  `python.exe` falso da Microsoft Store, que responde ao comando `python`, não é
+  um interpretador, e abre a loja em vez de correr o programa
+- `--diagnostico` — verifica os requisitos e diz o que falta
+
+### Alterado · Changed
+
+- O `config.py` tinha uma ramificação `os.name == "nt"` que nunca podia ser
+  falsa numa aplicação que só corre em Windows. Foi substituída pela convenção
+  do sistema, num sítio só
+
+### Integração contínua · Continuous integration
+
+Continua num runner só, `windows-latest`, e não numa matriz de três. Dois
+runners a não fazer nada dariam um verde que não significava o que parece.
+
+---
+
 ## [2.0.1] — 2026-08-30
 
 **PT** · Correcções, saneamento e integração contínua.

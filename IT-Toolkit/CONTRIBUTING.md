@@ -7,6 +7,21 @@ changes.
 
 ---
 
+## Só há uma versão, e a razão está nas pastas vazias
+
+A aplicação vive em `Windows/`. As pastas `Linux/` e `macOS/` existem e não têm
+código: levam a explicação de porque é que esta ferramenta não corre lá.
+
+Não é falta de porte. Ela lê registos de eventos por `wevtutil`, inventário por
+WMI, serviços por `sc` e PowerShell, e SMART por `wmic`. Portar isto não seria
+portar — seria escrever outra aplicação que faz o mesmo trabalho noutro sistema,
+partilhando pouco mais do que a interface e a estrutura dos relatórios.
+
+Se um dia fizer sentido, o caminho é um projecto próprio, e não uma quarta
+ramificação dentro deste.
+
+---
+
 ## Antes de tudo · Before anything else
 
 > **PT** · **Nunca** inclua relatórios gerados, nomes de máquina, endereços IP

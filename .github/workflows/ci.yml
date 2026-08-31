@@ -1,23 +1,20 @@
 # ===========================================================================
 # PT-PT: Integracao continua do IT Toolkit.
 #
-#        Corre em Windows porque e onde a aplicacao vive: o IT Toolkit le
-#        registos de eventos do Windows e todos usam caminhos %APPDATA%.
-#        Testar noutro sistema daria um verde que nao significa nada.
+#        Um runner so, e nao tres. Ao contrario dos outros projectos deste
+#        repositorio, este corre apenas em Windows -- por construcao, nao por
+#        falta de porte: le registos de eventos por wevtutil, inventario por
+#        WMI, servicos por sc e PowerShell. As pastas Linux/ e macOS/ existem
+#        para explicar isso, e nao ha nelas codigo para testar.
 #
-#        Cada projeto vive no seu branch, por isso o gatilho aponta a este e
-#        so a este. O working-directory aponta a subpasta do projeto, porque a
-#        raiz do branch so tem a pasta e a licenca.
+#        Uma matriz de tres aqui daria dois runners a nao fazer nada e um verde
+#        que nao significava o que parece.
 #
-# EN-UK: Continuous integration for IT Toolkit.
+# EN-UK: Continuous integration for the IT Toolkit.
 #
-#        Runs on Windows because that is where the application lives: the IT
-#        Toolkit reads Windows event logs and every project uses %APPDATA%
-#        paths. Testing elsewhere would give a green tick that means nothing.
-#
-#        Each project lives in its own branch, so the trigger names this one
-#        and only this one. working-directory points at the project subfolder,
-#        because the branch root holds only that folder and the licence.
+#        One runner, not three. Unlike the other projects here, this one runs on
+#        Windows only -- by construction. Its Linux/ and macOS/ folders exist to
+#        explain that, and hold no code to test.
 #
 # Created by Redfox using Claude
 # ===========================================================================
@@ -32,12 +29,12 @@ on:
 
 jobs:
   verificar:
-    name: Lint + testes / Lint + tests
+    name: Windows em windows-latest
     runs-on: windows-latest
 
     defaults:
       run:
-        working-directory: IT-Toolkit
+        working-directory: IT-Toolkit/Windows
 
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +44,7 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
+          cache-dependency-path: IT-Toolkit/Windows/requirements-dev.txt
 
       - name: Instalar dependencias / Install dependencies
         run: |
@@ -58,3 +56,8 @@ jobs:
 
       - name: Testes (pytest) / Tests (pytest)
         run: python -m pytest
+
+      - name: Diagnostico / Diagnostic
+        run: python -m ittoolkit --diagnostico || true
+        env:
+          PYTHONPATH: src

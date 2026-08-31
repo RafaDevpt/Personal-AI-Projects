@@ -16,7 +16,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0.."
+cd /d "%~dp0"
 title IT Toolkit
 
 REM --- PT-PT: Pedir elevacao. Sem ela o log Security fica inacessivel, o SMART
@@ -71,7 +71,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 REM --- PT-PT: Arrancar / EN-UK: Launch
-set PYTHONPATH=%CD%\src
+set PYTHONPATH=%~dp0src
 ".venv\Scripts\python.exe" -m ittoolkit %*
 
 REM --- PT-PT: Codigos 1 e 2 significam "encontrou problemas", nao sao erros da

@@ -28,7 +28,7 @@ Só duas dependências de Python, de propósito: tudo o resto assenta na bibliot
 ## Sem interface gráfica
 
 ```
-Windows\VERIFICAR.bat
+VERIFICAR.bat
 ```
 
 Escreve o relatório HTML e sai com um código conforme o que encontrou:

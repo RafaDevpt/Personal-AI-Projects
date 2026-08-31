@@ -10,7 +10,7 @@ EN-UK: IT Toolkit — day-to-day IT diagnostics and maintenance tool for Windows
 Created by Redfox using Claude
 """
 
-__version__ = "2.0.1"
+__version__ = "3.0.0"
 __app_name__ = "IT Toolkit"
 __author__ = "Rafael Santos (Redfox)"
 __license__ = "MIT"

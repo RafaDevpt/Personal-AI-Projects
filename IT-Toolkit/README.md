@@ -58,13 +58,13 @@ what to check first.
 
 Esta ferramenta corre **apenas em Windows**, e por construção: lê registos de eventos do Windows, WMI, serviços e SMART. Não é uma aplicação escrita em Windows por acaso — é uma aplicação *sobre* o Windows.
 
-As pastas [`Linux/`](Linux/LEIA-ME.md) e [`macOS/`](macOS/LEIA-ME.md) existem para explicar isso, e para apontar os projectos deste repositório que correm nesses sistemas.
-
-| Sistema | Estado |
+| Pasta | Estado |
 | :--- | :--- |
-| **Windows** | `Windows\EXECUTAR.bat` — [instruções](Windows/LEIA-ME.md) |
-| **Linux** | não aplicável — [porquê](Linux/LEIA-ME.md) |
-| **macOS** | não aplicável — [porquê](macOS/LEIA-ME.md) |
+| **[`Windows/`](Windows/)** | A aplicação. Duplo clique em `EXECUTAR.bat` |
+| [`Linux/`](Linux/LEIA-ME.md) | Não aplicável — a pasta explica porquê |
+| [`macOS/`](macOS/LEIA-ME.md) | Não aplicável — a pasta explica porquê |
+
+Para ver o estado dos requisitos: `python -m ittoolkit --diagnostico`
 
 ### Requisitos · Requirements
 
