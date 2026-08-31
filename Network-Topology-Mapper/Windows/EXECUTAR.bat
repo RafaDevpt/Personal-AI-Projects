@@ -19,7 +19,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0.."
 title Network Topology Mapper
 
 python --version >nul 2>&1
@@ -58,7 +58,7 @@ if not exist ".venv\Scripts\python.exe" (
     echo.
 )
 
-set PYTHONPATH=%~dp0src
+set PYTHONPATH=%CD%\src
 ".venv\Scripts\python.exe" -m netmap %*
 
 REM --- PT-PT: O codigo 1 significa "encontrou coisas a assinalar", que numa

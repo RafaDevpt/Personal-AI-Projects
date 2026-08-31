@@ -89,7 +89,7 @@ Credentials are never written to disk — not the switches', not the controller'
 
 ## Installation
 
-Double-click **`EXECUTAR.bat`**. No elevation required — this tool reads nothing from the local machine.
+Double-click **`Windows\EXECUTAR.bat`**. No elevation required — this tool reads nothing from the local machine.
 
 ```bash
 python -m venv .venv
