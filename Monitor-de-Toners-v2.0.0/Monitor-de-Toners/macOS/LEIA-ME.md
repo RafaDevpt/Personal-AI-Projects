@@ -11,7 +11,7 @@ Duplo clique em **`executar.command`** no Finder.
 Se o bit de execução não tiver vindo do Git:
 
 ```bash
-chmod +x macOS/executar.command macOS/cli.sh
+chmod +x executar.command cli.sh
 ```
 
 Na primeira vez o macOS pode recusar abrir o ficheiro por ter vindo de fora. **Botão direito → Abrir** e confirme; é preciso uma vez só.
@@ -46,7 +46,7 @@ Ambos funcionam, sem Rosetta. A única diferença prática é onde o Homebrew in
 ## Sem interface gráfica
 
 ```bash
-./macOS/cli.sh --help
+./cli.sh --help
 ```
 
 Para agendar, o `launchd` é o caminho certo em macOS. O `cli.sh` acrescenta os caminhos do Homebrew ao PATH por causa disso: o `launchd` arranca com um PATH mínimo, e sem essa linha uma tarefa agendada falha todas as noites enquanto o mesmo comando corre perfeitamente no Terminal.

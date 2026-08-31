@@ -1,0 +1,28 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use as Definições na aplicação. A aplicação grava a sua própria cópia em %APPDATA%\\HPTonerMonitor (Windows) ou ~/.config/HPTonerMonitor (Linux e macOS). A password do EWS NUNCA é gravada aqui.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings window. The application writes its own copy to %APPDATA%\\HPTonerMonitor (Windows) or ~/.config/HPTonerMonitor (Linux and macOS). The EWS password is NEVER stored here.",
+
+  "inventory_path": "C:\\Users\\utilizador\\Documents\\Monitor de Toners\\Impressoras.xlsx",
+  "output_dir": "C:\\Users\\utilizador\\Documents\\Monitor de Toners\\Relatorios",
+
+  "alert_threshold": 15,
+  "order_email_to": "",
+  "pdf_on_alert": true,
+
+  "scan_range": "192.168.1.0/24",
+  "snmp_community": "public",
+  "use_snmp": true,
+  "ews_user": "admin",
+  "bypass_proxy": true,
+
+  "tcp_timeout": 0.4,
+  "snmp_timeout": 1.5,
+  "http_timeout": 6.0,
+  "scan_workers": 64,
+  "poll_workers": 8,
+
+  "auto_refresh": false,
+  "refresh_minutes": 60,
+
+  "theme": "system"
+}

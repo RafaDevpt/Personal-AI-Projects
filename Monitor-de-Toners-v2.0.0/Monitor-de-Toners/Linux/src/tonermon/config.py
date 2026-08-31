@@ -29,10 +29,11 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
+
+from . import platform_support
 
 _log = logging.getLogger(__name__)
 
@@ -55,11 +56,13 @@ def default_data_dir() -> Path:
            convention. It never writes inside the repository folder, so a local
            configuration cannot be committed to Git by accident.
     """
-    if os.name == "nt":
-        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
-    else:
-        base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-    return base / APP_FOLDER_NAME
+    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
+    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
+    #        esta versao corre num sistema e sabe qual e.
+    # EN-UK: This folder's convention is that of this version's system, and it
+    #        lives in one place — `platform_support`. There is no branching
+    #        here: this version runs on one system and knows which.
+    return platform_support.app_data_dir(APP_FOLDER_NAME)
 
 
 def default_documents_dir() -> Path:

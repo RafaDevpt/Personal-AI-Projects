@@ -20,7 +20,7 @@ Created by Redfox using Claude
 
 from __future__ import annotations
 
-__version__ = "2.0.1"
+__version__ = "3.0.0"
 __app_name__ = "Monitor de Toners"
 __author__ = "Redfox"
 __license__ = "MIT"

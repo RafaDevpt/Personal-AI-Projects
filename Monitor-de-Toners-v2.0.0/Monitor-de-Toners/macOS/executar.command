@@ -18,8 +18,7 @@
 
 set -euo pipefail
 
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECTO="$(dirname "$AQUI")"
+PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
 # PT-PT: O launchd e o Finder arrancam com um PATH minimo que nao inclui o
@@ -69,7 +68,7 @@ fi
 if ! python3 -c "import tkinter" >/dev/null 2>&1; then
     aviso "O Tkinter nao esta disponivel: a interface grafica nao vai abrir."
     passo "brew install python-tk"
-    passo "sem ele resta o modo sem interface: macOS/cli.sh --help"
+    passo "sem ele resta o modo sem interface: ./cli.sh --help"
 fi
 
 # ---------------------------------------------------------------------------
