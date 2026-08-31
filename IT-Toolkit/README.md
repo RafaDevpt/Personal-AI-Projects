@@ -54,15 +54,27 @@ what to check first.
 
 ## Instalação · Installation
 
+### Um sistema só · One system only
+
+Esta ferramenta corre **apenas em Windows**, e por construção: lê registos de eventos do Windows, WMI, serviços e SMART. Não é uma aplicação escrita em Windows por acaso — é uma aplicação *sobre* o Windows.
+
+As pastas [`Linux/`](Linux/LEIA-ME.md) e [`macOS/`](macOS/LEIA-ME.md) existem para explicar isso, e para apontar os projectos deste repositório que correm nesses sistemas.
+
+| Sistema | Estado |
+| :--- | :--- |
+| **Windows** | `Windows\EXECUTAR.bat` — [instruções](Windows/LEIA-ME.md) |
+| **Linux** | não aplicável — [porquê](Linux/LEIA-ME.md) |
+| **macOS** | não aplicável — [porquê](macOS/LEIA-ME.md) |
+
 ### Requisitos · Requirements
 
 - **Windows 10, 11 ou Windows Server 2016+**
 - **Python 3.10 ou superior** · [python.org](https://www.python.org/downloads/) — marque *Add Python to PATH*
-- Privilégios de administrador (o `EXECUTAR.bat` pede-os automaticamente)
+- Privilégios de administrador (o `Windows\EXECUTAR.bat` pede-os automaticamente)
 
 ### Windows
 
-Duplo clique em **`EXECUTAR.bat`**. Na primeira execução pede elevação, cria o
+Duplo clique em **`Windows\EXECUTAR.bat`**. Na primeira execução pede elevação, cria o
 ambiente virtual e instala as dependências; nas seguintes arranca directamente.
 
 ### Linha de comandos · Command line
@@ -137,7 +149,7 @@ not count towards the verdict.
 
 ## Modo automático · Unattended mode
 
-**PT** · Para agendar no Agendador de Tarefas do Windows, use o `VERIFICAR.bat`
+**PT** · Para agendar no Agendador de Tarefas do Windows, use o `Windows\VERIFICAR.bat`
 ou directamente:
 
 ```bat
@@ -229,7 +241,7 @@ telemetry, no remote service.
 <details>
 <summary><b>«Sem privilégios de administrador» ao abrir</b></summary>
 
-**PT** · O `EXECUTAR.bat` pede elevação automaticamente. Se a política da
+**PT** · O `Windows\EXECUTAR.bat` pede elevação automaticamente. Se a política da
 máquina bloquear o UAC, a aplicação abre na mesma mas sem acesso ao log
 Security, ao estado SMART dos discos e ao arranque de serviços. O aviso na
 barra lateral diz-lhe exactamente o que fica de fora.

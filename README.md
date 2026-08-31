@@ -12,7 +12,7 @@
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
 ![Version](https://img.shields.io/badge/version-2.0.0-1F6FEB?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Platform](https://img.shields.io/badge/Windows_only-0078D6?style=for-the-badge&logo=windows&logoColor=white)
 
 <a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
