@@ -26,7 +26,7 @@ Se o Tkinter faltar, foi desmarcado durante a instalação do Python — reinsta
 ## Verificar o que falta
 
 ```
-Windows\CLI.bat --diagnostico
+CLI.bat --diagnostico
 ```
 
 Diz o estado dos três requisitos e o comando exacto para instalar o que faltar.
@@ -36,7 +36,7 @@ Diz o estado dos três requisitos e o comando exacto para instalar o que faltar.
 ## Sem interface gráfica
 
 ```
-Windows\CLI.bat --batch --audio-dir "D:\Gravacoes" --output-dir "D:\Texto"
+CLI.bat --batch --audio-dir "D:\Gravacoes" --output-dir "D:\Texto"
 ```
 
 Códigos de saída: `0` tudo bem, `1` houve falhas, `2` nada para transcrever, `3` falta a interface gráfica, `130` interrompido.

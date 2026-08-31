@@ -8,6 +8,78 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [6.0.0] — 2026-08-31
+
+**PT** · Três versões independentes, uma por sistema operativo.
+**EN** · Three independent versions, one per operating system.
+
+### A reorganização · The restructure
+
+O projecto deixou de ter um `src/` partilhado. Passou a ter três pastas —
+`Windows/`, `Linux/` e `macOS/` — e cada uma é uma **versão completa e
+autónoma** da aplicação, com o seu código, os seus testes, os seus requisitos e
+o seu lançador. Quem usa uma delas não precisa de nada do que está nas outras.
+
+### Cada versão é especializada, não é uma cópia
+
+Não são três pastas com o mesmo conteúdo. O módulo `platform_support.py` é
+diferente em cada uma, e **nenhuma tem uma única ramificação por sistema
+operativo** — cada uma sabe onde está e diz apenas o que é verdade naquela
+máquina. Há um teste em cada versão que falha se alguém acrescentar um
+`sys.platform` ou um `os.name`.
+
+- **Windows** — a mais curta das três, porque em Windows só o FFmpeg é preciso
+  instalar: o Tkinter vem com o instalador oficial do Python e o PortAudio vem
+  dentro do wheel do `sounddevice`. Detecta o `python.exe` falso da Microsoft
+  Store, que responde ao comando `python`, não é um interpretador, e abre a loja
+  em vez de correr o programa — quem cai nisso vê uma janela da Store e nenhum
+  erro que explique porquê
+- **Linux** — a mais longa, porque é a única onde nada se pode assumir. Lê o
+  `/etc/os-release` para decidir entre `apt`, `dnf`, `pacman`, `zypper` e `apk`,
+  e pelo campo `ID_LIKE` acerta também em derivadas que não estão em lista
+  nenhuma. Detecta ainda o servidor gráfico (o Tk corre por XWayland, e é isso
+  que explica janelas com tamanhos estranhos) e o servidor de som (um PipeWire
+  sem a camada ALSA deixa o microfone invisível ao PortAudio)
+- **macOS** — trata das três coisas que só ali existem: o Python do sistema, que
+  traz um Tk antigo e vai ser retirado pela Apple; os dois prefixos do Homebrew,
+  `/opt/homebrew` nos Apple Silicon e `/usr/local` nos Intel, procurados
+  directamente porque um processo lançado pelo Finder não herda o PATH da shell;
+  e a permissão do microfone, que o macOS pede uma vez só e que fica associada
+  ao Terminal, não à aplicação
+
+### Testado onde corre · Tested where it runs
+
+A integração contínua passou a uma matriz de três: cada versão é testada no seu
+próprio sistema — `windows-latest`, `ubuntu-latest` e `macos-latest`. A versão de
+Linux passou a ser verificada numa Ubuntu a sério, com um `/etc/os-release`
+verdadeiro, e a de macOS num Mac a sério. Uma versão de Linux testada num runner
+de Windows não prova nada sobre o que ela faz em Linux, e era exactamente isso
+que estava por verificar.
+
+O `fail-fast` está desligado de propósito: se uma versão partir, quer-se saber
+na mesma o estado das outras duas.
+
+### O custo, dito à cabeça · The cost, stated up front
+
+Uma correcção no motor de transcrição tem de ser aplicada **três vezes**, uma
+por pasta. É o preço de ter três versões independentes em vez de uma com
+ramificações, e é uma escolha deliberada: cada versão fica mais simples de ler,
+não carrega código que não lhe diz respeito, e um utilizador leva para a máquina
+dele só o que precisa. O `CONTRIBUTING.md` explica como manter as três
+alinhadas.
+
+### Alterado · Changed
+
+- Os pacotes passaram a ter nomes distintos —
+  `portuguese-medical-transcriber-windows`, `-linux` e `-macos` — para não haver
+  dúvidas sobre qual é que está instalada num ambiente
+- Os lançadores passaram a tratar a própria pasta como raiz do projecto
+- O `README.md` da raiz deixou de documentar a aplicação e passou a explicar as
+  três versões e as diferenças entre elas; a documentação de utilização de cada
+  uma está no `LEIA-ME.md` da sua pasta
+
+---
+
 ## [5.1.0] — 2026-08-31
 
 **PT** · Suporte a Linux e macOS.

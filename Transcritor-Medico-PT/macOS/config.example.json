@@ -1,0 +1,21 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste. A aplicação grava a sua própria cópia em %APPDATA%\\PortugueseMedicalTranscriber (Windows) ou ~/.config/PortugueseMedicalTranscriber (Linux e macOS).",
+  "_comment_en": "Copy to config.json and adjust. The application writes its own copy to %APPDATA%\\PortugueseMedicalTranscriber (Windows) or ~/.config/PortugueseMedicalTranscriber (Linux and macOS).",
+
+  "audio_dir": "C:\\Transcricoes\\Audios",
+  "output_dir": "C:\\Transcricoes\\Texto",
+
+  "model_size": "small",
+  "device": "auto",
+  "compute_type": "int8",
+  "language": "pt",
+  "beam_size": 5,
+  "vad_filter": true,
+
+  "apply_corrections": true,
+  "learn_from_edits": true,
+
+  "theme": "system",
+  "editor_font_size": 14,
+  "include_timestamps": false
+}

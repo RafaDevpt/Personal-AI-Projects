@@ -11,7 +11,7 @@ Duplo clique em **`executar.command`** no Finder.
 Se o bit de execução não tiver vindo do Git:
 
 ```bash
-chmod +x macOS/executar.command macOS/cli.sh
+chmod +x executar.command cli.sh
 ```
 
 Na primeira execução o macOS pode recusar abrir o ficheiro por ter vindo de fora. **Clique com o botão direito → Abrir** e confirme; é preciso uma vez só.
@@ -64,7 +64,7 @@ A única diferença prática é onde o Homebrew instala — `/opt/homebrew` nos 
 ## Verificar o que falta
 
 ```bash
-./macOS/cli.sh --diagnostico
+./cli.sh --diagnostico
 ```
 
 ---
@@ -72,7 +72,7 @@ A única diferença prática é onde o Homebrew instala — `/opt/homebrew` nos 
 ## Sem interface gráfica
 
 ```bash
-./macOS/cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
+./cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
 ```
 
 ### Agendar com o launchd

@@ -1,0 +1,44 @@
+# ===========================================================================
+# PT-PT: Dependências de execução.
+#        Instalar com:  pip install -r requirements.txt
+# EN-UK: Runtime dependencies.
+#        Install with:  pip install -r requirements.txt
+# ===========================================================================
+
+# PT-PT: Motor de transcrição. Usa CTranslate2 em vez de PyTorch: cerca de
+#        4x mais rápido em CPU e metade da memória, com a mesma qualidade.
+#        Substitui o openai-whisper da versão 3, que arrastava ~2,5 GB.
+# EN-UK: Transcription engine. Uses CTranslate2 rather than PyTorch: around
+#        4x faster on CPU and half the memory, at the same quality.
+#        Replaces version 3's openai-whisper, which dragged in ~2.5 GB.
+faster-whisper>=1.0.3,<2.0
+
+# PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
+#        não traz nenhum motor gráfico próprio. Licença MIT.
+# EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
+#        brings no graphics engine of its own. MIT-licensed.
+# PT-PT: Gravacao pelo microfone, para o modo de ditado. E opcional: sem ela a
+#        aplicacao transcreve ficheiros como sempre fez, e o ditado diz porque
+#        e que nao esta disponivel em vez de rebentar.
+# EN-UK: Microphone recording, for dictation mode. Optional: without it the
+#        application transcribes files as it always did, and dictation explains
+#        why it is unavailable rather than crashing.
+sounddevice>=0.4.6,<0.6
+
+customtkinter>=5.2.2,<6.0
+
+# ===========================================================================
+# PT-PT: Requisito externo NÃO instalável por pip — o FFmpeg.
+#        É ele que descodifica mp3, m4a e wav antes de o modelo os ver.
+#          Windows:  winget install Gyan.FFmpeg
+#          macOS:    brew install ffmpeg
+#          Debian:   sudo apt install ffmpeg
+#        Em Linux pode faltar também o Tkinter: sudo apt install python3-tk
+#
+# EN-UK: External requirement NOT installable via pip — FFmpeg.
+#        It decodes mp3, m4a and wav before the model ever sees them.
+#          Windows:  winget install Gyan.FFmpeg
+#          macOS:    brew install ffmpeg
+#          Debian:   sudo apt install ffmpeg
+#        On Linux, Tkinter may also be missing: sudo apt install python3-tk
+# ===========================================================================

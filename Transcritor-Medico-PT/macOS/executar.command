@@ -33,8 +33,11 @@
 
 set -euo pipefail
 
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECTO="$(dirname "$AQUI")"
+# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+#        vivem nas pastas ao lado, cada uma completa e independente.
+# EN-UK: This folder is this version's root. The Windows and macOS versions
+#        live in the folders alongside, each complete and independent.
+PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
 # PT-PT: Os dois sitios onde o Homebrew instala. Acrescentar os dois e
@@ -96,7 +99,7 @@ fi
 if ! python3 -c "import tkinter" >/dev/null 2>&1; then
     aviso "O Tkinter nao esta disponivel: a interface grafica nao vai abrir."
     passo "brew install python-tk"
-    passo "sem ele resta o modo sem interface: macOS/cli.sh --batch"
+    passo "sem ele resta o modo sem interface: ./cli.sh --batch"
 fi
 
 # ---------------------------------------------------------------------------

@@ -25,12 +25,11 @@
 
 set -euo pipefail
 
-# PT-PT: A pasta do projecto e a mae desta. O script funciona a partir de
-#        qualquer directorio de trabalho, incluindo de um atalho no ambiente.
-# EN-UK: The project folder is this one's parent. The script works from any
-#        working directory, including from a desktop shortcut.
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECTO="$(dirname "$AQUI")"
+# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+#        vivem nas pastas ao lado, cada uma completa e independente.
+# EN-UK: This folder is this version's root. The Windows and macOS versions
+#        live in the folders alongside, each complete and independent.
+PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
 VERMELHO="\033[0;31m"
@@ -136,7 +135,7 @@ fi
 if ! python3 -c "import tkinter" >/dev/null 2>&1; then
     aviso "O Tkinter nao esta instalado: a interface grafica nao vai abrir."
     passo "$(comando_para tkinter)"
-    passo "sem ele resta o modo sem interface: Linux/cli.sh --batch"
+    passo "sem ele resta o modo sem interface: ./cli.sh --batch"
 fi
 
 if [ "$FALTA_ESSENCIAL" -ne 0 ]; then

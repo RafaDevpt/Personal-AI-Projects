@@ -7,8 +7,8 @@
 ## Como abrir
 
 ```bash
-chmod +x Linux/executar.sh      # só na primeira vez, se o bit não tiver vindo do Git
-./Linux/executar.sh
+chmod +x executar.sh      # só na primeira vez, se o bit não tiver vindo do Git
+./executar.sh
 ```
 
 Na primeira execução verifica os pré-requisitos, cria o ambiente virtual e instala as dependências. Nas seguintes arranca directamente.
@@ -64,7 +64,7 @@ O lançador reconhece a distribuição pelo `/etc/os-release` e, se faltar algum
 ## Verificar o que falta
 
 ```bash
-./Linux/cli.sh --diagnostico
+./cli.sh --diagnostico
 ```
 
 ---
@@ -72,7 +72,7 @@ O lançador reconhece a distribuição pelo `/etc/os-release` e, se faltar algum
 ## Sem interface gráfica
 
 ```bash
-./Linux/cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
+./cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
 ```
 
 Códigos de saída: `0` tudo bem, `1` houve falhas, `2` nada para transcrever, `3` ambiente por preparar, `130` interrompido.

@@ -2,8 +2,8 @@
 # ===========================================================================
 # PT-PT: Modo sem interface, em macOS.
 #
-#          macOS/cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
-#          macOS/cli.sh --diagnostico
+#          ./cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
+#          ./cli.sh --diagnostico
 #
 #        Para agendar, o launchd e o caminho certo em macOS — nao o cron, que
 #        ainda existe mas esta a prazo. Ha um exemplo de .plist no LEIA-ME
@@ -21,8 +21,11 @@
 
 set -euo pipefail
 
-AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECTO="$(dirname "$AQUI")"
+# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+#        vivem nas pastas ao lado, cada uma completa e independente.
+# EN-UK: This folder is this version's root. The Windows and macOS versions
+#        live in the folders alongside, each complete and independent.
+PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
 # PT-PT: O launchd arranca com um PATH minimo que nao inclui o Homebrew, por
@@ -36,7 +39,7 @@ cd "$PROJECTO"
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
 
 if [ ! -x ".venv/bin/python" ]; then
-    printf "[ERRO] Ambiente nao preparado. Execute macOS/executar.command uma vez primeiro.\n" >&2
+    printf "[ERRO] Ambiente nao preparado. Execute ./executar.command uma vez primeiro.\n" >&2
     exit 3
 fi
 

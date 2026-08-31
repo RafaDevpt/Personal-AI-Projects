@@ -49,16 +49,34 @@ If you use this with real recordings, you remain responsible for lawful basis, c
 
 ---
 
+## Three independent versions
+
+Each operating system gets its own complete copy of the application — its own `src/`, its own tests, its own launcher, its own requirements:
+
+| Folder | System | Open with |
+| :--- | :--- | :--- |
+| `Windows/` | Windows 10 / 11 | double-click `EXECUTAR.bat` |
+| `Linux/` | Any distribution | `./executar.sh` |
+| `macOS/` | Apple Silicon and Intel | double-click `executar.command` |
+
+They are **not** three copies of the same file. Each carries its own `platform_support.py`, and none of them contains a single operating-system branch — a test in each version fails if somebody adds one. The Windows one is the shortest, because there only FFmpeg needs installing. The Linux one is the longest, because it is the only system where nothing can be assumed: it reads `/etc/os-release` to choose between `apt`, `dnf`, `pacman`, `zypper` and `apk`, and detects Wayland versus X11 and PipeWire versus ALSA. The macOS one handles the system Python, Homebrew's two prefixes, and the microphone permission.
+
+CI tests all three on their native runners — `windows-latest`, `ubuntu-latest`, `macos-latest`. A Linux version tested on a Windows runner proves nothing about what it does on Linux.
+
+The cost, stated up front: **a fix to the transcription engine has to be applied three times.** That is the price of three independent versions rather than one with branches, and `CONTRIBUTING.md` explains how to keep them aligned.
+
+---
+
 ## Requirements
 
 | | |
 | :--- | :--- |
-| **OS** | Windows 10/11, Linux, macOS — one launcher per system in `Windows/`, `Linux/` and `macOS/` |
+| **OS** | Windows 10/11, Linux, macOS — **three independent versions**, one per system, in `Windows/`, `Linux/` and `macOS/`. Pick yours and ignore the other two |
 | **Python** | 3.11 or newer |
 | **RAM** | 8 GB minimum, 16 GB recommended |
 | **Disk** | Space for the local model files |
 | **GPU** | Optional — CPU works, GPU is faster |
-| **Not from pip** | FFmpeg (required), Tkinter (GUI), PortAudio (dictation). Run `--diagnostico` and it names the exact command for your machine |
+| **Not from pip** | FFmpeg (required), Tkinter (GUI), PortAudio (dictation) — on Windows only FFmpeg. Run `--diagnostico` and it names the exact command for your machine, down to the right package manager for your distribution |
 
 ---
 
