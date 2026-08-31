@@ -50,7 +50,7 @@ import os
 import sys
 from pathlib import Path
 
-from . import __app_name__, __version__
+from . import __app_name__, __version__, platform_support
 from .config import Settings, app_data_dir, load_settings
 from .logging_setup import setup_logging
 from .models import Credentials, Device, Platform
@@ -81,6 +81,14 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument("--version", action="version", version=f"{__app_name__} {__version__}")
+    parser.add_argument(
+        "--diagnostico",
+        action="store_true",
+        help=(
+            "Verifica os requisitos deste sistema e diz o que falta. / "
+            "Checks this system's requirements and says what is missing."
+        ),
+    )
     parser.add_argument(
         "--verbose", action="store_true", help="Registo detalhado. / Detailed logging."
     )
@@ -141,6 +149,16 @@ def main(argv: list[str] | None = None) -> int:
         PT-PT: Código de saída. / EN-UK: Exit code.
     """
     args = build_parser().parse_args(argv)
+
+    # PT-PT: O diagnostico corre antes de tudo o resto, e por uma razao pratica:
+    #        e o comando a que alguem recorre quando *nada* funciona, e nessa
+    #        altura nao se pode assumir que o resto arranca.
+    # EN-UK: The diagnostic runs before everything else, for a practical reason:
+    #        it is what somebody reaches for when *nothing* works, and at that
+    #        point the rest cannot be assumed to start.
+    if getattr(args, "diagnostico", False):
+        print(platform_support.report())
+        return 0 if not platform_support.missing_essentials() else 2
     log_file = setup_logging(app_data_dir(), verbose=args.verbose)
     logger.info("%s %s", __app_name__, __version__)
 

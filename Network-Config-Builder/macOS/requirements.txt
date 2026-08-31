@@ -1,0 +1,48 @@
+# ===========================================================================
+# PT-PT: Dependências de execução.
+#        Instalar com:  pip install -r requirements.txt
+#
+#        A geração dos ficheiros — que é o que a maior parte do trabalho usa —
+#        não depende de nenhuma delas. É biblioteca padrão do princípio ao fim,
+#        de propósito: quem só quer produzir configurações para colar consegue
+#        fazê-lo numa máquina onde instalar pacotes está bloqueado por política.
+#
+# EN-UK: Runtime dependencies.
+#        Install with:  pip install -r requirements.txt
+#
+#        Generating the files — which is what most of the work uses — depends
+#        on none of them. It is standard library from start to finish,
+#        deliberately: anyone who only wants to produce configurations to paste
+#        can do it on a machine where installing packages is blocked by policy.
+# ===========================================================================
+
+# PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
+#        não traz nenhum motor gráfico próprio. Licença MIT.
+#        Não é necessária no modo --cli.
+# EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
+#        brings no graphics engine of its own. MIT-licensed.
+#        Not required in --cli mode.
+customtkinter>=5.2.2,<6.0
+
+# PT-PT: Sessão SSH com o dialecto de cada fabricante — saber quando a CLI
+#        acabou de responder, lidar com a paginação e com o modo de
+#        configuração. Só é usada para ler e enviar; gerar não lhe toca.
+#        Se faltar, a aplicação abre e gera na mesma, e as abas de leitura e
+#        envio explicam o que falta em vez de rebentar.
+# EN-UK: SSH session with each vendor's dialect — knowing when the CLI has
+#        finished answering, handling paging and configuration mode. Used only
+#        to read and to push; generating never touches it. If missing, the
+#        application still opens and generates, and the read and push tabs
+#        explain what is absent rather than crashing.
+netmiko>=4.3,<5.0
+
+# PT-PT: Importar e exportar o inventário de equipamentos em Excel, que é o
+#        formato em que estas listas já existem em toda a parte.
+# EN-UK: Importing and exporting the device inventory as Excel, which is the
+#        format these lists already exist in everywhere.
+openpyxl>=3.1,<4.0
+
+# ===========================================================================
+# PT-PT: Em Linux pode faltar o Tkinter: sudo apt install python3-tk
+# EN-UK: On Linux, Tkinter may be missing: sudo apt install python3-tk
+# ===========================================================================

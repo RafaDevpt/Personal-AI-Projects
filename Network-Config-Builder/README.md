@@ -37,17 +37,25 @@ After that, and only if you want to, the application also **reads the configurat
 
 ## Instalação · Installation
 
-### Um lançador por sistema · One launcher per system
+### Três versões independentes · Three independent versions
 
-A aplicação corre em **Windows, Linux e macOS**. O código é o mesmo nos três — o que muda é o arranque e os pré-requisitos, e é isso que está em três pastas próprias:
+Esta pasta não contém a aplicação: contém **três versões independentes** dela, uma por sistema. Cada uma é completa e autónoma — tem o seu `src/`, os seus `tests/`, o seu `requirements.txt` e o seu lançador. Escolha a sua e ignore as outras duas.
 
-| Sistema | Abrir com | Instruções |
+| Pasta | Sistema | Abrir com |
 | :--- | :--- | :--- |
-| **Windows** | duplo clique em `Windows\EXECUTAR.bat` | [`Windows/LEIA-ME.md`](Windows/LEIA-ME.md) |
-| **Linux** | `./Linux/executar.sh` | [`Linux/LEIA-ME.md`](Linux/LEIA-ME.md) |
-| **macOS** | duplo clique em `macOS/executar.command` | [`macOS/LEIA-ME.md`](macOS/LEIA-ME.md) |
+| **[`Windows/`](Windows/)** | Windows 10 / 11 | duplo clique em `EXECUTAR.bat` |
+| **[`Linux/`](Linux/)** | Qualquer distribuição | `./executar.sh` |
+| **[`macOS/`](macOS/)** | Apple Silicon e Intel | duplo clique em `executar.command` |
 
-Cada lançador verifica os pré-requisitos, prepara o ambiente na primeira execução e arranca. Em Linux, se faltar alguma coisa, imprime o comando do gestor de pacotes certo para aquela distribuição — lido do `/etc/os-release`.
+Não são três cópias iguais. O `src/*/platform_support.py` é diferente em cada uma, e **nenhuma tem uma ramificação por sistema operativo lá dentro** — há um teste em cada versão que falha se alguém acrescentar um `sys.platform`. A de Windows deteta o `python.exe` falso da Microsoft Store; a de Linux lê o `/etc/os-release` para escolher entre `apt`, `dnf`, `pacman`, `zypper` e `apk`, e deteta Wayland ou X11; a de macOS trata do Python do sistema e dos dois prefixos do Homebrew.
+
+Para saber o que falta nesta máquina, em qualquer das três:
+
+```
+python -m netconfig --diagnostico
+```
+
+**O custo, dito à cabeça:** uma correcção ao código partilhado tem de ser aplicada três vezes. É o preço de três versões independentes em vez de uma com ramificações — cada versão fica mais simples de ler e o utilizador leva só o que precisa.
 
 ### Requisitos · Requirements
 

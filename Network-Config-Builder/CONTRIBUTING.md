@@ -7,6 +7,53 @@ changes.
 
 ---
 
+## A regra que define este projecto
+
+**Há três versões independentes — `Windows/`, `Linux/` e `macOS/` — e cada uma é
+uma cópia completa da aplicação.**
+
+Isto é uma escolha deliberada, e tem um custo que não se pode ignorar: **uma
+alteração ao código partilhado tem de ser aplicada três vezes.** Não há
+automatismo nenhum a proteger-nos disso; a única defesa é o hábito e a lista
+abaixo.
+
+### O que é partilhado e o que não é
+
+| Ficheiro | Igual nas três? |
+| :--- | :--- |
+| `src/netconfig/platform_support.py` | **Não.** É o que distingue as versões |
+| `tests/test_platform_support.py` | **Não.** Cada um testa o seu sistema |
+| `pyproject.toml` | Quase — o `name` do pacote é diferente |
+| `LEIA-ME.md` e lançadores | **Não.** São instruções de sistemas diferentes |
+| **Todo o resto de `src/` e `tests/`** | **Sim** |
+
+### Como aplicar uma alteração partilhada
+
+1. Faça a alteração na versão do sistema em que está a trabalhar
+2. Corra os testes **dessa** versão
+3. Copie o ficheiro alterado para as outras duas
+4. Corra os testes das outras duas — dá para as três a partir de uma máquina só,
+   porque os testes passam os valores de sistema como argumentos
+5. Confirme que a alteração aparece em três sítios:
+
+```bash
+diff -r --brief -x '__pycache__' -x 'platform_support.py' \n     Windows/src/netconfig Linux/src/netconfig
+
+diff -r --brief -x '__pycache__' -x 'test_platform_support.py' \n     Windows/tests Linux/tests
+```
+
+Se algum destes comandos devolver alguma coisa, as versões divergiram num
+ficheiro que devia ser igual. Repita para o `macOS/`.
+
+### Quando a alteração é específica de um sistema
+
+Aí é o contrário: **fica só numa pasta**, e o sítio dela é o
+`platform_support.py` dessa versão. Se sentir vontade de escrever um
+`if sys.platform` dentro de uma das versões, é porque a alteração pertence a
+outro sítio — e há um teste em cada versão que falha precisamente nesse caso.
+
+---
+
 ## Antes de tudo · Before anything else
 
 > **PT** · **Nunca** inclua num commit, issue ou pull request: configurações

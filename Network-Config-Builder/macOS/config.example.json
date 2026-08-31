@@ -1,0 +1,22 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use o separador Definições na aplicação. A aplicação grava a sua própria cópia em %APPDATA%\\NetworkConfigBuilder (Windows) ou ~/.config/NetworkConfigBuilder (Linux e macOS), nunca dentro desta pasta — as configurações geradas contêm o endereçamento da rede e não devem acabar no repositório.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings tab. The application writes its own copy to %APPDATA%\\NetworkConfigBuilder (Windows) or ~/.config/NetworkConfigBuilder (Linux and macOS), never inside this folder — generated configurations carry the network's addressing and must not end up in the repository.",
+
+  "_credenciais_pt": "Não há aqui campo para utilizador nem para palavra-passe, e não vai haver. As credenciais são pedidas no arranque da sessão e vivem em memória. Na linha de comandos, use as variáveis de ambiente NETCONFIG_UTILIZADOR e NETCONFIG_PALAVRA_PASSE.",
+  "_credentials_en": "There is no field here for a username or a password, and there will not be. Credentials are asked for when the session starts and live in memory. On the command line, use the NETCONFIG_UTILIZADOR and NETCONFIG_PALAVRA_PASSE environment variables.",
+
+  "output_dir": "C:\\Users\\utilizador\\Documents\\Network Config Builder\\Configuracoes",
+  "backup_dir": "C:\\Users\\utilizador\\Documents\\Network Config Builder\\Backups",
+  "inventory_path": "C:\\Users\\utilizador\\AppData\\Roaming\\NetworkConfigBuilder\\inventario.json",
+
+  "default_platform": "aruba_cx",
+  "default_domain": "hotel.local",
+  "default_ntp": ["10.0.10.5"],
+  "default_syslog": ["10.0.10.6"],
+  "default_timezone": "WET",
+
+  "ssh_timeout": 30,
+  "confirmar_envio": true,
+
+  "tema": "system"
+}

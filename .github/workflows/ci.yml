@@ -1,33 +1,23 @@
 # ===========================================================================
-# PT-PT: Integracao continua do Network Config Builder.
+# PT-PT: Integracao continua do Network-Config-Builder.
 #
-#        Corre em Windows porque e onde a aplicacao vive: o launcher e um .bat,
-#        os caminhos de omissao sao %APPDATA%, e e num portatil de Windows que
-#        alguem a vai abrir no bastidor. Testar noutro sistema daria um verde
-#        que nao significa nada.
+#        Ha tres versoes independentes -- Windows/, Linux/ e macOS/ -- e cada
+#        uma corre no seu proprio sistema. Nao e simetria por simetria: uma
+#        versao de Linux testada num runner de Windows nao prova nada sobre o
+#        que ela faz em Linux.
 #
-#        Cada projeto vive no seu branch, por isso o gatilho aponta a este e so
-#        a este. O working-directory aponta a subpasta do projeto, porque a raiz
-#        do branch so tem a pasta e a licenca.
+#        Com esta matriz, a versao de Linux e testada numa Ubuntu a serio, com
+#        um /etc/os-release verdadeiro, e a de macOS num Mac a serio. Um erro
+#        de porte deixa de ser uma suposicao e passa a ser um teste vermelho.
 #
-#        Nenhum teste abre uma ligacao de rede. Tudo o que fala com equipamento
-#        esta atras de uma fronteira que os testes nao atravessam - o que se
-#        verifica e o que decide *o que* seria enviado, nao o envio.
+#        O `fail-fast: false` e deliberado: se uma versao partir, quer-se saber
+#        na mesma o estado das outras duas.
 #
-# EN-UK: Continuous integration for Network Config Builder.
+# EN-UK: Continuous integration for Network-Config-Builder.
 #
-#        Runs on Windows because that is where the application lives: the
-#        launcher is a .bat, the default paths are %APPDATA%, and it is on a
-#        Windows laptop that somebody will open it in the comms room. Testing
-#        elsewhere would give a green tick that means nothing.
-#
-#        Each project lives in its own branch, so the trigger names this one and
-#        only this one. working-directory points at the project subfolder,
-#        because the branch root holds only that folder and the licence.
-#
-#        No test opens a network connection. Everything that talks to equipment
-#        sits behind a boundary the tests do not cross — what is verified is
-#        what decides *what* would be sent, not the sending.
+#        Three independent versions, each tested on its own system. A Linux
+#        version tested on a Windows runner proves nothing about what it does
+#        on Linux.
 #
 # Created by Redfox using Claude
 # ===========================================================================
@@ -42,12 +32,23 @@ on:
 
 jobs:
   verificar:
-    name: Lint + testes / Lint + tests
-    runs-on: windows-latest
+    name: ${{ matrix.versao }} em ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - versao: Windows
+            runner: windows-latest
+          - versao: Linux
+            runner: ubuntu-latest
+          - versao: macOS
+            runner: macos-latest
 
     defaults:
       run:
-        working-directory: Network-Config-Builder
+        working-directory: Network-Config-Builder/${{ matrix.versao }}
 
     steps:
       - uses: actions/checkout@v4
@@ -57,6 +58,18 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
+          cache-dependency-path: Network-Config-Builder/${{ matrix.versao }}/requirements-dev.txt
+
+      # PT-PT: O Tkinter e um pacote a parte em Linux. Sem ele, o teste que
+      #        verifica a sua presenca reportava "em falta" num runner onde so
+      #        faltava porque ninguem o instalou -- o que nao prova nada.
+      # EN-UK: Tkinter is a separate package on Linux. Without it the presence
+      #        test would report "missing" on a runner where it was only missing
+      #        because nobody installed it.
+      - name: Dependencias de sistema (Linux)
+        if: matrix.versao == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+        working-directory: .
 
       - name: Instalar dependencias / Install dependencies
         run: |
@@ -68,3 +81,16 @@ jobs:
 
       - name: Testes (pytest) / Tests (pytest)
         run: python -m pytest
+
+      # PT-PT: E a unica coisa aqui que exercita o modulo especifico do sistema
+      #        contra o sistema real: num Ubuntu le o /etc/os-release verdadeiro,
+      #        num Mac ve o Homebrew. Sai com 2 quando falta um essencial, e nos
+      #        runners pode mesmo faltar -- por isso o codigo de saida e
+      #        ignorado: o que se verifica e que o relatorio sai sem rebentar.
+      # EN-UK: The only step exercising the system-specific module against the
+      #        real system. Its exit code is ignored on purpose: what is
+      #        verified is that the report comes out without blowing up.
+      - name: Diagnostico no sistema real / Diagnostic on the real system
+        run: python -m netconfig --diagnostico || true
+        env:
+          PYTHONPATH: src

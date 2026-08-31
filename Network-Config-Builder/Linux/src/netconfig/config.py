@@ -28,11 +28,10 @@ from __future__ import annotations
 
 import json
 import logging
-import os
-import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+from . import platform_support
 from .models import Platform
 
 logger = logging.getLogger(__name__)
@@ -52,11 +51,13 @@ def app_data_dir() -> Path:
         EN-UK: %APPDATA%\\NetworkConfigBuilder on Windows,
                ~/.config/NetworkConfigBuilder elsewhere.
     """
-    if sys.platform == "win32":
-        base = os.environ.get("APPDATA")
-        if base:
-            return Path(base) / APP_FOLDER_NAME
-    return Path.home() / ".config" / APP_FOLDER_NAME
+    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
+    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
+    #        esta versao corre num sistema e sabe qual e.
+    # EN-UK: This folder's convention is that of this version's system, and it
+    #        lives in one place — `platform_support`. There is no branching
+    #        here: this version runs on one system and knows which.
+    return platform_support.app_data_dir(APP_FOLDER_NAME)
 
 
 def documents_dir() -> Path:

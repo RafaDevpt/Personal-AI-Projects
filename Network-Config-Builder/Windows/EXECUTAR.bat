@@ -25,7 +25,7 @@ REM Created by Redfox using Claude
 REM ===========================================================================
 
 setlocal
-cd /d "%~dp0.."
+cd /d "%~dp0"
 title Network Config Builder
 
 REM --- PT-PT: Confirmar que o Python existe / EN-UK: Check Python is present
@@ -68,7 +68,7 @@ if not exist ".venv\Scripts\python.exe" (
 )
 
 REM --- PT-PT: Arrancar / EN-UK: Launch
-set PYTHONPATH=%CD%\src
+set PYTHONPATH=%~dp0src
 ".venv\Scripts\python.exe" -m netconfig %*
 
 REM --- PT-PT: O codigo 1 significa "encontrou problemas na validacao" e o 2
