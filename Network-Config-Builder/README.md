@@ -37,6 +37,18 @@ After that, and only if you want to, the application also **reads the configurat
 
 ## Instalação · Installation
 
+### Um lançador por sistema · One launcher per system
+
+A aplicação corre em **Windows, Linux e macOS**. O código é o mesmo nos três — o que muda é o arranque e os pré-requisitos, e é isso que está em três pastas próprias:
+
+| Sistema | Abrir com | Instruções |
+| :--- | :--- | :--- |
+| **Windows** | duplo clique em `Windows\EXECUTAR.bat` | [`Windows/LEIA-ME.md`](Windows/LEIA-ME.md) |
+| **Linux** | `./Linux/executar.sh` | [`Linux/LEIA-ME.md`](Linux/LEIA-ME.md) |
+| **macOS** | duplo clique em `macOS/executar.command` | [`macOS/LEIA-ME.md`](macOS/LEIA-ME.md) |
+
+Cada lançador verifica os pré-requisitos, prepara o ambiente na primeira execução e arranca. Em Linux, se faltar alguma coisa, imprime o comando do gestor de pacotes certo para aquela distribuição — lido do `/etc/os-release`.
+
 ### Requisitos · Requirements
 
 - **Python 3.10 ou superior** · [python.org](https://www.python.org/downloads/) — marque *Add Python to PATH*
@@ -45,7 +57,7 @@ After that, and only if you want to, the application also **reads the configurat
 
 ### Windows
 
-Duplo clique em **`EXECUTAR.bat`**. Na primeira execução cria o ambiente virtual e instala as dependências; nas seguintes arranca directamente.
+Duplo clique em **`Windows\EXECUTAR.bat`**. Na primeira execução cria o ambiente virtual e instala as dependências; nas seguintes arranca directamente.
 
 Não pede elevação, ao contrário das outras ferramentas deste repositório. Esta não lê nada da máquina local.
 
@@ -231,7 +243,7 @@ Diferentes de propósito, para um agendador distinguir "correu e encontrou probl
 
 ### Backup nocturno de toda a rede
 
-Agendador de Tarefas → Criar Tarefa → Acção `CLI.bat` com o argumento `backup --todos`, e as credenciais como variáveis de ambiente da tarefa.
+Agendador de Tarefas → Criar Tarefa → Acção `Windows\CLI.bat` com o argumento `backup --todos`, e as credenciais como variáveis de ambiente da tarefa.
 
 ---
 

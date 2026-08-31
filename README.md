@@ -12,7 +12,7 @@
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
 ![Version](https://img.shields.io/badge/version-1.0.0-1F6FEB?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Platform](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![Platforms](https://img.shields.io/badge/Windows_·_Linux_·_macOS-0078D6?style=for-the-badge)
 
 <a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
@@ -90,7 +90,7 @@ The right place to configure a UniFi is the controller. The tool says so rather 
 
 ## Installation
 
-Double-click **`EXECUTAR.bat`**. First run builds the environment; after that it starts straight away. No elevation required — this tool reads nothing from the local machine.
+Double-click **`Windows\EXECUTAR.bat`**. First run builds the environment; after that it starts straight away. No elevation required — this tool reads nothing from the local machine.
 
 ```bash
 python -m venv .venv
