@@ -58,7 +58,8 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | :--- | :--- |
 | **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
-| **Single-file deploy** | A `.bat` launcher and a folder — no installers, no admin rights |
+| **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
+| **One launcher per system** | Every portable project ships `Windows/`, `Linux/` and `macOS/` folders. One shared `src/`: what differs between systems is the launch and the prerequisites, not the application |
 | **Documented** | Every branch ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
@@ -112,17 +113,24 @@ gitGraph
 
 <div align="center">
 
-| Branch | Role | Contents |
-| :--- | :--- | :--- |
-| `main` | 🏛️ **Hub** | Overview, documentation, project index |
-| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite |
-| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison |
-| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring |
-| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation |
-| `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti |
-| `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port |
+| Branch | Role | Contents | Runs on |
+| :--- | :--- | :--- | :--- |
+| `main` | 🏛️ **Hub** | Overview, documentation, project index | — |
+| `IT-Tool-Kit` | 🔧 Project | Windows diagnostics suite | Windows only<sup>[2](#nota-windows)</sup> |
+| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison | Windows · Linux · macOS |
+| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring | Windows · Linux · macOS |
+| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation | Windows · Linux · macOS |
+| `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti | Windows · Linux · macOS |
+| `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port | Windows · Linux · macOS |
 
 </div>
+
+<a name="nota-windows"></a>
+<sub>
+
+**[2]** The IT Toolkit is Windows-only by construction, not for want of porting. It reads Windows event logs through `wevtutil`, inventory through WMI, services through `sc` and PowerShell, and SMART through `wmic` — it is not an application written on Windows, it is an application *about* Windows. Its `Linux/` and `macOS/` folders exist anyway, and explain what each module reads, what the equivalent would be on that system, and why porting it would mean writing a different application rather than porting this one.
+
+</sub>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
