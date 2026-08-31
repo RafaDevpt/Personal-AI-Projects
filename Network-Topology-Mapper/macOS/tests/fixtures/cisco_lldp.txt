@@ -1,0 +1,56 @@
+Capability codes:
+    (R) Router, (B) Bridge, (T) Telephone, (C) DOCSIS Cable Device
+    (W) WLAN Access Point, (P) Repeater, (S) Station, (O) Other
+
+------------------------------------------------
+Local Intf: Gi1/0/1
+Chassis id: 000b.8611.2233
+Port id: 1/1/49
+Port Description: Uplink para o core
+System Name: SW-PISO1
+
+System Description:
+ArubaOS-CX GL_10_09_1010 branch
+
+Time remaining: 97 seconds
+System Capabilities: B,R
+Enabled Capabilities: B
+Management Addresses:
+    IP: 10.0.10.11
+Auto Negotiation - supported, enabled
+
+------------------------------------------------
+Local Intf: Gi1/0/2
+Chassis id: 24a4.3c55.6677
+Port id: 0/24
+Port Description: uplink
+System Name: SW-COZINHA
+
+System Description:
+EdgeSwitch 24 250W, 1.9.3
+
+Time remaining: 104 seconds
+System Capabilities: B
+Enabled Capabilities: B
+Management Addresses:
+    IP: 10.0.10.31
+
+------------------------------------------------
+Local Intf: Gi1/0/30
+Chassis id: 805e.c011.2233
+Port id: 805ec0112233
+Port Description: LAN port
+System Name: SIP-T46S
+
+System Description:
+Yealink SIP-T46S 66.85.0.5
+
+Time remaining: 91 seconds
+System Capabilities: B,T
+Enabled Capabilities: B,T
+Management Addresses:
+    IP: 10.0.30.44
+
+------------------------------------------------
+
+Total entries displayed: 3

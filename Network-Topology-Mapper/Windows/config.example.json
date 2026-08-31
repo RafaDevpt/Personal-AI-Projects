@@ -1,0 +1,27 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use o separador Definições na aplicação. A aplicação grava a sua própria cópia em %APPDATA%\\NetworkTopologyMapper (Windows) ou ~/.config/NetworkTopologyMapper (Linux e macOS), nunca dentro desta pasta — um mapa de rede é a planta do edifício e não deve acabar num repositório.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings tab. The application writes its own copy to %APPDATA%\\NetworkTopologyMapper (Windows) or ~/.config/NetworkTopologyMapper (Linux and macOS), never inside this folder — a network map is the building's floor plan and must not end up in a repository.",
+
+  "_credenciais_pt": "Não há aqui campo para credenciais, nem dos switches nem do controlador. São pedidas a cada sessão e vivem em memória. Na linha de comandos, use NETMAP_UTILIZADOR, NETMAP_PALAVRA_PASSE, NETMAP_UNIFI_UTILIZADOR e NETMAP_UNIFI_PALAVRA_PASSE.",
+  "_credentials_en": "There is no credentials field here, neither for the switches nor for the controller. They are asked for each session and live in memory. On the command line, use NETMAP_UTILIZADOR, NETMAP_PALAVRA_PASSE, NETMAP_UNIFI_UTILIZADOR and NETMAP_UNIFI_PALAVRA_PASSE.",
+
+  "output_dir": "C:\\Users\\utilizador\\Documents\\Network Topology Mapper",
+
+  "_sementes_pt": "Por onde o crawl começa. Um switch de core chega — o resto vem pelo LLDP.",
+  "seeds": ["10.0.10.1"],
+
+  "_unifi_pt": "Opcional. Serve para semear o mapa e para saber a porta dos clientes que o controlador conhece. Deixe vazio se não houver controlador.",
+  "unifi_url": "https://10.0.10.5:8443",
+  "unifi_site": "default",
+  "unifi_verify_tls": true,
+
+  "ssh_timeout": 30,
+  "max_depth": 4,
+  "max_devices": 150,
+  "unifi_cli_hop": false,
+
+  "_oui_pt": "Ficheiro de fabricantes do IEEE, se o tiver descarregado de standards-oui.ieee.org/oui/oui.csv. Sem ele usa-se a tabela curada embutida.",
+  "oui_file": "",
+
+  "tema": "system"
+}

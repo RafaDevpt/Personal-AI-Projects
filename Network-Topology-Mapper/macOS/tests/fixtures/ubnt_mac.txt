@@ -1,0 +1,7 @@
+MAC Address       Interface  IfIndex  Status
+----------------  ---------  -------  ------------
+00:0C:0C:AA:BB:01  0/24      24       Learned
+24:A4:3C:AA:11:22  0/5       5        Learned
+A4:5D:36:11:22:33  0/9       9        Learned
+00:1B:A9:44:55:66  0/11      11       Learned
+24:A4:3C:55:66:77  0/1       1        Management

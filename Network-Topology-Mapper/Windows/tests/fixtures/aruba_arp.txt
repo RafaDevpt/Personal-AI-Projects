@@ -1,0 +1,6 @@
+IPv4 Address     MAC                Port      Physical Port     State
+------------------------------------------------------------------------
+10.0.10.1        00:0c:0c:aa:bb:01  vlan10    1/1/49            reachable
+10.0.10.62       24:a4:3c:99:88:77  vlan10    1/1/12            reachable
+10.0.30.71       80:5e:c0:44:55:66  vlan30    1/1/6             reachable
+10.0.20.55       a4:c3:f0:77:88:99  vlan20    1/1/6             reachable

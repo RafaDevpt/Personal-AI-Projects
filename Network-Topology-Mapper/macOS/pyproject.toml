@@ -8,8 +8,8 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "network-topology-mapper"
-version = "1.0.0"
+name = "network-topology-mapper-macos"
+version = "2.0.0"
 description = "Mapeamento da rede do controlador ao equipamento final / Network mapping from the controller to the end device"
 readme = "README.md"
 requires-python = ">=3.10"

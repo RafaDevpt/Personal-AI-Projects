@@ -1,0 +1,10 @@
+Switch: 1
+
+System Description............................. EdgeSwitch 24 250W, 1.9.3, Linux 3.6.5
+Machine Model.................................. ES-24-250W
+Serial Number.................................. F09FC2AABBCC
+Burned In MAC Address.......................... 24:A4:3C:55:66:77
+Software Version............................... 1.9.3
+Operating System............................... Linux 3.6.5
+System Name.................................... SW-COZINHA
+System Location................................ Cozinha central

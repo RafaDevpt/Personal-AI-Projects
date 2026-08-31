@@ -1,0 +1,10 @@
+--------------------------------------------------------------------------------------------
+Port      Native  Mode    Type      Enabled Status  Reason               Speed    Description
+          VLAN                                                           (Mb/s)
+--------------------------------------------------------------------------------------------
+1/1/1     20      access  1GbT      yes     down    Waiting for link     0
+1/1/3     20      access  1GbT      yes     up                           1000     Servidor ESX
+1/1/6     30      access  1GbT      yes     up                           100      Telefone 101
+1/1/8     20      access  1GbT      yes     up                           1000
+1/1/12    10      access  1GbT      yes     up                           1000     AP piso 1
+1/1/49    1       trunk   10GbSFP+  yes     up                           10000    Uplink core

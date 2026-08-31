@@ -1,0 +1,13 @@
+Hostname                     : SW-PISO1
+System Description           : GL_10_09_1010
+System Contact               :
+System Location              : Piso 1 - Bastidor A
+
+Vendor                       : Aruba
+Product Name                 : JL658A 6300M 24SR5 CL6 PoE 4SFP56 Swch
+Chassis Serial Nbr           : SG0ZKM123X
+Base MAC Address             : 000b86-112233
+ArubaOS-CX Version           : GL.10.09.1010
+Software Version             : GL.10.09.1010
+
+Up Time                      : 88 days, 4 hours, 11 minutes

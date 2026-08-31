@@ -1,0 +1,8 @@
+Intf    Detection    Class   Output Volt   Output Curr   Output Power   Status    Fault
+                             (volt)        (mA)          (Watts)
+------  -----------  ------  ------------  ------------  -------------  --------  --------
+0/1     Searching    0       0.0           0             0.0            OFF       No Error
+0/5     Good         4       54.0          220           11.9           ON        No Error
+0/9     Searching    0       0.0           0             0.0            OFF       No Error
+0/11    Searching    0       0.0           0             0.0            OFF       No Error
+0/24    Disabled     0       0.0           0             0.0            OFF       No Error

@@ -1,0 +1,7 @@
+LLDP Remote Device Summary
+
+Local
+Interface RemID   Chassis ID         Port ID            System Name
+--------- ------- ------------------ ------------------ -----------------
+0/24      1       00:0C:0C:AA:BB:01  Gi1/0/2            SW-CORE-01
+0/5       2       24:A4:3C:AA:11:22  eth0               AP-COZINHA-01

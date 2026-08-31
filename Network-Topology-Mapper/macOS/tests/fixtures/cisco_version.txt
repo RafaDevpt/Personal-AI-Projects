@@ -1,0 +1,15 @@
+Cisco IOS XE Software, Version 17.06.04
+Cisco IOS Software [Bengaluru], Catalyst L3 Switch Software (CAT9K_IOSXE), Version 17.6.4, RELEASE SOFTWARE (fc2)
+
+SW-CORE-01 uptime is 41 weeks, 2 days, 6 hours, 12 minutes
+Uptime for this control processor is 41 weeks, 2 days, 6 hours, 14 minutes
+System returned to ROM by Reload Command
+
+Technology Package License Information:
+
+Switch  Ports  Model                Serial No.
+------  -----  -----                ----------
+     1     52  C9300-48P            FCW2145L0AB
+
+Model Number                       : C9300-48P
+System Serial Number               : FCW2145L0AB
