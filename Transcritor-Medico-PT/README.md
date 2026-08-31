@@ -5,7 +5,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-4.0.0-informational.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-5.1.0-informational.svg)](CHANGELOG.md)
 
 > **PT** · Nenhum áudio ou texto sai da máquina. O modelo corre localmente.
 > **EN** · No audio or text leaves the machine. The model runs locally.
@@ -203,41 +203,46 @@ entries or out-of-order punctuation.
 
 ## Instalação · Installation
 
+### Um lançador por sistema · One launcher per system
+
+A aplicação corre em **Windows, Linux e macOS**. O código é o mesmo nos três — o que muda é o arranque e os pré-requisitos, e é isso que está em três pastas próprias:
+
+| Sistema | Abrir com | Instruções detalhadas |
+| :--- | :--- | :--- |
+| **Windows** | duplo clique em `Windows\EXECUTAR.bat` | [`Windows/LEIA-ME.md`](Windows/LEIA-ME.md) |
+| **Linux** | `./Linux/executar.sh` | [`Linux/LEIA-ME.md`](Linux/LEIA-ME.md) |
+| **macOS** | duplo clique em `macOS/executar.command` | [`macOS/LEIA-ME.md`](macOS/LEIA-ME.md) |
+
+Cada lançador verifica os pré-requisitos, prepara o ambiente na primeira execução e arranca. Se faltar alguma coisa, imprime **o comando exacto para aquela máquina** — incluindo a distribuição de Linux certa, lida do `/etc/os-release`.
+
 ### Requisitos · Requirements
 
-- **Python 3.10 ou superior** · [python.org](https://www.python.org/downloads/) — marque *Add Python to PATH*
-- **ffmpeg** · necessário para ler ficheiros de áudio
+- **Python 3.10 ou superior** · [python.org](https://www.python.org/downloads/) — em Windows marque *Add Python to PATH*
 - **4 GB de RAM** livres para o modelo recomendado (`small`)
+- Três dependências que o `pip` **não** instala:
 
-<details>
-<summary><b>Instalar o ffmpeg</b> · Installing ffmpeg</summary>
+| | FFmpeg | Tkinter | PortAudio |
+| :--- | :--- | :--- | :--- |
+| **Para quê** | descodifica o áudio | interface gráfica | ditado pelo microfone |
+| **Sem ele** | não há transcrição | resta a linha de comandos | transcrevem-se ficheiros na mesma |
+| **Windows** | `winget install Gyan.FFmpeg` | já vem com o Python | já vem no `sounddevice` |
+| **Debian / Ubuntu** | `sudo apt install ffmpeg` | `sudo apt install python3-tk` | `sudo apt install libportaudio2` |
+| **Fedora** | `sudo dnf install ffmpeg-free` | `sudo dnf install python3-tkinter` | `sudo dnf install portaudio` |
+| **Arch** | `sudo pacman -S ffmpeg` | `sudo pacman -S tk` | `sudo pacman -S portaudio` |
+| **macOS** | `brew install ffmpeg` | `brew install python-tk` | `brew install portaudio` |
 
-**Windows (winget):**
-```powershell
-winget install Gyan.FFmpeg
-```
-
-**Windows (chocolatey):**
-```powershell
-choco install ffmpeg
-```
-
-**macOS:**
-```bash
-brew install ffmpeg
-```
-
-**Debian / Ubuntu:**
-```bash
-sudo apt install ffmpeg python3-tk
-```
-</details>
-
-### Passos · Steps
+Para saber o que falta nesta máquina, sem adivinhar:
 
 ```bash
-git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
-cd Personal-AI-Projects/portuguese-medical-transcriber
+python -m transcriber --diagnostico
+```
+
+### Passos à mão · Manual steps
+
+```bash
+git clone --branch Medical-Audio-to-Text --single-branch \
+    https://github.com/RafaDevpt/Personal-AI-Projects.git
+cd Personal-AI-Projects/Transcritor-Medico-PT
 
 python -m venv .venv
 # Windows
@@ -266,7 +271,7 @@ internet connection.
 python -m transcriber
 ```
 
-No Windows pode usar o `EXECUTAR.bat` incluído.
+Ou, sem escrever nada: `Windows\EXECUTAR.bat`, `./Linux/executar.sh`, `macOS/executar.command`.
 
 1. **Escolher pasta** — indique onde estão as gravações
 2. **Selecionar** um ficheiro na lista
@@ -385,7 +390,8 @@ Ficheiros da aplicação:
 
 | Windows | `%APPDATA%\PortugueseMedicalTranscriber\` |
 |---|---|
-| macOS / Linux | `~/.config/PortugueseMedicalTranscriber/` |
+| macOS | `~/Library/Application Support/PortugueseMedicalTranscriber/` |
+| Linux | `~/.config/PortugueseMedicalTranscriber/` (respeita o `XDG_CONFIG_HOME`) |
 
 ---
 

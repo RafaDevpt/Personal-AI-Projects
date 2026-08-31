@@ -13,6 +13,7 @@
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=for-the-badge)
 ![Language](https://img.shields.io/badge/PT--PT-006600?style=for-the-badge)
+![Platforms](https://img.shields.io/badge/Windows_·_Linux_·_macOS-0078D6?style=for-the-badge)
 
 <a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
@@ -52,11 +53,12 @@ If you use this with real recordings, you remain responsible for lawful basis, c
 
 | | |
 | :--- | :--- |
-| **OS** | Windows 10 / 11 |
+| **OS** | Windows 10/11, Linux, macOS — one launcher per system in `Windows/`, `Linux/` and `macOS/` |
 | **Python** | 3.11 or newer |
 | **RAM** | 8 GB minimum, 16 GB recommended |
 | **Disk** | Space for the local model files |
 | **GPU** | Optional — CPU works, GPU is faster |
+| **Not from pip** | FFmpeg (required), Tkinter (GUI), PortAudio (dictation). Run `--diagnostico` and it names the exact command for your machine |
 
 ---
 

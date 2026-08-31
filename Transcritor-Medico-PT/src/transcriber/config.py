@@ -17,12 +17,11 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from dataclasses import asdict, dataclass, field, fields
 from pathlib import Path
 from typing import Any
 
-from . import languages
+from . import languages, platform_support
 
 _log = logging.getLogger(__name__)
 
@@ -51,23 +50,32 @@ AUDIO_EXTENSIONS: tuple[str, ...] = (
 )
 
 
+APP_FOLDER_NAME = "PortugueseMedicalTranscriber"
+
+
 def default_config_path() -> Path:
     """
     PT-PT: Devolve o caminho do ficheiro de configuração do utilizador.
-           Em Windows usa %APPDATA%; nos restantes sistemas segue a norma
-           XDG. Nunca escreve para dentro da pasta do repositório, para que
-           uma configuração local não seja submetida por engano para o Git.
+
+           Cada sistema tem a sua convenção e todas são respeitadas: `%APPDATA%`
+           em Windows, `~/Library/Application Support` em macOS e o XDG em
+           Linux. A escolha vive em `platform_support.app_data_dir`, para não
+           haver duas versões desta regra em ficheiros diferentes.
+
+           Nunca escreve para dentro da pasta do repositório, para que uma
+           configuração local não seja submetida por engano para o Git.
 
     EN-UK: Returns the path of the user's configuration file.
-           On Windows it uses %APPDATA%; elsewhere it follows the XDG
-           convention. It never writes inside the repository folder, so that a
-           local configuration cannot be committed to Git by accident.
+
+           Every system has its own convention and all are honoured: `%APPDATA%`
+           on Windows, `~/Library/Application Support` on macOS and XDG on
+           Linux. The choice lives in `platform_support.app_data_dir`, so this
+           rule does not exist in two versions in two different files.
+
+           It never writes inside the repository folder, so that a local
+           configuration cannot be committed to Git by accident.
     """
-    if os.name == "nt":
-        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
-    else:
-        base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-    return base / "PortugueseMedicalTranscriber" / "config.json"
+    return platform_support.app_data_dir(APP_FOLDER_NAME) / "config.json"
 
 
 def default_data_dir() -> Path:

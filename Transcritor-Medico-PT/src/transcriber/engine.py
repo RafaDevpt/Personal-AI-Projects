@@ -35,6 +35,7 @@ from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
+from . import platform_support
 from .config import AppConfig
 from .languages import resolve, whisper_code_for
 
@@ -160,11 +161,32 @@ class TranscriptionEngine:
     @staticmethod
     def dependencies_available() -> tuple[bool, str]:
         """
-        PT-PT: Verifica se o faster-whisper está instalado, sem o importar
-               para a memória de forma permanente.
+        PT-PT: Verifica se é possível transcrever nesta máquina.
 
-        EN-UK: Checks whether faster-whisper is installed, without permanently
-               importing it into memory.
+               São duas coisas e não uma: o `faster-whisper`, que se instala
+               com o `pip`, e o **FFmpeg**, que não. O FFmpeg é o que
+               descodifica o mp3 antes de o modelo o ouvir, e a sua ausência é
+               de longe a causa mais comum de uma instalação nova não
+               funcionar — em Linux e em macOS não vem com nada.
+
+               A verificação é feita **antes** de o utilizador escolher um
+               ficheiro e esperar. Na versão anterior, a falta de FFmpeg só
+               aparecia como uma excepção no fim de uma tentativa de
+               transcrição, com o utilizador a olhar para uma barra de
+               progresso que não ia a lado nenhum.
+
+        EN-UK: Checks whether transcription is possible on this machine.
+
+               It is two things, not one: `faster-whisper`, which pip installs,
+               and **FFmpeg**, which it does not. FFmpeg is what decodes the mp3
+               before the model hears it, and its absence is by far the
+               commonest reason a fresh installation does not work — on Linux
+               and macOS it comes with nothing.
+
+               The check runs **before** the user picks a file and waits. In the
+               previous version, a missing FFmpeg only surfaced as an exception
+               at the end of a transcription attempt, with the user staring at a
+               progress bar that was going nowhere.
 
         :return:
             PT-PT: (disponível, mensagem explicativa).
@@ -178,6 +200,17 @@ class TranscriptionEngine:
                 "pip install -r requirements.txt\n"
                 f"(detalhe / detail: {exc})"
             )
+
+        if not platform_support.ffmpeg_present():
+            comando = platform_support.install_command("ffmpeg")
+            return False, (
+                "O FFmpeg não foi encontrado. É ele que descodifica o áudio "
+                "antes de o modelo o ouvir, e sem ele não há transcrição.\n\n"
+                f"Instale com:\n    {comando}\n\n"
+                "FFmpeg was not found. It decodes the audio before the model "
+                "hears it, and without it there is no transcription."
+            )
+
         return True, "OK"
 
     def _resolve_device(self) -> str:

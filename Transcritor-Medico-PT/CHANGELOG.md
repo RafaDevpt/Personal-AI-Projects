@@ -8,6 +8,65 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [5.1.0] — 2026-08-31
+
+**PT** · Suporte a Linux e macOS.
+**EN** · Linux and macOS support.
+
+### Um lançador por sistema · One launcher per system
+
+- Três pastas — `Windows/`, `Linux/`, `macOS/` — cada uma com o seu lançador e
+  um `LEIA-ME.md` com os pré-requisitos daquele sistema. O `src/` continua a ser
+  um só: o que muda entre sistemas é o arranque e o que é preciso instalar
+  antes, não a aplicação. Três cópias do código seriam três sítios para corrigir
+  o mesmo erro
+- `Linux/executar.sh` reconhece a distribuição pelo `/etc/os-release` e imprime
+  o comando do gestor de pacotes certo — `apt`, `dnf`, `pacman`, `zypper` ou
+  `apk`. Pelo campo `ID_LIKE`, funciona também em distribuições derivadas que
+  não estão em lista nenhuma, como o Linux Mint ou o Pop!_OS
+- `macOS/executar.command`, abrível com duplo clique no Finder, com os dois
+  caminhos do Homebrew no PATH: um script aberto pelo Finder não herda o
+  ambiente da shell, e o `brew` instala em `/opt/homebrew` nos Apple Silicon e
+  em `/usr/local` nos Intel
+- `.gitattributes` que fixa LF nos scripts e CRLF nos `.bat`. Sem isto, um clone
+  numa máquina com `core.autocrlf=true` produz um `executar.sh` que falha em
+  Linux com `bad interpreter: /usr/bin/env bash^M` — uma mensagem que não diz
+  nada a quem a lê pela primeira vez, sobre um ficheiro que está correcto
+
+### Novo · Added
+
+- `platform_support.py` — o único sítio onde as diferenças entre sistemas
+  existem. Detecta o sistema e a família da distribuição, e devolve o comando
+  de instalação certo para cada componente
+- `--diagnostico` — verifica os três requisitos que o `pip` não instala e diz o
+  que falta, com o comando exacto. É o primeiro comando a que alguém recorre
+  quando uma instalação nova não arranca, e corre antes de a configuração ser
+  carregada precisamente por isso
+- 40 testes das diferenças entre sistemas. Passando o sistema e o
+  `/etc/os-release` como argumentos, os três caminhos verificam-se a partir de
+  qualquer máquina — o que importa não é se o FFmpeg está instalado, é se a
+  aplicação diz o comando certo quando ele falta
+
+### Alterado · Changed
+
+- **A pasta de configuração em macOS passou a `~/Library/Application Support`.**
+  Antes caía no ramo do XDG e ia parar a `~/.config`, que é hábito de Linux e
+  num Mac ninguém lá vai procurar
+- **O FFmpeg é verificado antes de a transcrição começar.** Até aqui a sua
+  ausência só aparecia como excepção no fim de uma tentativa, com o utilizador
+  a olhar para uma barra de progresso que não ia a lado nenhum. É a causa mais
+  comum de uma instalação nova não funcionar em Linux e macOS
+- **O `sounddevice` passou a apanhar o `OSError`, e não só o `ImportError`.** Em
+  Linux o pacote de Python instala-se sem problema e falha na importação porque
+  falta a biblioteca de C do PortAudio. A mensagem antiga dizia que faltava um
+  pacote de Python, e quem a lesse corria `pip install sounddevice` outra vez,
+  com sucesso, e continuava sem ditado
+- As mensagens de dependência em falta deixaram de assumir a Debian. Um
+  utilizador de Fedora que leia «sudo apt install» conclui, com razão, que a
+  aplicação não foi pensada para o sistema dele
+
+---
+
 ## [5.0.0] — 2026-08-30
 
 **PT** · Ditado pelo microfone e suporte multilingue.

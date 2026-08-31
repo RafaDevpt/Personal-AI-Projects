@@ -69,6 +69,8 @@ from array import array
 from datetime import datetime
 from pathlib import Path
 
+from . import platform_support
+
 _log = logging.getLogger(__name__)
 
 # PT-PT: O Whisper trabalha a 16 kHz mono. Gravar acima disto obriga a
@@ -118,6 +120,30 @@ def dependencies_available() -> tuple[bool, str]:
             "instalada. Execute: pip install sounddevice\n"
             "Dictation needs the 'sounddevice' library, which is not "
             "installed. Run: pip install sounddevice\n"
+            f"(detalhe / detail: {exc})"
+        )
+    except OSError as exc:
+        # PT-PT: Em Linux o `sounddevice` instala-se com o pip e importa-se sem
+        #        problema, mas rebenta aqui com um OSError se a biblioteca de C
+        #        do PortAudio não estiver no sistema — e não está, por omissão,
+        #        em nenhuma distribuição. Apanhar só o ImportError daria a
+        #        entender que faltava um pacote de Python, e quem lesse isso ia
+        #        correr `pip install sounddevice` outra vez, com sucesso, e
+        #        continuar sem ditado.
+        # EN-UK: On Linux `sounddevice` installs with pip and imports fine, but
+        #        blows up here with an OSError when PortAudio's C library is not
+        #        on the system — and it is not, by default, on any distribution.
+        #        Catching only ImportError would suggest a missing Python
+        #        package, and whoever read that would run
+        #        `pip install sounddevice` again, successfully, and still have
+        #        no dictation.
+        comando = platform_support.install_command("portaudio")
+        return False, (
+            "A biblioteca de sistema PortAudio não está instalada. O pacote de "
+            "Python está lá, mas precisa dela para falar com o microfone.\n\n"
+            f"Instale com:\n    {comando}\n\n"
+            "The PortAudio system library is not installed. The Python package "
+            "is present, but needs it to talk to the microphone.\n"
             f"(detalhe / detail: {exc})"
         )
 

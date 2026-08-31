@@ -25,7 +25,7 @@ import logging
 import sys
 from pathlib import Path
 
-from . import __version__
+from . import __version__, platform_support
 from .config import AUDIO_EXTENSIONS, MODEL_SIZES, AppConfig, default_data_dir
 from .corrections import CorrectionEngine
 from .engine import TranscriptionEngine, TranscriptionError
@@ -68,6 +68,13 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--model", choices=MODEL_SIZES, default=None,
         help="Tamanho do modelo. / Model size.",
+    )
+    parser.add_argument(
+        "--diagnostico", action="store_true",
+        help=(
+            "Verifica os requisitos de sistema e diz o que falta instalar. / "
+            "Checks the system requirements and says what is missing."
+        ),
     )
     parser.add_argument(
         "--verbose", action="store_true",
@@ -170,11 +177,21 @@ def run_gui(config: AppConfig) -> int:
     try:
         from .gui.app import TranscriberApp
     except ImportError as exc:
+        # PT-PT: A instrução do Tkinter é a da máquina onde isto está a correr,
+        #        e não a de uma Debian. Um utilizador de Fedora que leia
+        #        «sudo apt install» conclui, com razão, que a aplicação não foi
+        #        pensada para o sistema dele.
+        # EN-UK: The Tkinter instruction is the one for the machine this is
+        #        running on, not for a Debian. A Fedora user reading
+        #        "sudo apt install" concludes, rightly, that the application was
+        #        not meant for their system.
         print(
             "A interface gráfica precisa do customtkinter.\n"
-            "Execute: pip install -r requirements.txt\n"
-            "Em Linux pode também faltar o tkinter: sudo apt install python3-tk\n"
-            f"Detalhe / detail: {exc}",
+            "Execute: pip install -r requirements.txt\n\n"
+            "Se o que falta for o Tkinter do sistema:\n"
+            f"    {platform_support.install_command('tkinter')}\n\n"
+            f"Detalhe / detail: {exc}\n\n"
+            "Para ver o estado de todos os requisitos: python -m transcriber --diagnostico",
             file=sys.stderr,
         )
         return 3
@@ -194,6 +211,17 @@ def main(argv: list[str] | None = None) -> int:
     log_file = setup_logging(default_data_dir(), verbose=args.verbose)
     _log.info("Transcritor Médico PT %s a arrancar.", __version__)
     _log.debug("Registo em %s", log_file)
+
+    # PT-PT: O diagnóstico corre antes de carregar a configuração, e por uma
+    #        razão prática: é o comando a que alguém recorre quando *nada*
+    #        funciona, e nessa altura não se pode assumir que o resto arranca.
+    # EN-UK: The diagnostic runs before the configuration is loaded, for a
+    #        practical reason: it is the command somebody reaches for when
+    #        *nothing* works, and at that point the rest cannot be assumed to
+    #        start.
+    if args.diagnostico:
+        print(platform_support.report())
+        return 0 if not platform_support.missing_essentials() else 2
 
     config = load_config(args)
 
