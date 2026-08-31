@@ -2,7 +2,7 @@
 
 **IT Toolkit — arranque em Windows**
 
-Este é o único sistema onde esta ferramenta corre, e por construção: ela lê registos de eventos do Windows, WMI, serviços e SMART. As pastas `Linux/` e `macOS/` existem para explicar isso em vez de o deixar por descobrir.
+Esta pasta é uma versão completa e independente. Não partilha código com as pastas `Linux/` e `macOS/`: lê os event logs por `wevtutil`, o inventário por WMI, os serviços pelo PowerShell e o SMART pelo `Get-PhysicalDisk`. As outras duas fazem o mesmo trabalho com as ferramentas dos sistemas delas.
 
 ---
 
@@ -46,7 +46,7 @@ Para agendar: Agendador de Tarefas → Criar Tarefa → **Executar com privilég
 
 ## Onde ficam as coisas
 
-Configuração, registo e relatórios em `%APPDATA%\ITToolkit`. Nada é escrito dentro da pasta do programa — os relatórios contêm dados da máquina e não devem acabar num repositório.
+Configuração e registo em `%APPDATA%\ITToolkit`. Relatórios na pasta configurada, dentro dos Documentos. Nada é escrito dentro da pasta do programa — os relatórios contêm dados da máquina e não devem acabar num repositório.
 
 ---
 

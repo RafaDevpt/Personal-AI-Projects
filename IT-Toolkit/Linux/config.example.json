@@ -1,0 +1,28 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use as Definições na aplicação. A aplicação grava a sua própria cópia em ~/.config/ITToolkit (ou em $XDG_CONFIG_HOME/ITToolkit, se essa variável estiver definida), nunca dentro desta pasta — os relatórios contêm dados da máquina e não devem acabar no repositório.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings window. The application writes its own copy to ~/.config/ITToolkit (or $XDG_CONFIG_HOME/ITToolkit when that variable is set), never inside this folder — reports carry machine data and must not end up in the repository.",
+
+  "reports_dir": "/home/utilizador/Documentos/IT Toolkit/Relatorios",
+  "abrir_relatorio_apos_gerar": true,
+
+  "periodo_horas": 24,
+  "incluir_sistema": true,
+  "incluir_utilizador": false,
+  "apenas_este_arranque": false,
+  "incluir_avisos": true,
+  "max_eventos": 3000,
+
+  "disco_percent_min": 10,
+  "disco_gb_min": 15,
+  "uptime_dias_max": 30,
+  "ram_percent_max": 90,
+  "cpu_percent_max": 90,
+
+  "host_teste": "8.8.8.8",
+  "dominio_teste": "www.google.com",
+  "timeout_ping": 15,
+  "timeout_porta": 1.5,
+
+  "analisar_ao_arrancar": true,
+  "tema": "system"
+}

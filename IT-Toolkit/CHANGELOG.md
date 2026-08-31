@@ -8,6 +8,98 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [4.0.0] — 2026-09-01
+
+**PT** · As pastas `Linux/` e `macOS/` deixaram de ser uma explicação e passaram
+a ser duas aplicações.
+**EN** · The `Linux/` and `macOS/` folders stopped being an explanation and
+became two applications.
+
+### O que mudou, e porquê
+
+A versão 3.0.0 deixou as duas pastas com um texto a dizer que portar esta
+ferramenta não seria portar — seria escrever outra aplicação. **Estava certo, e
+foi exactamente isso que se fez.** Não há aqui código de Windows adaptado: há
+três aplicações que respondem à mesma pergunta com as ferramentas de cada
+sistema, e que partilham a estrutura, o vocabulário dos relatórios e o formato
+da base de conhecimento.
+
+O que o utilizador vê é o mesmo em qualquer das três: uma barra lateral com os
+mesmos oito módulos, os mesmos relatórios em HTML, os mesmos códigos de saída
+do `--cli`. O que está por baixo não coincide em quase nada.
+
+### Novo · Added
+
+**A versão de Linux** — `Linux/`, 179 testes.
+
+- Lê o diário do `systemd` por `journalctl -o json`, com âmbito de sistema e de
+  utilizador
+- Agrupa por **assinatura da mensagem**: o diário escreve PID, endereços e
+  timestamps dentro do texto, e sem os normalizar cinquenta ocorrências do mesmo
+  segfault contavam como cinquenta problemas
+- Base de conhecimento própria, com a chave `(expressão regular, unidade)` — em
+  Linux não há Event ID, e um padrão sem a unidade apanha coisas diferentes
+- Serviços: distingue as unidades `failed` das que estão activadas mas paradas,
+  e exclui as `oneshot`, cujo estado normal é «inactive»
+- Discos: ignora os `squashfs` dos snaps, que estão todos a 100% por definição —
+  eram quinze avisos críticos numa Ubuntu saudável
+- Rede: lê o DNS efectivo pelo `resolvectl`, e não pelo `/etc/resolv.conf`, que
+  numa máquina com `systemd-resolved` diz apenas `127.0.0.53`
+- Reinício pendente: compara o kernel em execução com o mais recente instalado
+  em `/boot` — é o sinal que funciona em qualquer distribuição, e o único que
+  apanha uma máquina a correr há semanas um kernel com uma falha já corrigida
+  no disco
+- Instruções de instalação pela família da distribuição, lidas do
+  `/etc/os-release` incluindo o `ID_LIKE`
+
+**A versão de macOS** — `macOS/`, 123 testes.
+
+- Lê o diário unificado por `log show --style ndjson`, com predicado restritivo
+  do lado do sistema: um Mac produz dezenas de milhares de linhas por hora
+- Lê também os **relatórios de paragem** em `DiagnosticReports` — são ficheiros,
+  e não linhas de diário, e por isso sobrevivem ao reinício que levou o diário
+  consigo. É o que permite ver um kernel panic de anteontem
+- Base de conhecimento própria, com a chave `(expressão regular, processo)`
+- Serviços: o `launchd` não tem estado `failed`. O que há é a coluna do último
+  código de saída do `launchctl list`, e é essa que identifica uma falha
+- Discos: agrupa os volumes por contentor APFS. Sem isso, o volume de sistema, o
+  de dados, o `Preboot` e o `Recovery` mostravam cada um os mesmos GB livres
+- Memória: alerta pela **pressão**, e não pela percentagem de RAM usada. Um Mac
+  usa toda a memória que tem por desenho, e um limite a 90% dispararia sempre
+- Deteta o **Acesso Total ao Disco**, que o `sudo` não substitui, e diz o que
+  fica invisível sem ele
+
+**Nas três**
+
+- Integração contínua em matriz: cada versão corre no seu runner nativo. Uma
+  versão de Linux testada num runner de Windows não prova nada sobre o que ela
+  faz em Linux
+- O `--cli` completo passou a correr também na CI, porque é o único caminho que
+  liga todos os módulos de uma vez contra a máquina verdadeira
+
+### Alterado · Changed
+
+- O `README`, o `CONTRIBUTING` e o `LEIA-ME` do Windows deixaram de dizer que
+  esta ferramenta corre num sistema só
+- A versão do Windows não mudou de comportamento. Mudou de vizinhança
+
+### A distinção que atravessa as três
+
+**«Não encontrei» e «não consegui olhar» não são a mesma coisa**, e as três
+versões passaram a dizer qual das duas é. Em Windows, sem elevação; em Linux,
+sem o grupo `systemd-journal`; em macOS, sem Acesso Total ao Disco. Nos três
+casos o comando corre, devolve zero e mostra menos — e um relatório que não
+assinale isso dá a impressão de ter olhado para tudo.
+
+### O custo, dito à cabeça
+
+Três versões independentes significam que **uma correcção ao código partilhado
+tem de ser aplicada três vezes**. Não há automatismo nenhum a proteger disso. O
+[CONTRIBUTING](CONTRIBUTING.md) diz o que é partilhado, o que não é, e como
+verificar que não divergiram.
+
+---
+
 ## [3.0.0] — 2026-08-31
 
 **PT** · Arrumação por sistema, e a explicação de porque é que só há um.

@@ -1,0 +1,27 @@
+{
+  "_comentario_pt": "Copie para config.json e ajuste, ou use as Definições na aplicação. A aplicação grava a sua própria cópia em ~/Library/Application Support/ITToolkit, nunca dentro desta pasta — os relatórios contêm dados da máquina e não devem acabar no repositório.",
+  "_comment_en": "Copy to config.json and adjust, or use the Settings window. The application writes its own copy to ~/Library/Application Support/ITToolkit, never inside this folder — reports carry machine data and must not end up in the repository.",
+
+  "reports_dir": "/Users/utilizador/Documents/IT Toolkit/Relatorios",
+  "abrir_relatorio_apos_gerar": true,
+
+  "periodo_horas": 24,
+  "incluir_avisos": false,
+  "incluir_relatorios_paragem": true,
+  "dias_relatorios": 7,
+  "max_eventos": 3000,
+
+  "disco_percent_min": 10,
+  "disco_gb_min": 15,
+  "uptime_dias_max": 30,
+  "ram_percent_max": 90,
+  "cpu_percent_max": 90,
+
+  "host_teste": "8.8.8.8",
+  "dominio_teste": "www.google.com",
+  "timeout_ping": 15,
+  "timeout_porta": 1.5,
+
+  "analisar_ao_arrancar": true,
+  "tema": "system"
+}

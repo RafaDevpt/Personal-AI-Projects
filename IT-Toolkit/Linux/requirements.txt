@@ -1,0 +1,55 @@
+# ===========================================================================
+# PT-PT: Dependências de execução.
+#        Instalar com:  pip install -r requirements.txt
+#
+#        São apenas duas, de propósito. Toda a recolha — diário do systemd,
+#        rede, discos, unidades, inventário e geração dos relatórios HTML —
+#        está implementada com a biblioteca padrão e com as ferramentas que a
+#        distribuição já traz, porque esta ferramenta corre em máquinas geridas
+#        onde instalar pacotes é lento ou está bloqueado por política.
+#
+# EN-UK: Runtime dependencies.
+#        Install with:  pip install -r requirements.txt
+#
+#        There are only two, deliberately. All collection — systemd journal,
+#        network, disks, units, inventory and HTML report generation — is
+#        implemented with the standard library and the tools the distribution
+#        already ships, because this tool runs on managed machines where
+#        installing packages is slow or blocked by policy.
+# ===========================================================================
+
+# PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
+#        não traz nenhum motor gráfico próprio. Licença MIT.
+#        Não é necessária no modo --cli.
+# EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
+#        brings no graphics engine of its own. MIT-licensed.
+#        Not required in --cli mode.
+customtkinter>=5.2.2,<6.0
+
+# PT-PT: Leitura de memória e de pontos de montagem. Se faltar, a aplicação
+#        abre na mesma e esses valores ficam indisponíveis — ver o cabeçalho
+#        de src/ittoolkit/system.py. A carga média e o tempo ligado vêm do
+#        /proc e não dependem deste pacote.
+# EN-UK: Reading memory and mount points. If missing, the application still
+#        opens and those values become unavailable — see the header of
+#        src/ittoolkit/system.py. Load average and uptime come from /proc and
+#        do not depend on this package.
+psutil>=5.9,<7.0
+
+# ===========================================================================
+# PT-PT: O Tkinter não se instala pelo pip — é um pacote da distribuição:
+#            Debian/Ubuntu   sudo apt install python3-tk
+#            Fedora/RHEL     sudo dnf install python3-tkinter
+#            Arch            sudo pacman -S tk
+#            openSUSE        sudo zypper install python3-tk
+#
+#        Ferramentas de sistema que o diagnóstico usa se existirem, e cuja
+#        falta assinala em vez de esconder:
+#            smartmontools   estado de saúde dos discos
+#            dmidecode       modelo, número de série e BIOS
+#            iproute2        configuração de rede
+#
+# EN-UK: Tkinter is not a pip package — it belongs to the distribution.
+#        System tools the diagnostic uses when present, and whose absence it
+#        reports rather than hides: smartmontools, dmidecode, iproute2.
+# ===========================================================================

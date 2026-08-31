@@ -1,0 +1,58 @@
+# ===========================================================================
+# PT-PT: Dependências de execução.
+#        Instalar com:  pip install -r requirements.txt
+#
+#        São apenas duas, de propósito. Toda a recolha — diário unificado,
+#        relatórios de paragem, rede, discos, launchd, inventário e geração dos
+#        relatórios HTML — está implementada com a biblioteca padrão e com as
+#        ferramentas que o macOS já traz, porque esta ferramenta corre em
+#        máquinas geridas onde instalar pacotes é lento ou está bloqueado por
+#        política.
+#
+# EN-UK: Runtime dependencies.
+#        Install with:  pip install -r requirements.txt
+#
+#        There are only two, deliberately. All collection — unified log, crash
+#        reports, network, disks, launchd, inventory and HTML report generation
+#        — is implemented with the standard library and the tools macOS already
+#        ships.
+# ===========================================================================
+
+# PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
+#        não traz nenhum motor gráfico próprio. Licença MIT.
+#        Não é necessária no modo --cli.
+# EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
+#        brings no graphics engine of its own. MIT-licensed.
+#        Not required in --cli mode.
+customtkinter>=5.2.2,<6.0
+
+# PT-PT: Leitura de memória e de volumes montados. Se faltar, a aplicação abre
+#        na mesma e esses valores ficam indisponíveis — ver o cabeçalho de
+#        src/ittoolkit/system.py. O tempo ligado vem do sysctl e a carga média
+#        do próprio Python, e nenhum dos dois depende deste pacote.
+# EN-UK: Reading memory and mounted volumes. If missing, the application still
+#        opens and those values become unavailable. Uptime comes from sysctl and
+#        the load average from Python itself; neither depends on this package.
+psutil>=5.9,<7.0
+
+# ===========================================================================
+# PT-PT: O Tkinter não se instala pelo pip. O Python do sistema traz uma versão
+#        antiga que desenha janelas desfocadas em ecrãs Retina:
+#            brew install python python-tk
+#
+#        Ferramentas que o diagnóstico usa e que já vêm no macOS — nada para
+#        instalar: log, diskutil, launchctl, system_profiler, scutil,
+#        networksetup, pmset, tmutil.
+#
+#        Opcional:
+#            brew install smartmontools    atributos SMART detalhados
+#
+#        E uma autorização, que não é um pacote e não se instala:
+#            Acesso Total ao Disco para o Terminal, em
+#            Definições do Sistema › Privacidade e Segurança.
+#            Sem ela, os relatórios de paragem do sistema ficam invisíveis.
+#
+# EN-UK: Tkinter is not a pip package. The tools the diagnostic uses already
+#        ship with macOS. Optional: smartmontools. And one authorisation, which
+#        is not a package: Full Disk Access for Terminal.
+# ===========================================================================

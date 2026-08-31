@@ -1,14 +1,15 @@
 # IT Toolkit
 
-**Diagnóstico e manutenção do dia a dia em máquinas Windows.**
-*Day-to-day diagnostics and maintenance for Windows machines.*
+**Diagnóstico e manutenção do dia a dia em Windows, Linux e macOS.**
+*Day-to-day diagnostics and maintenance on Windows, Linux and macOS.*
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.0.0-informational.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-informational.svg)](CHANGELOG.md)
+[![Sistemas](https://img.shields.io/badge/sistemas-Windows%20%C2%B7%20Linux%20%C2%B7%20macOS-lightgrey.svg)](#instala%C3%A7%C3%A3o--installation)
 
-> **PT** · Lê os event logs e explica o que significam, com causa provável e o que verificar. Diagnostica rede, discos e serviços. Gera relatórios em HTML.
-> **EN** · Reads the event logs and explains what they mean, with probable cause and what to check. Diagnoses network, disks and services. Produces HTML reports.
+> **PT** · Lê o registo de eventos do sistema — os event logs em Windows, o diário do systemd em Linux, o diário unificado em macOS — e explica o que significa, com causa provável e o que verificar. Diagnostica rede, discos e serviços. Gera relatórios em HTML.
+> **EN** · Reads the system's event record — event logs on Windows, the systemd journal on Linux, the unified log on macOS — and explains what it means, with probable cause and what to check. Diagnoses network, disks and services. Produces HTML reports.
 
 ---
 
@@ -27,85 +28,104 @@
 
 ## O que faz · What it does
 
-**PT** · A diferença entre esta ferramenta e o Visualizador de Eventos é a
-interpretação. O Event Viewer mostra que houve um `Kernel-Power 41`; esta
-aplicação diz que a máquina se desligou sem encerramento limpo, que as causas
-prováveis são falha de energia, bloqueio ou fonte de alimentação, e que a
-primeira coisa a verificar é a UPS.
+**PT** · A diferença entre esta ferramenta e o visualizador de registos do
+sistema é a interpretação. O Event Viewer mostra que houve um `Kernel-Power 41`;
+o `journalctl` mostra uma linha do OOM killer; a Consola do macOS mostra um
+`panic(cpu 0`. Esta aplicação diz o que cada um deles significa, quais são as
+causas prováveis por ordem, e o que verificar primeiro.
 
-**EN** · The difference between this tool and Event Viewer is interpretation.
-Event Viewer shows that a `Kernel-Power 41` happened; this application says the
-machine shut down without a clean shutdown, lists the probable causes and says
-what to check first.
+**EN** · The difference between this tool and the system's log viewer is
+interpretation. Event Viewer shows a `Kernel-Power 41` happened; `journalctl`
+shows an OOM killer line; macOS Console shows a `panic(cpu 0`. This application
+says what each means, the probable causes in order, and what to check first.
 
 | | |
 |---|---|
-| **Interpreta os eventos** | Base de conhecimento com mais de 30 regras, cada uma com causa provável e o que verificar. |
-| **Agrupa as ocorrências** | Cinquenta linhas iguais no Event Viewer são um problema, não cinquenta. |
-| **Separa o ruído** | O `DistributedCOM 10016` e companhia estão marcados como ruído conhecido e não contam para o veredicto. |
-| **Analisa ao arrancar** | A janela abre e começa logo a analisar, em segundo plano. |
-| **Diagnóstico de rede** | Adaptadores, gateway, DNS, APIPA, ping, tracert e teste de portas TCP. |
-| **Discos e serviços** | Espaço por partição, estado SMART, maiores pastas, serviços automáticos parados. |
-| **Inventário** | Modelo, número de série, BIOS, actualizações e software instalado. |
+| **Interpreta os eventos** | Uma base de conhecimento por sistema, cada regra com causa provável e o que verificar. |
+| **Agrupa as ocorrências** | Cinquenta linhas iguais são um problema, não cinquenta. Em Linux e macOS o agrupamento é por assinatura da mensagem, porque o PID e os endereços mudam a cada linha. |
+| **Separa o ruído** | O `DistributedCOM 10016`, os erros ACPI do arranque e as negações de sandbox do macOS estão marcados como ruído conhecido e não contam para o veredicto. |
+| **Diz o que não conseguiu ver** | Sem elevação, sem o grupo `systemd-journal`, sem Acesso Total ao Disco — o relatório diz-o. «Não encontrei» e «não consegui olhar» não são a mesma coisa. |
+| **Diagnóstico de rede** | Interfaces, gateway, DNS efectivo, endereços auto-atribuídos, ping, rota e teste de portas TCP. |
+| **Discos e serviços** | Espaço por volume, estado SMART, maiores pastas, e os serviços que falharam — serviços do Windows, unidades do systemd ou trabalhos do launchd. |
+| **Inventário** | Modelo, número de série, firmware, actualizações e software instalado. |
 | **Relatórios HTML** | Para anexar a um ticket ou arquivar. Legíveis também em papel. |
-| **Modo sem interface** | `--cli` para o Agendador de Tarefas ou um RMM, com códigos de saída distintos. |
+| **Modo sem interface** | `--cli` para o Agendador de Tarefas, um temporizador do systemd, um agente do launchd ou um RMM, com códigos de saída distintos. |
 
 ---
 
 ## Instalação · Installation
 
-### Um sistema só · One system only
+### Três versões independentes · Three independent versions
 
-Esta ferramenta corre **apenas em Windows**, e por construção: lê registos de eventos do Windows, WMI, serviços e SMART. Não é uma aplicação escrita em Windows por acaso — é uma aplicação *sobre* o Windows.
+**PT** · Escolha a pasta do seu sistema. Cada uma é uma aplicação completa, com
+o seu código, os seus testes e o seu lançador — não é a mesma aplicação com três
+atalhos.
 
-| Pasta | Estado |
-| :--- | :--- |
-| **[`Windows/`](Windows/)** | A aplicação. Duplo clique em `EXECUTAR.bat` |
-| [`Linux/`](Linux/LEIA-ME.md) | Não aplicável — a pasta explica porquê |
-| [`macOS/`](macOS/LEIA-ME.md) | Não aplicável — a pasta explica porquê |
+| Pasta | Como abrir | O que lê |
+| :--- | :--- | :--- |
+| **[`Windows/`](Windows/LEIA-ME.md)** | Duplo clique em `EXECUTAR.bat` | Event logs, WMI, serviços, SMART |
+| **[`Linux/`](Linux/LEIA-ME.md)** | `./executar.sh` | Diário do systemd, `/proc`, `/sys`, `systemctl` |
+| **[`macOS/`](macOS/LEIA-ME.md)** | Duplo clique em `executar.command` | Diário unificado, `launchd`, `diskutil`, `system_profiler` |
 
-Para ver o estado dos requisitos: `python -m ittoolkit --diagnostico`
+**PT** · A duplicação é deliberada e tem um custo — está explicado no
+[CONTRIBUTING](CONTRIBUTING.md). O que se ganha é que cada versão diz apenas o
+que é verdade no sistema dela, sem uma única ramificação `if sys.platform`. E há
+um teste, em cada uma, que falha se alguém escrever uma.
+
+**EN** · Pick your system's folder. Each is a complete application with its own
+code, tests and launcher. The duplication is deliberate and costs something —
+see the [CONTRIBUTING](CONTRIBUTING.md) file. What it buys is that each version
+states only what is true on its own system, with no `if sys.platform` anywhere.
+
+Para ver o estado dos requisitos e das permissões, em qualquer das três:
+
+```bash
+python -m ittoolkit --diagnostico
+```
 
 ### Requisitos · Requirements
 
-- **Windows 10, 11 ou Windows Server 2016+**
-- **Python 3.10 ou superior** · [python.org](https://www.python.org/downloads/) — marque *Add Python to PATH*
-- Privilégios de administrador (o `Windows\EXECUTAR.bat` pede-os automaticamente)
+| | Windows | Linux | macOS |
+| :--- | :--- | :--- | :--- |
+| **Sistema** | 10, 11 ou Server 2016+ | qualquer distribuição com systemd | 11 (Big Sur) ou superior |
+| **Python** | 3.10+ de [python.org](https://www.python.org/downloads/), com *Add Python to PATH* | 3.10+, já vem instalado | 3.10+, `brew install python` |
+| **Tkinter** | vem com o instalador | `python3-tk` / `python3-tkinter` / `tk` | `brew install python-tk` |
+| **Para ver tudo** | administrador | root **e** grupo `systemd-journal` | root **e** Acesso Total ao Disco |
 
-### Windows
-
-Duplo clique em **`Windows\EXECUTAR.bat`**. Na primeira execução pede elevação, cria o
-ambiente virtual e instala as dependências; nas seguintes arranca directamente.
+**PT** · A última linha é a que mais surpreende, e por isso está numa tabela:
+em Linux e em macOS há **duas** permissões, e ter uma não dá a outra. Um `sudo`
+num Mac não dá Acesso Total ao Disco; um root em Linux dá o diário, mas um
+utilizador normal precisa de estar no grupo. As três versões dizem, na barra
+lateral e no relatório, com quais estão a correr.
 
 ### Linha de comandos · Command line
 
 ```bash
+cd Linux                        # ou Windows, ou macOS
 python -m venv .venv
-.venv\Scripts\activate          # Windows
-source .venv/bin/activate       # Linux e macOS
+source .venv/bin/activate       # Windows: .venv\Scripts\activate
 
 pip install -r requirements.txt
-python -m ittoolkit
+PYTHONPATH=src python -m ittoolkit
 ```
-
-**PT** · Corre em Linux e macOS para efeitos de desenvolvimento e testes, mas
-os módulos de eventos, discos, serviços e inventário não têm o que ler fora do
-Windows — a aplicação diz-lhe isso ao abrir em vez de mostrar listas vazias.
 
 ---
 
 ## Módulos · Modules
 
-| Módulo | O que mostra |
-|---|---|
-| **Resumo** | Estado geral, discos, rede e serviços numa passagem. É o que corre ao arrancar. |
-| **Event Logs** | Análise dos logs System, Application e Security, com período configurável. |
-| **Rede** | Configuração dos adaptadores, diagnóstico, e uma janela para ping, tracert, resolução de nomes e teste de portas. |
-| **Discos** | Espaço por partição, estado dos discos físicos e as maiores pastas de C:. |
-| **Serviços** | Serviços com arranque automático que não estão a correr, com arranque a um clique. |
-| **Ferramentas** | Limpar cache DNS, renovar IP, reiniciar o spooler, limpar temporários, gpupdate, sessões abertas, unidades de rede, sincronizar a hora, SFC, DISM, e atalhos para as consolas de gestão. |
-| **Inventário** | Hardware, sistema operativo, últimas actualizações e software instalado. |
-| **Relatórios** | Histórico dos relatórios gerados. |
+**PT** · Os oito módulos são os mesmos nas três versões. O que muda é a fonte
+de cada um — e é aí que estão as três aplicações.
+
+| Módulo | Windows | Linux | macOS |
+|---|---|---|---|
+| **Resumo** | Estado geral numa passagem. É o que corre ao arrancar. | idem | idem |
+| **Eventos** | Logs System, Application e Security | Diário do systemd, sistema e utilizador | Diário unificado e relatórios de paragem |
+| **Rede** | `Get-NetIPConfiguration` | `ip -j`, `resolvectl` | `networksetup`, `scutil --dns` |
+| **Discos** | Partições e `Get-PhysicalDisk` | Montagens e `smartctl` | Contentores APFS e `diskutil` |
+| **Serviços** | Serviços automáticos parados | Unidades `failed` e activadas mas paradas | Trabalhos do `launchd` com código de saída ≠ 0 |
+| **Ferramentas** | DNS, IP, spooler, temporários, gpupdate, SFC, DISM, consolas MMC | DNS, IP, CUPS, caches, diário, cache de pacotes, unidades falhadas | DNS, IP, CUPS, caches, snapshots do Time Machine, Primeira Ajuda, utilitários |
+| **Inventário** | WMI e registo | DMI, `/proc`, gestor de pacotes | `system_profiler` e os `Info.plist` |
+| **Relatórios** | Histórico dos relatórios gerados. | idem | idem |
 
 **PT** · As acções com impacto — renovar IP, reiniciar o spooler, limpar
 temporários, arrancar um serviço — pedem sempre confirmação e dizem o que vai
@@ -118,10 +138,15 @@ happen before it does. Nothing in this tool deletes user data.
 
 ## Base de conhecimento · Knowledge base
 
-**PT** · O ficheiro `src/ittoolkit/knowledge.py` contém apenas dados e é o único
-que pode ser editado sem saber programar. Cada regra é:
+**PT** · Cada versão tem a sua, em `src/ittoolkit/knowledge.py`. O ficheiro
+contém apenas dados e é o único que pode ser editado sem saber programar.
+
+**A chave muda com o sistema, e a diferença é de fundo.** Em Windows um evento
+tem um número; em Linux e em macOS não há número nenhum, e o que identifica um
+problema é um padrão no texto somado a quem o escreveu.
 
 ```python
+# Windows — a chave é o par (Event ID, provider)
 Regra(
     event_id=41,
     providers=("kernel-power",),
@@ -130,29 +155,45 @@ Regra(
     solucao="Confirmar se houve corte de energia à hora do evento. …",
     gravidade=Gravidade.CRITICA,
 )
+
+# Linux — a chave é o par (expressão regular, unidade)
+Regra(
+    padrao=r"Out of memory: Killed process",
+    unidades=("kernel",),
+    titulo="Falta de memória — o kernel matou um processo",
+    ...
+)
+
+# macOS — a chave é o par (expressão regular, processo)
+Regra(
+    padrao=r"panic\(cpu|kernel panic",
+    processos=("kernel",),
+    titulo="Kernel panic — a máquina parou e reiniciou sozinha",
+    ...
+)
 ```
 
-**PT** · O par **(id, provider)** é obrigatório. Um Event ID sozinho não
-identifica nada: o ID 1000 é um crash de aplicação quando vem do *Application
-Error* e significa outra coisa completamente diferente noutros providers.
+**PT** · A segunda metade da chave nunca é decorativa. Um Event ID sozinho não
+identifica nada — o ID 1000 é um crash de aplicação quando vem do *Application
+Error* e significa outra coisa noutros providers. Da mesma forma, um «I/O
+error» do kernel é um disco a falhar, e o mesmo texto vindo de uma aplicação
+qualquer não é nada.
 
-**PT** · A marca `ruido=True` serve para eventos que o Windows produz sem que
-haja problema. Aparecem no relatório mas não contam para o veredicto — sem essa
-distinção, trinta eventos `10016` transformavam-se em «30 problemas» e o
-relatório perdia a credibilidade.
-
-**EN** · The **(id, provider)** pair is mandatory. `ruido=True` marks events
-Windows produces with no problem behind them: they appear in the report but do
-not count towards the verdict.
+**PT** · A marca `ruido=True` serve para o que o sistema produz sem que haja
+problema. Aparece no relatório mas não conta para o veredicto — sem essa
+distinção, trinta eventos `10016` em Windows, ou trezentas negações de sandbox
+em macOS, transformavam-se em «330 problemas» e o relatório perdia a
+credibilidade.
 
 ---
 
 ## Modo automático · Unattended mode
 
-**PT** · Para agendar no Agendador de Tarefas do Windows, use o `Windows\VERIFICAR.bat`
-ou directamente:
+**PT** · Para agendar: o `Windows\VERIFICAR.bat` no Agendador de Tarefas, um
+temporizador do systemd a chamar o `Linux/cli.sh --cli`, ou um agente do
+`launchd` a chamar o `macOS/cli.sh --cli`. Directamente:
 
-```bat
+```bash
 python -m ittoolkit --cli
 ```
 
@@ -173,8 +214,19 @@ Outros comandos:
 python -m ittoolkit --cli --horas 168        # analisar os últimos 7 dias
 python -m ittoolkit --cli --sem-eventos      # só rede, discos e serviços
 python -m ittoolkit --cli --sem-relatorio    # só o resumo no ecrã
-python -m ittoolkit --cli --pasta D:\Diagnosticos
+python -m ittoolkit --cli --pasta ~/Diagnosticos
 python -m ittoolkit --verbose
+```
+
+E as que só existem num sistema, porque só lá fazem sentido:
+
+```bash
+# Linux
+python -m ittoolkit --cli --com-utilizador   # inclui o diário da sessão gráfica
+python -m ittoolkit --cli --este-arranque    # só desde o último boot
+
+# macOS
+python -m ittoolkit --cli --sem-paragens     # não lê os relatórios de paragem
 ```
 
 ---
@@ -207,44 +259,101 @@ telemetry, no remote service.
 ## Estrutura · Structure
 
 ```
-├── src/ittoolkit/
-│   ├── __main__.py       Ponto de entrada, GUI e modo --cli
-│   ├── config.py         Definições persistidas em JSON
-│   ├── models.py         Gravidade, Regra, GrupoEventos, Análise, Achado
-│   ├── shell.py          Execução de comandos e detecção do ambiente
-│   ├── knowledge.py      Base de conhecimento de Event IDs (só dados)
-│   ├── events.py         Leitura e análise dos event logs
-│   ├── system.py         Processador, memória, uptime, reinício pendente
-│   ├── network.py        Adaptadores, ping, tracert, portas
-│   ├── disks.py          Partições, SMART, maiores pastas
-│   ├── services.py       Serviços automáticos parados
-│   ├── inventory.py      Hardware, sistema, software instalado
-│   ├── actions.py        Ferramentas rápidas e consolas de gestão
-│   ├── reports.py        Geração dos relatórios HTML
-│   ├── logging_setup.py  Registo rotativo
-│   └── gui/
-│       ├── app.py        Janela principal
-│       ├── dialogs.py    Definições e testes de rede
-│       └── theme.py      Cores, tipos de letra, espaçamentos
-├── tests/                69 testes, nenhum toca no Windows
-├── requirements.txt
-├── EXECUTAR.bat          Arranque com elevação
-└── VERIFICAR.bat         Modo agendado
+├── Windows/              Aplicação completa · 88 testes
+│   ├── src/ittoolkit/
+│   ├── tests/
+│   ├── EXECUTAR.bat      Arranque com elevação
+│   └── VERIFICAR.bat     Modo agendado
+├── Linux/                Aplicação completa · 179 testes
+│   ├── src/ittoolkit/
+│   ├── tests/
+│   ├── executar.sh
+│   └── cli.sh
+├── macOS/                Aplicação completa · 123 testes
+│   ├── src/ittoolkit/
+│   ├── tests/
+│   ├── executar.command
+│   └── cli.sh
+├── README.md
+├── CHANGELOG.md
+└── CONTRIBUTING.md
+```
+
+E dentro de cada `src/ittoolkit/`, os mesmos onze módulos com fontes diferentes:
+
+```
+├── __main__.py           Ponto de entrada, GUI e modo --cli
+├── platform_support.py   O que é específico deste sistema. Sem ramificações
+├── config.py             Definições persistidas em JSON
+├── models.py             Gravidade, Regra, GrupoEventos, Análise, Achado
+├── shell.py              Execução de comandos e detecção do ambiente
+├── knowledge.py          Base de conhecimento (só dados)
+├── events.py             Leitura e análise do registo de eventos
+├── system.py             Processador, memória, uptime, reinício pendente
+├── network.py            Interfaces, ping, rota, portas
+├── disks.py              Volumes, SMART, maiores pastas
+├── services.py           Serviços parados ou falhados
+├── inventory.py          Hardware, sistema, software instalado
+├── actions.py            Ferramentas rápidas
+├── reports.py            Geração dos relatórios HTML
+├── logging_setup.py      Registo rotativo
+└── gui/                  app.py, dialogs.py, theme.py
 ```
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
+Nenhum dos 390 testes toca no sistema operativo: as três suites correm em
+qualquer máquina, e depois cada versão é verificada no seu runner nativo pela
+integração contínua.
 
 ---
 
 ## Resolução de problemas · Troubleshooting
 
 <details>
-<summary><b>«Sem privilégios de administrador» ao abrir</b></summary>
+<summary><b>«Sem privilégios de administrador» ao abrir (Windows)</b></summary>
 
 **PT** · O `Windows\EXECUTAR.bat` pede elevação automaticamente. Se a política da
 máquina bloquear o UAC, a aplicação abre na mesma mas sem acesso ao log
 Security, ao estado SMART dos discos e ao arranque de serviços. O aviso na
 barra lateral diz-lhe exactamente o que fica de fora.
+</details>
+
+<details>
+<summary><b>O diário aparece vazio numa máquina com problemas (Linux)</b></summary>
+
+**PT** · É quase sempre permissão, e é o caso mais perigoso desta ferramenta
+porque não dá erro nenhum: sem root e sem pertencer ao grupo `systemd-journal`,
+o `journalctl` corre, devolve zero, e mostra apenas as mensagens do próprio
+utilizador.
+
+```bash
+sudo usermod -aG systemd-journal $USER     # e voltar a iniciar sessão
+```
+
+Em alternativa, `sudo ./cli.sh --cli`. A barra lateral mostra «diário parcial»
+quando é este o caso.
+</details>
+
+<details>
+<summary><b>Não aparecem kernel panics nem relatórios de paragem (macOS)</b></summary>
+
+**PT** · Falta o Acesso Total ao Disco, e **o `sudo` não o substitui**. A
+permissão pertence à aplicação que corre o processo — normalmente o Terminal, e
+não o Python:
+
+> Definições do Sistema › Privacidade e Segurança › Acesso Total ao Disco › **+** › Terminal
+
+Se agendou isto com um agente do `launchd`, o agente é um processo próprio e
+tem de ser autorizado separadamente.
+</details>
+
+<details>
+<summary><b>A análise do diário demora muito (macOS)</b></summary>
+
+**PT** · Demora mesmo. O `log show` de um Mac com histórico leva dezenas de
+segundos a minutos, porque o diário unificado regista tudo o que qualquer
+processo diz. Não é a ferramenta que está bloqueada. O `--sem-eventos` corta
+essa parte e deixa o resto a responder em segundos.
 </details>
 
 <details>
@@ -270,19 +379,34 @@ que vale a pena investigar.
 <details>
 <summary><b>A lista de serviços parados está vazia</b></summary>
 
-**PT** · Pode estar correcta. Serviços que o Windows arranca a pedido —
-`sppsvc`, `wuauserv`, `BITS` e companhia — são excluídos de propósito, porque
-estarem parados é o comportamento normal deles e listá-los enchia a lista de
-ruído.
+**PT** · Pode estar correcta. Em cada sistema há uma lista de exclusão de
+serviços que estão parados por desenho e não por avaria: em Windows o `sppsvc`,
+o `wuauserv` e o `BITS`; em Linux as unidades `oneshot`, que correm e saem; em
+macOS os trabalhos do `launchd` que a Apple deixa a falhar em máquinas onde a
+funcionalidade não existe. Sem essas listas, uma máquina saudável apresentava
+vinte «serviços falhados» e o operador aprendia a ignorar a secção inteira.
 </details>
 
 <details>
 <summary><b>«Maiores pastas» demora muito</b></summary>
 
-**PT** · Percorre um nível de profundidade a partir de C: e mede o conteúdo de
-cada pasta. Num servidor com muitos dados demora, mas corre em segundo plano —
-a janela continua a responder. É normal ver a barra de progresso durante alguns
-minutos.
+**PT** · Percorre um nível de profundidade a partir da raiz e mede o conteúdo de
+cada pasta. Num servidor com muitos dados demora, mas corre em segundo plano — a
+janela continua a responder.
+
+As pastas virtuais ficam de fora, e não é só por velocidade: em Linux, percorrer
+o `/proc` não é lento, é uma leitura que não termina; em macOS, o
+`/System/Volumes` tem pontos de montagem que levam de volta ao próprio disco e
+contariam o Mac inteiro duas vezes.
+</details>
+
+<details>
+<summary><b>O disco mostra o mesmo espaço livre várias vezes (macOS)</b></summary>
+
+**PT** · Não devia — se acontecer, é um erro. Num contentor APFS todos os
+volumes partilham o mesmo espaço, e a versão de macOS agrupa-os por contentor e
+conta uma vez. Se vir o volume de sistema, o de dados, o `Preboot` e o
+`Recovery` cada um com os mesmos 40 GB, abra um *issue*.
 </details>
 
 <details>

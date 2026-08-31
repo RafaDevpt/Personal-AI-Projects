@@ -8,21 +8,21 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "it-toolkit"
+name = "it-toolkit-macos"
 version = "4.0.0"
-description = "Diagnóstico e manutenção de máquinas Windows / Windows machine diagnostics and maintenance"
+description = "Diagnóstico e manutenção de máquinas macOS / macOS machine diagnostics and maintenance"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Rafael Santos (Redfox)" }]
-keywords = ["windows", "diagnostics", "event-log", "sysadmin", "helpdesk", "reporting"]
+keywords = ["macos", "diagnostics", "unified-log", "launchd", "sysadmin", "helpdesk", "reporting"]
 classifiers = [
     "Development Status :: 4 - Beta",
-    "Environment :: Win32 (MS Windows)",
+    "Environment :: MacOS X",
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
     "Natural Language :: Portuguese",
-    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
