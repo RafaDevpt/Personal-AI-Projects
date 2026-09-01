@@ -105,9 +105,12 @@ gitGraph
     commit id: "Read / diff / push"
     checkout main
     branch Network-Topology-Mapper
-    branch Virtual-Lab-Builder
     commit id: "LLDP crawl"
     commit id: "MAC correlation"
+    checkout main
+    branch Virtual-Lab-Builder
+    commit id: "Verified images"
+    commit id: "Bring your own"
     checkout main
     commit id: "Project index"
 ```
@@ -185,7 +188,7 @@ Desktop suite for daily IT work. Reads and interprets the system's event record 
 
 ### 📚 PDF Suite
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-121_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-455_passing-2EA043?style=flat-square)
 ![Branch](https://img.shields.io/badge/branch-PDF--Suite-1F6FEB?style=flat-square)
 
 Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
@@ -208,7 +211,7 @@ Two tools, one interface: turn any PDF into a fillable form, and compare or summ
 
 ### 🖨️ HP Toner Monitor
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-49_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-239_passing-2EA043?style=flat-square)
 ![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
 
 Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
@@ -231,7 +234,7 @@ It **drafts** the order e-mail as an `.eml` and never sends it: quantities depen
 
 ### 🩺 Transcritor Médico PT
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-40_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
 ![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
 
 Turns dictated audio into written text in **European Portuguese**, with a correction layer built for clinical vocabulary — drug names, dosages, abbreviations and units that a general-purpose transcriber gets wrong.
@@ -252,7 +255,7 @@ The audio is clinical. It never leaves the machine: transcription and correction
 
 ### 🌐 Network Config Builder
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-216_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-740_passing-2EA043?style=flat-square)
 ![Branch](https://img.shields.io/badge/branch-Network--Config--Builder-1F6FEB?style=flat-square)
 
 Describe a switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. Then reads what is running on the device, diffs it, and pushes.
@@ -274,7 +277,7 @@ Describe a switch once — VLANs, ports, services, hardening — and it writes t
 
 ### 🗺️ Network Topology Mapper
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-155_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-557_passing-2EA043?style=flat-square)
 ![Read only](https://img.shields.io/badge/read--only-6E5494?style=flat-square)
 
 Give it one core switch — or a UniFi controller — and it walks the network on its own, neighbour to neighbour, reading MAC tables, ARP, port state and PoE. Produces the thing nobody has: **every device, which switch and port it is on, and what it appears to be**.
@@ -291,6 +294,51 @@ When signals disagree, confidence drops and the conflict is recorded — HP make
 The finding that earns its keep: a port with six MACs and no LLDP neighbour has an **unmanaged switch** on the far side. It explains the loops and the socket that "sometimes drops".
 
 </details>
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 🧪 Laboratório Virtual
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-230_passing-2EA043?style=flat-square)
+![Branch](https://img.shields.io/badge/branch-Virtual--Lab--Builder-1F6FEB?style=flat-square)
+
+Builds virtual machines without the two things that go wrong. It fetches the image from the project's **own** servers with the whole verification chain along the way, and works out the specification from what the host actually has — then says **how** it got to the numbers, so you know when to change them.
+
+Hyper-V and VirtualBox on Windows, KVM/libvirt on Linux, QEMU on macOS. Seventeen images in the catalogue, or bring your own.
+
+`PowerShell` · `bash` · `GPG` · `libvirt` · `QEMU`
+
+<details>
+<summary><b>Why the order of the checks matters more than the checks</b></summary>
+
+Domain allowlist re-checked **on every redirect** — following redirects blindly voids the list entirely. HTTPS with no exceptions. GPG signature of the checksum manifest. SHA-256, mandatory, with no off switch.
+
+And the signature is verified **before** the filename is read out of the manifest. The other way round, a tampered manifest could point at anything — and the final checksum would happily confirm that anything matched the value the attacker put there.
+
+**The filename is never invented.** It comes out of the signed manifest, because a name pinned in a catalogue goes stale on the first point release — and a wrong name is indistinguishable from an attack.
+
+The report always says which layers ran. A layer that did not appears as `[--]` rather than being left off: saying "verified" when only a same-channel checksum was compared is a misleading truth.
+
+</details>
+
+<details>
+<summary><b>Bring your own image</b></summary>
+
+For a Proxmox, a TrueNAS, an appliance, or the ISO your company hands you. **No guarantees are invented here** — the report shows four layers unapplied and, at best, the checksum.
+
+What it can still do is say **where the file came from**, and each system knows something different: the Mark of the Web on Windows (which often carries the download URL), Gatekeeper's quarantine and `kMDItemWhereFroms` on macOS, `user.xdg.origin.url` on Linux. On all three, no mark means the system does not know — not that the file is safe.
+
+And it knows that **an ISO is the installer while a disk image is the machine**: creating an empty disk beside a `.qcow2` and booting from a CD that is not there gives exactly the *no bootable device* nobody can explain.
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+
+&nbsp;
 
 </td>
 </tr>
