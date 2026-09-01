@@ -1,0 +1,77 @@
+# ===========================================================================
+# PT-PT: Finais de linha por tipo de ficheiro.
+#
+#        Isto nao e arrumacao: e o que impede o erro de porte mais irritante
+#        que ha. Um script de shell gravado com finais de linha do Windows
+#        falha em Linux com
+#
+#            bash: ./executar.sh: /usr/bin/env bash^M: bad interpreter
+#
+#        — uma mensagem que nao diz nada a quem a le pela primeira vez, sobre
+#        um ficheiro que esta perfeitamente correcto. Basta um clone feito numa
+#        maquina com `core.autocrlf=true` para acontecer.
+#
+#        Ao contrario, um .bat com finais de linha de Unix falha em versoes
+#        antigas do Windows de formas igualmente pouco obvias.
+#
+#        Cada um leva o que precisa, e deixa de depender da configuracao de
+#        quem clona.
+#
+# EN-UK: Line endings by file type.
+#
+#        This is not tidiness: it prevents the most irritating porting bug
+#        there is. A shell script saved with Windows line endings fails on Linux
+#        with `bad interpreter: /usr/bin/env bash^M` — a message that means
+#        nothing to whoever reads it first, about a file that is perfectly
+#        correct. One clone on a machine with `core.autocrlf=true` is enough.
+#
+#        Conversely, a .bat with Unix line endings fails on older Windows in
+#        equally unobvious ways. Each gets what it needs, and stops depending on
+#        the configuration of whoever clones.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# PT-PT: Por omissao, o Git decide. / EN-UK: By default, Git decides.
+* text=auto
+
+# PT-PT: Scripts de shell — sempre LF, em qualquer sistema.
+# EN-UK: Shell scripts — always LF, on every system.
+*.sh        text eol=lf
+*.command   text eol=lf
+*.bash      text eol=lf
+
+# PT-PT: Lancadores de Windows — sempre CRLF.
+# EN-UK: Windows launchers — always CRLF.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+# PT-PT: O .ps1 leva CRLF e, ainda mais importante, leva BOM. Sem o BOM, o
+#        Windows PowerShell 5.1 le o ficheiro como ANSI: os acentos viram dois
+#        caracteres cada um, e o que se ve e um erro de sintaxe numa linha que
+#        esta perfeitamente correcta. O `working-tree-encoding` impede o Git de
+#        se meter no meio.
+# EN-UK: `.ps1` takes CRLF and, more importantly, keeps its BOM. Without it,
+#        Windows PowerShell 5.1 reads the file as ANSI and the accents break the
+#        syntax on a line that is perfectly correct.
+*.ps1       text eol=crlf
+
+# PT-PT: Codigo e documentacao — LF no repositorio, que e o que o Git prefere
+#        e o que faz os diffs coincidirem entre sistemas.
+# EN-UK: Code and documentation — LF in the repository, which is what Git
+#        prefers and what makes diffs line up across systems.
+*.py        text eol=lf
+*.md        text eol=lf
+*.json      text eol=lf
+*.toml      text eol=lf
+*.yml       text eol=lf
+*.txt       text eol=lf
+
+# PT-PT: Binarios — o Git nao lhes toca.
+# EN-UK: Binaries — Git does not touch them.
+*.png       binary
+*.jpg       binary
+*.ico       binary
+*.pdf       binary
+*.xlsx      binary
+*.wav       binary
+*.mp3       binary

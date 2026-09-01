@@ -1,0 +1,46 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositorio.
+#
+#        A entrada que mais importa e a das imagens. Uma ISO de Ubuntu tem
+#        quatro gigabytes e nao pertence a um repositorio de codigo -- e um
+#        `git add .` distraido numa pasta de trabalho e o suficiente para
+#        alguem passar a tarde a perceber porque e que o push nao acaba.
+#
+# EN-UK: What must never enter the repository. The entry that matters most is
+#        the images: an Ubuntu ISO is four gigabytes and does not belong in a
+#        code repository.
+# ===========================================================================
+
+# --- PT-PT: Imagens e maquinas / EN-UK: Images and machines ----------------
+*.iso
+*.img
+*.qcow2
+*.vdi
+*.vhdx
+*.vmdk
+*.dmg
+*.pkg
+LaboratorioVirtual/
+Imagens/
+Maquinas/
+
+# --- PT-PT: Verificacao / EN-UK: Verification ------------------------------
+*.sha256
+SHA256SUMS
+SHA256SUMS.*
+CHECKSUM
+*.sig
+*.asc
+
+# --- PT-PT: Temporarios / EN-UK: Temporary ---------------------------------
+.verificacao/
+*.tmp
+*.log
+*.bak
+
+# --- PT-PT: Sistemas / EN-UK: Systems --------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~

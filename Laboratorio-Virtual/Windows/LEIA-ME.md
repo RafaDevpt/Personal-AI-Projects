@@ -1,0 +1,96 @@
+# Windows
+
+**Laboratório Virtual — arranque em Windows**
+
+Esta pasta é uma versão completa e independente, escrita em PowerShell. Não partilha código com as pastas `Linux/` e `macOS/`: fala com o Hyper-V pelo módulo do PowerShell e com o VirtualBox pelo `VBoxManage`.
+
+---
+
+## Como abrir
+
+Duplo clique em **`EXECUTAR.bat`**.
+
+O lançador usa `-ExecutionPolicy Bypass` **só para aquele processo**. Não altera a política da máquina e não pede elevação para o fazer — há instruções na Internet que ensinam a mudar a política do sistema para correr um script, e isso é uma alteração permanente à configuração de segurança de alguém para resolver um problema temporário.
+
+**Não é pedida elevação à cabeça.** O programa corre sem ela e diz o que não consegue fazer. Só o Hyper-V precisa de administrador, e só na altura de criar a máquina. Pedir elevação sempre, para depois não ser preciso, ensina o utilizador a carregar em «Sim» sem ler.
+
+---
+
+## Os dois hipervisores, e porque não convivem bem
+
+| | Hyper-V | VirtualBox |
+| :--- | :--- | :--- |
+| **Onde está** | Faz parte do Windows. Activa-se, não se instala | Instala-se como um programa |
+| **Edições** | Pro, Enterprise, Education, Server | Todas, Home incluída |
+| **Velocidade** | Mais rápido | Mais lento |
+| **Facilidade** | Menos amigável | Mais simples, melhor com USB e pastas partilhadas |
+
+**E aqui está o que ninguém avisa a tempo: com o Hyper-V activo, o VirtualBox fica visivelmente mais lento.** O Windows inteiro passa a correr como convidado, e o VirtualBox deixa de falar directamente com o processador — passa a usar a interface do Hyper-V. A versão 7 do VirtualBox melhorou isto, mas não o resolveu.
+
+Pior: **o Hyper-V não se activa só pelo painel de funcionalidades.** O WSL 2, o Docker Desktop, a Sandbox do Windows e a Integridade de Memória activam-no todos por baixo, sem o dizer. Uma máquina com o Docker Desktop instalado já tem o hipervisor a correr, e quem instalar o VirtualBox nessa máquina vai achar que o VirtualBox é lento — quando o que se passa é outra coisa.
+
+O programa detecta essa situação e di-la, em vez de deixar descobrir.
+
+### E a armadilha do lado de lá
+
+Numa máquina com o Hyper-V ligado, o WMI reporta as extensões de virtualização do processador como **desligadas**. Não é um erro: com o Hyper-V activo, o Windows que o utilizador vê já é ele próprio um convidado, e um convidado não vê as extensões do processador. Um programa que leia só aquele campo conclui «esta máquina não suporta virtualização» precisamente na máquina onde a virtualização já está a correr.
+
+---
+
+## Pré-requisitos
+
+| O quê | Como |
+| :--- | :--- |
+| **Windows** | 10, 11 ou Server 2016+ |
+| **PowerShell** | 5.1, que vem no sistema. Não é preciso instalar nada |
+| **gpg** *(opcional)* | O Git para Windows traz um. Sem ele fica só a soma |
+| **Hyper-V** | Pro ou superior. O programa activa-o, com uma pergunta explícita |
+| **VirtualBox** *(alternativa)* | [virtualbox.org](https://www.virtualbox.org/wiki/Downloads) |
+
+A edição Home não tem Hyper-V. Não está desligado: não está lá. Quem tiver Home e quiser virtualizar usa o VirtualBox, e o programa encaminha para lá em vez de mandar procurar uma funcionalidade que a máquina nunca vai ter.
+
+```bat
+EXECUTAR.bat -Diagnostico
+```
+
+---
+
+## Linha de comandos
+
+```powershell
+.\src\LaboratorioVirtual.ps1
+.\src\LaboratorioVirtual.ps1 -Diagnostico
+.\src\LaboratorioVirtual.ps1 -VerificarCatalogo
+.\src\LaboratorioVirtual.ps1 -VerificarFicheiro D:\ISO\Win11.iso -Soma 9ffe...
+.\src\LaboratorioVirtual.ps1 -Pasta D:\Laboratorio
+```
+
+O `-VerificarFicheiro` sai com código 0 quando a soma confere e 1 quando não confere, o que o torna utilizável num script.
+
+---
+
+## O que a máquina criada leva
+
+- **Rede em NAT**, pelo Comutador Predefinido. Alcança a Internet, não é alcançável a partir da rede local. Um comutador externo poria a máquina de laboratório directamente na rede da empresa, o que raramente é o que se quer e nunca é o que se espera.
+- **Memória dinâmica**, com um chão de metade. O convidado devolve ao anfitrião o que não está a usar, e é isso que permite ter duas máquinas de laboratório abertas sem somar a memória das duas.
+- **Não arranca sozinha com o Windows.** Quem a quer, abre-a.
+- **Arranque Seguro com o modelo certo.** Uma máquina de Geração 2 traz o certificado da Microsoft, e a maioria das distribuições de Linux é assinada por outra autoridade — a `MicrosoftUEFICertificateAuthority`. Sem trocar o modelo, a imagem não arranca e não diz porquê.
+- **TPM, nas máquinas de Windows 11.** Pela ordem certa: o protector de chaves antes do `Enable-VMTPM`, porque ao contrário falha.
+
+---
+
+## Onde ficam as coisas
+
+Por omissão, no volume com mais espaço livre — e não no do sistema. Uma máquina virtual de 60 GB no mesmo disco onde o Windows tem 15 GB livres é um problema à espera de acontecer, e quem está a criar a primeira máquina virtual não tem razão nenhuma para saber disso de antemão.
+
+```
+<volume>\LaboratorioVirtual\
+├── Imagens\      as ISO descarregadas e verificadas
+└── Maquinas\     os discos e as definições
+```
+
+Nada é escrito dentro da pasta do programa. Para outro sítio, `-Pasta`.
+
+---
+
+<sub>Created by Redfox using Claude</sub>

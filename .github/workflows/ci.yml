@@ -1,0 +1,191 @@
+# ===========================================================================
+# PT-PT: Integracao continua do Laboratorio Virtual.
+#
+#        Ha tres versoes independentes -- Windows/, Linux/ e macOS/ -- e cada
+#        uma corre no seu proprio sistema. Neste projecto isso vale mais do que
+#        nos irmaos, porque as tres nem sequer partilham a linguagem: a de
+#        Windows e PowerShell, as outras duas sao bash.
+#
+#        E ha uma coisa que **so** um Mac consegue verificar: a versao de macOS
+#        esta escrita para o bash 3.2, que e o que a Apple traz. Um runner de
+#        Ubuntu corre-a com o bash 5 e nao repara em nada; um `mapfile` que la
+#        tenha entrado por distraccao passa despercebido e rebenta na maquina do
+#        utilizador. O trabalho do macOS corre a suite com o `/bin/bash` do
+#        sistema, de proposito.
+#
+#        O `fail-fast: false` e deliberado: se uma versao partir, quer-se saber
+#        na mesma se as outras duas estao bem.
+#
+# EN-UK: Continuous integration for the Virtual Lab.
+#
+#        Three independent versions, each on its own system. Here that matters
+#        more than in the sibling projects, because the three do not even share
+#        a language: Windows is PowerShell, the other two are bash.
+#
+#        And one thing **only** a Mac can verify: the macOS version is written
+#        for bash 3.2, which is what Apple ships. An Ubuntu runner runs it under
+#        bash 5 and notices nothing; a stray `mapfile` would pass unseen and
+#        break on the user's machine. The macOS job runs the suite with the
+#        system `/bin/bash`, deliberately.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: CI
+
+on:
+  push:
+    branches: [Virtual-Lab-Builder]
+  pull_request:
+    branches: [Virtual-Lab-Builder]
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows em windows-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: Laboratorio-Virtual/Windows
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sintaxe (parser do PowerShell)
+        shell: pwsh
+        run: |
+          $erros = @()
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $t = $null; $e = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$t, [ref]$e) | Out-Null
+            if ($e.Count) { $erros += "$($_.Name) linha $($e[0].Extent.StartLineNumber): $($e[0].Message)" }
+          }
+          if ($erros) { $erros; exit 1 }
+          'Sintaxe ok em todos os ficheiros.'
+
+      # PT-PT: Sem o BOM, o Windows PowerShell 5.1 le um .ps1 como ANSI e os
+      #        acentos partem a sintaxe. O runner usa o PowerShell 7, que le
+      #        UTF-8 na mesma -- por isso o parser acima nao apanha o problema e
+      #        e preciso verificar os bytes directamente. E a unica forma de a
+      #        integracao continua proteger quem corre isto num 5.1.
+      # EN-UK: Without the BOM, Windows PowerShell 5.1 reads a .ps1 as ANSI and
+      #        the accents break the syntax. The runner uses PowerShell 7, which
+      #        reads UTF-8 anyway, so the parser above does not catch it.
+      - name: BOM em todos os .ps1
+        shell: pwsh
+        run: |
+          $sem = @()
+          Get-ChildItem -Recurse -Filter *.ps1 | ForEach-Object {
+            $bytes = [System.IO.File]::ReadAllBytes($_.FullName)
+            if ($bytes.Length -lt 3 -or $bytes[0] -ne 0xEF -or $bytes[1] -ne 0xBB -or $bytes[2] -ne 0xBF) {
+              $sem += $_.FullName
+            }
+          }
+          if ($sem) {
+            'Estes ficheiros não têm BOM e vão partir no Windows PowerShell 5.1:'
+            $sem
+            exit 1
+          }
+          'Todos os .ps1 têm BOM.'
+
+      - name: Testes
+        shell: pwsh
+        run: .\tests\Executar-Testes.ps1
+
+      # PT-PT: O diagnostico e o unico passo que exercita o modulo de hardware
+      #        contra a maquina real. No runner nao ha hipervisor activo, e por
+      #        isso o que se verifica e que o relatorio sai sem rebentar.
+      # EN-UK: The diagnostic is the only step exercising the hardware module
+      #        against the real machine.
+      - name: Diagnóstico no sistema real
+        shell: pwsh
+        run: .\src\LaboratorioVirtual.ps1 -Diagnostico
+
+      - name: Validação do catálogo
+        shell: pwsh
+        run: .\src\LaboratorioVirtual.ps1 -VerificarCatalogo
+
+  linux:
+    name: Linux em ubuntu-latest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Laboratorio-Virtual/Linux
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependências
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+        working-directory: .
+
+      - name: Sintaxe
+        run: bash -n src/laboratorio-virtual.sh src/lib/*.sh tests/*.sh executar.sh
+
+      - name: shellcheck
+        run: shellcheck --severity=warning src/laboratorio-virtual.sh src/lib/*.sh executar.sh
+
+      - name: Testes
+        run: bash tests/executar-testes.sh
+
+      - name: Diagnóstico no sistema real
+        run: bash src/laboratorio-virtual.sh --diagnostico
+
+      - name: Validação do catálogo
+        run: bash src/laboratorio-virtual.sh --verificar-catalogo
+
+  macos:
+    name: macOS em macos-latest
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: Laboratorio-Virtual/macOS
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependências
+        run: brew install jq shellcheck
+        working-directory: .
+
+      # PT-PT: O `/bin/bash` de um Mac e o 3.2. Correr a suite com ele -- e nao
+      #        com o bash 5 do Homebrew, que tambem esta no runner -- e o unico
+      #        sitio onde um `mapfile` esquecido aparece.
+      # EN-UK: A Mac's `/bin/bash` is 3.2. Running the suite with it, rather than
+      #        the Homebrew bash 5 also on the runner, is the only place a
+      #        forgotten `mapfile` shows up.
+      - name: Versão do bash do sistema
+        run: /bin/bash -c 'echo "bash do sistema: $BASH_VERSION"'
+
+      - name: Sintaxe com o bash do sistema
+        run: /bin/bash -n src/laboratorio-virtual.sh && /bin/bash -n executar.command && for f in src/lib/*.sh tests/*.sh; do /bin/bash -n "$f"; done
+
+      - name: shellcheck
+        run: shellcheck --shell=bash --severity=warning src/laboratorio-virtual.sh src/lib/*.sh executar.command
+
+      - name: Testes com o bash do sistema
+        run: /bin/bash tests/executar-testes.sh
+
+      - name: Diagnóstico no sistema real
+        run: /bin/bash src/laboratorio-virtual.sh --diagnostico
+
+      - name: Validação do catálogo
+        run: /bin/bash src/laboratorio-virtual.sh --verificar-catalogo
+
+  catalogo:
+    name: O catálogo é igual nas três
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # PT-PT: E o unico ficheiro que tem de coincidir byte a byte. Uma imagem
+      #        que exista numa versao e nao noutra e uma armadilha para quem
+      #        mudar de maquina, e nao ha nada no codigo que a apanhe.
+      # EN-UK: The only file that must match byte for byte. An image present in
+      #        one version and not another is a trap for anyone switching
+      #        machines, and nothing in the code would catch it.
+      - name: Comparar
+        run: |
+          cd Laboratorio-Virtual
+          diff Windows/src/catalogo.json Linux/src/catalogo.json
+          diff Windows/src/catalogo.json macOS/src/catalogo.json
+          echo 'O catálogo é o mesmo nas três versões.'
