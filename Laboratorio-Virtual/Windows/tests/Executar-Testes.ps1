@@ -47,6 +47,7 @@ $fonte = Join-Path (Split-Path -Parent $raiz) 'src'
 . (Join-Path $fonte 'Recomendacao.ps1')
 . (Join-Path $fonte 'Hipervisor.ps1')
 . (Join-Path $fonte 'Descarregar.ps1')
+. (Join-Path $fonte 'ImagemLocal.ps1')
 
 Write-Host ''
 Write-Host '  Laboratório Virtual · testes da versão de Windows' -ForegroundColor White
@@ -518,6 +519,189 @@ Teste 'AMD64 e x86_64 são a mesma coisa' {
     $a = @(Get-ImagensCompativeis -Catalogo $catalogo -Arquitectura 'AMD64').Count
     $b = @(Get-ImagensCompativeis -Catalogo $catalogo -Arquitectura 'x86_64').Count
     Assert-Igual $a $b
+}
+
+
+# ===========================================================================
+Grupo 'Imagens que o utilizador já tem'
+# ===========================================================================
+
+Teste 'uma ISO é um instalador' {
+    Assert-Igual 'instalador' (Get-TipoDeImagem -Caminho 'C:\x\ubuntu.iso')
+}
+
+Teste 'um disco já feito não é um instalador' {
+    # PT-PT: E a distincao que decide entre uma maquina que arranca e um ecra a
+    #        dizer que nao ha nada para arrancar. Uma .vhdx **e** a maquina.
+    # EN-UK: The distinction between a machine that boots and a "nothing to
+    #        boot" screen. A .vhdx **is** the machine.
+    foreach ($nome in @('a.vhdx', 'a.vhd', 'a.qcow2', 'a.vdi', 'a.vmdk', 'a.img', 'a.raw')) {
+        Assert-Igual 'disco' (Get-TipoDeImagem -Caminho $nome) $nome
+    }
+}
+
+Teste 'uma appliance importa-se, não se cria' {
+    Assert-Igual 'apliancia' (Get-TipoDeImagem -Caminho 'a.ova')
+    Assert-Igual 'apliancia' (Get-TipoDeImagem -Caminho 'a.ovf')
+}
+
+Teste 'a extensão é comparada sem distinguir maiúsculas' {
+    Assert-Igual 'instalador' (Get-TipoDeImagem -Caminho 'UBUNTU.ISO')
+}
+
+Teste 'um formato desconhecido é desconhecido' {
+    Assert-Igual 'desconhecido' (Get-TipoDeImagem -Caminho 'a.zip')
+    Assert-Igual 'desconhecido' (Get-TipoDeImagem -Caminho 'sem-extensao')
+    Assert-Igual 'desconhecido' (Get-TipoDeImagem -Caminho '')
+}
+
+Teste 'o Hyper-V só fala VHD e VHDX' {
+    # PT-PT: E o mais estreito dos dois. Uma .qcow2 de uma appliance tem de ser
+    #        convertida antes, e dizer isso a cabeca poupa a alguem criar uma
+    #        maquina que nunca vai arrancar.
+    # EN-UK: The narrower of the two. A .qcow2 must be converted first.
+    Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.vhdx' -Hipervisor 'hyperv').Suportado
+    Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.iso' -Hipervisor 'hyperv').Suportado
+    Assert-Falso (Test-FormatoSuportado -Extensao '.qcow2' -Hipervisor 'hyperv').Suportado
+    Assert-Falso (Test-FormatoSuportado -Extensao '.vdi' -Hipervisor 'hyperv').Suportado
+}
+
+Teste 'o VirtualBox fala VDI, VMDK e VHD' {
+    Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.vdi' -Hipervisor 'virtualbox').Suportado
+    Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.vmdk' -Hipervisor 'virtualbox').Suportado
+    Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.ova' -Hipervisor 'virtualbox').Suportado
+}
+
+Teste 'quando o formato não serve, diz-se como converter' {
+    # PT-PT: Uma mensagem que so diz "nao e suportado" deixa a pessoa no mesmo
+    #        sitio. Uma que diz o comando resolve-lhe o problema.
+    # EN-UK: A message saying only "not supported" leaves the person where they
+    #        were. One with the command solves their problem.
+    $r = Test-FormatoSuportado -Extensao '.qcow2' -Hipervisor 'hyperv'
+    Assert-Falso $r.Suportado
+    Assert-Contem $r.Sugestao 'qemu-img convert'
+    Assert-Contem $r.Sugestao 'vhdx'
+}
+
+Teste 'uma extensão que não se conhece dá a lista das que se conhecem' {
+    $r = Test-FormatoSuportado -Extensao '.zip' -Hipervisor 'virtualbox'
+    Assert-Falso $r.Suportado
+    Assert-Contem $r.Sugestao '.iso'
+}
+
+Teste 'há um perfil para cada tipo de convidado' {
+    $chaves = @(Get-ChavesPerfil)
+    Assert-Verdadeiro ($chaves.Count -ge 4)
+    foreach ($chave in $chaves) {
+        $perfil = Get-PerfilGenerico -Chave $chave
+        Assert-Verdadeiro ($perfil.Minimo.ram_gb -gt 0) $chave
+        Assert-Verdadeiro ($perfil.Recomendado.ram_gb -ge $perfil.Minimo.ram_gb) $chave
+        Assert-Verdadeiro ([bool]$perfil.Nome) $chave
+    }
+}
+
+Teste 'um perfil que não existe cai no genérico' {
+    Assert-Igual (Get-PerfilGenerico -Chave 'outro').Nome (Get-PerfilGenerico -Chave 'inventado').Nome
+}
+
+
+# ===========================================================================
+Grupo 'Assinatura do conteúdo de um ficheiro'
+# ===========================================================================
+
+$pastaFalsa = Join-Path ([IO.Path]::GetTempPath()) ("lv-img-" + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $pastaFalsa -Force | Out-Null
+
+try {
+    # PT-PT: Uma ISO de mentira, com o CD001 no sitio certo — o sector 16.
+    # EN-UK: A fake ISO with CD001 in the right place — sector 16.
+    $iso = Join-Path $pastaFalsa 'boa.iso'
+    $bytes = New-Object byte[] 0x8100
+    [byte[]]$cd001 = 0x43, 0x44, 0x30, 0x30, 0x31
+    [Array]::Copy($cd001, 0, $bytes, 0x8001, 5)
+    [IO.File]::WriteAllBytes($iso, $bytes)
+
+    # PT-PT: E um .zip com nome de ISO, que e o engano honesto mais comum.
+    # EN-UK: And a .zip named as an ISO, the commonest honest mistake.
+    $falsa = Join-Path $pastaFalsa 'ma.iso'
+    $lixo = New-Object byte[] 0x9000
+    [byte[]]$pk = 0x50, 0x4B, 0x03, 0x04
+    [Array]::Copy($pk, 0, $lixo, 0, 4)
+    [IO.File]::WriteAllBytes($falsa, $lixo)
+
+    $curta = Join-Path $pastaFalsa 'curta.iso'
+    [IO.File]::WriteAllBytes($curta, (New-Object byte[] 512))
+
+    $qcow = Join-Path $pastaFalsa 'boa.qcow2'
+    $q = New-Object byte[] 64
+    [byte[]]$qfi = 0x51, 0x46, 0x49, 0xFB
+    [Array]::Copy($qfi, 0, $q, 0, 4)
+    [IO.File]::WriteAllBytes($qcow, $q)
+
+    $img = Join-Path $pastaFalsa 'qualquer.img'
+    [IO.File]::WriteAllBytes($img, (New-Object byte[] 1024))
+
+    Teste 'reconhece uma ISO verdadeira pelo CD001' {
+        Assert-Verdadeiro (Test-AssinaturaFicheiro -Caminho $iso).Confere
+    }
+
+    Teste 'apanha um .zip com nome de ISO' {
+        $r = Test-AssinaturaFicheiro -Caminho $falsa
+        Assert-Falso $r.Confere
+        Assert-Contem $r.Detalhe 'zip'
+    }
+
+    Teste 'apanha um descarregamento que ficou a meio' {
+        $r = Test-AssinaturaFicheiro -Caminho $curta
+        Assert-Falso $r.Confere
+        Assert-Contem $r.Detalhe 'pequeno'
+    }
+
+    Teste 'reconhece um qcow2 pelo QFI' {
+        Assert-Verdadeiro (Test-AssinaturaFicheiro -Caminho $qcow).Confere
+    }
+
+    Teste 'um .img não tem assinatura, e isso não é uma falha' {
+        # PT-PT: Sao bytes em bruto. Nao ha nada para verificar, e recusar por
+        #        isso seria recusar um formato legitimo.
+        # EN-UK: Raw bytes. There is nothing to check, and refusing on that
+        #        basis would refuse a legitimate format.
+        $r = Test-AssinaturaFicheiro -Caminho $img
+        Assert-Verdadeiro $r.Confere
+        Assert-Contem $r.Detalhe 'não tem assinatura'
+    }
+
+    Teste 'um ficheiro que não existe não rebenta' {
+        Assert-Falso (Test-AssinaturaFicheiro -Caminho (Join-Path $pastaFalsa 'nada.iso')).Confere
+    }
+
+    Teste 'a inspecção de um ficheiro local diz tudo o que se sabe' {
+        $r = Test-ImagemLocal -Caminho $iso
+        Assert-Verdadeiro $r.Existe
+        Assert-Igual 'instalador' $r.Tipo
+        Assert-Igual '.iso' $r.Extensao
+        Assert-Verdadeiro ($null -ne $r.Origem)
+    }
+
+    Teste 'um ficheiro local sem marca de origem diz que não se sabe' {
+        # PT-PT: Nao encontrar a marca nao quer dizer que o ficheiro seja de
+        #        confianca; quer dizer que o Windows nao sabe. A diferenca e a
+        #        mesma que o resto do programa faz entre "nao encontrei" e "nao
+        #        consegui olhar".
+        # EN-UK: Not finding the mark does not mean the file is trustworthy; it
+        #        means Windows does not know.
+        $origem = Get-OrigemFicheiro -Caminho $iso
+        Assert-Falso $origem.Conhecida
+        Assert-Contem $origem.Detalhe 'não tem registo'
+    }
+
+    Teste 'a inspecção de um ficheiro que não existe não rebenta' {
+        $r = Test-ImagemLocal -Caminho (Join-Path $pastaFalsa 'nada.iso')
+        Assert-Falso $r.Existe
+    }
+}
+finally {
+    Remove-Item -LiteralPath $pastaFalsa -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 

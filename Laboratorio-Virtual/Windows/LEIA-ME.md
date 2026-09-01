@@ -77,6 +77,67 @@ O `-VerificarFicheiro` sai com código 0 quando a soma confere e 1 quando não c
 - **Arranque Seguro com o modelo certo.** Uma máquina de Geração 2 traz o certificado da Microsoft, e a maioria das distribuições de Linux é assinada por outra autoridade — a `MicrosoftUEFICertificateAuthority`. Sem trocar o modelo, a imagem não arranca e não diz porquê.
 - **TPM, nas máquinas de Windows 11.** Pela ordem certa: o protector de chaves antes do `Enable-VMTPM`, porque ao contrário falha.
 
+
+---
+
+## Trazer uma imagem sua
+
+O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS, uma
+appliance, a ISO que a empresa fornece — a opção **1** do menu pergunta se a
+imagem vem do catálogo ou se já a tem.
+
+**Aqui não há garantias nenhumas, e o programa diz isso em vez de as fingir.**
+O relatório de verificação mostra quatro camadas por aplicar e, quando muito,
+a soma:
+
+```
+    [--]  Domínio na lista de confiança
+    [--]  Assinatura do manifesto
+    [ok]  Soma SHA-256 do ficheiro
+```
+
+### Uma ISO é o instalador. Uma imagem de disco é a máquina.
+
+| Formato | O que o programa faz |
+| :--- | :--- |
+| `.iso` | Liga como CD e cria um disco vazio ao lado |
+| `.img` `.raw` `.qcow2` `.vdi` `.vmdk` `.vhd` `.vhdx` | **É** o disco. Não cria nada e não liga CD nenhum |
+| `.ova` `.ovf` | Importa-se. Já traz a máquina toda feita |
+
+Criar um disco vazio ao lado de uma imagem que já é o disco, e arrancar de um CD
+que não existe, dá exactamente o *no bootable device* que ninguém sabe explicar.
+
+**A imagem é copiada para a pasta da máquina**, e não ligada onde está: a
+primeira arrancada escreveria por cima da cópia limpa que descarregou.
+
+### O que o Windows sabe e os outros não
+
+Um ficheiro descarregado traz um fluxo alternativo — a **Marca da Web** — com a
+zona de origem e, muitas vezes, com o endereço de onde veio. O programa mostra-o:
+
+```
+    Este ficheiro foi descarregado de:
+      https://exemplo.qualquer/ubuntu.iso
+    Confirme que é o sítio oficial do sistema que quer instalar.
+```
+
+É das poucas coisas em que o Windows dá mais informação do que o Linux e o
+macOS, e é a mais útil de todas: um endereço à frente dos olhos, na hora de
+decidir, é o que faz reparar que não é o sítio oficial.
+
+O fluxo perde-se quando o ficheiro passa por um sistema que não é NTFS — uma pen
+em FAT32, por exemplo. **Não encontrar a marca não quer dizer que o ficheiro seja
+de confiança; quer dizer que o Windows não sabe.**
+
+### O Hyper-V é o mais estreito dos dois
+
+Só liga `.vhd` e `.vhdx`. Uma `.qcow2` de uma appliance tem de ser convertida
+antes, e o programa dá o comando:
+
+```powershell
+qemu-img convert -p -O vhdx a-sua-imagem.qcow2 a-sua-imagem.vhdx
+```
+
 ---
 
 ## Onde ficam as coisas

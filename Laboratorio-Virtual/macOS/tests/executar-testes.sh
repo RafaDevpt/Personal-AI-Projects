@@ -49,6 +49,8 @@ passo() { :; }
 . "${FONTE}/lib/hipervisor.sh"
 # shellcheck source=../src/lib/catalogo.sh
 . "${FONTE}/lib/catalogo.sh"
+# shellcheck source=../src/lib/imagem_local.sh
+. "${FONTE}/lib/imagem_local.sh"
 
 CATALOGO="${FONTE}/catalogo.json"
 SOMA_EXEMPLO='9f2f1cbd3ef1a0d4a49a63b3e9b3d9f0c1a2b3c4d5e6f708192a3b4c5d6e7f80'
@@ -381,6 +383,160 @@ JSON
     teste 'recusa um catálogo com um endereço em HTTP' t_recusa_http
     teste 'recusa uma impressão digital que não é uma impressão digital' t_recusa_impressao_falsa
     teste 'filtra as imagens pela arquitectura do anfitrião' t_filtra_arquitectura
+fi
+
+
+# ===========================================================================
+grupo 'Imagens que o utilizador já tem'
+# ===========================================================================
+
+t_iso_instalador()  { afirmar_igual 'instalador' "$(tipo_de_imagem 'ubuntu.iso')"; }
+# PT-PT: E a distincao que decide entre uma maquina que arranca e um ecra a
+#        dizer que nao ha nada para arrancar. Uma .qcow2 **e** a maquina.
+t_disco_nao_e_iso() {
+    local f
+    for f in a.qcow2 a.vdi a.vmdk a.vhd a.vhdx a.img a.raw; do
+        afirmar_igual 'disco' "$(tipo_de_imagem "$f")" "$f" || return 1
+    done
+}
+t_apliancia()       { afirmar_igual 'apliancia' "$(tipo_de_imagem 'a.ova')"; }
+t_maiusculas()      { afirmar_igual 'instalador' "$(tipo_de_imagem 'UBUNTU.ISO')"; }
+t_desconhecido()    {
+    afirmar_igual 'desconhecido' "$(tipo_de_imagem 'a.zip')" || return 1
+    afirmar_igual 'desconhecido' "$(tipo_de_imagem 'sem-extensao')"
+}
+t_extensao()        {
+    afirmar_igual '.iso' "$(extensao_de 'X.ISO')" || return 1
+    afirmar_vazio "$(extensao_de 'sem-ponto')"
+}
+
+# PT-PT: O QEMU e o mais largo dos dois: fala praticamente todos os formatos de
+#        disco que existem, porque foi ele que inventou metade deles.
+t_qemu_qcow()       { formato_suportado '.qcow2' 'qemu' >/dev/null; }
+t_qemu_vmdk()       { formato_suportado '.vmdk' 'qemu' >/dev/null; }
+t_qemu_sem_ova()    { ! formato_suportado '.ova' 'qemu' >/dev/null; }
+t_vbox_vdi()        { formato_suportado '.vdi' 'virtualbox' >/dev/null; }
+t_vbox_ova()        { formato_suportado '.ova' 'virtualbox' >/dev/null; }
+t_vbox_sem_qcow()   { ! formato_suportado '.qcow2' 'virtualbox' >/dev/null; }
+
+# PT-PT: Uma mensagem que so diz "nao e suportado" deixa a pessoa no mesmo
+#        sitio. Uma que diz o comando resolve-lhe o problema.
+t_diz_como_converter() {
+    local s; s="$(formato_suportado '.qcow2' 'virtualbox' || true)"
+    afirmar_contem "$s" 'qemu-img convert' || return 1
+    afirmar_contem "$s" 'vdi'
+}
+t_ova_no_qemu_explica() {
+    local s; s="$(formato_suportado '.ova' 'qemu' || true)"
+    afirmar_contem "$s" 'VirtualBox'
+}
+t_extensao_estranha() {
+    local s; s="$(formato_suportado '.zip' 'qemu' || true)"
+    afirmar_contem "$s" '.iso'
+}
+
+t_perfis_completos() {
+    local c cpu ram disco rcpu rram rdisco
+    while IFS= read -r c; do
+        [[ -z "$c" ]] && continue
+        read -r cpu ram disco rcpu rram rdisco <<< "$(perfil_generico "$c")"
+        (( ram > 0 )) || { printf '%s sem memória\n' "$c"; return 1; }
+        (( rram >= ram )) || { printf '%s recomenda menos do que o mínimo\n' "$c"; return 1; }
+        [[ -n "$(nome_perfil "$c")" ]] || { printf '%s sem nome\n' "$c"; return 1; }
+    done < <(chaves_perfil)
+}
+t_perfil_desconhecido() { afirmar_igual "$(perfil_generico 'outro')" "$(perfil_generico 'inventado')"; }
+
+teste 'uma ISO é um instalador' t_iso_instalador
+teste 'um disco já feito não é um instalador' t_disco_nao_e_iso
+teste 'uma appliance importa-se, não se cria' t_apliancia
+teste 'a extensão é comparada sem distinguir maiúsculas' t_maiusculas
+teste 'um formato desconhecido é desconhecido' t_desconhecido
+teste 'a extensão sai com o ponto e em minúsculas' t_extensao
+teste 'o QEMU fala qcow2' t_qemu_qcow
+teste 'o QEMU fala vmdk' t_qemu_vmdk
+teste 'o QEMU não importa appliances' t_qemu_sem_ova
+teste 'o VirtualBox fala vdi' t_vbox_vdi
+teste 'o VirtualBox importa appliances' t_vbox_ova
+teste 'o VirtualBox não lê qcow2 de forma fiável' t_vbox_sem_qcow
+teste 'quando o formato não serve, diz-se como converter' t_diz_como_converter
+teste 'uma appliance no QEMU explica para onde ir' t_ova_no_qemu_explica
+teste 'uma extensão que não se conhece dá a lista das que se conhecem' t_extensao_estranha
+teste 'há um perfil para cada tipo de convidado' t_perfis_completos
+teste 'um perfil que não existe cai no genérico' t_perfil_desconhecido
+
+
+# ===========================================================================
+grupo 'Assinatura do conteúdo de um ficheiro'
+# ===========================================================================
+
+# PT-PT: Este grupo precisa do `stat` do BSD e do `xattr`, que so existem num
+#        Mac. Numa maquina de desenvolvimento que nao seja um Mac, salta-se e
+#        diz-se porque -- um teste saltado em silencio e pior do que nenhum,
+#        porque da a impressao de cobertura que nao houve. Na integracao
+#        continua corre num Mac a serio, que e onde interessa.
+# EN-UK: This group needs BSD `stat` and `xattr`, which only exist on a Mac. On
+#        a non-Mac development machine it is skipped, and said so. In CI it runs
+#        on a real Mac, which is where it matters.
+if ! stat -f '%z' "$0" >/dev/null 2>&1 || ! command -v xattr >/dev/null 2>&1; then
+    saltar 'assinatura e origem dos ficheiros'         'precisa do stat do BSD e do xattr, que só existem num Mac; na integração contínua corre'
+else
+
+# PT-PT: Uma ISO de mentira, com o CD001 no sitio certo — o sector 16.
+# EN-UK: A fake ISO with CD001 in the right place — sector 16.
+ISO_BOA="${TMP}/boa.iso"
+dd if=/dev/zero of="$ISO_BOA" bs=1 count=33024 2>/dev/null
+printf 'CD001' | dd of="$ISO_BOA" bs=1 seek=32769 conv=notrunc 2>/dev/null
+
+# PT-PT: E um .zip com nome de ISO, que e o engano honesto mais comum.
+# EN-UK: And a .zip named as an ISO, the commonest honest mistake.
+ISO_MA="${TMP}/ma.iso"
+dd if=/dev/zero of="$ISO_MA" bs=1 count=33024 2>/dev/null
+printf 'PK\003\004' | dd of="$ISO_MA" bs=1 conv=notrunc 2>/dev/null
+
+ISO_CURTA="${TMP}/curta.iso"
+dd if=/dev/zero of="$ISO_CURTA" bs=1 count=512 2>/dev/null
+
+QCOW="${TMP}/boa.qcow2"
+printf 'QFI\373' > "$QCOW"
+
+IMG="${TMP}/qualquer.img"
+dd if=/dev/zero of="$IMG" bs=1 count=1024 2>/dev/null
+
+t_iso_verdadeira()  { assinatura_ficheiro "$ISO_BOA" >/dev/null; }
+t_zip_apanhado()    {
+    local s; s="$(assinatura_ficheiro "$ISO_MA" || true)"
+    afirmar_contem "$s" 'zip'
+}
+t_truncado()        {
+    local s; s="$(assinatura_ficheiro "$ISO_CURTA" || true)"
+    afirmar_contem "$s" 'pequeno'
+}
+t_qcow_verdadeiro() { assinatura_ficheiro "$QCOW" >/dev/null; }
+# PT-PT: Sao bytes em bruto. Nao ha nada para verificar, e recusar por isso
+#        seria recusar um formato legitimo.
+t_img_sem_assinatura() {
+    local s; s="$(assinatura_ficheiro "$IMG")"
+    afirmar_contem "$s" 'não tem assinatura'
+}
+t_sem_ficheiro_assinatura() { ! assinatura_ficheiro "${TMP}/nada.iso" >/dev/null; }
+
+# PT-PT: Nao encontrar a marca de origem nao quer dizer que o ficheiro seja de
+#        confianca; quer dizer que o sistema nao sabe. E a mesma diferenca que o
+#        resto do programa faz entre "nao encontrei" e "nao consegui olhar".
+t_origem_desconhecida() {
+    local s; s="$(origem_ficheiro "$ISO_BOA" || true)"
+    afirmar_contem "$s" 'não sabe'
+}
+
+teste 'reconhece uma ISO verdadeira pelo CD001' t_iso_verdadeira
+teste 'apanha um .zip com nome de ISO' t_zip_apanhado
+teste 'apanha um descarregamento que ficou a meio' t_truncado
+teste 'reconhece um qcow2 pelo QFI' t_qcow_verdadeiro
+teste 'um .img não tem assinatura, e isso não é uma falha' t_img_sem_assinatura
+teste 'um ficheiro que não existe não rebenta' t_sem_ficheiro_assinatura
+teste 'sem marca de origem, diz que não se sabe' t_origem_desconhecida
+
 fi
 
 

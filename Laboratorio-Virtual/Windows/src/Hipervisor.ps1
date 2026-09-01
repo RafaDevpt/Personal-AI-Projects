@@ -283,7 +283,14 @@ function New-MaquinaHyperV {
         [Parameter(Mandatory)][string]$CaminhoIso,
         [Parameter(Mandatory)][string]$PastaDestino,
         [ValidateSet('windows', 'linux', 'outro')][string]$Familia = 'linux',
-        [string]$Comutador = ''
+        [string]$Comutador = '',
+        # PT-PT: `instalador` liga o ficheiro como CD e cria um disco vazio ao
+        #        lado; `disco` trata o ficheiro **como** o disco da maquina. Ver
+        #        o cabecalho de `ImagemLocal.ps1`: e esta distincao que decide
+        #        entre uma maquina que arranca e um "no bootable medium".
+        # EN-UK: `instalador` mounts the file as a CD with a blank disk
+        #        alongside; `disco` treats the file **as** the machine's disk.
+        [ValidateSet('instalador', 'disco')][string]$Uso = 'instalador'
     )
 
     if (-not $PSCmdlet.ShouldProcess($Nome, 'Criar máquina virtual no Hyper-V')) { return }
@@ -309,12 +316,27 @@ function New-MaquinaHyperV {
         Name               = $Nome
         MemoryStartupBytes = [int64]($RamGb * 1GB)
         Generation         = 2
-        NewVHDPath         = $caminhoVhd
-        NewVHDSizeBytes    = [int64]($DiscoGb * 1GB)
         Path               = $PastaDestino
         ErrorAction        = 'Stop'
     }
     if ($Comutador) { $parametros['SwitchName'] = $Comutador }
+
+    if ($Uso -eq 'disco') {
+        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
+        #        onde esta. Ligar o original faria a maquina escrever por cima
+        #        dele: a primeira arrancada estragava a copia limpa que o
+        #        utilizador descarregou, e a segunda maquina feita a partir da
+        #        mesma imagem ja nascia com o sistema da primeira lá dentro.
+        # EN-UK: The image is **copied** into the machine's folder rather than
+        #        attached in place. Attaching the original would have the machine
+        #        write over it: the first boot would spoil the pristine copy.
+        Copy-Item -LiteralPath $CaminhoIso -Destination $caminhoVhd -ErrorAction Stop
+        $parametros['VHDPath'] = $caminhoVhd
+    }
+    else {
+        $parametros['NewVHDPath'] = $caminhoVhd
+        $parametros['NewVHDSizeBytes'] = [int64]($DiscoGb * 1GB)
+    }
 
     $vm = New-VM @parametros
     Set-VMProcessor -VM $vm -Count $Cpu -ErrorAction Stop
@@ -330,18 +352,31 @@ function New-MaquinaHyperV {
         -StartupBytes ([int64]($RamGb * 1GB)) `
         -MaximumBytes ([int64]($RamGb * 1GB)) -ErrorAction Stop
 
-    $dvd = Add-VMDvdDrive -VM $vm -Path $CaminhoIso -Passthru -ErrorAction Stop
+    # PT-PT: So se liga um CD quando ha um instalador. Uma maquina feita a
+    #        partir de uma imagem de disco arranca do disco, e um leitor de CD
+    #        vazio a frente dele na ordem de arranque da um ecra a dizer que nao
+    #        ha nada para arrancar.
+    # EN-UK: A CD is only attached when there is an installer. A machine built
+    #        from a disk image boots from the disk, and an empty CD drive ahead
+    #        of it in the boot order gives a "nothing to boot" screen.
+    $primeiro = $null
+    if ($Uso -eq 'instalador') {
+        $primeiro = Add-VMDvdDrive -VM $vm -Path $CaminhoIso -Passthru -ErrorAction Stop
+    }
+    else {
+        $primeiro = Get-VMHardDiskDrive -VM $vm -ErrorAction Stop | Select-Object -First 1
+    }
 
     if ($Familia -eq 'windows') {
         # PT-PT: Pela ordem certa: o protector de chaves antes do TPM.
         # EN-UK: In the right order: the key protector before the TPM.
         Set-VMKeyProtector -VM $vm -NewLocalKeyProtector -ErrorAction Stop
         Enable-VMTPM -VM $vm -ErrorAction Stop
-        Set-VMFirmware -VM $vm -SecureBootTemplate 'MicrosoftWindows' -FirstBootDevice $dvd -ErrorAction Stop
+        Set-VMFirmware -VM $vm -SecureBootTemplate 'MicrosoftWindows' -FirstBootDevice $primeiro -ErrorAction Stop
     }
     else {
         Set-VMFirmware -VM $vm -SecureBootTemplate 'MicrosoftUEFICertificateAuthority' `
-            -FirstBootDevice $dvd -ErrorAction Stop
+            -FirstBootDevice $primeiro -ErrorAction Stop
     }
 
     # PT-PT: Sem isto, a maquina liga-se sozinha quando o anfitriao arranca. Uma
@@ -402,6 +437,63 @@ function Get-TipoVirtualBox {
 }
 
 
+function Import-ApliancaVirtualBox {
+    <#
+    .SYNOPSIS
+        PT-PT: Importa uma appliance `.ova` ou `.ovf` para o VirtualBox.
+        EN-UK: Imports an `.ova` or `.ovf` appliance into VirtualBox.
+
+    .DESCRIPTION
+        PT-PT: Uma appliance nao se cria: importa-se. O ficheiro ja traz a
+               maquina toda -- discos, memoria, placas de rede, tudo o que quem
+               a exportou decidiu. Criar uma maquina a volta dela seria criar
+               uma segunda maquina, vazia, ao lado da que ja la esta.
+
+               E por isso que esta funcao ignora as especificacoes recomendadas:
+               nao ha nada a recomendar quando o ficheiro ja decidiu. Depois de
+               importar, o utilizador ajusta o que quiser no VirtualBox.
+
+               **Uma appliance e codigo de outra pessoa a correr na sua maquina.**
+               O `.ova` traz o disco com o sistema ja instalado e configurado,
+               por quem o exportou. Vale o que valer a confianca em quem o fez.
+
+        EN-UK: An appliance is not created but imported. The file already carries
+               the whole machine -- disks, memory, network cards, everything
+               whoever exported it decided. Which is why this function ignores
+               the recommended specification: there is nothing to recommend when
+               the file has already decided.
+
+               **An appliance is somebody else's machine running on yours.**
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)][string]$VBoxManage,
+        [Parameter(Mandatory)][string]$Caminho,
+        [Parameter(Mandatory)][string]$Nome,
+        [Parameter(Mandatory)][string]$PastaDestino
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Nome, 'Importar appliance no VirtualBox')) { return }
+
+    $existentes = & $VBoxManage list vms 2>&1
+    if ($LASTEXITCODE -eq 0 -and ($existentes -match [regex]::Escape("`"$Nome`""))) {
+        throw "Já existe uma máquina virtual chamada '$Nome' no VirtualBox. Escolha outro nome."
+    }
+
+    Write-Host '  A importar. Isto demora — a appliance traz os discos lá dentro.' -ForegroundColor DarkGray
+
+    & $VBoxManage import $Caminho --vsys 0 --vmname $Nome --basefolder $PastaDestino
+    if ($LASTEXITCODE -ne 0) {
+        throw ("O VBoxManage não conseguiu importar $Caminho.`n" +
+               "Se o ficheiro veio de um VMware, pode precisar de --vsys 0 --unit N --ignore " +
+               "para os controladores que o VirtualBox não reconhece. Corra " +
+               "'VBoxManage import `"$Caminho`" --dry-run' para ver o que ele traz.")
+    }
+
+    return [pscustomobject]@{ Nome = $Nome; Pasta = $PastaDestino }
+}
+
+
 function New-MaquinaVirtualBox {
     <#
     .SYNOPSIS
@@ -435,7 +527,8 @@ function New-MaquinaVirtualBox {
         [Parameter(Mandatory)][string]$CaminhoIso,
         [Parameter(Mandatory)][string]$PastaDestino,
         [Parameter(Mandatory)][string]$TipoSistema,
-        [switch]$Uefi
+        [switch]$Uefi,
+        [ValidateSet('instalador', 'disco')][string]$Uso = 'instalador'
     )
 
     if (-not $PSCmdlet.ShouldProcess($Nome, 'Criar máquina virtual no VirtualBox')) { return }
@@ -465,18 +558,38 @@ function New-MaquinaVirtualBox {
     & $VBoxManage modifyvm $Nome @definicoes
     if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu configurar a máquina '$Nome'." }
 
-    # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria os GB todos
-    #        agora. Para um laboratorio, dinamico e quase sempre o certo.
-    # EN-UK: `Standard` grows dynamically; `Fixed` would reserve every GB now.
-    & $VBoxManage createmedium disk --filename $disco --size ([int]($DiscoGb * 1024)) --format VDI --variant Standard
-    if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu criar o disco em $disco." }
-
     & $VBoxManage storagectl $Nome --name 'SATA' --add sata --controller IntelAhci --portcount 2
-    & $VBoxManage storageattach $Nome --storagectl 'SATA' --port 0 --device 0 --type hdd --medium $disco
-    & $VBoxManage storageattach $Nome --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium $CaminhoIso
-    if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu ligar a imagem à máquina '$Nome'." }
+    if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu criar o controlador da máquina '$Nome'." }
 
-    & $VBoxManage modifyvm $Nome --boot1 dvd --boot2 disk --boot3 none --boot4 none
+    if ($Uso -eq 'disco') {
+        # PT-PT: A imagem e copiada para a pasta da maquina. Ver a nota igual na
+        #        funcao do Hyper-V: ligar o original faz a maquina escrever por
+        #        cima da copia limpa que o utilizador descarregou.
+        # EN-UK: The image is copied into the machine's folder. See the matching
+        #        note in the Hyper-V function.
+        $extensao = [IO.Path]::GetExtension($CaminhoIso)
+        $disco = Join-Path $pastaVm "$Nome$extensao"
+        New-Item -ItemType Directory -Path $pastaVm -Force | Out-Null
+        Copy-Item -LiteralPath $CaminhoIso -Destination $disco -ErrorAction Stop
+
+        & $VBoxManage storageattach $Nome --storagectl 'SATA' --port 0 --device 0 --type hdd --medium $disco
+        if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu ligar o disco à máquina '$Nome'." }
+
+        & $VBoxManage modifyvm $Nome --boot1 disk --boot2 none --boot3 none --boot4 none
+    }
+    else {
+        # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria os GB
+        #        todos agora. Para um laboratorio, dinamico e quase sempre o certo.
+        # EN-UK: `Standard` grows dynamically; `Fixed` would reserve every GB now.
+        & $VBoxManage createmedium disk --filename $disco --size ([int]($DiscoGb * 1024)) --format VDI --variant Standard
+        if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu criar o disco em $disco." }
+
+        & $VBoxManage storageattach $Nome --storagectl 'SATA' --port 0 --device 0 --type hdd --medium $disco
+        & $VBoxManage storageattach $Nome --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium $CaminhoIso
+        if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu ligar a imagem à máquina '$Nome'." }
+
+        & $VBoxManage modifyvm $Nome --boot1 dvd --boot2 disk --boot3 none --boot4 none
+    }
 
     return [pscustomobject]@{
         Nome   = $Nome

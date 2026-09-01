@@ -177,10 +177,20 @@ tipo_virtualbox() {
 #        deliberate: without it `virt-install` attaches a console and stays
 #        there until the install finishes, and the calling program looks hung.
 #
-# $1 nome  $2 cpu  $3 ram MB  $4 disco MB  $5 iso  $6 pasta  $7 variante
+#        E o `--import` e o que trata de uma imagem que ja e um disco: diz ao
+#        virt-install para saltar a instalacao e arrancar o que la esta. Sem
+#        ele, o libvirt cria a maquina a espera de um instalador que nao existe
+#        e o utilizador ve um "no bootable device" sem perceber porque.
+#
+# EN-UK: And `--import` is what handles an image that is already a disk: it
+#        tells virt-install to skip the install and boot what is there.
+#
+# $1 nome  $2 cpu  $3 ram MB  $4 disco MB  $5 imagem  $6 pasta  $7 variante
+# $8 uso (instalador|disco)
 # ---------------------------------------------------------------------------
 criar_maquina_libvirt() {
     local nome="$1" cpu="$2" ram="$3" disco="$4" iso="$5" pasta="$6" variante="$7"
+    local uso="${8:-instalador}"
     local caminho_disco="${pasta}/${nome}.qcow2"
 
     if virsh --connect qemu:///system dominfo "$nome" >/dev/null 2>&1; then
@@ -188,27 +198,90 @@ criar_maquina_libvirt() {
         passo 'Escolha outro nome — este programa não substitui máquinas existentes.'
         return 1
     fi
-    if [[ -e "$caminho_disco" ]]; then
-        erro "Já existe um disco em $caminho_disco."
-        passo 'Apague-o à mão se tiver a certeza de que não faz falta.'
+
+    mkdir -p "$pasta"
+
+    local -a argumentos=(
+        --connect qemu:///system
+        --name "$nome"
+        --memory "$ram"
+        --vcpus "$cpu"
+        --cpu host-passthrough
+        --network network=default,model=virtio
+        --graphics spice
+        --video virtio
+        --noautoconsole
+    )
+
+    if [[ "$uso" == 'disco' ]]; then
+        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
+        #        onde esta. Ligar o original faria a maquina escrever por cima
+        #        dele: a primeira arrancada estragava a copia limpa que o
+        #        utilizador descarregou, e a segunda maquina feita a partir da
+        #        mesma imagem ja nascia com o sistema da primeira la dentro.
+        # EN-UK: The image is **copied** into the machine's folder rather than
+        #        attached in place. Attaching the original would have the machine
+        #        write over it: the first boot would spoil the pristine copy.
+        local extensao="${iso##*.}"
+        caminho_disco="${pasta}/${nome}.${extensao}"
+        [[ -e "$caminho_disco" ]] && { erro "Já existe um disco em ${caminho_disco}."; return 1; }
+
+        nota 'A copiar a imagem para a pasta da máquina. A original fica intacta.'
+        cp -- "$iso" "$caminho_disco" || { erro 'Não foi possível copiar a imagem.'; return 1; }
+
+        argumentos+=(--disk "path=${caminho_disco},bus=virtio" --import)
+    else
+        [[ -e "$caminho_disco" ]] && { erro "Já existe um disco em ${caminho_disco}."; return 1; }
+        argumentos+=(
+            --disk "path=${caminho_disco},size=$(( disco / 1024 )),format=qcow2,bus=virtio"
+            --cdrom "$iso"
+        )
+    fi
+
+    argumentos+=(--os-variant "detect=on,name=${variante},require=off")
+
+    virt-install "${argumentos[@]}"
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Importa uma appliance `.ova` ou `.ovf` para o VirtualBox.
+#
+#        Uma appliance nao se cria: importa-se. O ficheiro ja traz a maquina
+#        toda -- discos, memoria, placas de rede, tudo o que quem a exportou
+#        decidiu. Criar uma maquina a volta dela seria criar uma segunda
+#        maquina, vazia, ao lado da que ja la esta.
+#
+#        E por isso que esta funcao ignora as especificacoes recomendadas: nao
+#        ha nada a recomendar quando o ficheiro ja decidiu.
+#
+#        **Uma appliance e a maquina de outra pessoa a correr na sua.** O `.ova`
+#        traz o disco com o sistema ja instalado e configurado, por quem o
+#        exportou. Vale o que valer a confianca em quem o fez.
+#
+# EN-UK: Imports an `.ova` or `.ovf` appliance into VirtualBox. An appliance is
+#        not created but imported: the file already carries the whole machine.
+#
+#        **An appliance is somebody else's machine running on yours.**
+# ---------------------------------------------------------------------------
+importar_apliancia_virtualbox() {
+    local caminho="$1" nome="$2" pasta="$3"
+
+    if VBoxManage list vms 2>/dev/null | grep -q "\"${nome}\""; then
+        erro "Já existe uma máquina virtual chamada '${nome}' no VirtualBox."
         return 1
     fi
 
     mkdir -p "$pasta"
+    nota 'A importar. Isto demora — a appliance traz os discos lá dentro.'
 
-    virt-install \
-        --connect qemu:///system \
-        --name "$nome" \
-        --memory "$ram" \
-        --vcpus "$cpu" \
-        --cpu host-passthrough \
-        --disk "path=${caminho_disco},size=$(( disco / 1024 )),format=qcow2,bus=virtio" \
-        --cdrom "$iso" \
-        --os-variant "detect=on,name=${variante},require=off" \
-        --network network=default,model=virtio \
-        --graphics spice \
-        --video virtio \
-        --noautoconsole
+    if ! VBoxManage import "$caminho" --vsys 0 --vmname "$nome" --basefolder "$pasta"; then
+        erro "O VBoxManage não conseguiu importar ${caminho}."
+        passo "Corra 'VBoxManage import \"${caminho}\" --dry-run' para ver o que ele traz."
+        passo 'Se veio de um VMware, pode precisar de --unit N --ignore nos controladores'
+        passo 'que o VirtualBox não reconhece.'
+        return 1
+    fi
 }
 
 
@@ -229,7 +302,9 @@ criar_maquina_libvirt() {
 # ---------------------------------------------------------------------------
 criar_maquina_virtualbox() {
     local nome="$1" cpu="$2" ram="$3" disco="$4" iso="$5" pasta="$6" tipo="$7" uefi="${8:-nao}"
-    local caminho_disco="${pasta}/${nome}/${nome}.vdi"
+    local uso="${9:-instalador}"
+    local pasta_vm="${pasta}/${nome}"
+    local caminho_disco="${pasta_vm}/${nome}.vdi"
 
     if VBoxManage list vms 2>/dev/null | grep -q "\"${nome}\""; then
         erro "Já existe uma máquina virtual chamada '$nome' no VirtualBox."
@@ -247,14 +322,31 @@ criar_maquina_virtualbox() {
     [[ "$uefi" == 'sim' ]] && definicoes+=(--firmware efi)
 
     VBoxManage modifyvm "$nome" "${definicoes[@]}" || return 1
-
-    # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria tudo agora.
-    # EN-UK: `Standard` grows dynamically; `Fixed` would reserve it all now.
-    VBoxManage createmedium disk --filename "$caminho_disco" --size "$disco" \
-        --format VDI --variant Standard || return 1
-
     VBoxManage storagectl "$nome" --name 'SATA' --add sata --controller IntelAhci --portcount 2 || return 1
-    VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
-    VBoxManage storageattach "$nome" --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium "$iso" || return 1
-    VBoxManage modifyvm "$nome" --boot1 dvd --boot2 disk --boot3 none --boot4 none || return 1
+
+    if [[ "$uso" == 'disco' ]]; then
+        # PT-PT: A imagem e copiada para a pasta da maquina. Ver a nota igual na
+        #        funcao do libvirt: ligar o original faz a maquina escrever por
+        #        cima da copia limpa que o utilizador descarregou.
+        # EN-UK: The image is copied into the machine's folder. See the matching
+        #        note in the libvirt function.
+        local extensao="${iso##*.}"
+        caminho_disco="${pasta_vm}/${nome}.${extensao}"
+        mkdir -p "$pasta_vm"
+
+        nota 'A copiar a imagem para a pasta da máquina. A original fica intacta.'
+        cp -- "$iso" "$caminho_disco" || { erro 'Não foi possível copiar a imagem.'; return 1; }
+
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
+        VBoxManage modifyvm "$nome" --boot1 disk --boot2 none --boot3 none --boot4 none || return 1
+    else
+        # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria tudo agora.
+        # EN-UK: `Standard` grows dynamically; `Fixed` would reserve it all now.
+        VBoxManage createmedium disk --filename "$caminho_disco" --size "$disco" \
+            --format VDI --variant Standard || return 1
+
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium "$iso" || return 1
+        VBoxManage modifyvm "$nome" --boot1 dvd --boot2 disk --boot3 none --boot4 none || return 1
+    fi
 }

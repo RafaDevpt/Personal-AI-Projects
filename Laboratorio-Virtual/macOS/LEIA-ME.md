@@ -73,6 +73,58 @@ O lançador acrescenta ao `PATH` os dois prefixos do Homebrew — `/opt/homebrew
 ./executar.command --diagnostico
 ```
 
+
+---
+
+## Trazer uma imagem sua
+
+O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS, uma
+appliance, a ISO que a empresa fornece — a opção **1** do menu pergunta se a
+imagem vem do catálogo ou se já a tem.
+
+**Aqui não há garantias nenhumas, e o programa diz isso em vez de as fingir.**
+O relatório de verificação mostra quatro camadas por aplicar e, quando muito,
+a soma:
+
+```
+    [--]  Domínio na lista de confiança
+    [--]  Assinatura do manifesto
+    [ok]  Soma SHA-256 do ficheiro
+```
+
+### Uma ISO é o instalador. Uma imagem de disco é a máquina.
+
+| Formato | O que o programa faz |
+| :--- | :--- |
+| `.iso` | Liga como CD e cria um disco vazio ao lado |
+| `.img` `.raw` `.qcow2` `.vdi` `.vmdk` `.vhd` `.vhdx` | **É** o disco. Não cria nada e não liga CD nenhum |
+| `.ova` `.ovf` | Importa-se. Já traz a máquina toda feita |
+
+Criar um disco vazio ao lado de uma imagem que já é o disco, e arrancar de um CD
+que não existe, dá exactamente o *no bootable device* que ninguém sabe explicar.
+
+**A imagem é copiada para a pasta da máquina**, e não ligada onde está: a
+primeira arrancada escreveria por cima da cópia limpa que descarregou.
+
+### O que o macOS sabe sobre a origem — e é bastante
+
+O Gatekeeper põe uma quarentena em tudo o que é descarregado, e o Spotlight
+guarda ao lado o endereço de onde veio:
+
+```bash
+xattr -p com.apple.metadata:kMDItemWhereFroms a-sua-imagem.iso | xxd -r -p | plutil -p -
+```
+
+Não é um texto — é um plist binário, e por isso passa pelo `plutil` para se
+conseguir ler. O programa faz isso e mostra o endereço. Sem ele, ainda diz qual
+foi a aplicação que trouxe o ficheiro, que é menos mas não é nada.
+
+### Uma nota do `stat`
+
+O `stat` de um Mac é o do BSD e não o do GNU: é `stat -f '%z'` e não
+`stat -c '%s'`. É das diferenças que mais depressa parte um script copiado de
+Linux, e por isso está escrita aqui e no código.
+
 ---
 
 ## macOS como convidado

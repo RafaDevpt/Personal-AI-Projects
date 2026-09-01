@@ -4,7 +4,7 @@
 *Assisted virtual machine creation on Windows, Linux and macOS.*
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-informational.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-informational.svg)](CHANGELOG.md)
 [![Sistemas](https://img.shields.io/badge/sistemas-Windows%20%C2%B7%20Linux%20%C2%B7%20macOS-lightgrey.svg)](#instala%C3%A7%C3%A3o--installation)
 
 > **PT** · Escolhe o hipervisor, escolhe o sistema convidado, calcula as especificações a partir do que a máquina tem — e descarrega a imagem do sítio oficial com a verificação toda pelo caminho.
@@ -16,6 +16,7 @@
 
 - [As duas coisas que este programa faz melhor](#as-duas-coisas-que-este-programa-faz-melhor)
 - [Como a imagem é verificada](#como-a-imagem-é-verificada--how-the-image-is-verified)
+- [Trazer uma imagem sua](#trazer-uma-imagem-sua--bringing-your-own-image)
 - [Instalação](#instalação--installation)
 - [O catálogo](#o-catálogo--the-catalogue)
 - [Como as especificações são calculadas](#como-as-especificações-são-calculadas)
@@ -38,6 +39,7 @@ resto, limita-se a chamar o hipervisor.
 | **Calcula as especificações e explica a conta** | Não diz "4 GB": diz de onde saíram os 4 GB, quanto ficou para o anfitrião e porquê. Quem sabe a conta sabe quando a mudar. |
 | **Protege a máquina anfitriã** | Nunca mais núcleos virtuais do que físicos. Nunca mais memória do que o convidado recomenda. Nunca um disco que deixe o anfitrião sem folga. |
 | **Diz o que não pode fazer, e porquê** | O macOS num anfitrião que não é Apple, o VirtualBox num Mac com chip da Apple, o Hyper-V numa edição Home. Recusa e explica, em vez de falhar a meio. |
+| **Aceita uma imagem sua** | Uma ISO, um disco já feito ou uma appliance que não estão no catálogo. Sem garantias inventadas: diz o que verificou e o que não. |
 
 ---
 
@@ -87,6 +89,79 @@ Uma camada que não correu aparece na lista, e não é omitida. Dizer
 layers: the manifest is verified **before** the filename is read out of it. A
 layer that did not run appears in the list rather than being omitted — saying
 "verified" when only a same-channel checksum was compared is a misleading truth.
+
+---
+
+## Trazer uma imagem sua · Bringing your own image
+
+**PT** · O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS,
+uma appliance, a ISO que a empresa fornece, ou uma distribuição que já estava no
+disco — o programa aceita um ficheiro que já tenha.
+
+**Aqui não há garantias nenhumas, e o programa diz isso em vez de as fingir.**
+Uma imagem do catálogo vem de um domínio fixado, com um manifesto assinado.
+Uma imagem do seu disco não tem nada disso, e o relatório mostra-o:
+
+```
+  Verificação:
+    [--]  Domínio na lista de confiança
+    [--]  Ligação HTTPS com certificado válido
+    [--]  Assinatura do manifesto
+    [--]  Impressão digital fixada
+    [ok]  Soma SHA-256 do ficheiro
+    Esta imagem não veio do catálogo: as quatro primeiras camadas não se
+    aplicam a um ficheiro que já estava no disco.
+```
+
+O que o programa **pode** fazer, e faz:
+
+| | |
+|---|---|
+| **Diz de onde o ficheiro veio** | Em Windows lê a Marca da Web e mostra o endereço de onde foi descarregado; em macOS lê a quarentena do Gatekeeper e o `kMDItemWhereFroms`; em Linux o `user.xdg.origin.url`. Um endereço à frente dos olhos, na hora de decidir, é o que faz reparar que não é o sítio oficial. |
+| **Verifica a soma, se a tiver** | Cole a que o fornecedor publica. É a única camada que ainda se aplica. |
+| **Confirma que o ficheiro é o que parece** | Uma ISO começa por `CD001` no sector 16, um qcow2 por `QFI\xfb`. Não é segurança — quem adultera põe a assinatura certa — mas apanha o engano honesto: o `.zip` por extrair, o descarregamento a meio. |
+| **Sabe que uma ISO e um disco não são a mesma coisa** | Ver abaixo. |
+
+### A distinção que decide se a máquina arranca
+
+**Uma ISO é o instalador. Uma imagem de disco é a máquina.**
+
+| Formato | O que o programa faz |
+| :--- | :--- |
+| `.iso` | Liga como CD e cria um disco vazio ao lado, para o sistema se instalar |
+| `.img` `.raw` `.qcow2` `.vdi` `.vmdk` `.vhd` `.vhdx` | **É** o disco. Não cria nada e não liga CD nenhum |
+| `.ova` `.ovf` | Não se liga: importa-se. Já traz a máquina toda feita |
+
+Criar um disco vazio ao lado de uma `.qcow2` e arrancar de um CD que não existe
+dá exactamente o *no bootable device* que ninguém sabe explicar.
+
+**A imagem é copiada para a pasta da máquina, e não ligada onde está.** Ligar o
+original faria a máquina escrever por cima dele: a primeira arrancada estragava
+a cópia limpa que descarregou, e a segunda máquina feita a partir da mesma
+imagem já nascia com o sistema da primeira lá dentro.
+
+### O que cada hipervisor aceita
+
+| | `.iso` | `.qcow2` | `.vdi` | `.vmdk` | `.vhd/.vhdx` | `.ova` |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Hyper-V** | ✓ | — | — | — | ✓ | — |
+| **VirtualBox** | ✓ | — | ✓ | ✓ | ✓ (vhd) | ✓ |
+| **KVM/QEMU** | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+
+Quando o formato não serve, o programa dá o comando de conversão em vez de dizer
+apenas «não é suportado»:
+
+```bash
+qemu-img convert -p -O vhdx a-sua-imagem.qcow2 a-sua-imagem.vhdx
+```
+
+**EN** · The catalogue covers what is common; for everything else the program
+accepts a file you already have. There are no guarantees here and it says so:
+the layers report shows four `[--]` and one `[ok]` at best. What it can do is
+tell you where the file came from (Mark of the Web on Windows, Gatekeeper
+quarantine on macOS, `user.xdg.origin.url` on Linux), verify a checksum you
+paste, confirm the content matches the extension, and — crucially — know that
+**an ISO is the installer while a disk image is the machine**.
 
 ---
 
@@ -225,21 +300,24 @@ corrompe-a.
   arranca.
 - **Não gere as máquinas depois de criadas.** Não é um painel de administração.
   Cria, e sai da frente.
+- **Não converte imagens sozinho.** Quando o formato não serve ao hipervisor,
+  dá o comando do `qemu-img` e fica por aí. Converter três gigabytes é uma
+  operação que quem a manda fazer deve saber que está a fazer.
 
 ---
 
 ## Estrutura · Structure
 
 ```
-├── Windows/              PowerShell · 56 testes
+├── Windows/              PowerShell · 76 testes
 │   ├── EXECUTAR.bat
-│   ├── src/              LaboratorioVirtual.ps1 + 5 módulos + catalogo.json
+│   ├── src/              LaboratorioVirtual.ps1 + 6 módulos + catalogo.json
 │   └── tests/
-├── Linux/                bash · 53 testes
+├── Linux/                bash · 69 testes
 │   ├── executar.sh
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
-├── macOS/                bash 3.2 · 53 testes
+├── macOS/                bash 3.2 · 69 testes
 │   ├── executar.command
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
@@ -248,20 +326,24 @@ corrompe-a.
 └── CONTRIBUTING.md
 ```
 
-E dentro de cada versão, os mesmos cinco módulos:
+E dentro de cada versão, os mesmos seis módulos:
 
 | Módulo | O que faz |
 | :--- | :--- |
 | `seguranca` | Descarregamento verificado. A fronteira de segurança |
 | `catalogo` | Leitura e validação do catálogo |
+| `imagem_local` | Imagens que o utilizador traz, e o que se consegue saber sobre elas |
 | `hardware` | O que a máquina anfitriã tem |
 | `recomendacao` | O cálculo das especificações. Não toca na máquina |
 | `hipervisor` | Detecção e criação, por hipervisor |
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-Nenhum dos 162 testes toca na rede, cria uma máquina virtual ou instala seja o
+Nenhum dos 214 testes toca na rede, cria uma máquina virtual ou instala seja o
 que for: as três suites correm em qualquer máquina, e depois cada versão é
-verificada no seu runner nativo pela integração contínua.
+verificada no seu runner nativo pela integração contínua. Os poucos grupos que
+precisam mesmo do sistema — o `stat` do BSD e o `xattr` num Mac, o `jq` em
+Linux — são saltados com uma explicação em vez de falharem, e correm no runner
+respectivo.
 
 ---
 

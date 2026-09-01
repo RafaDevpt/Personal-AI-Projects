@@ -27,7 +27,7 @@ set -euo pipefail
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly RAIZ
-readonly VERSAO='1.0.0'
+readonly VERSAO='1.1.0'
 readonly CREDITO='Created by Redfox using Claude'
 readonly CATALOGO="${RAIZ}/catalogo.json"
 
@@ -56,6 +56,8 @@ titulo() {
 . "${RAIZ}/lib/recomendacao.sh"
 # shellcheck source=lib/hipervisor.sh
 . "${RAIZ}/lib/hipervisor.sh"
+# shellcheck source=lib/imagem_local.sh
+. "${RAIZ}/lib/imagem_local.sh"
 
 
 # ---------------------------------------------------------------------------
@@ -376,6 +378,161 @@ mostrar_camada() {
 
 
 # ---------------------------------------------------------------------------
+# PT-PT: Conduz a escolha de uma imagem que o utilizador ja tem.
+#
+#        Esta e a porta que fica fora da cadeia de verificacao, e por isso e a
+#        que tem de ser mais clara sobre o que nao garante. O programa mostra
+#        tudo o que consegue descobrir -- de onde o ficheiro veio, se o conteudo
+#        corresponde a extensao, se a soma confere -- e depois pergunta. A
+#        decisao e do utilizador; o trabalho do programa e nao a deixar tomar as
+#        escuras.
+#
+#        Escreve no stdout, em linhas `chave=valor`, o que quem chama precisa.
+#
+# EN-UK: Walks the user through choosing an image they already have. This is the
+#        door outside the verification chain, and so the one that must be
+#        clearest about what it does not guarantee.
+#
+# $1 hipervisor
+# ---------------------------------------------------------------------------
+escolher_imagem_local() {
+    local hipervisor="$1"
+
+    titulo 'Usar uma imagem que já tenho' >&2
+    printf '  Uma ISO de instalação, um disco já feito (.qcow2, .vdi, .vmdk…) ou uma\n' >&2
+    printf '  appliance (.ova). O programa diz o que consegue verificar — e o que não.\n\n' >&2
+
+    local caminho
+    read -r -p '  Caminho do ficheiro (Enter para voltar): ' caminho || return 1
+    [[ -z "$caminho" ]] && return 1
+
+    # PT-PT: O `eval` sobre um caminho seria uma porta aberta. O que se quer e
+    #        so o `~`, e para isso basta trocá-lo.
+    # EN-UK: An `eval` over a path would be an open door. All that is wanted is
+    #        `~`, and a substitution is enough.
+    caminho="${caminho/#\~/$HOME}"
+    caminho="${caminho%\"}"; caminho="${caminho#\"}"
+
+    [[ -f "$caminho" ]] || { erro "Não encontrei nenhum ficheiro em ${caminho}." >&2; return 1; }
+
+    local tipo; tipo="$(tipo_de_imagem "$caminho")"
+    local extensao; extensao="$(extensao_de "$caminho")"
+
+    if [[ "$tipo" == 'desconhecido' ]]; then
+        erro "Não reconheço a extensão '${extensao}'." >&2
+        nota '  Os formatos que este programa liga: .iso .img .raw .qcow2 .vdi .vmdk .vhd .vhdx .ova' >&2
+        return 1
+    fi
+
+    # --- o que o formato da com este hipervisor ----------------------------
+    local sugestao
+    if ! sugestao="$(formato_suportado "$extensao" "$hipervisor")"; then
+        printf '\n' >&2
+        while IFS= read -r linha; do aviso "$linha" >&2; done <<< "$sugestao"
+        return 1
+    fi
+
+    # --- o que se sabe sobre o ficheiro ------------------------------------
+    local tamanho_mb; tamanho_mb=$(( $(stat -c '%s' "$caminho" 2>/dev/null || echo 0) / 1024 / 1024 ))
+
+    printf '\n  %s\n' "$(basename "$caminho")" >&2
+    printf '    tamanho      %s MB\n' "$tamanho_mb" >&2
+    case "$tipo" in
+        instalador) printf '    como se usa  instalador — liga como CD, com um disco novo ao lado\n' >&2 ;;
+        disco)      printf '    como se usa  disco já feito — é a máquina, e não o instalador dela\n' >&2 ;;
+        apliancia)  printf '    como se usa  appliance — importa-se inteira, já traz tudo decidido\n' >&2 ;;
+    esac
+
+    local detalhe
+    if detalhe="$(assinatura_ficheiro "$caminho")"; then
+        ok "  conteúdo     ${detalhe}" >&2
+    else
+        erro "  conteúdo     ${detalhe}" >&2
+        printf '\n' >&2
+        confirmar 'O conteúdo não corresponde à extensão. Continuar mesmo assim?' || return 1
+    fi
+
+    # PT-PT: A origem. Ver a nota em `imagem_local.sh`: um endereco a frente dos
+    #        olhos, na hora de decidir, e o que faz o utilizador reparar que nao
+    #        e o sitio oficial.
+    # EN-UK: The origin. A URL in front of the eyes at decision time.
+    printf '\n' >&2
+    local origem
+    if origem="$(origem_ficheiro "$caminho")"; then
+        aviso "  ${origem}" >&2
+        nota '  Confirme que é o sítio oficial do sistema que quer instalar.' >&2
+    else
+        nota "  ${origem}" >&2
+    fi
+
+    # --- a soma, se o utilizador a tiver -----------------------------------
+    printf '\n' >&2
+    nota '  Se o fornecedor publica uma soma SHA-256, cole-a agora. É a única coisa' >&2
+    nota '  que este programa pode verificar numa imagem que não veio do catálogo.' >&2
+    local soma
+    read -r -p '  Soma SHA-256 (Enter para saltar): ' soma || return 1
+
+    local soma_ok='nao'
+    if [[ -n "$soma" ]]; then
+        verificar_ficheiro_local "$caminho" "$soma" || return 1
+        soma_ok='sim'
+    fi
+
+    # --- o relatorio, com a verdade toda -----------------------------------
+    printf '\n  Verificação:\n' >&2
+    mostrar_camada 'Domínio na lista de confiança' 'nao'
+    mostrar_camada 'Ligação HTTPS com certificado válido' 'nao'
+    mostrar_camada 'Assinatura do manifesto' 'nao'
+    mostrar_camada 'Impressão digital fixada' 'nao'
+    mostrar_camada 'Soma SHA-256 do ficheiro' "$soma_ok"
+    nota '    Esta imagem não veio do catálogo: as quatro primeiras camadas não se' >&2
+    nota '    aplicam a um ficheiro que já estava no disco.' >&2
+    [[ "$soma_ok" == 'nao' ]] && nota '    Sem soma, o programa não confirmou nada sobre o conteúdo deste ficheiro.' >&2
+    printf '\n' >&2
+
+    confirmar 'Continuar com esta imagem?' || return 1
+
+    # --- a familia ---------------------------------------------------------
+    # PT-PT: Decide o tipo de maquina e, no VirtualBox, se leva UEFI.
+    # EN-UK: It decides the machine type and, on VirtualBox, whether it gets UEFI.
+    titulo 'Que sistema traz esta imagem?' >&2
+    printf '    1. Linux ou outro sistema livre\n' >&2
+    printf '    2. Windows\n\n' >&2
+    local familia='linux'
+    [[ "$(ler_escolha 'Número' 2)" == '2' ]] && familia='windows'
+
+    # --- as especificacoes -------------------------------------------------
+    local perfil='outro'
+    if [[ "$tipo" != 'apliancia' ]]; then
+        titulo 'Que tipo de convidado é?' >&2
+        nota '  O catálogo sabe os requisitos das imagens que traz. Desta não sabe,' >&2
+        nota '  por isso escolha o perfil mais próximo — pode ajustar depois.' >&2
+        printf '\n' >&2
+
+        local -a chaves=()
+        local c indice=0
+        while IFS= read -r c; do
+            [[ -z "$c" ]] && continue
+            indice=$(( indice + 1 ))
+            chaves+=("$c")
+            printf '    %d. %s\n' "$indice" "$(nome_perfil "$c")" >&2
+        done < <(chaves_perfil)
+        printf '\n' >&2
+
+        local escolha; escolha="$(ler_escolha 'Número' "$indice")"
+        perfil="${chaves[$(( escolha - 1 ))]}"
+    fi
+
+    printf 'caminho=%s\n' "$caminho"
+    printf 'tipo=%s\n' "$tipo"
+    printf 'familia=%s\n' "$familia"
+    printf 'perfil=%s\n' "$perfil"
+    printf 'nome=%s\n' "$(basename "$caminho")"
+    printf 'id=%s\n' "$(basename "${caminho%.*}")"
+}
+
+
+# ---------------------------------------------------------------------------
 criar_maquina() {
     local libvirt=0
     estado_libvirt || libvirt=$?
@@ -398,26 +555,63 @@ criar_maquina() {
         hipervisor='virtualbox'
     fi
 
-    local id
-    id="$(escolher_imagem)" || return 0
+    # --- de onde vem a imagem ------------------------------------------------
+    titulo 'De onde vem a imagem?'
+    printf '    1. Do catálogo    — descarregada e verificada por este programa\n'
+    printf '    2. Já a tenho     — uma ISO, um disco feito ou uma appliance no disco\n\n'
+    local da_onde; da_onde="$(ler_escolha 'Número' 2)"
 
-    local notas_pt; notas_pt="$(campo_imagem "$CATALOGO" "$id" '.notas_pt')"
-    [[ -n "$notas_pt" ]] && { printf '\n'; nota "$notas_pt"; }
+    local origem='catalogo' id='' nome_imagem='' familia='' uso='instalador' iso_local=''
+    local min_cpu min_ram min_disco rec_cpu rec_ram rec_disco
+
+    if [[ "$da_onde" == '1' ]]; then
+        id="$(escolher_imagem)" || return 0
+
+        local notas_pt; notas_pt="$(campo_imagem "$CATALOGO" "$id" '.notas_pt')"
+        [[ -n "$notas_pt" ]] && { printf '\n'; nota "$notas_pt"; }
+
+        nome_imagem="$(campo_imagem "$CATALOGO" "$id" '.nome')"
+        familia="$(campo_imagem "$CATALOGO" "$id" '.familia')"
+        min_cpu="$(campo_imagem "$CATALOGO" "$id" '.minimo.cpu')"
+        min_ram=$(( $(campo_imagem "$CATALOGO" "$id" '.minimo.ram_gb') * 1024 ))
+        min_disco=$(( $(campo_imagem "$CATALOGO" "$id" '.minimo.disco_gb') * 1024 ))
+        rec_cpu="$(campo_imagem "$CATALOGO" "$id" '.recomendado.cpu')"
+        rec_ram=$(( $(campo_imagem "$CATALOGO" "$id" '.recomendado.ram_gb') * 1024 ))
+        rec_disco=$(( $(campo_imagem "$CATALOGO" "$id" '.recomendado.disco_gb') * 1024 ))
+    else
+        origem='local'
+        local escolhida
+        escolhida="$(escolher_imagem_local "$hipervisor")" || return 0
+
+        iso_local="$(valor_de caminho "$escolhida")"
+        uso="$(valor_de tipo "$escolhida")"
+        familia="$(valor_de familia "$escolhida")"
+        nome_imagem="$(valor_de nome "$escolhida")"
+        id="$(valor_de id "$escolhida")"
+
+        # PT-PT: O perfil generico faz as vezes do que o catalogo saberia.
+        # EN-UK: The generic profile stands in for what the catalogue would know.
+        local perfil; perfil="$(valor_de perfil "$escolhida")"
+        read -r min_cpu min_ram min_disco rec_cpu rec_ram rec_disco <<< "$(perfil_generico "$perfil")"
+    fi
 
     # --- as especificacoes ---------------------------------------------------
-    local min_cpu min_ram min_disco rec_cpu rec_ram rec_disco
-    min_cpu="$(campo_imagem "$CATALOGO" "$id" '.minimo.cpu')"
-    min_ram=$(( $(campo_imagem "$CATALOGO" "$id" '.minimo.ram_gb') * 1024 ))
-    min_disco=$(( $(campo_imagem "$CATALOGO" "$id" '.minimo.disco_gb') * 1024 ))
-    rec_cpu="$(campo_imagem "$CATALOGO" "$id" '.recomendado.cpu')"
-    rec_ram=$(( $(campo_imagem "$CATALOGO" "$id" '.recomendado.ram_gb') * 1024 ))
-    rec_disco=$(( $(campo_imagem "$CATALOGO" "$id" '.recomendado.disco_gb') * 1024 ))
+    # PT-PT: Uma appliance traz as suas. Nao ha nada a recomendar quando o
+    #        ficheiro ja decidiu.
+    # EN-UK: An appliance brings its own. Nothing to recommend when the file has
+    #        already decided.
+    local cpu=0 ram=0 disco=0
+    if [[ "$uso" == 'apliancia' ]]; then
+        titulo 'Especificações'
+        printf '  Uma appliance traz as suas próprias: memória, núcleos, discos e placas de\n'
+        printf '  rede vêm todos decididos por quem a exportou. Ajuste-os no VirtualBox\n'
+        printf '  depois de importar, se for preciso.\n'
+    else
 
     local saida
     saida="$(recomendar "$(nucleos_fisicos)" "$(memoria_total_mb)" "$(disco_livre_mb "$PASTA_BASE")" \
         "$min_cpu" "$min_ram" "$min_disco" "$rec_cpu" "$rec_ram" "$rec_disco")"
 
-    local nome_imagem; nome_imagem="$(campo_imagem "$CATALOGO" "$id" '.nome')"
     titulo "Especificações recomendadas para $nome_imagem"
 
     if [[ "$(valor_de viavel "$saida")" != 'sim' ]]; then
@@ -433,24 +627,37 @@ criar_maquina() {
 
     printf '  Processador    %s núcleo(s) virtual(is)\n' "$cpu"
     printf '  Memória        %s MB\n' "$ram"
-    printf '  Disco          %s MB (dinâmico)\n' "$disco"
+    if [[ "$uso" == 'disco' ]]; then
+        printf '  Disco          a imagem que indicou, com o tamanho que traz\n'
+    else
+        printf '  Disco          %s MB (dinâmico)\n' "$disco"
+    fi
     printf '\n'
     nota 'Como se chegou aqui:'
     printf '%s\n' "$saida" | grep '^motivo=' | cut -d= -f2- | while IFS= read -r m; do nota "  · $m"; done
     printf '%s\n' "$saida" | grep '^aviso=' | cut -d= -f2- | while IFS= read -r a; do aviso "⚠  $a"; done
 
+    if [[ "$uso" == 'disco' ]]; then
+        printf '\n'
+        nota 'O disco não conta: esta imagem já é o disco da máquina. Se ficar curto,'
+        nota 'cresce-se depois com o qemu-img resize.'
+    fi
+
     printf '\n'
     confirmar 'Continuar com estas especificações?' || { nota 'Nada foi criado.'; return 0; }
+    fi
 
     # --- a imagem -------------------------------------------------------------
-    titulo 'Imagem do sistema'
-    local tipo; tipo="$(campo_imagem "$CATALOGO" "$id" '.tipo')"
-    local iso=''
+    local iso="$iso_local"
 
-    if [[ "$tipo" == 'iso' ]]; then
-        iso="$(obter_imagem_oficial "$id" "${PASTA_BASE}/Imagens")" || return 0
-    else
-        iso="$(obter_imagem_guiada "$id")" || return 0
+    if [[ "$origem" == 'catalogo' ]]; then
+        titulo 'Imagem do sistema'
+        local tipo_catalogo; tipo_catalogo="$(campo_imagem "$CATALOGO" "$id" '.tipo')"
+        if [[ "$tipo_catalogo" == 'iso' ]]; then
+            iso="$(obter_imagem_oficial "$id" "${PASTA_BASE}/Imagens")" || return 0
+        else
+            iso="$(obter_imagem_guiada "$id")" || return 0
+        fi
     fi
 
     [[ -z "$iso" ]] && { aviso 'Sem imagem verificada, não há máquina virtual. Nada foi criado.'; return 0; }
@@ -466,26 +673,43 @@ criar_maquina() {
     fi
 
     local pasta_maquinas="${PASTA_BASE}/Maquinas"
-    local familia; familia="$(campo_imagem "$CATALOGO" "$id" '.familia')"
 
     printf '\n  %s\n' "$nome"
     printf '    hipervisor   %s\n' "$hipervisor"
     printf '    convidado    %s\n' "$nome_imagem"
-    printf '    processador  %s núcleo(s)\n' "$cpu"
-    printf '    memória      %s MB\n' "$ram"
-    printf '    disco        %s MB em %s\n' "$disco" "$pasta_maquinas"
-    printf '    rede         NAT — alcança a Internet, não é alcançável da rede local\n\n'
+    if [[ "$uso" == 'apliancia' ]]; then
+        printf '    origem       appliance — traz as especificações lá dentro\n'
+    else
+        printf '    processador  %s núcleo(s)\n' "$cpu"
+        printf '    memória      %s MB\n' "$ram"
+        if [[ "$uso" == 'disco' ]]; then
+            printf '    disco        a imagem que indicou, copiada para %s\n' "$pasta_maquinas"
+        else
+            printf '    disco        %s MB em %s\n' "$disco" "$pasta_maquinas"
+        fi
+        printf '    rede         NAT — alcança a Internet, não é alcançável da rede local\n'
+    fi
+    [[ "$origem" == 'local' ]] && aviso '    verificação  imagem trazida por si — ver o relatório acima'
+    printf '\n'
 
     confirmar 'Criar?' || { nota 'Nada foi criado.'; return 0; }
 
+    if [[ "$uso" == 'apliancia' ]]; then
+        importar_apliancia_virtualbox "$iso" "$nome" "$pasta_maquinas" || return 1
+        printf '\n'; ok "Importada. Abra o VirtualBox e ligue a '$nome'."
+        nota 'Uma appliance é a máquina de outra pessoa a correr na sua: confirme as'
+        nota 'definições de rede antes de a ligar, se não souber de onde veio.'
+        return 0
+    fi
+
     if [[ "$hipervisor" == 'libvirt' ]]; then
         criar_maquina_libvirt "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
-            "$(variante_osinfo "$id" "$familia")" || return 1
+            "$(variante_osinfo "$id" "$familia")" "$uso" || return 1
         printf '\n'; ok "Criada. Abra com: virt-viewer --connect qemu:///system $nome"
     else
         local uefi='nao'; [[ "$familia" == 'windows' ]] && uefi='sim'
         criar_maquina_virtualbox "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
-            "$(tipo_virtualbox "$id" "$familia")" "$uefi" || return 1
+            "$(tipo_virtualbox "$id" "$familia")" "$uefi" "$uso" || return 1
         printf '\n'; ok "Criada. Abra o VirtualBox e ligue a '$nome'."
     fi
 }
@@ -542,7 +766,7 @@ menu() {
         mostrar_hipervisores
 
         titulo 'O que quer fazer?'
-        printf '    1. Criar uma máquina virtual\n'
+        printf '    1. Criar uma máquina virtual  (do catálogo ou de uma imagem sua)\n'
         printf '    2. Ver o que esta máquina tem\n'
         printf '    3. Verificar uma imagem que já tenho\n'
         printf '    4. Ver o catálogo e as impressões digitais\n'

@@ -94,6 +94,61 @@ O `--verificar` sai com 0 quando a soma confere e 1 quando não confere.
 virt-viewer --connect qemu:///system NOME
 ```
 
+
+---
+
+## Trazer uma imagem sua
+
+O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS, uma
+appliance, a ISO que a empresa fornece — a opção **1** do menu pergunta se a
+imagem vem do catálogo ou se já a tem.
+
+**Aqui não há garantias nenhumas, e o programa diz isso em vez de as fingir.**
+O relatório de verificação mostra quatro camadas por aplicar e, quando muito,
+a soma:
+
+```
+    [--]  Domínio na lista de confiança
+    [--]  Assinatura do manifesto
+    [ok]  Soma SHA-256 do ficheiro
+```
+
+### Uma ISO é o instalador. Uma imagem de disco é a máquina.
+
+| Formato | O que o programa faz |
+| :--- | :--- |
+| `.iso` | Liga como CD e cria um disco vazio ao lado |
+| `.img` `.raw` `.qcow2` `.vdi` `.vmdk` `.vhd` `.vhdx` | **É** o disco. Não cria nada e não liga CD nenhum |
+| `.ova` `.ovf` | Importa-se. Já traz a máquina toda feita |
+
+Criar um disco vazio ao lado de uma imagem que já é o disco, e arrancar de um CD
+que não existe, dá exactamente o *no bootable device* que ninguém sabe explicar.
+
+**A imagem é copiada para a pasta da máquina**, e não ligada onde está: a
+primeira arrancada escreveria por cima da cópia limpa que descarregou.
+
+### O que o Linux consegue saber sobre a origem
+
+Não há uma Marca da Web como em Windows. O que há é uma convenção do freedesktop
+que o Firefox, o Chromium e o GNOME respeitam: o atributo estendido
+`user.xdg.origin.url`.
+
+```bash
+getfattr --only-values -n user.xdg.origin.url a-sua-imagem.iso
+```
+
+Quando está lá, o programa mostra o endereço. Quando não está, diz que não se
+sabe — **o que é diferente de dizer que está tudo bem**. O atributo perde-se num
+`cp` sem `-a`, numa pen em FAT32, e num sistema de ficheiros montado sem
+`user_xattr`.
+
+### O QEMU fala quase tudo
+
+Ao contrário do Hyper-V, o KVM/libvirt liga `.qcow2`, `.img`, `.vdi`, `.vmdk` e
+`.vhdx` sem conversão — foi o QEMU que inventou metade desses formatos. O que
+não faz é importar `.ova`: para isso é o VirtualBox, ou extrair o disco de
+dentro (um `.ova` é um `.tar`) e converter.
+
 ---
 
 ## Núcleos físicos não são o que o `nproc` diz

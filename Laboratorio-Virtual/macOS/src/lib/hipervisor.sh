@@ -153,26 +153,46 @@ aviso_emulacao() {
 #        machine is not an object registered anywhere: it is a command. Whoever
 #        wants to run it again tomorrow needs to have it.
 #
-# $1 nome  $2 cpu  $3 ram MB  $4 disco MB  $5 iso  $6 pasta  $7 arq. convidado
+# $1 nome  $2 cpu  $3 ram MB  $4 disco MB  $5 imagem  $6 pasta  $7 arq. convidado
+# $8 uso (instalador|disco)
 # ---------------------------------------------------------------------------
 criar_maquina_qemu() {
     local nome="$1" cpu="$2" ram="$3" disco="$4" iso="$5" pasta="$6" arq_convidado="$7"
+    local uso="${8:-instalador}"
     local pasta_vm="${pasta}/${nome}"
     local caminho_disco="${pasta_vm}/${nome}.qcow2"
     local script="${pasta_vm}/arrancar-${nome}.sh"
-
-    if [ -e "$caminho_disco" ]; then
-        erro "Já existe um disco em ${caminho_disco}."
-        passo 'Apague-o à mão se tiver a certeza de que não faz falta.'
-        return 1
-    fi
 
     mkdir -p "$pasta_vm"
 
     local qemu; qemu="$(binario_qemu "$arq_convidado")"
 
-    command -v qemu-img >/dev/null 2>&1 || { erro 'O qemu-img não está instalado.'; return 1; }
-    qemu-img create -f qcow2 "$caminho_disco" "${disco}M" >/dev/null || return 1
+    if [ "$uso" = 'disco' ]; then
+        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
+        #        onde esta. Ligar o original faria a maquina escrever por cima
+        #        dele: a primeira arrancada estragava a copia limpa que o
+        #        utilizador descarregou, e a segunda maquina feita a partir da
+        #        mesma imagem ja nascia com o sistema da primeira la dentro.
+        # EN-UK: The image is **copied** into the machine's folder rather than
+        #        attached in place. Attaching the original would have the machine
+        #        write over it: the first boot would spoil the pristine copy.
+        local extensao="${iso##*.}"
+        caminho_disco="${pasta_vm}/${nome}.${extensao}"
+        if [ -e "$caminho_disco" ]; then
+            erro "Já existe um disco em ${caminho_disco}."
+            return 1
+        fi
+        nota 'A copiar a imagem para a pasta da máquina. A original fica intacta.'
+        cp -- "$iso" "$caminho_disco" || { erro 'Não foi possível copiar a imagem.'; return 1; }
+    else
+        if [ -e "$caminho_disco" ]; then
+            erro "Já existe um disco em ${caminho_disco}."
+            passo 'Apague-o à mão se tiver a certeza de que não faz falta.'
+            return 1
+        fi
+        command -v qemu-img >/dev/null 2>&1 || { erro 'O qemu-img não está instalado.'; return 1; }
+        qemu-img create -f qcow2 "$caminho_disco" "${disco}M" >/dev/null || return 1
+    fi
 
     # PT-PT: O firmware. Num Mac com Homebrew, o `edk2-aarch64-code.fd` vem com
     #        o pacote do QEMU. Se nao estiver la, o convidado ARM nao arranca --
@@ -199,8 +219,13 @@ criar_maquina_qemu() {
         printf '# Este script é a máquina. Guarde-o: uma máquina de QEMU não está\n'
         printf '# registada em lado nenhum, e é este comando que a faz existir.\n'
         printf '#\n'
-        printf '# Depois de instalar o sistema, apague a linha do -cdrom para a máquina\n'
-        printf '# passar a arrancar do disco em vez de voltar ao instalador.\n\n'
+        if [ "$uso" = 'instalador' ]; then
+            printf '# Depois de instalar o sistema, apague a linha do -cdrom para a máquina\n'
+            printf '# passar a arrancar do disco em vez de voltar ao instalador.\n\n'
+        else
+            printf '# Esta máquina arranca de um disco que já vinha feito: não há instalador\n'
+            printf '# nem -cdrom nenhum. Se o disco ficar curto: qemu-img resize <disco> +10G\n\n'
+        fi
         printf 'set -euo pipefail\n\n'
         printf 'exec %s \\\n' "$qemu"
         printf '  -name %s \\\n' "$nome"
@@ -209,9 +234,22 @@ criar_maquina_qemu() {
         printf '  -smp %s \\\n' "$cpu"
         printf '  -m %s \\\n' "$ram"
         [ -n "$firmware" ] && printf '  -bios %s \\\n' "$firmware"
-        printf '  -drive file=%s,if=virtio,format=qcow2 \\\n' "$caminho_disco"
-        printf '  -cdrom %s \\\n' "$iso"
-        printf '  -boot d \\\n'
+        # PT-PT: O `format=` sai do nome do ficheiro quando a imagem ja vinha
+        #        feita. Deixar o QEMU adivinhar o formato e uma das coisas que
+        #        ele faz mal e com aviso: "image format was not specified".
+        # EN-UK: `format=` comes from the filename when the image came ready.
+        #        Letting QEMU guess the format is one of the things it does badly
+        #        and warns about.
+        if [ "$uso" = 'disco' ]; then
+            local formato="${caminho_disco##*.}"
+            [ "$formato" = 'img' ] && formato='raw'
+            printf '  -drive file=%s,if=virtio,format=%s \\\n' "$caminho_disco" "$formato"
+            printf '  -boot c \\\n'
+        else
+            printf '  -drive file=%s,if=virtio,format=qcow2 \\\n' "$caminho_disco"
+            printf '  -cdrom %s \\\n' "$iso"
+            printf '  -boot d \\\n'
+        fi
         printf '  -device virtio-net-pci,netdev=rede \\\n'
         printf '  -netdev user,id=rede \\\n'
         printf '  -display default,show-cursor=on \\\n'
@@ -251,9 +289,30 @@ tipo_virtualbox() {
 #
 # EN-UK: Creates a virtual machine on VirtualBox. Intel Macs only.
 # ---------------------------------------------------------------------------
+importar_apliancia_virtualbox() {
+    local caminho="$1" nome="$2" pasta="$3"
+
+    if VBoxManage list vms 2>/dev/null | grep -q "\"${nome}\""; then
+        erro "Já existe uma máquina virtual chamada '${nome}' no VirtualBox."
+        return 1
+    fi
+
+    mkdir -p "$pasta"
+    nota 'A importar. Isto demora — a appliance traz os discos lá dentro.'
+
+    if ! VBoxManage import "$caminho" --vsys 0 --vmname "$nome" --basefolder "$pasta"; then
+        erro "O VBoxManage não conseguiu importar ${caminho}."
+        passo "Corra 'VBoxManage import \"${caminho}\" --dry-run' para ver o que ele traz."
+        return 1
+    fi
+}
+
+
 criar_maquina_virtualbox() {
     local nome="$1" cpu="$2" ram="$3" disco="$4" iso="$5" pasta="$6" tipo="$7" uefi="${8:-nao}"
-    local caminho_disco="${pasta}/${nome}/${nome}.vdi"
+    local uso="${9:-instalador}"
+    local pasta_vm="${pasta}/${nome}"
+    local caminho_disco="${pasta_vm}/${nome}.vdi"
 
     if VBoxManage list vms 2>/dev/null | grep -q "\"${nome}\""; then
         erro "Já existe uma máquina virtual chamada '${nome}' no VirtualBox."
@@ -273,11 +332,25 @@ criar_maquina_virtualbox() {
         --audio-driver none --graphicscontroller vmsvga --vram 128 || return 1
     [ "$uefi" = 'sim' ] && { VBoxManage modifyvm "$nome" --firmware efi || return 1; }
 
-    VBoxManage createmedium disk --filename "$caminho_disco" --size "$disco" \
-        --format VDI --variant Standard || return 1
-
     VBoxManage storagectl "$nome" --name 'SATA' --add sata --controller IntelAhci --portcount 2 || return 1
-    VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
-    VBoxManage storageattach "$nome" --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium "$iso" || return 1
-    VBoxManage modifyvm "$nome" --boot1 dvd --boot2 disk --boot3 none --boot4 none || return 1
+
+    if [ "$uso" = 'disco' ]; then
+        # PT-PT: A imagem e copiada. Ver a nota igual na funcao do QEMU.
+        # EN-UK: The image is copied. See the matching note in the QEMU function.
+        local extensao="${iso##*.}"
+        caminho_disco="${pasta_vm}/${nome}.${extensao}"
+        mkdir -p "$pasta_vm"
+        nota 'A copiar a imagem para a pasta da máquina. A original fica intacta.'
+        cp -- "$iso" "$caminho_disco" || { erro 'Não foi possível copiar a imagem.'; return 1; }
+
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
+        VBoxManage modifyvm "$nome" --boot1 disk --boot2 none --boot3 none --boot4 none || return 1
+    else
+        VBoxManage createmedium disk --filename "$caminho_disco" --size "$disco" \
+            --format VDI --variant Standard || return 1
+
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
+        VBoxManage storageattach "$nome" --storagectl 'SATA' --port 1 --device 0 --type dvddrive --medium "$iso" || return 1
+        VBoxManage modifyvm "$nome" --boot1 dvd --boot2 disk --boot3 none --boot4 none || return 1
+    fi
 }
