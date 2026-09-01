@@ -105,6 +105,7 @@ gitGraph
     commit id: "Read / diff / push"
     checkout main
     branch Network-Topology-Mapper
+    branch Virtual-Lab-Builder
     commit id: "LLDP crawl"
     commit id: "MAC correlation"
     checkout main
@@ -122,6 +123,7 @@ gitGraph
 | `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation | Windows · Linux · macOS |
 | `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti | Windows · Linux · macOS |
 | `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port | Windows · Linux · macOS |
+| `Virtual-Lab-Builder` | 🧪 Project | Builds virtual machines from verified official images | Windows · Linux · macOS |
 
 </div>
 
@@ -305,7 +307,7 @@ The finding that earns its keep: a port with six MACs and no LLDP neighbour has 
 git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder` or `Network-Topology-Mapper`. Branch names are **case-sensitive**.
+Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder`, `Network-Topology-Mapper` or `Virtual-Lab-Builder`. Branch names are **case-sensitive**.
 
 </details>
 
