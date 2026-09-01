@@ -154,7 +154,16 @@ jobs:
       #        the Homebrew bash 5 also on the runner, is the only place a
       #        forgotten `mapfile` shows up.
       - name: Versão do bash do sistema
-        run: /bin/bash -c 'echo "bash do sistema: $BASH_VERSION"'
+        # PT-PT: Em bloco, e nao numa linha. Um escalar simples de YAML nao
+        #        pode conter dois-pontos seguidos de espaco -- e o "sistema: $..."
+        #        aqui dentro fez o ficheiro inteiro deixar de ser lido, o que se
+        #        manifestou como uma execucao falhada com zero trabalhos.
+        # EN-UK: A block scalar, not a one-liner. A plain YAML scalar cannot
+        #        contain a colon followed by a space, and the one in here stopped
+        #        the whole file from parsing -- which showed up as a failed run
+        #        with zero jobs.
+        run: |
+          /bin/bash -c 'echo "bash do sistema $BASH_VERSION"'
 
       - name: Sintaxe com o bash do sistema
         run: /bin/bash -n src/laboratorio-virtual.sh && /bin/bash -n executar.command && for f in src/lib/*.sh tests/*.sh; do /bin/bash -n "$f"; done
