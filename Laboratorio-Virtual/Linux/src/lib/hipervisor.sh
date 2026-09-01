@@ -207,7 +207,18 @@ criar_maquina_libvirt() {
         --memory "$ram"
         --vcpus "$cpu"
         --cpu host-passthrough
-        --network network=default,model=virtio
+        # PT-PT: As aspas nao sao decorativas. Um elemento de array com virgulas
+        #        e indistinguivel, para quem le, de alguem que tentou separar
+        #        elementos por virgulas em vez de espacos -- e o shellcheck
+        #        assinala-o (SC2054) precisamente porque esse engano existe e da
+        #        um array com um elemento onde se queriam tres. Cita-se, e passa
+        #        a ler-se como o que e: um so argumento com virgulas la dentro.
+        # EN-UK: The quotes are not decorative. An array element with commas is
+        #        indistinguishable, to a reader, from somebody who tried to
+        #        separate elements with commas instead of spaces -- and
+        #        shellcheck flags it (SC2054) precisely because that mistake
+        #        happens and yields one element where three were meant.
+        --network "network=default,model=virtio"
         --graphics spice
         --video virtio
         --noautoconsole
