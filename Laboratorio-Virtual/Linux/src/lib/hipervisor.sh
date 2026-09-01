@@ -57,8 +57,12 @@ estado_libvirt() {
     command -v virt-install >/dev/null 2>&1 || return 1
     command -v virsh >/dev/null 2>&1 || return 1
 
-    estado_kvm
-    local kvm=$?
+    # PT-PT: Ver a nota em `mostrar_hipervisores`: com `set -e`, ler o `$?` na
+    #        linha a seguir nao chega -- o programa ja morreu.
+    # EN-UK: See the note in `mostrar_hipervisores`: under `set -e`, reading
+    #        `$?` on the next line is too late.
+    local kvm=0
+    estado_kvm || kvm=$?
     (( kvm == 1 )) && return 1
     (( kvm == 2 )) && return 2
 

@@ -81,8 +81,17 @@ mostrar_perfil() {
 mostrar_hipervisores() {
     titulo 'Hipervisores'
 
-    estado_libvirt
-    local libvirt=$?
+    # PT-PT: O `|| libvirt=$?` nao e estilo. Com `set -e`, uma funcao que
+    #        devolve diferente de zero numa linha propria mata o programa --
+    #        mesmo que a linha seguinte va ler o `$?`. E foi exactamente isso
+    #        que aconteceu: num runner sem virtualizacao, o `--diagnostico`
+    #        morria em silencio antes de escrever o que quer que fosse.
+    # EN-UK: The `|| libvirt=$?` is not style. Under `set -e`, a function
+    #        returning non-zero on a line of its own kills the program -- even
+    #        though the next line reads `$?`. Which is exactly what happened: on
+    #        a runner with no virtualisation, `--diagnostico` died silently.
+    local libvirt=0
+    estado_libvirt || libvirt=$?
     case $libvirt in
         0) ok 'KVM/libvirt    pronto a usar' ;;
         1) aviso 'KVM/libvirt    falta software'
@@ -368,7 +377,8 @@ mostrar_camada() {
 
 # ---------------------------------------------------------------------------
 criar_maquina() {
-    estado_libvirt; local libvirt=$?
+    local libvirt=0
+    estado_libvirt || libvirt=$?
     local tem_vbox='nao'; estado_virtualbox && tem_vbox='sim'
 
     if (( libvirt != 0 )) && [[ "$tem_vbox" == 'nao' ]]; then
