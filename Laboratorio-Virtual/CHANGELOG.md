@@ -80,9 +80,12 @@ Fingir o contrário estragaria a única coisa que o resto do programa constrói.
 
 ### Testes
 
-76 · 69 · 69 (Windows · Linux · macOS). Os grupos que precisam mesmo do sistema
-— o `stat` do BSD e o `xattr` num Mac — são saltados com uma explicação numa
-máquina que não seja um Mac, e correm no runner respectivo.
+76 · 77 · 77 (Windows · Linux · macOS), 230 ao todo. Os grupos que precisam
+mesmo do sistema — o `jq` em Linux, o `stat` do BSD e o `xattr` num Mac — são
+saltados com uma explicação numa máquina que não os tenha, e correm no runner
+respectivo. Numa máquina de desenvolvimento sem `jq` a contagem baixa para
+69 e 62; é por isso que os números aqui são os do runner, e não os do portátil
+de quem escreveu isto.
 
 ---
 
@@ -146,9 +149,9 @@ número:
 
 **Três versões independentes:**
 
-- `Windows/` — PowerShell 5.1, Hyper-V e VirtualBox. 56 testes
-- `Linux/` — bash, KVM/libvirt e VirtualBox. 53 testes
-- `macOS/` — bash **3.2**, QEMU e VirtualBox (só Intel). 53 testes
+- `Windows/` — PowerShell 5.1, Hyper-V e VirtualBox
+- `Linux/` — bash, KVM/libvirt e VirtualBox
+- `macOS/` — bash **3.2**, QEMU e VirtualBox (só Intel)
 
 ### O que cada versão sabe que as outras não sabem
 

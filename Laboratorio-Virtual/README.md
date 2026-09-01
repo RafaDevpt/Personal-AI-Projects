@@ -313,11 +313,11 @@ corrompe-a.
 │   ├── EXECUTAR.bat
 │   ├── src/              LaboratorioVirtual.ps1 + 6 módulos + catalogo.json
 │   └── tests/
-├── Linux/                bash · 69 testes
+├── Linux/                bash · 77 testes
 │   ├── executar.sh
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
-├── macOS/                bash 3.2 · 69 testes
+├── macOS/                bash 3.2 · 77 testes
 │   ├── executar.command
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
@@ -338,7 +338,7 @@ E dentro de cada versão, os mesmos seis módulos:
 | `hipervisor` | Detecção e criação, por hipervisor |
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-Nenhum dos 214 testes toca na rede, cria uma máquina virtual ou instala seja o
+Nenhum dos 230 testes toca na rede, cria uma máquina virtual ou instala seja o
 que for: as três suites correm em qualquer máquina, e depois cada versão é
 verificada no seu runner nativo pela integração contínua. Os poucos grupos que
 precisam mesmo do sistema — o `stat` do BSD e o `xattr` num Mac, o `jq` em
