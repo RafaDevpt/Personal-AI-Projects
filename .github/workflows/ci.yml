@@ -121,8 +121,30 @@ jobs:
       - name: Sintaxe
         run: bash -n src/laboratorio-virtual.sh src/lib/*.sh tests/*.sh executar.sh
 
+      # PT-PT: O `shellcheck` escreve para o log, e o log de um repositorio
+      #        publico so se le com autenticacao -- o que faz de uma falha aqui
+      #        uma linha vermelha sem explicacao para quem esta a olhar de fora.
+      #        Traduzir a saida para comandos `::error file=` transforma cada
+      #        aviso numa anotacao: aparece na linha certa do ficheiro, no
+      #        separador dos ficheiros alterados, e le-se sem entrar no log.
+      # EN-UK: `shellcheck` writes to the log, and a public repository's log
+      #        needs authentication to read -- which makes a failure here a red
+      #        line with no explanation to anyone looking from outside.
+      #        Translating the output into `::error file=` commands turns each
+      #        warning into an annotation, shown on the right line of the file.
       - name: shellcheck
-        run: shellcheck --severity=warning src/laboratorio-virtual.sh src/lib/*.sh executar.sh
+        run: |
+          saida="$(shellcheck --severity=warning --format=gcc ${ALVOS} || true)"
+          if [ -n "$saida" ]; then
+            printf '%s\n' "$saida" | sed -E \
+              "s#^([^:]+):([0-9]+):([0-9]+): [a-z]+: (.*)\$#::error file=${PREFIXO}/\\1,line=\\2,col=\\3::\\4#"
+            printf '%s\n' "$saida"
+            exit 1
+          fi
+          echo 'shellcheck limpo.'
+        env:
+          ALVOS: src/laboratorio-virtual.sh src/lib/*.sh executar.sh
+          PREFIXO: Laboratorio-Virtual/Linux
 
       - name: Testes
         run: bash tests/executar-testes.sh
@@ -168,8 +190,30 @@ jobs:
       - name: Sintaxe com o bash do sistema
         run: /bin/bash -n src/laboratorio-virtual.sh && /bin/bash -n executar.command && for f in src/lib/*.sh tests/*.sh; do /bin/bash -n "$f"; done
 
+      # PT-PT: O `shellcheck` escreve para o log, e o log de um repositorio
+      #        publico so se le com autenticacao -- o que faz de uma falha aqui
+      #        uma linha vermelha sem explicacao para quem esta a olhar de fora.
+      #        Traduzir a saida para comandos `::error file=` transforma cada
+      #        aviso numa anotacao: aparece na linha certa do ficheiro, no
+      #        separador dos ficheiros alterados, e le-se sem entrar no log.
+      # EN-UK: `shellcheck` writes to the log, and a public repository's log
+      #        needs authentication to read -- which makes a failure here a red
+      #        line with no explanation to anyone looking from outside.
+      #        Translating the output into `::error file=` commands turns each
+      #        warning into an annotation, shown on the right line of the file.
       - name: shellcheck
-        run: shellcheck --shell=bash --severity=warning src/laboratorio-virtual.sh src/lib/*.sh executar.command
+        run: |
+          saida="$(shellcheck --shell=bash --severity=warning --format=gcc ${ALVOS} || true)"
+          if [ -n "$saida" ]; then
+            printf '%s\n' "$saida" | sed -E \
+              "s#^([^:]+):([0-9]+):([0-9]+): [a-z]+: (.*)\$#::error file=${PREFIXO}/\\1,line=\\2,col=\\3::\\4#"
+            printf '%s\n' "$saida"
+            exit 1
+          fi
+          echo 'shellcheck limpo.'
+        env:
+          ALVOS: src/laboratorio-virtual.sh src/lib/*.sh executar.command
+          PREFIXO: Laboratorio-Virtual/macOS
 
       - name: Testes com o bash do sistema
         run: /bin/bash tests/executar-testes.sh
