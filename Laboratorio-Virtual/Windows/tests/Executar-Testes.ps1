@@ -48,6 +48,7 @@ $fonte = Join-Path (Split-Path -Parent $raiz) 'src'
 . (Join-Path $fonte 'Hipervisor.ps1')
 . (Join-Path $fonte 'Descarregar.ps1')
 . (Join-Path $fonte 'ImagemLocal.ps1')
+. (Join-Path $fonte 'Instalacao.ps1')
 
 Write-Host ''
 Write-Host '  Laboratório Virtual · testes da versão de Windows' -ForegroundColor White
@@ -702,6 +703,177 @@ try {
 }
 finally {
     Remove-Item -LiteralPath $pastaFalsa -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Instalacao de um hipervisor
+#
+#        Nada aqui instala coisa nenhuma. O que se testa sao as decisoes que se
+#        tomam **antes** de instalar -- que versao, que ficheiro, de que
+#        dominio, com que assinatura -- porque sao essas que decidem se o que
+#        se instala e o da Oracle ou o de outra pessoa.
+#
+# EN-UK: Installing a hypervisor. Nothing here installs anything. What is tested
+#        are the decisions taken **before** installing -- which version, which
+#        file, from which domain, with which signature -- because those decide
+#        whether what gets installed is Oracle's or somebody else's.
+# ---------------------------------------------------------------------------
+Grupo 'Versão publicada pela Oracle'
+
+Teste 'aceita um número de versão' {
+    Assert-Igual '7.2.16' (Read-VersaoVirtualBox -Conteudo '7.2.16')
+}
+
+Teste 'ignora o fim de linha que o ficheiro traz' {
+    Assert-Igual '7.2.16' (Read-VersaoVirtualBox -Conteudo "7.2.16`r`n")
+}
+
+Teste 'recusa um ficheiro vazio' {
+    Assert-Lanca { Read-VersaoVirtualBox -Conteudo '' }
+}
+
+Teste 'recusa uma versão com barras — ia ser colada num endereço' {
+    # PT-PT: Este e o teste que interessa. O texto vem do servidor da Oracle e
+    #        vai para dentro de um URL; se passasse uma barra ou um `..`, o
+    #        endereco deixava de apontar para onde o programa julga.
+    # EN-UK: This is the test that matters. The text comes from Oracle's server
+    #        and goes into a URL; a slash or a `..` would make it point
+    #        elsewhere.
+    Assert-Lanca { Read-VersaoVirtualBox -Conteudo '7.2.16/../../etc' }
+    Assert-Lanca { Read-VersaoVirtualBox -Conteudo '../7.2.16' }
+}
+
+Teste 'recusa uma versão que não é um número' {
+    Assert-Lanca { Read-VersaoVirtualBox -Conteudo 'latest' }
+    Assert-Lanca { Read-VersaoVirtualBox -Conteudo '7.2' }
+}
+
+
+Grupo 'Escolha do instalador no manifesto'
+
+Teste 'encontra o instalador de Windows entre todos os ficheiros da versão' {
+    $manifesto = @(
+        '8237c1c8ef0c837c47394b82959d7ea42626ad3140e452f4f59561021b428eed *VirtualBox-7.2.16-174877-OSX.dmg',
+        '9383a42bffa5c0ac4bc5f1c7d820478d84380d3a17b65aa9b43e6778cbdb615a *VirtualBox-7.2.16-174877-Win.exe',
+        '26845df7a9d62409476ad541bfcf0b8b0674accf88a29e21c519e7aeb677290c *VirtualBox-7.2.16-174877-Linux_amd64.run'
+    ) -join "`n"
+
+    $r = Read-Manifesto -Conteudo $manifesto -Padrao (Get-PadraoInstalador -Versao '7.2.16')
+    Assert-Igual 'VirtualBox-7.2.16-174877-Win.exe' $r.Ficheiro
+    Assert-Igual '9383a42bffa5c0ac4bc5f1c7d820478d84380d3a17b65aa9b43e6778cbdb615a' $r.Soma
+}
+
+Teste 'o número de compilação não está fixado no programa' {
+    # PT-PT: Se estivesse, o programa deixava de funcionar na versao seguinte.
+    # EN-UK: Were it pinned, the program would break on the next release.
+    $padrao = Get-PadraoInstalador -Versao '7.2.16'
+    Assert-Verdadeiro ('VirtualBox-7.2.16-174877-Win.exe' -match $padrao)
+    Assert-Verdadeiro ('VirtualBox-7.2.16-999999-Win.exe' -match $padrao)
+}
+
+Teste 'não aceita um nome com qualquer coisa colada ao fim' {
+    $padrao = Get-PadraoInstalador -Versao '7.2.16'
+    Assert-Falso ('VirtualBox-7.2.16-174877-Win.exe.zip' -match $padrao)
+}
+
+Teste 'não aceita o instalador de outra versão' {
+    $padrao = Get-PadraoInstalador -Versao '7.2.16'
+    Assert-Falso ('VirtualBox-7.1.4-165100-Win.exe' -match $padrao)
+}
+
+Teste 'não confunde o instalador de outro sistema' {
+    $padrao = Get-PadraoInstalador -Versao '7.2.16'
+    Assert-Falso ('VirtualBox-7.2.16-174877-OSX.dmg' -match $padrao)
+    Assert-Falso ('VirtualBox-7.2.16-174877-Linux_amd64.run' -match $padrao)
+}
+
+
+Grupo 'A lista de domínios da instalação é separada da do catálogo'
+
+Teste 'aceita o servidor de descarregamento da Oracle' {
+    Assert-Verdadeiro (Test-DominioConfiavel -Endereco 'https://download.virtualbox.org/virtualbox/LATEST.TXT' `
+        -Dominios (Get-DominiosVirtualBox))
+}
+
+Teste 'recusa HTTP, como em todo o resto do programa' {
+    Assert-Falso (Test-DominioConfiavel -Endereco 'http://download.virtualbox.org/virtualbox/LATEST.TXT' `
+        -Dominios (Get-DominiosVirtualBox))
+}
+
+Teste 'não deixa descarregar uma imagem de sistema por esta lista' {
+    # PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
+    #        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+    #        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor
+    #        da Ubuntu. Nenhuma das duas coisas faz sentido.
+    # EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
+    #        could fetch an "image" from Oracle's server, and this file could
+    #        fetch an "installer" from Ubuntu's.
+    Assert-Falso (Test-DominioConfiavel -Endereco 'https://releases.ubuntu.com/24.04/SHA256SUMS' `
+        -Dominios (Get-DominiosVirtualBox))
+}
+
+Teste 'a lista da instalação não entrou na lista do catálogo' {
+    $catalogo = Import-Catalogo -Caminho (Join-Path $fonte 'catalogo.json')
+    foreach ($dominio in (Get-DominiosVirtualBox)) {
+        Assert-Falso ($catalogo.dominios_confiaveis -contains $dominio)
+    }
+}
+
+
+Grupo 'Assinatura Authenticode'
+
+# PT-PT: Este grupo corre contra ficheiros a serio desta maquina, e nao contra
+#        simulacoes. Um ficheiro assinado pela Microsoft e a unica forma de
+#        provar que a funcao distingue "esta assinado" de "esta assinado por
+#        quem devia" -- que e a diferenca que aqui interessa.
+# EN-UK: This group runs against real files on this machine. A Microsoft-signed
+#        binary is the only way to prove the function tells "it is signed" from
+#        "it is signed by the right party".
+$binarioAssinado = Join-Path $env:SystemRoot 'System32\notepad.exe'
+
+if (Test-Path -LiteralPath $binarioAssinado) {
+
+    Teste 'reconhece um executável assinado por quem se espera' {
+        $r = Test-AssinaturaAuthenticode -Caminho $binarioAssinado -Assinante 'Microsoft'
+        Assert-Verdadeiro $r.Valida
+        Assert-Igual 'Valid' $r.Estado
+    }
+
+    Teste 'recusa um executável assinado por outra entidade' {
+        # PT-PT: Assinado esta, e valido tambem. So que nao pela Oracle -- e e
+        #        exactamente essa a situacao que esta camada existe para apanhar.
+        # EN-UK: Signed it is, and validly. Just not by Oracle -- which is
+        #        precisely what this layer exists to catch.
+        $r = Test-AssinaturaAuthenticode -Caminho $binarioAssinado -Assinante 'Oracle'
+        Assert-Falso $r.Valida
+        Assert-Contem $r.Detalhe 'não por quem devia'
+    }
+}
+else {
+    Saltar 'assinatura Authenticode de um executável real' `
+           'não encontrei o notepad.exe desta máquina para usar como ficheiro assinado'
+}
+
+Teste 'recusa um ficheiro que não está assinado' {
+    $temporario = Join-Path ([IO.Path]::GetTempPath()) ("lv-" + [Guid]::NewGuid().ToString('N') + '.exe')
+    try {
+        Set-Content -LiteralPath $temporario -Value 'isto não é um executável' -Encoding Byte -ErrorAction SilentlyContinue
+        if (-not (Test-Path -LiteralPath $temporario)) {
+            [IO.File]::WriteAllBytes($temporario, [byte[]](77, 90, 0, 0))
+        }
+        $r = Test-AssinaturaAuthenticode -Caminho $temporario -Assinante 'Oracle'
+        Assert-Falso $r.Valida
+    }
+    finally {
+        Remove-Item -LiteralPath $temporario -Force -ErrorAction SilentlyContinue
+    }
+}
+
+Teste 'um ficheiro que não existe não rebenta' {
+    $r = Test-AssinaturaAuthenticode -Caminho 'Z:\nada\nenhum.exe' -Assinante 'Oracle'
+    Assert-Falso $r.Valida
+    Assert-Contem $r.Detalhe 'não existe'
 }
 
 

@@ -17,6 +17,7 @@
 - [As duas coisas que este programa faz melhor](#as-duas-coisas-que-este-programa-faz-melhor)
 - [Como a imagem é verificada](#como-a-imagem-é-verificada--how-the-image-is-verified)
 - [Trazer uma imagem sua](#trazer-uma-imagem-sua--bringing-your-own-image)
+- [Instalar um hipervisor](#instalar-um-hipervisor--installing-a-hypervisor)
 - [Instalação](#instalação--installation)
 - [O catálogo](#o-catálogo--the-catalogue)
 - [Como as especificações são calculadas](#como-as-especificações-são-calculadas)
@@ -165,6 +166,106 @@ paste, confirm the content matches the extension, and — crucially — know tha
 
 ---
 
+## Instalar um hipervisor · Installing a hypervisor
+
+**PT** · Sem hipervisor não há onde criar a máquina. Quando não há nenhum, o
+programa pergunta qual quer e trata dele.
+**EN** · With no hypervisor there is nowhere to create the machine. When there
+is none, the program asks which one you want and sets it up.
+
+| | O que faz | Porquê assim |
+| :--- | :--- | :--- |
+| **Windows** | Activa o Hyper-V, ou descarrega e instala o VirtualBox | O Hyper-V não se instala — já lá está, desligado |
+| **Linux** | Acrescenta o repositório da Oracle e deixa o `apt`/`dnf` instalar | Um pacote de repositório assinado é verificado em **todas** as actualizações |
+| **macOS** | `brew install qemu`, ou descarrega e instala o `.dmg` da Oracle | O Homebrew já verifica as somas das suas fórmulas |
+
+As três fazem coisas diferentes, e nenhuma por gosto — é o que cada sistema
+oferece de melhor.
+
+### O que a Oracle não faz, e este programa não finge
+
+**A Oracle não assina o `SHA256SUMS` com GPG.** Não há assinatura em claro nem
+`.asc` na directoria da versão: o manifesto é um ficheiro simples, no mesmo
+servidor de onde vem o instalador. Uma soma obtida pelo mesmo canal do ficheiro
+prova que ele chegou inteiro — **não** prova que veio de quem diz.
+
+É uma diferença real face às distribuições do catálogo, e o relatório di-la:
+
+```
+    [ok]  Domínio da Oracle, verificado a cada salto
+    [ok]  HTTPS em todos os saltos
+    [--]  Assinatura GPG do manifesto        ← a Oracle não a publica
+    [ok]  Soma SHA-256 do ficheiro
+    [ok]  Assinatura Authenticode da Oracle  ← esta não vem do mesmo canal
+```
+
+**O que salva o caso é diferente em cada sistema, e é a parte interessante.**
+
+- **Windows** — a assinatura **Authenticode** do `.exe`, verificada contra a
+  cadeia de certificados do Windows. Não basta estar assinado: o nome no
+  certificado tem de ser o da Oracle. Um instalador assinado validamente por
+  outra empresa é exactamente o que um atacante com um certificado legítimo
+  produziria
+- **macOS** — a **notarização da Apple** no `.dmg` e o **Developer ID** no
+  `.pkg` lá dentro, os dois contra a cadeia de certificados da Apple
+- **Linux** — nada disto é preciso, porque não se descarrega binário nenhum: a
+  **chave da Oracle é fixada** pela impressão digital antes de entrar no
+  sistema, e a partir daí é o gestor de pacotes que verifica cada pacote, para
+  sempre
+
+Nos três casos é a mesma ideia: a camada que conta é a que **não** depende do
+servidor que forneceu o ficheiro. E nos três é uma condição, não um aviso — o
+que não passa é apagado.
+
+### A chave da Oracle é fixada, e não apenas descarregada
+
+Em Linux, acrescentar ao sistema uma chave que se acabou de ir buscar é uma
+cerimónia sem conteúdo: se o canal estivesse comprometido, a chave que chegava
+era a do atacante — e passava a assinar tudo o que ele quisesse, para sempre.
+
+A impressão está escrita no programa e é uma **condição**:
+
+```
+B9F8D658297AF3EFC18D5CDFA2F683C52980AECF
+Oracle Corporation (VirtualBox archive signing key)
+```
+
+E a linha do repositório leva `signed-by`, para que essa chave só possa assinar
+os pacotes **desse** repositório. Sem isso — que é o que o antigo `apt-key`
+fazia, e a razão por que foi retirado — a chave da Oracle passaria a poder
+assinar pacotes de qualquer repositório configurado na máquina.
+
+### Duas listas de domínios, outra vez
+
+A lista de onde se descarrega o VirtualBox é **separada** da do catálogo, e
+propositadamente. Juntá-las alargaria a lista por onde vêm imagens de sistemas
+operativos para incluir um sítio que não serve nenhuma — e a lista do catálogo é
+curta precisamente para caber numa auditoria de um minuto.
+
+Separadas, um catálogo adulterado não consegue mandar buscar um «instalador de
+hipervisor» a lado nenhum. Há um teste, nas três versões, que falha se as duas
+listas se tocarem.
+
+### O que continua a não se fazer
+
+- **Não se instala o Homebrew.** Instala-se passando um script da Internet
+  directamente a um interpretador — o padrão que este programa inteiro existe
+  para evitar. Recusá-lo com imagens e aceitá-lo aqui não era coerente. Diz-se
+  onde está e porquê
+- **Não se instala nada em silêncio.** Os comandos aparecem todos **antes** da
+  pergunta. Perguntar «posso?» e só depois revelar o que se ia fazer não é uma
+  pergunta, é um formalismo. E o instalador do Windows abre com a interface
+  normal, em vez do modo silencioso
+- **A palavra-passe do `sudo`** é pedida pelo `sudo`, no terminal. Este programa
+  nunca a vê, nunca a guarda e nunca a passa a lado nenhum
+- **O VirtualBox não é oferecido num Mac com chip da Apple.** A Oracle passou a
+  publicar uma versão ARM, mas num anfitrião ARM só há aceleração por hardware
+  para convidados ARM — e quem procura o VirtualBox procura-o quase sempre para
+  um convidado x86, que teria de ser emulado. O QEMU emula melhor, e diz que
+  está a emular
+
+---
+
 ## Instalação · Installation
 
 **PT** · Escolha a pasta do seu sistema. Cada uma é um programa completo, com o
@@ -183,6 +284,9 @@ seu código, os seus testes e o seu lançador.
 | **Obrigatório** | PowerShell 5.1 (vem no sistema) | `bash`, `curl`, `jq`, `coreutils` | `bash` 3.2 (vem no sistema), `jq` |
 | **Para verificar assinaturas** | `gpg` — o Git para Windows traz um | `gpg` | `gpg` via Homebrew |
 | **Para criar máquinas** | Hyper-V (Pro+) ou VirtualBox | `qemu-kvm` + `libvirt` ou VirtualBox | `qemu` via Homebrew |
+
+Nada da última linha precisa de estar instalado à partida: o programa instala-o
+por si — ver [Instalar um hipervisor](#instalar-um-hipervisor--installing-a-hypervisor).
 
 Sem `gpg`, o programa corre e verifica a soma — e diz que não verificou a
 assinatura. Sem hipervisor, o programa corre e mostra tudo — e diz que não pode
@@ -292,9 +396,10 @@ corrompe-a.
 - **Não virtualiza macOS fora de equipamento Apple.** Não é limitação técnica, é
   a licença. E imagens de macOS oferecidas por terceiros não são legítimas, mesmo
   quando funcionam.
-- **Não instala hipervisores sozinho.** Diz o comando — o da distribuição certa —
-  e deixa a decisão a quem está a usar. A excepção é o Hyper-V, que se activa
-  com uma pergunta explícita, porque não se instala: activa-se.
+- **Não instala hipervisores sem perguntar.** Instala-os — desde a 1.2.0 — mas
+  sempre com os comandos à vista antes da pergunta, e nunca em silêncio. O que
+  continua a não fazer é instalar o Homebrew, pela razão que está
+  [acima](#o-que-continua-a-não-se-fazer).
 - **Não cria a máquina de UTM no macOS.** Aponta para ela. Montar um pacote
   `.utm` a partir de um script dá, com facilidade, uma máquina que abre e não
   arranca.
@@ -309,15 +414,15 @@ corrompe-a.
 ## Estrutura · Structure
 
 ```
-├── Windows/              PowerShell · 76 testes
+├── Windows/              PowerShell · 94 testes
 │   ├── EXECUTAR.bat
-│   ├── src/              LaboratorioVirtual.ps1 + 6 módulos + catalogo.json
+│   ├── src/              LaboratorioVirtual.ps1 + 7 módulos + catalogo.json
 │   └── tests/
-├── Linux/                bash · 77 testes
+├── Linux/                bash · 99 testes
 │   ├── executar.sh
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
-├── macOS/                bash 3.2 · 77 testes
+├── macOS/                bash 3.2 · 97 testes
 │   ├── executar.command
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
@@ -326,7 +431,7 @@ corrompe-a.
 └── CONTRIBUTING.md
 ```
 
-E dentro de cada versão, os mesmos seis módulos:
+E dentro de cada versão, os mesmos sete módulos:
 
 | Módulo | O que faz |
 | :--- | :--- |
@@ -336,14 +441,17 @@ E dentro de cada versão, os mesmos seis módulos:
 | `hardware` | O que a máquina anfitriã tem |
 | `recomendacao` | O cálculo das especificações. Não toca na máquina |
 | `hipervisor` | Detecção e criação, por hipervisor |
+| `instalacao` | Pôr um hipervisor a funcionar quando não há nenhum |
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-Nenhum dos 230 testes toca na rede, cria uma máquina virtual ou instala seja o
-que for: as três suites correm em qualquer máquina, e depois cada versão é
+Nenhum dos 290 testes toca na rede, cria uma máquina virtual ou instala seja o
+que for — nem os do módulo de instalação, que verificam as decisões tomadas
+**antes** de instalar: que versão, que ficheiro, de que domínio, com que
+assinatura. As três suites correm em qualquer máquina, e depois cada versão é
 verificada no seu runner nativo pela integração contínua. Os poucos grupos que
-precisam mesmo do sistema — o `stat` do BSD e o `xattr` num Mac, o `jq` em
-Linux — são saltados com uma explicação em vez de falharem, e correm no runner
-respectivo.
+precisam mesmo do sistema — o `stat` do BSD, o `xattr` e o `spctl` num Mac, o
+`jq` em Linux — são saltados com uma explicação em vez de falharem, e correm no
+runner respectivo.
 
 ---
 

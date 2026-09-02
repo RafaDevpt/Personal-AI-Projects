@@ -51,6 +51,8 @@ passo() { :; }
 . "${FONTE}/lib/catalogo.sh"
 # shellcheck source=../src/lib/imagem_local.sh
 . "${FONTE}/lib/imagem_local.sh"
+# shellcheck source=../src/lib/instalacao.sh
+. "${FONTE}/lib/instalacao.sh"
 
 CATALOGO="${FONTE}/catalogo.json"
 SOMA_EXEMPLO='9f2f1cbd3ef1a0d4a49a63b3e9b3d9f0c1a2b3c4d5e6f708192a3b4c5d6e7f80'
@@ -511,6 +513,199 @@ teste 'reconhece um qcow2 pelo QFI' t_qcow_verdadeiro
 teste 'um .img não tem assinatura, e isso não é uma falha' t_img_sem_assinatura
 teste 'um ficheiro que não existe não rebenta' t_sem_ficheiro_assinatura
 teste 'sem marca de origem, diz que não se sabe' t_origem_desconhecida
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Instalacao de um hipervisor
+#
+#        Nada aqui instala coisa nenhuma, e nada aqui liga a rede. O que se
+#        testa sao as decisoes que se tomam **antes** de instalar: que versao,
+#        que ramo do repositorio, com que chave, de que dominio. Sao essas que
+#        decidem se o que se instala e o da Oracle ou o de outra pessoa.
+#
+# EN-UK: Installing a hypervisor. Nothing here installs anything and nothing
+#        touches the network. What is tested are the decisions taken **before**
+#        installing: which version, which repository branch, with which key,
+#        from which domain.
+# ---------------------------------------------------------------------------
+grupo 'Versão publicada pela Oracle'
+
+t_versao_boa()      { afirmar_igual '7.2.16' "$(versao_valida '7.2.16')"; }
+t_versao_com_fim()  { afirmar_igual '7.2.16' "$(versao_valida '7.2.16
+')"; }
+t_versao_vazia()    { ! versao_valida '' >/dev/null 2>&1; }
+
+# PT-PT: Este e o teste que interessa deste grupo. O texto vem do servidor da
+#        Oracle e vai ser colado dentro de um URL; se passasse uma barra ou um
+#        `..`, o endereco deixava de apontar para onde o programa julga.
+# EN-UK: The test that matters here. The text comes from Oracle's server and
+#        goes into a URL; a slash or a `..` would make it point elsewhere.
+t_versao_com_barra() {
+    ! versao_valida '7.2.16/../../etc' >/dev/null 2>&1 \
+        && ! versao_valida '../7.2.16' >/dev/null 2>&1
+}
+t_versao_palavra()  { ! versao_valida 'latest' >/dev/null 2>&1 && ! versao_valida '7.2' >/dev/null 2>&1; }
+t_serie()           { afirmar_igual '7.2' "$(serie_versao '7.2.16')"; }
+
+teste 'aceita um número de versão' t_versao_boa
+teste 'ignora o fim de linha que o ficheiro traz' t_versao_com_fim
+teste 'recusa um ficheiro vazio' t_versao_vazia
+teste 'recusa uma versão com barras — ia ser colada num endereço' t_versao_com_barra
+teste 'recusa uma versão que não é um número' t_versao_palavra
+teste 'a série sai da versão, e não está escrita no programa' t_serie
+
+
+grupo 'Comandos que acrescentam o repositório da Oracle'
+
+# PT-PT: O nome do pacote sai da serie, que sai da versao que a Oracle publica.
+#        Fixar `virtualbox-7.1` aqui era garantir que isto deixava de funcionar
+#        na serie seguinte -- e a propria documentacao da Oracle ainda diz 7.1
+#        numa pagina onde ja se descarrega a 7.2.
+# EN-UK: The package name comes from the series, which comes from the version
+#        Oracle publishes. Pinning `virtualbox-7.1` would break this on the next
+#        series -- and Oracle's own documentation still says 7.1 on a page that
+#        already ships 7.2.
+t_apt_pacote() {
+    local s; s="$(passos_virtualbox_apt /tmp/chave.asc noble 7.2)"
+    afirmar_contem "$s" 'virtualbox-7.2'
+}
+
+t_apt_ramo() {
+    local s; s="$(passos_virtualbox_apt /tmp/chave.asc bookworm 7.2)"
+    afirmar_contem "$s" 'bookworm contrib'
+}
+
+# PT-PT: O `signed-by` e o que impede a chave da Oracle de passar a poder
+#        assinar pacotes de **qualquer** repositorio configurado na maquina. E
+#        exactamente o problema que o `apt-key` tinha, e a razao por que foi
+#        retirado -- e um script que ainda o use reintroduz o problema.
+# EN-UK: `signed-by` is what stops Oracle's key from being able to sign packages
+#        from **any** repository on the machine. That was `apt-key`'s problem and
+#        the reason it was removed; a script still using it reintroduces it.
+t_apt_signed_by() {
+    local s; s="$(passos_virtualbox_apt /tmp/chave.asc noble 7.2)"
+    afirmar_contem "$s" 'signed-by=/usr/share/keyrings/oracle-virtualbox-2016.gpg'
+}
+
+t_apt_sem_apt_key() {
+    local s; s="$(passos_virtualbox_apt /tmp/chave.asc noble 7.2)"
+    [[ "$s" != *'apt-key'* ]] || { printf 'usa o apt-key, que foi retirado por ser inseguro\n'; return 1; }
+}
+
+t_apt_https() {
+    local s; s="$(passos_virtualbox_apt /tmp/chave.asc noble 7.2)"
+    afirmar_contem "$s" 'https://download.virtualbox.org/virtualbox/debian'
+}
+
+t_rpm_fedora() {
+    local s; s="$(passos_virtualbox_rpm fedora 7.2)"
+    afirmar_contem "$s" 'rpm/fedora/virtualbox.repo' && afirmar_contem "$s" 'VirtualBox-7.2'
+}
+
+t_rpm_suse() {
+    local s; s="$(passos_virtualbox_rpm opensuse 7.2)"
+    afirmar_contem "$s" 'zypper'
+}
+
+t_rpm_desconhecida() { ! passos_virtualbox_rpm nada 7.2 >/dev/null 2>&1; }
+
+teste 'o nome do pacote sai da série publicada pela Oracle' t_apt_pacote
+teste 'usa o ramo da distribuição que está a correr' t_apt_ramo
+teste 'a linha do repositório fixa a chave com signed-by' t_apt_signed_by
+teste 'não usa o apt-key, que foi retirado por ser inseguro' t_apt_sem_apt_key
+teste 'o repositório é HTTPS' t_apt_https
+teste 'conhece o repositório RPM da Fedora' t_rpm_fedora
+teste 'conhece o repositório do openSUSE' t_rpm_suse
+teste 'uma variante que não existe não inventa comandos' t_rpm_desconhecida
+
+
+grupo 'A lista de domínios da instalação é separada da do catálogo'
+
+t_dom_oracle() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    dominio_confiavel 'https://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
+}
+
+t_dom_http() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    ! dominio_confiavel 'http://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
+}
+
+# PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
+#        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+#        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor da
+#        Ubuntu. Nenhuma das duas coisas faz sentido.
+# EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
+#        could fetch an "image" from Oracle's server, and this file could fetch
+#        an "installer" from Ubuntu's.
+t_dom_nao_serve_imagens() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    ! dominio_confiavel 'https://releases.ubuntu.com/24.04/SHA256SUMS' "${d[@]}"
+}
+
+t_catalogo_sem_virtualbox() {
+    ! grep -qi 'virtualbox\.org' "${FONTE}/catalogo.json"
+}
+
+teste 'aceita o servidor de descarregamento da Oracle' t_dom_oracle
+teste 'recusa HTTP, como em todo o resto do programa' t_dom_http
+teste 'não deixa descarregar uma imagem de sistema por esta lista' t_dom_nao_serve_imagens
+teste 'a lista da instalação não entrou no catálogo' t_catalogo_sem_virtualbox
+
+
+grupo 'A chave de assinatura da Oracle'
+
+# PT-PT: A impressao esta fixada no programa, e e uma condicao e nao um aviso.
+#        Descarregar uma chave e acrescenta-la ao sistema sem a comparar com
+#        nada e uma cerimonia sem conteudo: se o canal estivesse comprometido, a
+#        chave que chegava era a do atacante e passava a assinar o que ele
+#        quisesse, para sempre.
+# EN-UK: The fingerprint is pinned, and is a condition rather than a warning.
+#        Downloading a key and adding it to the system without comparing it to
+#        anything is an empty ceremony.
+t_impressao_forma() {
+    [[ "$IMPRESSAO_ORACLE" =~ ^[0-9A-F]{40}$ ]] \
+        || { printf 'a impressão fixada não tem a forma de uma impressão digital: %s\n' "$IMPRESSAO_ORACLE"; return 1; }
+}
+
+t_chave_inexistente() { ! chave_oracle_confere "${TMP}/nao-existe.asc"; }
+
+t_chave_que_nao_e_chave() {
+    printf 'isto não é uma chave\n' > "${TMP}/falsa.asc"
+    ! chave_oracle_confere "${TMP}/falsa.asc"
+}
+
+teste 'a impressão fixada tem a forma de uma impressão digital' t_impressao_forma
+teste 'um ficheiro de chave que não existe não passa' t_chave_inexistente
+teste 'um ficheiro que não é uma chave não passa' t_chave_que_nao_e_chave
+
+if command -v gpg >/dev/null 2>&1; then
+    # PT-PT: A chave verdadeira nao esta no repositorio de proposito -- seria
+    #        uma copia a envelhecer ao lado da original. O que se pode provar
+    #        sem rede e que a comparacao **e** feita: uma chave legitima de
+    #        outra entidade tem de ser recusada.
+    # EN-UK: The real key is deliberately not in the repository -- it would be a
+    #        stale copy beside the original. What can be proved offline is that
+    #        the comparison **happens**: a legitimate key from somebody else must
+    #        be refused.
+    t_chave_de_outra_entidade() {
+        local anel="${TMP}/anel-teste"
+        mkdir -p "$anel"; chmod 700 "$anel"
+        gpg --homedir "$anel" --batch --quiet --passphrase '' \
+            --quick-generate-key 'Alguem Que Nao E A Oracle <nao@oracle.invalido>' \
+            default default never >/dev/null 2>&1 || return 0
+        gpg --homedir "$anel" --batch --quiet --armor --export > "${TMP}/outra.asc" 2>/dev/null || return 0
+        [[ -s "${TMP}/outra.asc" ]] || return 0
+        ! chave_oracle_confere "${TMP}/outra.asc"
+    }
+    teste 'uma chave válida de outra entidade é recusada' t_chave_de_outra_entidade
+else
+    saltar 'uma chave válida de outra entidade é recusada' \
+           'o gpg não está instalado nesta máquina — corre no runner'
+fi
 
 
 resumo

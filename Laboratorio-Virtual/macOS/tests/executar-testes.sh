@@ -51,6 +51,8 @@ passo() { :; }
 . "${FONTE}/lib/catalogo.sh"
 # shellcheck source=../src/lib/imagem_local.sh
 . "${FONTE}/lib/imagem_local.sh"
+# shellcheck source=../src/lib/instalacao.sh
+. "${FONTE}/lib/instalacao.sh"
 
 CATALOGO="${FONTE}/catalogo.json"
 SOMA_EXEMPLO='9f2f1cbd3ef1a0d4a49a63b3e9b3d9f0c1a2b3c4d5e6f708192a3b4c5d6e7f80'
@@ -538,6 +540,194 @@ teste 'um ficheiro que não existe não rebenta' t_sem_ficheiro_assinatura
 teste 'sem marca de origem, diz que não se sabe' t_origem_desconhecida
 
 fi
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Instalacao de um hipervisor
+#
+#        Nada aqui instala coisa nenhuma, e nada aqui liga a rede. O que se
+#        testa sao as decisoes tomadas **antes** de instalar: que versao, que
+#        ficheiro dos que a Oracle publica, de que dominio, e o que se faz
+#        quando a assinatura nao confere.
+#
+# EN-UK: Installing a hypervisor. Nothing here installs anything and nothing
+#        touches the network. What is tested are the decisions taken **before**
+#        installing.
+# ---------------------------------------------------------------------------
+grupo 'Versão publicada pela Oracle'
+
+t_versao_boa()      { afirmar_igual '7.2.16' "$(versao_valida '7.2.16')"; }
+t_versao_com_fim()  { afirmar_igual '7.2.16' "$(versao_valida '7.2.16
+')"; }
+t_versao_vazia()    { ! versao_valida '' >/dev/null 2>&1; }
+
+# PT-PT: O texto vem do servidor da Oracle e vai ser colado dentro de um URL; se
+#        passasse uma barra ou um `..`, o endereco deixava de apontar para onde
+#        o programa julga que aponta.
+# EN-UK: The text comes from Oracle's server and goes into a URL; a slash or a
+#        `..` would make it point elsewhere.
+t_versao_com_barra() {
+    ! versao_valida '7.2.16/../../etc' >/dev/null 2>&1 \
+        && ! versao_valida '../7.2.16' >/dev/null 2>&1
+}
+t_versao_palavra() { ! versao_valida 'latest' >/dev/null 2>&1 && ! versao_valida '7.2' >/dev/null 2>&1; }
+
+teste 'aceita um número de versão' t_versao_boa
+teste 'ignora o fim de linha que o ficheiro traz' t_versao_com_fim
+teste 'recusa um ficheiro vazio' t_versao_vazia
+teste 'recusa uma versão com barras — ia ser colada num endereço' t_versao_com_barra
+teste 'recusa uma versão que não é um número' t_versao_palavra
+
+
+grupo 'Escolha do instalador no manifesto'
+
+MANIFESTO_ORACLE="${TMP}/SHA256SUMS-oracle"
+cat > "$MANIFESTO_ORACLE" <<'FIM'
+8237c1c8ef0c837c47394b82959d7ea42626ad3140e452f4f59561021b428eed *VirtualBox-7.2.16-174877-OSX.dmg
+43984f01e4dedd82a22d3c38d432a22f6df9bc2f5e5333a722b734c5bf8b6636 *VirtualBox-7.2.16-174877-macOSArm64.dmg
+9383a42bffa5c0ac4bc5f1c7d820478d84380d3a17b65aa9b43e6778cbdb615a *VirtualBox-7.2.16-174877-Win.exe
+FIM
+
+t_escolhe_intel() {
+    local r; r="$(ler_manifesto "$MANIFESTO_ORACLE" "$(padrao_instalador 7.2.16 x86_64)")"
+    afirmar_contem "$r" 'VirtualBox-7.2.16-174877-OSX.dmg'
+}
+
+# PT-PT: O ficheiro de Intel e o de Apple Silicon estao os dois no mesmo
+#        manifesto e so diferem no sufixo. Escolher o errado dava um instalador
+#        que abre e depois nao instala, sem dizer porque.
+# EN-UK: The Intel and Apple Silicon files sit in the same manifest and differ
+#        only in the suffix. Picking the wrong one gives an installer that opens
+#        and then refuses, without saying why.
+t_escolhe_arm() {
+    local r; r="$(ler_manifesto "$MANIFESTO_ORACLE" "$(padrao_instalador 7.2.16 arm64)")"
+    afirmar_contem "$r" 'VirtualBox-7.2.16-174877-macOSArm64.dmg'
+}
+
+t_nao_apanha_windows() {
+    local r; r="$(ler_manifesto "$MANIFESTO_ORACLE" "$(padrao_instalador 7.2.16 x86_64)")"
+    [[ "$r" != *'Win.exe'* ]] || { printf 'escolheu o instalador de Windows\n'; return 1; }
+}
+
+# PT-PT: O numero de compilacao nao esta fixado no programa: se estivesse, isto
+#        deixava de funcionar na versao seguinte.
+# EN-UK: The build number is not pinned: were it, this would break on the next
+#        release.
+t_compilacao_livre() {
+    local p; p="$(padrao_instalador 7.2.16 x86_64)"
+    [[ 'VirtualBox-7.2.16-999999-OSX.dmg' =~ $p ]]
+}
+
+t_nao_aceita_sufixo() {
+    local p; p="$(padrao_instalador 7.2.16 x86_64)"
+    ! [[ 'VirtualBox-7.2.16-174877-OSX.dmg.zip' =~ $p ]]
+}
+
+t_nao_aceita_outra_versao() {
+    local p; p="$(padrao_instalador 7.2.16 x86_64)"
+    ! [[ 'VirtualBox-7.1.4-165100-OSX.dmg' =~ $p ]]
+}
+
+teste 'escolhe o ficheiro de um Mac Intel' t_escolhe_intel
+teste 'escolhe o ficheiro de um Mac com chip da Apple' t_escolhe_arm
+teste 'não escolhe o instalador de Windows' t_nao_apanha_windows
+teste 'o número de compilação não está fixado no programa' t_compilacao_livre
+teste 'não aceita um nome com qualquer coisa colada ao fim' t_nao_aceita_sufixo
+teste 'não aceita o instalador de outra versão' t_nao_aceita_outra_versao
+
+
+grupo 'A lista de domínios da instalação é separada da do catálogo'
+
+t_dom_oracle() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    dominio_confiavel 'https://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
+}
+
+t_dom_http() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    ! dominio_confiavel 'http://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
+}
+
+# PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
+#        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+#        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor da
+#        Ubuntu. Nenhuma das duas coisas faz sentido.
+# EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
+#        could fetch an "image" from Oracle's server, and this file could fetch
+#        an "installer" from Ubuntu's.
+t_dom_nao_serve_imagens() {
+    local -a d=(); local x
+    while IFS= read -r x; do d+=("$x"); done < <(dominios_virtualbox)
+    ! dominio_confiavel 'https://releases.ubuntu.com/24.04/SHA256SUMS' "${d[@]}"
+}
+
+t_catalogo_sem_virtualbox() { ! grep -qi 'virtualbox\.org' "${FONTE}/catalogo.json"; }
+
+teste 'aceita o servidor de descarregamento da Oracle' t_dom_oracle
+teste 'recusa HTTP, como em todo o resto do programa' t_dom_http
+teste 'não deixa descarregar uma imagem de sistema por esta lista' t_dom_nao_serve_imagens
+teste 'a lista da instalação não entrou no catálogo' t_catalogo_sem_virtualbox
+
+
+grupo 'Assinatura da Apple'
+
+if command -v spctl >/dev/null 2>&1; then
+
+    t_assinatura_sem_ficheiro() {
+        local e=0; assinatura_apple_confere "${TMP}/nao-existe.dmg" Oracle || e=$?
+        afirmar_igual '1' "$e"
+    }
+
+    # PT-PT: Um ficheiro que ninguem assinou tem de ser recusado. Nao se pode
+    #        provar aqui o caso contrario -- fabricar um `.dmg` notarizado pela
+    #        Apple em nome da Oracle e, felizmente, exactamente o que nao se
+    #        consegue fazer.
+    # EN-UK: A file nobody signed must be refused. The converse cannot be proved
+    #        here: fabricating an Apple-notarised `.dmg` in Oracle's name is,
+    #        happily, precisely what cannot be done.
+    t_assinatura_ficheiro_qualquer() {
+        printf 'isto não é um instalador\n' > "${TMP}/qualquer.dmg"
+        ! assinatura_apple_confere "${TMP}/qualquer.dmg" Oracle
+    }
+
+    t_pacote_ficheiro_qualquer() {
+        printf 'isto não é um pacote\n' > "${TMP}/qualquer.pkg"
+        ! assinatura_pacote_confere "${TMP}/qualquer.pkg" Oracle
+    }
+
+    teste 'um ficheiro que não existe dá o código de ausente' t_assinatura_sem_ficheiro
+    teste 'um ficheiro que ninguém assinou é recusado' t_assinatura_ficheiro_qualquer
+    teste 'um pacote que ninguém assinou é recusado' t_pacote_ficheiro_qualquer
+
+    saltar 'um .dmg notarizado pela Apple em nome da Oracle é aceite' \
+           'não se consegue fabricar um para o teste — que é a razão de a camada valer'
+else
+    saltar 'assinatura da Apple no ficheiro descarregado' \
+           'o spctl só existe num Mac — este grupo corre no runner de macOS'
+fi
+
+
+grupo 'Homebrew'
+
+# PT-PT: Este programa recusa-se a instalar o Homebrew, e a razao e a mesma que
+#        o levou a existir: instala-se passando um script da Internet
+#        directamente a um interpretador. Nao seria coerente recusar esse padrao
+#        com imagens e aceita-lo com o resto.
+# EN-UK: This program refuses to install Homebrew, for the same reason it
+#        exists: it is installed by piping a script from the Internet straight
+#        into an interpreter.
+t_nao_instala_homebrew() {
+    ! grep -qE 'curl[^|]*\|[[:space:]]*(ba)?sh|install\.sh\)"' "${FONTE}/lib/instalacao.sh"
+}
+
+t_deteccao_homebrew() {
+    if command -v brew >/dev/null 2>&1; then tem_homebrew; else ! tem_homebrew; fi
+}
+
+teste 'não instala o Homebrew passando um script a um interpretador' t_nao_instala_homebrew
+teste 'a detecção do Homebrew corresponde à realidade desta máquina' t_deteccao_homebrew
 
 
 resumo

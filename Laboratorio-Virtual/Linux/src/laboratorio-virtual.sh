@@ -27,7 +27,7 @@ set -euo pipefail
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly RAIZ
-readonly VERSAO='1.1.0'
+readonly VERSAO='1.2.0'
 readonly CREDITO='Created by Redfox using Claude'
 readonly CATALOGO="${RAIZ}/catalogo.json"
 
@@ -58,6 +58,8 @@ titulo() {
 . "${RAIZ}/lib/hipervisor.sh"
 # shellcheck source=lib/imagem_local.sh
 . "${RAIZ}/lib/imagem_local.sh"
+# shellcheck source=lib/instalacao.sh
+. "${RAIZ}/lib/instalacao.sh"
 
 
 # ---------------------------------------------------------------------------
@@ -97,7 +99,7 @@ mostrar_hipervisores() {
     case $libvirt in
         0) ok 'KVM/libvirt    pronto a usar' ;;
         1) aviso 'KVM/libvirt    falta software'
-           passo "$(comando_instalar libvirt)" ;;
+           passo 'Este programa instala-o — a opção 5 do menu.' ;;
         2) aviso 'KVM/libvirt    instalado, mas este utilizador não lhe chega'
            local em_falta
            em_falta="$(grupos_em_falta "$(id -Gn 2>/dev/null || true)" | tr '\n' ' ')"
@@ -113,7 +115,7 @@ mostrar_hipervisores() {
         ok "VirtualBox     $(VBoxManage --version 2>/dev/null | head -n1)"
     else
         aviso 'VirtualBox     não instalado'
-        passo "$(comando_instalar virtualbox)"
+        passo 'Este programa instala-o — a opção 5 do menu.'
     fi
 
     return 0
@@ -538,9 +540,22 @@ criar_maquina() {
     estado_libvirt || libvirt=$?
     local tem_vbox='nao'; estado_virtualbox && tem_vbox='sim'
 
+    # PT-PT: Sem hipervisor nenhum, o programa nao se limita a dizer o que
+    #        falta: pergunta qual quer e instala-o. Depois volta-se ao menu de
+    #        proposito, porque o estado tem de ser relido -- e no caso do
+    #        libvirt pode ainda faltar reabrir a sessao.
+    # EN-UK: With no hypervisor at all, the program does not merely say what is
+    #        missing: it asks which one and installs it. It then returns to the
+    #        menu deliberately, because the state must be re-read -- and with
+    #        libvirt a fresh login may still be due.
     if (( libvirt != 0 )) && [[ "$tem_vbox" == 'nao' ]]; then
         titulo 'Não há nenhum hipervisor pronto a usar'
-        nota 'Veja acima o que falta instalar ou que permissão falta.'
+        printf '  Sem um deles não há onde criar a máquina. Trata-se disso primeiro.\n'
+        if preparar_hipervisor; then
+            printf '\n'
+            nota 'Volte ao menu e escolha outra vez «criar uma máquina virtual»: o'
+            nota 'programa relê o estado da máquina de cada vez que o menu aparece.'
+        fi
         return 0
     fi
 
@@ -770,9 +785,10 @@ menu() {
         printf '    2. Ver o que esta máquina tem\n'
         printf '    3. Verificar uma imagem que já tenho\n'
         printf '    4. Ver o catálogo e as impressões digitais\n'
+        printf '    5. Preparar um hipervisor  (instalar o KVM/libvirt ou o VirtualBox)\n'
         printf '    0. Sair\n\n'
 
-        local escolha; escolha="$(ler_escolha 'Número' 4 0)" || return 0
+        local escolha; escolha="$(ler_escolha 'Número' 5 0)" || return 0
         case "$escolha" in
             0) return 0 ;;
             1) criar_maquina || true ;;
@@ -783,6 +799,7 @@ menu() {
                read -r -p '  Soma SHA-256 publicada pelo fornecedor: ' soma || true
                [[ -n "$caminho" && -n "$soma" ]] && { verificar_ficheiro_local "$caminho" "$soma" || true; } ;;
             4) mostrar_catalogo ;;
+            5) preparar_hipervisor || true ;;
         esac
 
         printf '\n'

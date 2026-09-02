@@ -80,6 +80,54 @@ O `-VerificarFicheiro` sai com código 0 quando a soma confere e 1 quando não c
 
 ---
 
+## Instalar um hipervisor
+
+Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —
+e o menu de criação também a oferece, quando não encontra nenhum.
+
+| | O que acontece |
+| :--- | :--- |
+| **Hyper-V** | Activa-se a funcionalidade. Não se instala: já cá está, desligada. Precisa de administrador e de reiniciar |
+| **VirtualBox** | Descarrega-se da Oracle, verifica-se, e o instalador abre com a interface normal |
+
+### O que a Oracle não faz, e o programa não finge
+
+**A Oracle não assina o `SHA256SUMS` com GPG.** Não há assinatura em claro nem
+`.asc` na directoria da versão: o manifesto é um ficheiro simples, no mesmo
+servidor de onde vem o instalador. Uma soma obtida pelo mesmo canal do ficheiro
+prova que ele chegou inteiro — não prova que veio de quem diz.
+
+```
+    [ok]  Domínio da Oracle, verificado a cada salto
+    [ok]  HTTPS em todos os saltos
+    [--]  Assinatura GPG do manifesto        ← a Oracle não a publica
+    [ok]  Soma SHA-256 do ficheiro
+    [ok]  Assinatura Authenticode da Oracle  ← esta não vem do mesmo canal
+```
+
+**E aqui o Windows tem uma coisa que as outras duas versões não têm.** O
+instalador da Oracle está assinado com Authenticode, e essa assinatura verifica-se
+contra a cadeia de certificados **do Windows** — que não veio da Oracle. É a
+única camada desta cadeia que não depende do servidor que forneceu o ficheiro.
+
+Não basta estar assinado: o nome no certificado tem de ser o da Oracle. Um
+instalador validamente assinado por outra empresa é exactamente o que um
+atacante com um certificado legítimo produziria. Falha aqui, é apagado.
+
+### O número da versão não está escrito no programa
+
+Sai do `LATEST.TXT` da Oracle, e o nome do ficheiro sai do manifesto — pela
+mesma razão que o resto do programa nunca inventa um nome. O número de
+compilação (`174877` na 7.2.16) muda a cada versão; fixá-lo aqui era garantir
+que isto deixava de funcionar dentro de um mês.
+
+### Durante a instalação a rede cai
+
+Alguns segundos, enquanto o VirtualBox instala a sua placa de rede virtual. Não
+é avaria, e o programa avisa antes de começar.
+
+---
+
 ## Trazer uma imagem sua
 
 O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS, uma

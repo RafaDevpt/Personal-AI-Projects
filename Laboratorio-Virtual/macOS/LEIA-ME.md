@@ -76,6 +76,62 @@ O lançador acrescenta ao `PATH` os dois prefixos do Homebrew — `/opt/homebrew
 
 ---
 
+## Instalar um hipervisor
+
+Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —
+e o menu de criação também a oferece, quando não encontra nenhum.
+
+### O QEMU vem do Homebrew
+
+`brew install qemu`, e mais nada. Não há nada a verificar à mão: o Homebrew tem
+as somas nas suas próprias fórmulas e confirma-as. Reescrever isso aqui era
+substituir uma coisa que funciona por uma pior.
+
+**O que este programa não faz é instalar o próprio Homebrew.** A forma de o
+instalar é passar um script da Internet directamente a um interpretador —
+exactamente o padrão que este programa inteiro existe para evitar. Recusá-lo com
+imagens e aceitá-lo aqui não era coerente. Se o Homebrew não estiver cá, diz-se
+onde está e porquê.
+
+### O VirtualBox descarrega-se, e a Apple é que o valida
+
+Como em Windows, a Oracle não assina o `SHA256SUMS` com GPG: a soma vem do mesmo
+servidor que o ficheiro e só prova que ele chegou inteiro.
+
+```
+    [ok]  Domínio da Oracle, verificado a cada salto
+    [ok]  HTTPS em todos os saltos
+    [--]  Assinatura GPG do manifesto             ← a Oracle não a publica
+    [ok]  Soma SHA-256 do ficheiro
+    [ok]  Notarização da Apple, com a Oracle no certificado
+```
+
+**O que prova a origem é a assinatura da Apple.** O `.dmg` está notarizado e o
+`.pkg` lá dentro está assinado com um Developer ID; as duas verificam-se contra
+a cadeia de certificados **da Apple**, que não veio da Oracle. É a única camada
+que não depende do canal que trouxe o ficheiro, e por isso é uma condição e não
+um aviso: não passa, apaga-se.
+
+Não basta estar assinado — o nome no certificado tem de ser o da Oracle.
+
+### Num Mac com chip da Apple, o VirtualBox não aparece
+
+A Oracle passou a publicar uma versão para Apple Silicon. Não é oferecida aqui,
+e a razão não é a de haver ou não ficheiro: **num anfitrião ARM só há aceleração
+por hardware para convidados ARM**. Quem procura o VirtualBox procura-o quase
+sempre para correr um convidado x86 — que teria de ser emulado.
+
+O QEMU emula melhor, e diz que está a emular.
+
+### Depois de instalar
+
+O macOS pode pedir autorização para a extensão de sistema da Oracle, em
+**Definições do Sistema › Privacidade e Segurança**. Sem isso o VirtualBox
+instala-se e depois recusa-se a arrancar máquinas — e a mensagem que dá não
+aponta para ali.
+
+---
+
 ## Trazer uma imagem sua
 
 O catálogo cobre o que é comum. Para o resto — um Proxmox, um TrueNAS, uma

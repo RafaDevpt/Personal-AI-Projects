@@ -33,6 +33,7 @@
 Set-StrictMode -Version Latest
 
 $script:Total = 0
+$script:Saltados = 0
 $script:Falhas = New-Object System.Collections.ArrayList
 $script:GrupoActual = ''
 
@@ -74,6 +75,36 @@ function Teste {
         Write-Host "            $($_.Exception.Message)" -ForegroundColor DarkRed
         [void]$script:Falhas.Add("$script:GrupoActual › $Nome — $($_.Exception.Message)")
     }
+}
+
+
+function Saltar {
+    <#
+    .SYNOPSIS
+        PT-PT: Regista um teste que nao correu, e porque.
+        EN-UK: Records a test that did not run, and why.
+
+    .DESCRIPTION
+        PT-PT: Um teste que nao pode correr nesta maquina nao deve desaparecer
+               em silencio nem ficar vermelho. As duas coisas mentem: a primeira
+               faz o relatorio parecer mais completo do que e, a segunda faz
+               parecer que ha um defeito.
+
+               A razao aparece sempre. "Saltado" sem explicacao e uma linha que
+               ninguem consegue avaliar.
+
+        EN-UK: A test that cannot run on this machine should neither vanish
+               silently nor go red. Both lie: the first makes the report look
+               more complete than it is, the second suggests a defect. The
+               reason is always printed.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Nome,
+        [Parameter(Mandatory)][string]$Razao
+    )
+    $script:Saltados++
+    Write-Host "    [--]   $Nome" -ForegroundColor DarkYellow
+    Write-Host "            $Razao" -ForegroundColor DarkGray
 }
 
 
@@ -129,7 +160,8 @@ function Assert-Lanca {
 function Show-Resumo {
     Write-Host ''
     if ($script:Falhas.Count -eq 0) {
-        Write-Host "  $script:Total testes, todos a passar." -ForegroundColor Green
+        $extra = if ($script:Saltados -gt 0) { " ($script:Saltados saltados)" } else { '' }
+        Write-Host "  $script:Total testes, todos a passar$extra." -ForegroundColor Green
         return 0
     }
 

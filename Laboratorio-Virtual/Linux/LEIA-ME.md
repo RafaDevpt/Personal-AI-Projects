@@ -18,7 +18,9 @@ Se o ficheiro não estiver executável — acontece quando o repositório foi co
 chmod +x executar.sh src/laboratorio-virtual.sh
 ```
 
-**O lançador não instala nada e não pede sudo.** Verifica o que falta, diz o comando de instalação **da distribuição onde está a correr**, e arranca na mesma: o programa corre sem hipervisor nenhum, só não cria máquinas — e ver a lista de imagens e as especificações recomendadas continua a valer a pena antes de instalar seja o que for.
+**O lançador não instala nada e não pede sudo.** Verifica o que falta e arranca na mesma: o programa corre sem hipervisor nenhum, só não cria máquinas — e ver a lista de imagens e as especificações recomendadas continua a valer a pena antes de instalar seja o que for.
+
+Instalar um hipervisor é uma escolha do menu, e não uma coisa que o arranque faça por si. Ver [Instalar um hipervisor](#instalar-um-hipervisor).
 
 Sobre o sudo: não se pede, e é de propósito. Só a criação da máquina precisa de permissões, e essas resolvem-se com os grupos — que é a forma certa — e não correndo o programa todo como root.
 
@@ -94,6 +96,73 @@ O `--verificar` sai com 0 quando a soma confere e 1 quando não confere.
 virt-viewer --connect qemu:///system NOME
 ```
 
+
+---
+
+## Instalar um hipervisor
+
+Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —
+e o menu de criação também a oferece, quando não encontra nenhum.
+
+**Em Linux não se descarrega binário nenhum, e é a melhor parte.** A versão de
+Windows tem de ir buscar um `.exe` à Oracle porque não há alternativa; aqui há.
+Acrescenta-se o repositório da Oracle e deixa-se o `apt` ou o `dnf` fazer o
+trabalho.
+
+A diferença não é de conveniência, é de segurança. Um ficheiro descarregado à
+mão verifica-se uma vez, no dia em que se instala. **Um pacote que vem de um
+repositório assinado verifica-se em todas as actualizações, para sempre** — pelo
+gestor de pacotes, que sabe fazer isso melhor do que qualquer script.
+
+### A chave é fixada, e não apenas descarregada
+
+Acrescentar ao sistema uma chave que se acabou de ir buscar é uma cerimónia sem
+conteúdo: se o canal estivesse comprometido, a chave que chegava era a do
+atacante — e passava a assinar tudo o que ele quisesse, para sempre.
+
+A impressão está escrita no programa e é uma **condição**: não confere, não se
+instala nada.
+
+```
+B9F8D658297AF3EFC18D5CDFA2F683C52980AECF
+Oracle Corporation (VirtualBox archive signing key)
+```
+
+Está publicada pela Oracle na página `virtualbox.org/wiki/Linux_Downloads`. Não
+foi copiada de um artigo nem de um fórum, que é como estas coisas costumam
+entrar erradas nos scripts.
+
+A linha do repositório leva `signed-by`, para que essa chave só possa assinar os
+pacotes **desse** repositório. Sem isso — que é o que o antigo `apt-key` fazia, e
+a razão por que foi retirado — a chave da Oracle passaria a poder assinar
+pacotes de qualquer repositório configurado na máquina.
+
+### O que o programa faz antes de escrever o ficheiro do repositório
+
+Pergunta à Oracle se ela serve o ramo desta distribuição. Não serve todas, e um
+ficheiro de repositório apontado para um ramo que não existe fica a dar erro em
+**todos** os `apt update` seguintes — muito depois de a pessoa ter desistido e
+instalado de outra maneira. Quando não serve, o programa diz o comando do pacote
+da distribuição, que é mais antigo mas é mantido com o resto do sistema.
+
+Na Arch e na Alpine não há repositório da Oracle, e o pacote da distribuição não
+é um remendo: é a resposta certa.
+
+### O sudo
+
+Os comandos aparecem **todos** antes da pergunta, e não um a um pelo caminho. O
+`sudo` pede a palavra-passe no terminal, a si. Este programa nunca a vê, nunca a
+guarda e nunca a passa a lado nenhum.
+
+Ao primeiro comando que falhe, pára. Continuar depois de um `apt-get update`
+falhado dava um `install` que instalava a versão errada, ou nenhuma, com uma
+mensagem sobre outra coisa qualquer.
+
+### E uma coisa que nenhum comando pode fazer por si
+
+Entrar nos grupos `kvm` e `libvirt` **não afecta a sessão que já está aberta**.
+Depois de instalar o libvirt é preciso terminar a sessão e voltar a entrar — até
+lá, o `virt-install` continua a dizer que não tem permissão.
 
 ---
 

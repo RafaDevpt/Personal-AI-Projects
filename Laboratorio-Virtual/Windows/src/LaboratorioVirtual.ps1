@@ -74,8 +74,9 @@ $script:Raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $script:Raiz 'Hipervisor.ps1')
 . (Join-Path $script:Raiz 'Descarregar.ps1')
 . (Join-Path $script:Raiz 'ImagemLocal.ps1')
+. (Join-Path $script:Raiz 'Instalacao.ps1')
 
-$script:Versao = '1.1.0'
+$script:Versao = '1.2.0'
 $script:Credito = 'Created by Redfox using Claude'
 $script:CaminhoCatalogo = Join-Path $script:Raiz 'catalogo.json'
 
@@ -139,7 +140,7 @@ function Show-Hipervisores {
     }
     else {
         Write-Host '  VirtualBox     não instalado' -ForegroundColor DarkYellow
-        Write-Host '                 https://www.virtualbox.org/wiki/Downloads' -ForegroundColor DarkGray
+        Write-Host '                 Este programa instala-o — a opção 5 do menu.' -ForegroundColor DarkGray
     }
 
     $aviso = Get-AvisoCoexistencia -HipervisorPresente $Perfil.HipervisorPresente `
@@ -492,6 +493,148 @@ function Get-ImagemDoUtilizador {
 }
 
 
+function Invoke-PreparacaoHipervisor {
+    <#
+    .SYNOPSIS
+        PT-PT: Poe um hipervisor a funcionar, a pedido de quem esta a usar.
+        EN-UK: Gets a hypervisor working, at the user's request.
+
+    .DESCRIPTION
+        PT-PT: As duas opcoes fazem coisas muito diferentes, e a pergunta e
+               feita com essa diferenca a vista.
+
+               O Hyper-V nao se instala: ja la esta, desligado. Activa-lo e
+               mexer no arranque do Windows e obriga a reiniciar -- e, a partir
+               do reinicio, o Windows passa a correr por cima de um hipervisor,
+               o que abranda o VirtualBox para sempre. Nao ha meio caminho.
+
+               O VirtualBox instala-se como qualquer programa e desinstala-se da
+               mesma maneira. E a escolha reversivel das duas, e e por isso que
+               aparece primeiro quando as duas estao disponiveis.
+
+        EN-UK: The two options do very different things, and the question is put
+               with that difference in view. Hyper-V is not installed but
+               enabled: it changes how Windows boots, needs a restart, and from
+               then on Windows itself runs atop a hypervisor -- which slows
+               VirtualBox down permanently. VirtualBox installs and uninstalls
+               like any program. It is the reversible one of the two, which is
+               why it is offered first.
+
+    .OUTPUTS
+        PT-PT: $true se alguma coisa mudou e o estado deve ser relido.
+        EN-UK: $true when something changed and the state should be re-read.
+    #>
+    param(
+        [Parameter(Mandatory)]$Perfil,
+        [Parameter(Mandatory)]$Estado,
+        [Parameter(Mandatory)][string]$PastaBase
+    )
+
+    Write-Titulo 'Preparar um hipervisor'
+
+    $accoes = New-Object System.Collections.ArrayList
+
+    if (-not $Estado.VirtualBox.Instalado) {
+        [void]$accoes.Add([pscustomobject]@{
+            Chave = 'virtualbox'
+            Texto = 'Instalar o VirtualBox  — descarregado da Oracle e verificado'
+            Nota  = 'Instala-se e desinstala-se como qualquer programa. Não obriga a reiniciar.'
+        })
+    }
+
+    if ($Estado.EdicaoOk -and -not $Estado.HyperV.Instalado) {
+        [void]$accoes.Add([pscustomobject]@{
+            Chave = 'hyperv'
+            Texto = 'Activar o Hyper-V      — já vem no Windows, só está desligado'
+            Nota  = 'Altera o arranque do Windows e obriga a reiniciar. Depois disso, o VirtualBox fica mais lento nesta máquina.'
+        })
+    }
+
+    if ($accoes.Count -eq 0) {
+        if (-not $Estado.EdicaoOk -and $Estado.VirtualBox.Instalado) {
+            Write-Host '  O VirtualBox já está instalado, e o Hyper-V não existe nesta edição do'
+            Write-Host '  Windows. Não há mais nada a preparar.'
+        }
+        else {
+            Write-Host '  Está tudo pronto: não há nada por instalar nem por activar.'
+        }
+        return $false
+    }
+
+    for ($i = 0; $i -lt $accoes.Count; $i++) {
+        Write-Host "    $($i + 1). $($accoes[$i].Texto)"
+        Write-Host "       $($accoes[$i].Nota)" -ForegroundColor DarkGray
+    }
+    Write-Host '    0. Voltar atrás'
+    Write-Host ''
+
+    if (-not $Estado.EdicaoOk) {
+        Write-Host '  O Hyper-V não aparece aqui porque esta edição do Windows não o traz.' -ForegroundColor DarkGray
+        Write-Host ''
+    }
+
+    $numero = Read-Escolha -Pergunta 'Número' -Maximo $accoes.Count -PermiteZero
+    if ($numero -eq 0) { return $false }
+
+    $escolhida = $accoes[$numero - 1]
+
+    if ($escolhida.Chave -eq 'hyperv') {
+        if (-not $Perfil.Administrador) {
+            Write-Host ''
+            Write-Host '  Activar o Hyper-V exige privilégios de administrador, e este programa' -ForegroundColor Yellow
+            Write-Host '  não os tem. Feche-o, abra o PowerShell como administrador e volte a' -ForegroundColor Yellow
+            Write-Host '  correr o EXECUTAR.bat a partir de lá.' -ForegroundColor Yellow
+            return $false
+        }
+
+        Write-Host ''
+        Write-Host '  O que vai acontecer:' -ForegroundColor White
+        Write-Host '    - a funcionalidade Microsoft-Hyper-V-All é activada;'
+        Write-Host '    - a máquina precisa de reiniciar para a passar a usar;'
+        Write-Host '    - a partir daí o Windows corre em cima do hipervisor, e as máquinas'
+        Write-Host '      do VirtualBox nesta máquina passam a ser mais lentas.'
+        Write-Host ''
+        if (-not (Confirm-Accao 'Activar o Hyper-V?')) { return $false }
+
+        try {
+            Enable-HyperV -Confirm:$false
+            return $true
+        }
+        catch {
+            Write-Host "  Não foi possível activar o Hyper-V: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
+    }
+
+    # --- VirtualBox --------------------------------------------------------
+    Write-Host ''
+    Write-Host '  O que vai acontecer:' -ForegroundColor White
+    Write-Host '    - pergunta-se à Oracle qual é a versão actual;'
+    Write-Host '    - descarrega-se o instalador de download.virtualbox.org, e mais de'
+    Write-Host '      lado nenhum, com o domínio verificado a cada redireccionamento;'
+    Write-Host '    - confere-se a soma SHA-256 publicada pela Oracle;'
+    Write-Host '    - confirma-se a assinatura Authenticode do executável;'
+    Write-Host '    - o instalador abre com a interface normal, para o poder ver.'
+    Write-Host ''
+    Write-Host '  A Oracle não assina o manifesto das somas com GPG. Das cinco camadas,' -ForegroundColor DarkYellow
+    Write-Host '  essa não se aplica aqui, e o relatório vai dizê-lo.' -ForegroundColor DarkYellow
+    Write-Host ''
+    if (-not (Confirm-Accao 'Descarregar e instalar o VirtualBox?')) { return $false }
+
+    try {
+        return [bool](Install-VirtualBox -PastaDestino (Join-Path $PastaBase 'instaladores') -Confirm:$false)
+    }
+    catch {
+        Write-Host ''
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host ''
+        Write-Host '  Nada foi instalado. Se preferir fazê-lo à mão, a página oficial é' -ForegroundColor DarkGray
+        Write-Host '  https://www.virtualbox.org/wiki/Downloads' -ForegroundColor DarkGray
+        return $false
+    }
+}
+
+
 function Invoke-CriacaoMaquina {
     param(
         [Parameter(Mandatory)]$Perfil,
@@ -505,24 +648,24 @@ function Invoke-CriacaoMaquina {
     if ($Estado.EdicaoOk -and $Estado.HyperV.Instalado) { [void]$opcoes.Add('hyperv') }
     if ($Estado.VirtualBox.Instalado) { [void]$opcoes.Add('virtualbox') }
 
+    # PT-PT: Sem hipervisor nenhum, o programa nao se limita a dizer que falta
+    #        um: pergunta qual e trata dele. Depois de instalar, volta-se ao
+    #        menu de proposito -- o estado tem de ser relido, e no caso do
+    #        Hyper-V ainda falta um reinicio pelo meio.
+    # EN-UK: With no hypervisor at all, the program does not merely say one is
+    #        missing: it asks which and sets it up. Afterwards it deliberately
+    #        returns to the menu -- the state has to be re-read, and in Hyper-V's
+    #        case a restart is still due.
     if ($opcoes.Count -eq 0) {
         Write-Titulo 'Não há nenhum hipervisor pronto a usar'
-        if ($Estado.EdicaoOk -and -not $Estado.HyperV.Instalado) {
-            Write-Host '  O Hyper-V está disponível nesta edição mas não está activado.'
-            Write-Host '  Activá-lo altera o sistema e obriga a reiniciar a máquina.' -ForegroundColor Yellow
-            Write-Host ''
-            if (-not $Perfil.Administrador) {
-                Write-Host '  Para o activar é preciso correr este programa como administrador.' -ForegroundColor Yellow
-            }
-            elseif (Confirm-Accao 'Activar o Hyper-V agora?') {
-                Enable-HyperV -Confirm:$false
-                return
-            }
-        }
+        Write-Host '  Sem um deles não há onde criar a máquina. Trata-se disso primeiro.'
         Write-Host ''
-        Write-Host '  Em alternativa, o VirtualBox instala-se como qualquer programa e corre'
-        Write-Host '  em qualquer edição do Windows:'
-        Write-Host '  https://www.virtualbox.org/wiki/Downloads' -ForegroundColor Cyan
+
+        if (Invoke-PreparacaoHipervisor -Perfil $Perfil -Estado $Estado -PastaBase $PastaBase) {
+            Write-Host ''
+            Write-Host '  Volte ao menu e escolha outra vez «criar uma máquina virtual»: o' -ForegroundColor Cyan
+            Write-Host '  programa relê o estado da máquina de cada vez que o menu aparece.' -ForegroundColor Cyan
+        }
         return
     }
 
@@ -764,10 +907,11 @@ function Show-Menu {
         Write-Host '    2. Ver o que esta máquina tem'
         Write-Host '    3. Verificar uma imagem que já tenho'
         Write-Host '    4. Ver o catálogo e as impressões digitais'
+        Write-Host '    5. Preparar um hipervisor  (activar o Hyper-V ou instalar o VirtualBox)'
         Write-Host '    0. Sair'
         Write-Host ''
 
-        switch (Read-Escolha -Pergunta 'Número' -Maximo 4 -PermiteZero) {
+        switch (Read-Escolha -Pergunta 'Número' -Maximo 5 -PermiteZero) {
             0 { return }
             1 { Invoke-CriacaoMaquina -Perfil $Perfil -Catalogo $Catalogo -Estado $estado -PastaBase $PastaBase }
             2 { Show-Perfil -Perfil $Perfil }
@@ -781,6 +925,7 @@ function Show-Menu {
                 }
             }
             4 { Show-Catalogo -Catalogo $Catalogo }
+            5 { [void](Invoke-PreparacaoHipervisor -Perfil $Perfil -Estado $estado -PastaBase $PastaBase) }
         }
 
         Write-Host ''
