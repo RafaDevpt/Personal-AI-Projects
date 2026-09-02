@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # ===========================================================================
 # PT-PT: Preparar um hipervisor que ainda nao esta instalado.
 #

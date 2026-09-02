@@ -858,10 +858,15 @@ else {
 Teste 'recusa um ficheiro que não está assinado' {
     $temporario = Join-Path ([IO.Path]::GetTempPath()) ("lv-" + [Guid]::NewGuid().ToString('N') + '.exe')
     try {
-        Set-Content -LiteralPath $temporario -Value 'isto não é um executável' -Encoding Byte -ErrorAction SilentlyContinue
-        if (-not (Test-Path -LiteralPath $temporario)) {
-            [IO.File]::WriteAllBytes($temporario, [byte[]](77, 90, 0, 0))
-        }
+        # PT-PT: Bytes escritos directamente, e nao com `Set-Content -Encoding
+        #        Byte`: esse parametro existe no Windows PowerShell 5.1 e foi
+        #        retirado no 6. Como a integracao continua corre em `pwsh`, o
+        #        teste passava nesta maquina e falhava no runner.
+        # EN-UK: Bytes written directly rather than with `Set-Content -Encoding
+        #        Byte`: that parameter exists in Windows PowerShell 5.1 and was
+        #        removed in 6. Since CI runs `pwsh`, the test passed here and
+        #        failed on the runner.
+        [IO.File]::WriteAllBytes($temporario, [byte[]](0x4D, 0x5A, 0x90, 0x00))
         $r = Test-AssinaturaAuthenticode -Caminho $temporario -Assinante 'Oracle'
         Assert-Falso $r.Valida
     }
