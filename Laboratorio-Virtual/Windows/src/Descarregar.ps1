@@ -195,7 +195,12 @@ function Get-ImagemOficial {
         }
         else {
             $enderecoImagem = Join-Endereco -Directorio $Imagem.directorio -Nome $entrada.Ficheiro
-            Write-Host "  A descarregar. Isto demora — são vários GB." -ForegroundColor DarkGray
+            # PT-PT: Ja nao se promete que demora. Ate a 1.3.0 demorava mesmo,
+            #        por causa da barra de progresso do Invoke-WebRequest -- e
+            #        essa ja nao esta ligada. Ver a nota em Invoke-DescarregamentoSeguro.
+            # EN-UK: It no longer promises to take long. Until 1.3.0 it did,
+            #        because of Invoke-WebRequest's progress bar.
+            Write-Host "  A descarregar $($entrada.Ficheiro)…" -ForegroundColor DarkGray
             Invoke-DescarregamentoSeguro -Endereco $enderecoImagem -Destino $destino -Dominios $Dominios | Out-Null
 
             # --- 5. A soma ---------------------------------------------------

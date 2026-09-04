@@ -10,10 +10,10 @@
 **Builds virtual machines without the two things that go wrong: an image that is not what it claims, and a specification that leaves the host unusable**
 
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-1.3.0-1F6FEB?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.3.1-1F6FEB?style=for-the-badge)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
 ![bash](https://img.shields.io/badge/bash-3.2+-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
-![Tests](https://img.shields.io/badge/342_tests-2EA043?style=for-the-badge)
+![Tests](https://img.shields.io/badge/345_tests-2EA043?style=for-the-badge)
 
 <a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
@@ -153,7 +153,7 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 
 ## Current state
 
-- **342 tests** — 110 Windows · 116 Linux · 116 macOS. None opens a network connection, creates a virtual machine or installs anything
+- **345 tests** — 113 Windows · 116 Linux · 116 macOS. None opens a network connection, creates a virtual machine or installs anything
 - **Seventeen images** in the catalogue: eleven Linux distributions including ARM64, two Microsoft evaluations, the macOS installer and two Android entries
 - Continuous integration on **three native runners** — a Linux version tested on a Windows runner proves nothing about what it does on Linux, and the macOS version, written for bash 3.2, is only confirmed as such on a Mac
 - Bilingual source throughout, PT-PT and EN-UK

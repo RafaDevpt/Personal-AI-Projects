@@ -77,7 +77,7 @@ $script:Raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $script:Raiz 'Vmware.ps1')
 . (Join-Path $script:Raiz 'Instalacao.ps1')
 
-$script:Versao = '1.3.0'
+$script:Versao = '1.3.1'
 $script:Credito = 'Created by Redfox using Claude'
 $script:CaminhoCatalogo = Join-Path $script:Raiz 'catalogo.json'
 
@@ -1281,6 +1281,66 @@ function Show-Menu {
 # PT-PT: Ponto de entrada / EN-UK: Entry point
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# PT-PT: O registo.
+#
+#        Um erro que aparece numa janela que se fecha a seguir e um erro que
+#        ninguem consegue comunicar -- e foi exactamente isso que aconteceu.
+#        A partir daqui fica tudo escrito num ficheiro, e o caminho do ficheiro
+#        e dito no principio e repetido em caso de erro.
+#
+#        O `Start-Transcript` apanha o `Write-Host` desde o PowerShell 5, o que
+#        quer dizer que o que fica no ficheiro e exactamente o que apareceu no
+#        ecra, e nao uma versao resumida.
+#
+#        Vai para o `LOCALAPPDATA` e nao para a pasta das maquinas, por duas
+#        razoes: a pasta das maquinas so e escolhida mais a frente, e um erro
+#        pode acontecer antes disso -- que e precisamente quando o registo faz
+#        mais falta.
+#
+# EN-UK: The log. An error shown in a window that then closes is an error
+#        nobody can report -- which is exactly what happened. From here on
+#        everything is written to a file, whose path is stated at the start and
+#        repeated on failure.
+#
+#        `Start-Transcript` captures `Write-Host` from PowerShell 5 onwards, so
+#        what lands in the file is what appeared on screen, not a summary.
+#
+#        It goes to `LOCALAPPDATA` rather than the machines folder because that
+#        folder is only chosen later, and a failure can happen before then --
+#        which is precisely when the log matters most.
+# ---------------------------------------------------------------------------
+$script:PastaRegisto = Join-Path $env:LOCALAPPDATA 'LaboratorioVirtual'
+$script:CaminhoRegisto = ''
+
+try {
+    if (-not (Test-Path -LiteralPath $script:PastaRegisto)) {
+        New-Item -ItemType Directory -Path $script:PastaRegisto -Force -ErrorAction Stop | Out-Null
+    }
+    # PT-PT: Guarda-se os ultimos vinte e apagam-se os outros. Um registo por
+    #        arranque, sem limite nenhum, enche a pasta de quem usa isto todos
+    #        os dias -- e um programa que deixa lixo para tras nao tem o direito
+    #        de se queixar de que ninguem o encontra.
+    # EN-UK: The last twenty are kept and the rest removed. One log per launch,
+    #        unbounded, fills the folder of anybody using this daily.
+    Get-ChildItem -LiteralPath $script:PastaRegisto -Filter 'registo-*.txt' -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending | Select-Object -Skip 20 |
+        Remove-Item -Force -ErrorAction SilentlyContinue
+
+    $script:CaminhoRegisto = Join-Path $script:PastaRegisto ("registo-{0:yyyyMMdd-HHmmss}.txt" -f (Get-Date))
+    Start-Transcript -LiteralPath $script:CaminhoRegisto -Force -ErrorAction Stop | Out-Null
+}
+catch {
+    # PT-PT: Sem registo o programa corre na mesma. Nao ha nada aqui que
+    #        justifique recusar arrancar -- mas diz-se, para ninguem contar com
+    #        um ficheiro que nao existe.
+    # EN-UK: Without a log the program still runs. Nothing here justifies
+    #        refusing to start -- but it is said, so nobody counts on a file
+    #        that is not there.
+    $script:CaminhoRegisto = ''
+    Write-Host '  (Não consegui abrir um ficheiro de registo. O programa corre na mesma.)' -ForegroundColor DarkYellow
+}
+
 try {
     $perfil = Get-PerfilAnfitriao
 
@@ -1327,6 +1387,9 @@ try {
     Write-Host ''
     Write-Host "  Laboratório Virtual $script:Versao" -ForegroundColor White
     Write-Host "  Imagens e máquinas em $Pasta" -ForegroundColor DarkGray
+    if ($script:CaminhoRegisto) {
+        Write-Host "  Registo desta sessão em $script:CaminhoRegisto" -ForegroundColor DarkGray
+    }
     Show-Perfil -Perfil $perfil
 
     Show-Menu -Perfil $perfil -Catalogo $catalogo -PastaBase $Pasta
@@ -1336,8 +1399,47 @@ try {
     exit 0
 }
 catch {
+    # PT-PT: O que se escreve aqui e o que alguem vai precisar de copiar para
+    #        pedir ajuda -- por isso escreve-se tudo: a mensagem, o tipo da
+    #        excepcao, a linha onde rebentou e a pilha de chamadas.
+    #
+    #        Antes daqui so saia a mensagem. Uma mensagem sozinha diz o que
+    #        correu mal e nao diz onde, que e metade do que faz falta.
+    # EN-UK: What is printed here is what somebody will need to copy in order to
+    #        ask for help, so all of it is printed: the message, the exception
+    #        type, the line it broke on, and the call stack. Before, only the
+    #        message came out -- which says what went wrong and not where.
     Write-Host ''
+    Write-Host '  ─────────────────────────────────────────────────────────────' -ForegroundColor Red
     Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
     Write-Host ''
+    Write-Host "  tipo    $($_.Exception.GetType().FullName)" -ForegroundColor DarkGray
+    if ($_.InvocationInfo -and $_.InvocationInfo.PositionMessage) {
+        foreach ($linha in ($_.InvocationInfo.PositionMessage -split "`r?`n")) {
+            Write-Host "  $linha" -ForegroundColor DarkGray
+        }
+    }
+    if ($_.ScriptStackTrace) {
+        Write-Host '  pilha de chamadas:' -ForegroundColor DarkGray
+        foreach ($linha in ($_.ScriptStackTrace -split "`r?`n")) {
+            Write-Host "    $linha" -ForegroundColor DarkGray
+        }
+    }
+    Write-Host '  ─────────────────────────────────────────────────────────────' -ForegroundColor Red
+    Write-Host ''
+    if ($script:CaminhoRegisto) {
+        Write-Host '  Isto ficou escrito num ficheiro — não precisa de copiar do ecrã:' -ForegroundColor Cyan
+        Write-Host "    $script:CaminhoRegisto" -ForegroundColor Cyan
+        Write-Host ''
+    }
     exit 1
+}
+finally {
+    # PT-PT: O `-ErrorAction SilentlyContinue` e porque parar um registo que
+    #        nunca comecou levanta erro, e um erro dentro do `finally` de um
+    #        `catch` esconderia o erro verdadeiro.
+    # EN-UK: `-ErrorAction SilentlyContinue` because stopping a transcript that
+    #        never started raises, and an error inside a `catch`'s `finally`
+    #        would hide the real one.
+    if ($script:CaminhoRegisto) { Stop-Transcript -ErrorAction SilentlyContinue | Out-Null }
 }

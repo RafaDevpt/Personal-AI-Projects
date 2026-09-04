@@ -8,6 +8,64 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.3.1] — 2026-09-04
+
+**PT** · Uma correcção que vale 49 vezes, e outra que faz o erro seguinte ser
+possível de comunicar.
+**EN** · One fix worth 49x, and another that makes the next error reportable.
+
+### O descarregamento estava 49 vezes mais lento do que devia
+
+Medido nesta máquina, com a mesma imagem, no mesmo minuto:
+
+```
+    barra de progresso ligada     63 MB em 34,4s  =   1,8 MB/s
+    barra de progresso desligada  63 MB em  0,7s  =  88,4 MB/s
+```
+
+O `Invoke-WebRequest` do Windows PowerShell 5.1 **redesenha a barra de progresso
+a cada bloco que recebe**, e cada redesenho custa mais do que receber o bloco.
+Numa ISO de 5 GB isso é a diferença entre 47 minutos e um — e muito
+provavelmente entre falhar e funcionar, porque o que se parece com uma ligação
+encravada acaba por ir contra um tempo limite ou contra a memória.
+
+A preferência é reposta no fim, e há um teste para isso: deixá-la desligada na
+sessão de quem chamou faria os `Write-Progress` dessa pessoa desaparecerem sem
+explicação.
+
+**Só a versão de Windows tinha este problema**, e não é por as outras serem
+melhores: é porque usam o `curl`, que não desenha nada que ninguém lhe peça.
+
+### Um erro numa janela que se fecha é um erro que ninguém consegue comunicar
+
+Foi o que aconteceu: o programa falhou, a janela fechou-se, e a mensagem
+foi-se com ela. Três coisas mudaram:
+
+- **Tudo o que aparece no ecrã fica escrito num ficheiro**, em
+  `%LOCALAPPDATA%\LaboratorioVirtual\registo-<data>.txt`. O caminho é dito no
+  arranque e repetido em caso de erro. Guardam-se os últimos vinte
+- **O erro passa a dizer onde rebentou** — a mensagem, o tipo da excepção, a
+  linha e a pilha de chamadas. Antes saía só a mensagem, que diz o que correu
+  mal e não diz onde
+- **A janela nunca mais se fecha com um erro lá dentro.** O `EXECUTAR.bat` pára
+  sempre que o programa termina com erro, mesmo quando lhe foram passados
+  argumentos
+
+### Alterado · Changed
+
+- A mensagem «Isto demora — são vários GB» deixou de ser verdade e foi
+  substituída pelo nome do ficheiro que está a ser descarregado
+
+### Testes
+
+113 · 116 · 116, **345** ao todo. Os três novos provam que a preferência da
+sessão é reposta pelos dois caminhos — o normal e o de erro — e que a linha que
+a desliga não desapareceu do código. Sem o terceiro, os dois primeiros passariam
+com a correcção apagada: provariam que nada mudou, o que é verdade quando nada é
+feito.
+
+---
+
 ## [1.3.0] — 2026-09-04
 
 **PT** · O programa passou a reconhecer o que já está instalado, a instalar

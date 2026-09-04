@@ -42,6 +42,26 @@ if errorlevel 1 (
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0src\LaboratorioVirtual.ps1" %*
 set CODIGO=%ERRORLEVEL%
 
+REM PT-PT: Uma janela que se fecha com um erro la dentro e um erro que ninguem
+REM        consegue comunicar. Se o programa falhou, para-se **sempre**, mesmo
+REM        quando foram passados argumentos -- porque foi assim que se perdeu
+REM        um erro que fazia falta ver.
+REM
+REM        Quando corre bem e foram passados argumentos, sai sem parar: nesse
+REM        caso quem chamou foi um script, e um script nao carrega em teclas.
+REM EN-UK: A window that closes with an error inside it is an error nobody can
+REM        report. On failure it **always** stops, even when arguments were
+REM        passed. On success with arguments it exits without pausing: the
+REM        caller was a script, and scripts do not press keys.
+if not "%CODIGO%"=="0" (
+    echo.
+    echo   O programa terminou com erro. O registo desta sessao esta em:
+    echo     %LOCALAPPDATA%\LaboratorioVirtual
+    echo.
+    pause
+    exit /b %CODIGO%
+)
+
 if not "%1"=="" exit /b %CODIGO%
 
 echo.

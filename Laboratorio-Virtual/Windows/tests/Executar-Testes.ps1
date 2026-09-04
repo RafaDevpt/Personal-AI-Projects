@@ -48,6 +48,7 @@ $fonte = Join-Path (Split-Path -Parent $raiz) 'src'
 . (Join-Path $fonte 'Hipervisor.ps1')
 . (Join-Path $fonte 'Descarregar.ps1')
 . (Join-Path $fonte 'ImagemLocal.ps1')
+$script:Fonte = $fonte
 . (Join-Path $fonte 'Vmware.ps1')
 . (Join-Path $fonte 'Instalacao.ps1')
 
@@ -1039,6 +1040,75 @@ Teste 'um caminho vazio não serve' {
 
 Teste 'a pasta por omissão é a do instalador da Oracle' {
     Assert-Contem (Get-PastaInstalacaoPredefinida) 'Oracle\VirtualBox'
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: A barra de progresso do descarregamento
+#
+#        Isto nao e um pormenor de estilo. Medido nesta maquina, com a mesma
+#        imagem, no mesmo minuto:
+#
+#            barra ligada    63 MB em 34,4s  =   1,8 MB/s
+#            barra desligada 63 MB em  0,7s  =  88,4 MB/s
+#
+#        Numa ISO de 5 GB e a diferenca entre 47 minutos e um -- e muito
+#        provavelmente entre falhar e funcionar.
+#
+#        Nenhum destes testes liga a rede: o descarregamento e recusado antes de
+#        qualquer ligacao, por o dominio nao estar na lista. O que se prova e o
+#        que acontece a preferencia da sessao a volta disso.
+#
+# EN-UK: The download progress bar. Not a style detail: measured on this
+#        machine, 1.8 MB/s with it against 88.4 MB/s without. On a 5 GB ISO that
+#        is 47 minutes against one. None of these tests touches the network: the
+#        download is refused before any connection because the domain is not on
+#        the list.
+# ---------------------------------------------------------------------------
+Grupo 'A barra de progresso não fica ligada nem fica desligada'
+
+Teste 'a preferência da sessão é reposta quando o descarregamento falha' {
+    # PT-PT: O caminho do erro e o que interessa: e o que corre quando alguma
+    #        coisa vai mal, e e onde uma reposicao esquecida ficaria escondida.
+    #        Deixar a barra desligada na sessao de quem chamou faria os
+    #        `Write-Progress` dele desaparecerem sem explicacao.
+    # EN-UK: The error path is the one that matters: it is what runs when
+    #        something goes wrong, and where a forgotten restore would hide.
+    #        Leaving the bar off in the caller's session would make their own
+    #        `Write-Progress` vanish unexplained.
+    $antes = $ProgressPreference
+    try {
+        Invoke-DescarregamentoSeguro -Endereco 'https://exemplo.invalido/x' `
+            -Dominios @('nada.invalido') -ErrorAction Stop | Out-Null
+    }
+    catch { }
+    Assert-Igual $antes $ProgressPreference
+}
+
+Teste 'a preferência da sessão é reposta mesmo quando ela estava desligada' {
+    $antes = $ProgressPreference
+    try {
+        $ProgressPreference = 'SilentlyContinue'
+        try {
+            Invoke-DescarregamentoSeguro -Endereco 'https://exemplo.invalido/x' `
+                -Dominios @('nada.invalido') -ErrorAction Stop | Out-Null
+        }
+        catch { }
+        Assert-Igual 'SilentlyContinue' $ProgressPreference
+    }
+    finally { $ProgressPreference = $antes }
+}
+
+Teste 'o descarregamento desliga mesmo a barra enquanto corre' {
+    # PT-PT: Sem isto, os dois testes acima passariam com a linha apagada do
+    #        codigo -- provariam que nada mudou, que e verdade quando nada e
+    #        feito. Este le o codigo e confirma que a preferencia la esta.
+    # EN-UK: Without this, the two tests above would pass with the line deleted:
+    #        they would prove nothing changed, which is true when nothing is
+    #        done. This one reads the code and confirms the preference is set.
+    $fonte = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
+    Assert-Contem $fonte "ProgressPreference = 'SilentlyContinue'"
+    Assert-Contem $fonte '$ProgressPreference = $progressoAnterior'
 }
 
 
