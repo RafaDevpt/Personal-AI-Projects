@@ -302,7 +302,7 @@ The finding that earns its keep: a port with six MACs and no LLDP neighbour has 
 
 ### 🧪 Laboratório Virtual
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-342_passing-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-345_passing-2EA043?style=flat-square)
 ![Branch](https://img.shields.io/badge/branch-Virtual--Lab--Builder-1F6FEB?style=flat-square)
 
 Builds virtual machines without the two things that go wrong. It fetches the image from the project's **own** servers with the whole verification chain along the way, and works out the specification from what the host actually has — then says **how** it got to the numbers, so you know when to change them.
