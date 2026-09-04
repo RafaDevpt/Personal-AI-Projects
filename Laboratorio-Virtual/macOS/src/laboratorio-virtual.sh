@@ -39,7 +39,7 @@ export PATH="/opt/homebrew/bin:/usr/local/bin:${PATH}"
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly RAIZ
-readonly VERSAO='1.3.1'
+readonly VERSAO='1.3.2'
 readonly CREDITO='Created by Redfox using Claude'
 readonly CATALOGO="${RAIZ}/catalogo.json"
 

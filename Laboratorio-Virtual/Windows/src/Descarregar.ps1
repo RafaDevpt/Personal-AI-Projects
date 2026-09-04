@@ -139,6 +139,36 @@ function Get-ImagemOficial {
             $ficheiroChave = Join-Path $temporaria 'chave.asc'
             $ficheiroAssinatura = $null
 
+            # PT-PT: **Duas coisas separadas, e a separacao e o que interessa.**
+            #
+            #        Ir buscar a chave pode falhar por o servidor estar em baixo,
+            #        e isso nao deve matar o descarregamento: perde-se a camada
+            #        da assinatura, diz-se que se perdeu, e continua-se com a
+            #        soma. E a degradacao graciosa que o resto do programa faz.
+            #
+            #        A **verificacao** falhar e outra coisa completamente: uma
+            #        assinatura invalida tem de interromper tudo. Por isso o
+            #        `throw` dela esta de fora deste `try` -- se estivesse
+            #        dentro, um `catch` largo engolia-o e o programa continuava
+            #        alegremente com uma imagem cuja assinatura nao conferia.
+            #
+            #        Ate a 1.3.1 isto era um `catch [System.Net.WebException]`, e
+            #        funcionava por acidente: o descarregamento antigo lancava
+            #        WebException. O novo lanca uma excepcao normal, e o catch
+            #        estreito deixaria de apanhar seja o que for.
+            #
+            # EN-UK: **Two separate things, and the separation is the point.**
+            #
+            #        Fetching the key can fail because the server is down, and
+            #        that must not kill the download: the signature layer is
+            #        lost, it is said to be lost, and the checksum carries on.
+            #
+            #        Verification failing is something else entirely: an invalid
+            #        signature must stop everything. So its `throw` sits outside
+            #        this `try` -- inside, a broad `catch` would swallow it and
+            #        the program would carry on happily with an image whose
+            #        signature did not match.
+            $obteveMaterial = $true
             try {
                 Invoke-DescarregamentoSeguro -Endereco $Imagem.chave_url -Destino $ficheiroChave -Dominios $Dominios | Out-Null
 
@@ -147,7 +177,13 @@ function Get-ImagemOficial {
                     $enderecoAssinatura = Join-Endereco -Directorio $Imagem.directorio -Nome $Imagem.assinatura
                     Invoke-DescarregamentoSeguro -Endereco $enderecoAssinatura -Destino $ficheiroAssinatura -Dominios $Dominios | Out-Null
                 }
+            }
+            catch {
+                $obteveMaterial = $false
+                [void]$notas.Add("Não foi possível obter a chave pública; a assinatura não foi verificada. ($($_.Exception.Message))")
+            }
 
+            if ($obteveMaterial) {
                 $impressaoEsperada = if ($Imagem.PSObject.Properties.Name -contains 'chave_gpg') { [string]$Imagem.chave_gpg } else { '' }
 
                 $verificacao = Test-AssinaturaGpg -Manifesto $ficheiroManifesto `
@@ -166,9 +202,6 @@ function Get-ImagemOficial {
                                "O descarregamento foi interrompido.`n$($verificacao.Detalhe)")
                     }
                 }
-            }
-            catch [System.Net.WebException] {
-                [void]$notas.Add('Não foi possível obter a chave pública; a assinatura não foi verificada.')
             }
         }
         else {

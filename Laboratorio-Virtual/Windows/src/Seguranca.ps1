@@ -185,50 +185,74 @@ function Invoke-DescarregamentoSeguro {
 
     Initialize-Tls
 
-    # PT-PT: **Isto vale 49 vezes.** Nao e um exagero nem uma estimativa: e o
-    #        que se mediu nesta maquina, com a mesma imagem, no mesmo minuto.
+    # PT-PT: **Isto era `Invoke-WebRequest` e nao podia ser.**
     #
-    #            barra ligada    63 MB em 34,4s  =   1,8 MB/s
-    #            barra desligada 63 MB em  0,7s  =  88,4 MB/s
+    #        A ideia estava certa: seguir os redireccionamentos a mao, para que
+    #        cada salto volte a passar pela lista de dominios. O que estava
+    #        errado era a ferramenta.
     #
-    #        O `Invoke-WebRequest` do Windows PowerShell 5.1 redesenha a barra a
-    #        cada bloco que recebe, e cada redesenho custa mais do que receber o
-    #        bloco. Numa ISO de 5 GB, a diferenca e entre 47 minutos e um -- e
-    #        muito provavelmente entre falhar e funcionar, porque o que se
-    #        parece com uma ligacao encravada acaba por ir contra um tempo
-    #        limite ou contra a memoria.
+    #        Com `-MaximumRedirection 0`, o `Invoke-WebRequest` do Windows
+    #        PowerShell 5.1 lanca, em alguns servidores, um
+    #        `InvalidOperationException` **sem objecto `Response`**. Sem
+    #        `Response` nao ha cabecalho `Location`, e sem `Location` o ciclo
+    #        nao tem por onde seguir: o descarregamento morre com "a operacao
+    #        nao e valida devido ao estado actual do objecto", que nao diz nada
+    #        a ninguem.
     #
-    #        A preferencia e reposta no fim: mexer nela e mexer numa variavel da
-    #        sessao de quem chamou, e uma funcao nao deve deixar a consola de
-    #        outra pessoa diferente de como a encontrou.
+    #        Aconteceu no `cdimage.ubuntu.com` e no `cdimage.kali.org` -- dois
+    #        dos servidores do proprio catalogo. Ou seja: a peca central da
+    #        verificacao estava a falhar em servidores que este programa lista.
     #
-    #        As outras duas versoes deste projecto nao tem este problema, e nao
-    #        e por serem melhores: e porque usam o `curl`, que nao desenha nada
-    #        que ninguem lhe peca.
+    #        O `HttpWebRequest` com `AllowAutoRedirect = $false` devolve o 3xx
+    #        como uma resposta **normal**, com os cabecalhos acessiveis. Nao e
+    #        so um remendo: e mais explicito do que o que ca estava, porque cada
+    #        salto passa a ser um objecto que se inspecciona em vez de uma
+    #        excepcao que se apanha.
     #
-    # EN-UK: **This is worth 49x.** Not a guess: measured on this machine, with
-    #        the same image, in the same minute -- 1.8 MB/s with the progress
-    #        bar, 88.4 MB/s without. Windows PowerShell 5.1's
-    #        `Invoke-WebRequest` redraws the bar on every block received, and
-    #        each redraw costs more than receiving the block. On a 5 GB ISO that
-    #        is 47 minutes against one -- and very likely the difference between
-    #        failing and working, because what looks like a stalled connection
-    #        ends up hitting a timeout or memory.
+    #        E escreve-se para o ficheiro em fluxo, aos pedacos. O
+    #        `Invoke-WebRequest` do 5.1 redesenhava a barra de progresso a cada
+    #        bloco -- 1,8 MB/s medidos contra 88 MB/s sem ela -- e guardava a
+    #        resposta em memoria. Numa ISO de 5 GB, as duas coisas juntas sao a
+    #        diferenca entre falhar e funcionar. Aqui nao ha barra nenhuma para
+    #        desenhar nem resposta nenhuma para guardar.
     #
-    #        The preference is restored afterwards: changing it changes the
-    #        caller's session, and a function should not leave somebody else's
-    #        console different from how it found it.
+    # EN-UK: **This used to be `Invoke-WebRequest` and could not stay.**
     #
-    #        The other two versions do not have this problem, and not because
-    #        they are better: they use `curl`, which draws nothing unasked.
-    $progressoAnterior = $ProgressPreference
-    $ProgressPreference = 'SilentlyContinue'
-
-    try {
+    #        The idea was right: follow redirects by hand so every hop goes
+    #        through the domain list again. The tool was wrong. With
+    #        `-MaximumRedirection 0`, Windows PowerShell 5.1's
+    #        `Invoke-WebRequest` throws, on some servers, an
+    #        `InvalidOperationException` **with no `Response` object**. No
+    #        response means no `Location` header, and no `Location` means the
+    #        loop has nowhere to go.
+    #
+    #        It happened on `cdimage.ubuntu.com` and `cdimage.kali.org` -- two of
+    #        the catalogue's own servers. The central piece of the verification
+    #        was failing on servers this program lists.
+    #
+    #        `HttpWebRequest` with `AllowAutoRedirect = $false` returns the 3xx
+    #        as a **normal** response with readable headers. Not merely a patch:
+    #        more explicit than what was here, because each hop becomes an
+    #        object to inspect rather than an exception to catch.
+    #
+    #        And it streams to the file in chunks. 5.1's `Invoke-WebRequest`
+    #        redrew the progress bar on every block -- 1.8 MB/s measured against
+    #        88 MB/s without it -- and held the response in memory. On a 5 GB
+    #        ISO the two together are the difference between failing and
+    #        working. Here there is no bar to draw and no response to hold.
 
     $actual = $Endereco
+
     for ($salto = 0; $salto -lt $script:MaximoSaltos; $salto++) {
 
+        # PT-PT: A lista de dominios e verificada **no cimo do ciclo**, e nao
+        #        so a entrada. E isto que faz o seguimento manual valer a pena:
+        #        um servidor de confianca que redireccione para fora da lista e
+        #        recusado no salto seguinte, antes de qualquer ligacao.
+        # EN-UK: The domain list is checked **at the top of the loop**, not only
+        #        on entry. This is what makes manual following worth the
+        #        trouble: a trusted server redirecting off the list is refused
+        #        on the next hop, before any connection.
         if (-not (Test-DominioConfiavel -Endereco $actual -Dominios $Dominios)) {
             throw ("Endereço recusado: $actual`n" +
                    "O domínio não consta da lista de domínios de confiança do catálogo, " +
@@ -236,35 +260,50 @@ function Invoke-DescarregamentoSeguro {
                    "de qualquer ligação.")
         }
 
-        $parametros = @{
-            Uri                = $actual
-            MaximumRedirection = 0
-            UserAgent          = $script:AgenteUtilizador
-            UseBasicParsing    = $true
-            ErrorAction        = 'Stop'
-        }
-        if ($Destino) { $parametros['OutFile'] = $Destino }
+        $pedido = [System.Net.HttpWebRequest]::Create($actual)
+        $pedido.AllowAutoRedirect = $false
+        $pedido.UserAgent = $script:AgenteUtilizador
+        $pedido.Method = 'GET'
+        # PT-PT: Dois tempos limite diferentes, e os dois fazem falta. O
+        #        `Timeout` conta ate a resposta comecar; o `ReadWriteTimeout`
+        #        conta entre pedacos. Um descarregamento de varios GB demora
+        #        legitimamente mais do que qualquer `Timeout` razoavel, e sem a
+        #        distincao ou se corta um descarregamento bom ou se espera para
+        #        sempre por um servidor morto.
+        # EN-UK: Two different timeouts, both needed. `Timeout` counts until the
+        #        response starts; `ReadWriteTimeout` counts between chunks. A
+        #        multi-GB download legitimately takes longer than any sane
+        #        `Timeout`, and without the distinction one either cuts off a
+        #        good download or waits forever on a dead server.
+        $pedido.Timeout = 60000
+        $pedido.ReadWriteTimeout = 300000
 
+        $resposta = $null
         try {
-            $resposta = Invoke-WebRequest @parametros
+            $resposta = $pedido.GetResponse()
         }
         catch [System.Net.WebException] {
-            # PT-PT: Um redireccionamento com `-MaximumRedirection 0` chega aqui
-            #        como excepcao, e nao como resposta. O cabecalho `Location`
-            #        traz o proximo salto -- que volta a passar pela lista de
-            #        dominios no cimo do ciclo.
-            # EN-UK: A redirect with `-MaximumRedirection 0` arrives here as an
-            #        exception rather than a response. The `Location` header
-            #        carries the next hop, which goes through the domain list
-            #        again at the top of the loop.
-            $resposta = $_.Exception.Response
-            if ($null -eq $resposta) { throw }
+            # PT-PT: Um 4xx ou 5xx chega aqui com a resposta anexada. Sem
+            #        resposta, foi a ligacao que falhou e nao ha nada a ler.
+            # EN-UK: A 4xx or 5xx arrives here with the response attached. With
+            #        no response the connection itself failed.
+            if ($_.Exception.Response) {
+                $codigoErro = [int]$_.Exception.Response.StatusCode
+                $_.Exception.Response.Close()
+                throw "O servidor devolveu $codigoErro para $actual."
+            }
+            throw
+        }
 
-            $codigo = [int]$resposta.StatusCode
-            if ($codigo -lt 300 -or $codigo -gt 399) { throw }
+        $codigo = [int]$resposta.StatusCode
 
+        if ($codigo -ge 300 -and $codigo -le 399) {
             $seguinte = $resposta.Headers['Location']
-            if ([string]::IsNullOrWhiteSpace($seguinte)) { throw }
+            $resposta.Close()
+
+            if ([string]::IsNullOrWhiteSpace($seguinte)) {
+                throw "Redireccionamento sem destino a partir de $actual."
+            }
 
             # PT-PT: Um `Location` relativo resolve-se contra o endereco actual.
             # EN-UK: A relative `Location` resolves against the current address.
@@ -273,16 +312,55 @@ function Invoke-DescarregamentoSeguro {
             continue
         }
 
-        if ($Destino) { return $Destino }
-        return $resposta.Content
+        if ($codigo -ne 200) {
+            $resposta.Close()
+            throw "O servidor devolveu $codigo para $actual."
+        }
+
+        try {
+            $fluxo = $resposta.GetResponseStream()
+
+            if ($Destino) {
+                # PT-PT: Aos pedacos, direito ao disco. Nada disto passa pela
+                #        memoria, e por isso o tamanho da imagem deixa de ser um
+                #        problema.
+                # EN-UK: In chunks, straight to disk. None of it goes through
+                #        memory, so the image's size stops being a problem.
+                $ficheiro = [System.IO.File]::Create($Destino)
+                try {
+                    $fluxo.CopyTo($ficheiro, 1048576)
+                }
+                catch {
+                    # PT-PT: Uma ligacao que se corta a meio deixa um ficheiro
+                    #        parcial. Ele nunca passaria na soma -- mas deixa-lo
+                    #        no disco e deixar uma armadilha para quem o
+                    #        encontrar mais tarde e nao souber de onde veio, que
+                    #        e a mesma regra que se aplica a um ficheiro que
+                    #        falha a verificacao. Sai.
+                    # EN-UK: A connection cut halfway leaves a partial file. It
+                    #        would never pass the checksum -- but leaving it on
+                    #        disk leaves a trap for whoever finds it later, the
+                    #        same rule that applies to a file failing
+                    #        verification. It goes.
+                    $ficheiro.Dispose()
+                    Remove-Item -LiteralPath $Destino -Force -ErrorAction SilentlyContinue
+                    throw
+                }
+                finally { $ficheiro.Dispose() }
+                return $Destino
+            }
+
+            $leitor = New-Object System.IO.StreamReader($fluxo)
+            try     { return $leitor.ReadToEnd() }
+            finally { $leitor.Dispose() }
+        }
+        finally {
+            $resposta.Close()
+        }
     }
 
     throw "Demasiados redireccionamentos a partir de $Endereco. O descarregamento foi abandonado."
 
-    }
-    finally {
-        $ProgressPreference = $progressoAnterior
-    }
 }
 
 
@@ -442,6 +520,121 @@ function Get-CaminhoGpg {
 }
 
 
+function Get-CaminhoCygpath {
+    <#
+    .SYNOPSIS
+        PT-PT: O `cygpath` que vive ao lado deste `gpg`, se existir.
+        EN-UK: The `cygpath` living beside this `gpg`, if there is one.
+
+    .DESCRIPTION
+        PT-PT: A presenca do `cygpath` na mesma pasta e o que identifica um
+               `gpg` compilado para MSYS -- que e o caso do que vem com o Git
+               para Windows, e portanto o caso na maioria das maquinas onde este
+               programa corre.
+
+               Nao se procura o `cygpath` no PATH: procura-se **ao lado**. Um
+               `cygpath` de outra instalacao pode traduzir para uma raiz
+               diferente, e um caminho traduzido pela regra errada e pior do que
+               um caminho por traduzir.
+        EN-UK: A `cygpath` in the same folder is what identifies an MSYS-built
+               `gpg` -- which is what Git for Windows ships, and therefore the
+               case on most machines running this.
+
+               It is looked for **beside** gpg, not on the PATH: a `cygpath`
+               from another installation may translate to a different root, and
+               a path translated by the wrong rule is worse than an
+               untranslated one.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param([Parameter(Mandatory)][AllowEmptyString()][string]$Gpg)
+
+    if (-not $Gpg) { return '' }
+    $pasta = Split-Path -Path $Gpg -Parent
+    if (-not $pasta) { return '' }
+
+    $candidato = Join-Path $pasta 'cygpath.exe'
+    if (Test-Path -LiteralPath $candidato -PathType Leaf) { return $candidato }
+    return ''
+}
+
+
+function ConvertTo-CaminhoParaGpg {
+    <#
+    .SYNOPSIS
+        PT-PT: Poe um caminho na forma que este `gpg` sabe ler.
+        EN-UK: Puts a path into the form this `gpg` can read.
+
+    .DESCRIPTION
+        PT-PT: **Esta funcao existe porque a verificacao de assinaturas nunca
+               funcionou em Windows, e ninguem tinha reparado.**
+
+               O `gpg` que vem com o Git para Windows e uma compilacao MSYS. Um
+               programa MSYS nao reconhece `C:\Users\...` como um caminho
+               absoluto -- a barra invertida e um caracter valido num nome de
+               ficheiro POSIX, por isso `C:\Users\rafae\...` e, para ele, **um
+               unico nome relativo**. E resolve-o contra a pasta actual:
+
+                   gpg: keyblock resource
+                   '/d/GitHub/.../Windows/C:\Users\rafae\AppData\...'
+                   No such file or directory
+
+               Barras normais tambem nao chegam: testado, da o mesmo erro com
+               `C:/Users/...`. A unica forma que ele aceita e a POSIX,
+               `/c/Users/...`, e quem sabe fazer essa traducao correctamente e o
+               `cygpath` que vem na mesma pasta.
+
+               Quando nao ha `cygpath`, o `gpg` e nativo -- o do Gpg4win -- e
+               esse aceita caminhos de Windows tal como estao. Por isso o
+               caminho volta intacto em vez de ser adivinhado.
+
+        EN-UK: **This function exists because signature verification never
+               worked on Windows, and nobody had noticed.**
+
+               The `gpg` shipped with Git for Windows is an MSYS build. An MSYS
+               program does not recognise `C:\Users\...` as absolute -- the
+               backslash is a valid character in a POSIX filename, so
+               `C:\Users\rafae\...` is, to it, **one relative name** -- and it
+               resolves it against the current directory.
+
+               Forward slashes are not enough either: tested, `C:/Users/...`
+               gives the same error. The only form it accepts is POSIX,
+               `/c/Users/...`, and what knows how to make that translation
+               correctly is the `cygpath` shipped in the same folder.
+
+               With no `cygpath`, the `gpg` is native -- Gpg4win's -- and that
+               one takes Windows paths as they are. So the path comes back
+               untouched rather than guessed at.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param(
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Caminho,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Cygpath
+    )
+
+    if (-not $Caminho -or -not $Cygpath) { return $Caminho }
+
+    try {
+        # PT-PT: A preferencia baixa aqui pela mesma razao que baixa no `gpg`:
+        #        um programa nativo que escreva para o stderr nao deve fazer
+        #        rebentar quem o chamou. Ver a nota em `Test-AssinaturaGpg`.
+        # EN-UK: The preference drops here for the same reason it drops around
+        #        `gpg`: a native program writing to stderr should not blow up
+        #        its caller.
+        $anterior = $ErrorActionPreference
+        $ErrorActionPreference = 'Continue'
+        $convertido = (& $Cygpath -u $Caminho 2>$null | Select-Object -First 1)
+        $ErrorActionPreference = $anterior
+
+        if ($convertido) { return [string]$convertido }
+    }
+    catch { Write-Verbose "O cygpath não converteu $Caminho : $($_.Exception.Message)" }
+
+    return $Caminho
+}
+
+
 function Test-AssinaturaGpg {
     <#
     .SYNOPSIS
@@ -501,22 +694,66 @@ function Test-AssinaturaGpg {
     $porta = Join-Path ([IO.Path]::GetTempPath()) ("lv-gpg-" + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $porta -Force | Out-Null
 
-    try {
-        $base = @('--homedir', $porta, '--batch', '--no-tty', '--status-fd', '1')
+    # PT-PT: **O stderr do gpg nao pode ser fatal, e era.**
+    #
+    #        O ponto de entrada corre com `$ErrorActionPreference = 'Stop'`, e
+    #        com essa preferencia um `2>&1` num programa nativo transforma cada
+    #        linha de stderr numa excepcao que termina tudo. O gpg escreve para
+    #        o stderr **quando corre bem**: "keybox created", "trustdb created",
+    #        "Total number processed: 1".
+    #
+    #        Resultado: bastava a primeira linha de uma execucao com exito para
+    #        rebentar. Junto com o problema dos caminhos, e por isto que a
+    #        verificacao de assinaturas nunca funcionou em Windows.
+    #
+    #        A preferencia baixa so aqui dentro. Sendo uma variavel de funcao, o
+    #        original volta sozinho quando a funcao termina -- por qualquer
+    #        caminho, incluindo o das excepcoes.
+    #
+    # EN-UK: **gpg's stderr must not be fatal, and it was.**
+    #
+    #        The entry point runs with `$ErrorActionPreference = 'Stop'`, and
+    #        under that preference a `2>&1` on a native program turns every
+    #        stderr line into a terminating exception. gpg writes to stderr
+    #        **when it succeeds**: "keybox created", "trustdb created", "Total
+    #        number processed: 1". One line of a successful run was enough to
+    #        blow up. Together with the path problem, this is why signature
+    #        verification never worked on Windows.
+    #
+    #        The preference drops inside this function only. Being a function
+    #        variable, the original returns by itself when the function ends --
+    #        by any route, exceptions included.
+    $ErrorActionPreference = 'Continue'
 
-        & $gpg @base '--import' $ChaveFicheiro 2>&1 | Out-Null
+    try {
+        # PT-PT: Os tres caminhos passam pela conversao, e nao so o porta-chaves.
+        #        O erro que se via falava do porta-chaves porque era o primeiro a
+        #        ser aberto -- mas o ficheiro da chave e o do manifesto sofrem
+        #        exactamente do mesmo.
+        # EN-UK: All three paths go through the conversion, not just the keyring.
+        #        The visible error named the keyring because it was opened first,
+        #        but the key file and the manifest suffer exactly the same.
+        $cygpath = Get-CaminhoCygpath -Gpg $gpg
+        $portaG      = ConvertTo-CaminhoParaGpg -Caminho $porta          -Cygpath $cygpath
+        $chaveG      = ConvertTo-CaminhoParaGpg -Caminho $ChaveFicheiro  -Cygpath $cygpath
+        $manifestoG  = ConvertTo-CaminhoParaGpg -Caminho $Manifesto      -Cygpath $cygpath
+        $assinaturaG = if ($Assinatura) { ConvertTo-CaminhoParaGpg -Caminho $Assinatura -Cygpath $cygpath } else { '' }
+
+        $base = @('--homedir', $portaG, '--batch', '--no-tty', '--status-fd', '1')
+
+        & $gpg @base '--import' $chaveG 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) {
             $resultado.Detalhe = 'Não foi possível importar a chave pública.'
             return $resultado
         }
 
-        if ($Assinatura) {
-            $saida = & $gpg @base '--verify' $Assinatura $Manifesto 2>&1
+        if ($assinaturaG) {
+            $saida = & $gpg @base '--verify' $assinaturaG $manifestoG 2>&1
         }
         else {
             # PT-PT: Manifesto assinado em claro — a assinatura esta dentro dele.
             # EN-UK: Clear-signed manifest — the signature is inside it.
-            $saida = & $gpg @base '--verify' $Manifesto 2>&1
+            $saida = & $gpg @base '--verify' $manifestoG 2>&1
         }
         $codigo = $LASTEXITCODE
         $texto = ($saida | Out-String)

@@ -8,6 +8,120 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.3.2] — 2026-09-04
+
+**PT** · A verificação de assinaturas GPG nunca tinha funcionado em Windows, e
+o seguimento de redireccionamentos falhava em servidores do próprio catálogo.
+**EN** · GPG signature verification had never worked on Windows, and redirect
+following failed on the catalogue's own servers.
+
+### O que se descobriu, e como
+
+Um utilizador tentou criar uma máquina com o Ubuntu e o programa rebentou. O
+registo introduzido na 1.3.1 deu a mensagem inteira — e a partir dela saíram
+**dois defeitos independentes** que estavam a tapar-se um ao outro.
+
+### 1 · O gpg do Git para Windows nunca recebeu um caminho que soubesse ler
+
+```
+gpg: keyblock resource '/d/GitHub/.../Windows/C:\Users\rafae\AppData\Local\Temp\lv-gpg-.../pubring.kbx':
+     No such file or directory
+```
+
+O `gpg` que vem com o Git para Windows é uma compilação **MSYS**. Um programa
+MSYS não reconhece `C:\Users\...` como caminho absoluto — a barra invertida é
+um caracter válido num nome de ficheiro POSIX, por isso `C:\Users\rafae\...`
+é, para ele, **um único nome relativo** — e resolve-o contra a pasta actual.
+
+Barras normais também não chegam: testado, `C:/Users/...` dá o mesmo erro. A
+única forma que ele aceita é a POSIX, `/c/Users/...`, e quem sabe fazer essa
+tradução é o `cygpath` que vem na mesma pasta. A sua presença ao lado do `gpg` é
+o que identifica uma compilação MSYS; sem ele, o `gpg` é nativo e o caminho vai
+intacto.
+
+**Os quatro caminhos passam pela conversão** — o porta-chaves, a chave, o
+manifesto e a assinatura. O erro visível falava do porta-chaves só porque era o
+primeiro a ser aberto.
+
+### 2 · O ruído normal do gpg era fatal
+
+O ponto de entrada corre com `$ErrorActionPreference = 'Stop'`, e com essa
+preferência um `2>&1` num programa nativo transforma **cada linha de stderr numa
+excepção que termina tudo**. O gpg escreve para o stderr *quando corre bem*:
+
+```
+gpg: keybox '/tmp/.../pubring.kbx' created
+gpg: Total number processed: 1
+```
+
+Bastava a primeira linha de uma execução com êxito. Mesmo com os caminhos
+certos, isto rebentava — o que quer dizer que os dois defeitos tinham de ser
+corrigidos para qualquer um deles se notar.
+
+### 3 · Os redireccionamentos não eram seguidos em dois servidores do catálogo
+
+Este só apareceu na varredura que se seguiu. Com `-MaximumRedirection 0`, o
+`Invoke-WebRequest` do PowerShell 5.1 lança em alguns servidores um
+`InvalidOperationException` **sem objecto `Response`** — e sem resposta não há
+cabeçalho `Location` para seguir. O ciclo de saltos, que é a peça central da
+verificação, não tinha por onde continuar.
+
+Acontecia no `cdimage.ubuntu.com` e no `cdimage.kali.org`.
+
+O descarregamento passou a usar `HttpWebRequest` com `AllowAutoRedirect = $false`,
+que devolve o 3xx como resposta **normal**, com os cabeçalhos acessíveis. Não é
+um remendo: é mais explícito do que o que cá estava, porque cada salto passa a
+ser um objecto que se inspecciona em vez de uma excepção que se apanha.
+
+E escreve para o ficheiro **em fluxo**, aos pedaços de 1 MB. Isso torna
+desnecessário o remendo da barra de progresso da 1.3.1 — que foi removido — e
+resolve de raiz o problema da memória numa ISO de vários GB. Medido: **78 a 85
+MB/s**, contra 1,8 MB/s antes da 1.3.1.
+
+Uma ligação que se corte a meio passa a apagar o ficheiro parcial, pela mesma
+regra que já se aplicava a um ficheiro que falha a soma.
+
+### O catálogo, varrido de ponta a ponta pela primeira vez
+
+Com o código a funcionar, foi possível verificar **todas** as imagens do
+catálogo contra os servidores verdadeiros. Oito passam. Quatro não, e nenhuma
+delas por culpa do código:
+
+| Imagem | O que se passa |
+| :--- | :--- |
+| **Debian** (as duas) | **Corrigido.** O `chave_url` apontava para a chave de *release* do Debian, mas o `SHA256SUMS.sign` é assinado pela chave de *CD*. A impressão fixada estava certa — o programa recusou por não conseguir verificar, que é o que devia fazer |
+| **Fedora** | 404. O catálogo aponta para a versão 41, que já não está no servidor |
+| **Rocky Linux** | A assinatura não confere com a chave indicada |
+| **openSUSE** | O `chave_url` aponta para o próprio ficheiro de assinatura, e não para uma chave |
+| **Kali** | Redirecciona para `kali.download`, que **não está** na lista de domínios. O programa recusa — e é o mecanismo a funcionar, não uma avaria. Acrescentar esse domínio é uma decisão de segurança que não se toma sozinho |
+
+### Testes
+
+119 · 116 · 116, **351** ao todo.
+
+O grupo da assinatura GPG **não existia** na suite de Windows, e é por isso que
+nada disto foi apanhado antes: a de Linux tinha um teste equivalente desde a
+1.2.0. O novo corre o `gpg` a sério — gera uma chave, assina um ficheiro,
+verifica-o, e confirma que uma assinatura válida de **outra** chave é recusada.
+Não há forma de apanhar estes defeitos sem chamar mesmo o programa.
+
+Os quatro testes do descarregamento verificam a forma do código: que os saltos
+não são seguidos automaticamente, que o domínio é verificado **dentro** do ciclo
+e não só à entrada, e que o ficheiro é escrito em fluxo.
+
+### Corrigido também · Also fixed
+
+- O `Assert-Contem` da suite usava `-like`, que lê `[` e `]` como curingas: um
+  fragmento com um nome de tipo do .NET nunca correspondia. Passou a comparação
+  literal — e a mensagem de falha passou a ser cortada, porque comparar contra o
+  conteúdo de um ficheiro despejava o ficheiro inteiro no ecrã
+- A degradação graciosa quando o servidor de chaves está em baixo, que a
+  mudança do descarregamento tinha partido: o `catch` era de `WebException` e
+  deixou de apanhar. O `throw` da assinatura inválida ficou **de fora** desse
+  bloco, para nunca ser engolido
+
+---
+
 ## [1.3.1] — 2026-09-04
 
 **PT** · Uma correcção que vale 49 vezes, e outra que faz o erro seguinte ser

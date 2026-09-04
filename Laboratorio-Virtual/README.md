@@ -531,7 +531,7 @@ corrompe-a.
 ## Estrutura · Structure
 
 ```
-├── Windows/              PowerShell · 113 testes
+├── Windows/              PowerShell · 119 testes
 │   ├── EXECUTAR.bat
 │   ├── src/              LaboratorioVirtual.ps1 + 8 módulos + catalogo.json
 │   └── tests/
@@ -568,7 +568,7 @@ Fusion, porque num Mac são os dois que se encontram instalados em máquinas
 reais.
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-Nenhum dos 345 testes toca na rede, cria uma máquina virtual ou instala seja o
+Nenhum dos 351 testes toca na rede, cria uma máquina virtual ou instala seja o
 que for — nem os do módulo de instalação, que verificam as decisões tomadas
 **antes** de instalar: que versão, que ficheiro, de que domínio, com que
 assinatura. Nem os da VMware e da Parallels, que verificam o `.vmx` e as

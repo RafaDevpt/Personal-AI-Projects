@@ -1044,71 +1044,214 @@ Teste 'a pasta por omissão é a do instalador da Oracle' {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A barra de progresso do descarregamento
+# PT-PT: O descarregamento e os saltos
 #
-#        Isto nao e um pormenor de estilo. Medido nesta maquina, com a mesma
-#        imagem, no mesmo minuto:
+#        Nenhum destes testes liga a rede. O que se verifica e a **forma** do
+#        codigo, e nao ha aqui nada de cerimonial: cada uma destas linhas ja
+#        esteve errada e cada erro custou um descarregamento que nao funcionava.
 #
-#            barra ligada    63 MB em 34,4s  =   1,8 MB/s
-#            barra desligada 63 MB em  0,7s  =  88,4 MB/s
-#
-#        Numa ISO de 5 GB e a diferenca entre 47 minutos e um -- e muito
-#        provavelmente entre falhar e funcionar.
-#
-#        Nenhum destes testes liga a rede: o descarregamento e recusado antes de
-#        qualquer ligacao, por o dominio nao estar na lista. O que se prova e o
-#        que acontece a preferencia da sessao a volta disso.
-#
-# EN-UK: The download progress bar. Not a style detail: measured on this
-#        machine, 1.8 MB/s with it against 88.4 MB/s without. On a 5 GB ISO that
-#        is 47 minutes against one. None of these tests touches the network: the
-#        download is refused before any connection because the domain is not on
-#        the list.
+# EN-UK: Downloading and redirects. None of these tests opens a connection.
+#        What is checked is the **shape** of the code, and there is nothing
+#        ceremonial about it: each of these lines has been wrong, and each
+#        mistake cost a download that did not work.
 # ---------------------------------------------------------------------------
-Grupo 'A barra de progresso não fica ligada nem fica desligada'
+Grupo 'Como o descarregamento é feito'
 
-Teste 'a preferência da sessão é reposta quando o descarregamento falha' {
-    # PT-PT: O caminho do erro e o que interessa: e o que corre quando alguma
-    #        coisa vai mal, e e onde uma reposicao esquecida ficaria escondida.
-    #        Deixar a barra desligada na sessao de quem chamou faria os
-    #        `Write-Progress` dele desaparecerem sem explicacao.
-    # EN-UK: The error path is the one that matters: it is what runs when
-    #        something goes wrong, and where a forgotten restore would hide.
-    #        Leaving the bar off in the caller's session would make their own
-    #        `Write-Progress` vanish unexplained.
-    $antes = $ProgressPreference
-    try {
-        Invoke-DescarregamentoSeguro -Endereco 'https://exemplo.invalido/x' `
-            -Dominios @('nada.invalido') -ErrorAction Stop | Out-Null
-    }
-    catch { }
-    Assert-Igual $antes $ProgressPreference
+Teste 'os redireccionamentos não dependem de uma excepção para serem seguidos' {
+    # PT-PT: Com `-MaximumRedirection 0`, o `Invoke-WebRequest` do 5.1 lanca em
+    #        alguns servidores um `InvalidOperationException` **sem objecto
+    #        Response** -- e sem Response nao ha `Location` para seguir. Foi
+    #        assim que o cdimage.ubuntu.com e o cdimage.kali.org deixaram de
+    #        funcionar, que sao servidores do proprio catalogo.
+    # EN-UK: With `-MaximumRedirection 0`, 5.1's `Invoke-WebRequest` throws on
+    #        some servers an `InvalidOperationException` **with no Response
+    #        object** -- and with no response there is no `Location` to follow.
+    $fonteSeg = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
+    Assert-Contem $fonteSeg '[System.Net.HttpWebRequest]::Create'
+    Assert-Falso ($fonteSeg -match '=\s*Invoke-WebRequest')
 }
 
-Teste 'a preferência da sessão é reposta mesmo quando ela estava desligada' {
-    $antes = $ProgressPreference
-    try {
-        $ProgressPreference = 'SilentlyContinue'
-        try {
-            Invoke-DescarregamentoSeguro -Endereco 'https://exemplo.invalido/x' `
-                -Dominios @('nada.invalido') -ErrorAction Stop | Out-Null
+Teste 'os saltos não são seguidos automaticamente' {
+    # PT-PT: Se fossem, a lista de dominios ficava sem efeito: o servidor
+    #        redireccionava para onde quisesse e o ficheiro vinha de la sem
+    #        passar por verificacao nenhuma. E a razao de existir o ciclo.
+    # EN-UK: Were they, the domain list would be void: the server could redirect
+    #        anywhere and the file would come from there unchecked.
+    $fonteSeg = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
+    Assert-Contem $fonteSeg '$pedido.AllowAutoRedirect = $false'
+}
+
+Teste 'o domínio é verificado dentro do ciclo, e não só à entrada' {
+    # PT-PT: A verificacao tem de estar **no cimo do ciclo**. Fora dele, um
+    #        servidor de confianca podia redireccionar para fora da lista e o
+    #        salto seguinte passava sem ser visto.
+    # EN-UK: The check must be **at the top of the loop**. Outside it, a trusted
+    #        server could redirect off the list and the next hop would pass
+    #        unseen.
+    $linhas = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1')
+    $iCiclo = ($linhas | Select-String -Pattern 'for \(\$salto' | Select-Object -First 1).LineNumber
+    $iTeste = ($linhas | Select-String -Pattern 'Test-DominioConfiavel -Endereco \$actual' | Select-Object -First 1).LineNumber
+    Assert-Verdadeiro ($iCiclo -lt $iTeste) 'a verificação do domínio tem de estar dentro do ciclo dos saltos'
+}
+
+Teste 'o ficheiro é escrito em fluxo, e não guardado em memória' {
+    # PT-PT: Uma ISO de 5 GB nao cabe em memoria numa maquina de 8. Isto nao e
+    #        optimizacao: e a diferenca entre funcionar e nao funcionar.
+    # EN-UK: A 5 GB ISO does not fit in memory on an 8 GB machine.
+    $fonteSeg = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
+    Assert-Contem $fonteSeg '$fluxo.CopyTo($ficheiro'
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: A assinatura GPG
+#
+#        Este grupo **nao existia**, e e por isso que a verificacao de
+#        assinaturas nunca funcionou em Windows sem ninguem reparar. A versao de
+#        Linux tinha um teste equivalente desde a 1.2.0; esta nao.
+#
+#        Corre o `gpg` a serio: gera uma chave, assina um ficheiro, verifica-o.
+#        Nao ha forma de apanhar os dois defeitos que aqui estavam -- os
+#        caminhos do MSYS e o stderr fatal -- sem chamar mesmo o programa.
+#
+# EN-UK: The GPG signature. This group **did not exist**, which is why signature
+#        verification never worked on Windows without anybody noticing: the
+#        Linux version has had an equivalent test since 1.2.0, this one did not.
+#
+#        It runs `gpg` for real: generates a key, signs a file, verifies it.
+#        There is no way to catch the two defects that were here -- MSYS paths
+#        and fatal stderr -- without actually calling the program.
+# ---------------------------------------------------------------------------
+Grupo 'Assinatura GPG'
+
+$gpgReal = Get-CaminhoGpg
+
+if ($gpgReal) {
+
+    Teste 'o cygpath é encontrado quando o gpg é o do Git para Windows' {
+        # PT-PT: A presenca do cygpath ao lado do gpg e o que identifica uma
+        #        compilacao MSYS. Nas duas situacoes a resposta tem de ser
+        #        coerente com o que esta no disco.
+        # EN-UK: A cygpath beside gpg is what identifies an MSYS build.
+        $cyg = Get-CaminhoCygpath -Gpg $gpgReal
+        $esperado = Join-Path (Split-Path $gpgReal -Parent) 'cygpath.exe'
+        if (Test-Path -LiteralPath $esperado) { Assert-Igual $esperado $cyg }
+        else { Assert-Igual '' $cyg }
+    }
+
+    Teste 'sem cygpath, o caminho volta intacto' {
+        # PT-PT: O gpg nativo, o do Gpg4win, aceita caminhos de Windows tal
+        #        como estao. Inventar uma traducao nesse caso partiria o que
+        #        funcionava.
+        # EN-UK: The native gpg, Gpg4win's, takes Windows paths as they are.
+        Assert-Igual 'C:\pasta\x' (ConvertTo-CaminhoParaGpg -Caminho 'C:\pasta\x' -Cygpath '')
+    }
+
+    $cygReal = Get-CaminhoCygpath -Gpg $gpgReal
+    if ($cygReal) {
+        Teste 'com cygpath, um caminho de Windows vira POSIX' {
+            # PT-PT: Este e o defeito que fez tudo falhar. Um programa MSYS le
+            #        `C:\Users\...` como **um nome relativo** -- a barra
+            #        invertida e um caracter valido num nome POSIX -- e resolve-o
+            #        contra a pasta actual. Barras normais tambem nao chegam.
+            # EN-UK: This is the defect that broke everything. An MSYS program
+            #        reads `C:\Users\...` as **one relative name** and resolves
+            #        it against the current directory.
+            $convertido = ConvertTo-CaminhoParaGpg -Caminho $env:SystemDrive -Cygpath $cygReal
+            Assert-Verdadeiro ($convertido -like '/*') "esperava um caminho POSIX, obtive <$convertido>"
         }
-        catch { }
-        Assert-Igual 'SilentlyContinue' $ProgressPreference
     }
-    finally { $ProgressPreference = $antes }
-}
+    else {
+        Saltar 'conversão de caminhos do MSYS' 'este gpg não é do Git para Windows — não precisa de conversão'
+    }
 
-Teste 'o descarregamento desliga mesmo a barra enquanto corre' {
-    # PT-PT: Sem isto, os dois testes acima passariam com a linha apagada do
-    #        codigo -- provariam que nada mudou, que e verdade quando nada e
-    #        feito. Este le o codigo e confirma que a preferencia la esta.
-    # EN-UK: Without this, the two tests above would pass with the line deleted:
-    #        they would prove nothing changed, which is true when nothing is
-    #        done. This one reads the code and confirms the preference is set.
-    $fonte = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
-    Assert-Contem $fonte "ProgressPreference = 'SilentlyContinue'"
-    Assert-Contem $fonte '$ProgressPreference = $progressoAnterior'
+    # -----------------------------------------------------------------------
+    Teste 'uma assinatura verdadeira é aceite, e a impressão digital confere' {
+        # PT-PT: Corre o gpg de ponta a ponta. Antes desta versao, isto rebentava
+        #        de duas maneiras diferentes antes de chegar ao fim.
+        # EN-UK: Runs gpg end to end. Before this version it blew up in two
+        #        different ways before reaching the end.
+        $t = Join-Path ([IO.Path]::GetTempPath()) ('lv-t-' + [Guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $t -Force | Out-Null
+        $anterior = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $anel = Join-Path $t 'anel'
+            New-Item -ItemType Directory -Path $anel -Force | Out-Null
+            $cyg = Get-CaminhoCygpath -Gpg $gpgReal
+            $anelG = ConvertTo-CaminhoParaGpg -Caminho $anel -Cygpath $cyg
+            $b = @('--homedir', $anelG, '--batch', '--no-tty')
+
+            & $gpgReal @b '--passphrase' '' '--quick-generate-key' 'Teste Laboratorio <teste@invalido>' 'default' 'default' 'never' 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'o gpg desta máquina não gera chaves em modo automático' }
+
+            $doc = Join-Path $t 'manifesto.txt'
+            Set-Content -LiteralPath $doc -Value 'aaaa  ficheiro.iso' -Encoding ASCII
+            $docG = ConvertTo-CaminhoParaGpg -Caminho $doc -Cygpath $cyg
+            $sigG = ConvertTo-CaminhoParaGpg -Caminho (Join-Path $t 'manifesto.sig') -Cygpath $cyg
+            & $gpgReal @b '--output' $sigG '--detach-sign' $docG 2>&1 | Out-Null
+
+            $chave = Join-Path $t 'chave.asc'
+            $chaveG = ConvertTo-CaminhoParaGpg -Caminho $chave -Cygpath $cyg
+            & $gpgReal @b '--armor' '--output' $chaveG '--export' 2>&1 | Out-Null
+
+            $impressao = ((& $gpgReal @b '--with-colons' '--fingerprint' 2>$null |
+                Select-String '^fpr' | Select-Object -First 1) -split ':')[9]
+
+            $ErrorActionPreference = 'Stop'   # como o programa corre a serio
+            $r = Test-AssinaturaGpg -Manifesto $doc -Assinatura (Join-Path $t 'manifesto.sig') `
+                -ChaveFicheiro $chave -ImpressaoEsperada $impressao
+            Assert-Verdadeiro $r.Verificada $r.Detalhe
+            Assert-Igual $impressao $r.Impressao
+        }
+        finally {
+            $ErrorActionPreference = $anterior
+            Remove-Item -LiteralPath $t -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+
+    Teste 'uma assinatura válida de outra chave é recusada' {
+        # PT-PT: A impressao fixada e uma **condicao** e nao um aviso: uma
+        #        assinatura valida da chave errada e exactamente o que um
+        #        atacante com um catalogo adulterado produziria.
+        # EN-UK: The pinned fingerprint is a **condition**, not a warning: a
+        #        valid signature from the wrong key is exactly what an attacker
+        #        with a tampered catalogue would produce.
+        $t = Join-Path ([IO.Path]::GetTempPath()) ('lv-t-' + [Guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $t -Force | Out-Null
+        $anterior = $ErrorActionPreference
+        try {
+            $ErrorActionPreference = 'Continue'
+            $anel = Join-Path $t 'anel'
+            New-Item -ItemType Directory -Path $anel -Force | Out-Null
+            $cyg = Get-CaminhoCygpath -Gpg $gpgReal
+            $b = @('--homedir', (ConvertTo-CaminhoParaGpg -Caminho $anel -Cygpath $cyg), '--batch', '--no-tty')
+
+            & $gpgReal @b '--passphrase' '' '--quick-generate-key' 'Outra Pessoa <outra@invalido>' 'default' 'default' 'never' 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'o gpg desta máquina não gera chaves em modo automático' }
+
+            $doc = Join-Path $t 'manifesto.txt'
+            Set-Content -LiteralPath $doc -Value 'aaaa  ficheiro.iso' -Encoding ASCII
+            & $gpgReal @b '--output' (ConvertTo-CaminhoParaGpg -Caminho (Join-Path $t 'm.sig') -Cygpath $cyg) `
+                '--detach-sign' (ConvertTo-CaminhoParaGpg -Caminho $doc -Cygpath $cyg) 2>&1 | Out-Null
+            $chave = Join-Path $t 'chave.asc'
+            & $gpgReal @b '--armor' '--output' (ConvertTo-CaminhoParaGpg -Caminho $chave -Cygpath $cyg) '--export' 2>&1 | Out-Null
+
+            $ErrorActionPreference = 'Stop'
+            $r = Test-AssinaturaGpg -Manifesto $doc -Assinatura (Join-Path $t 'm.sig') `
+                -ChaveFicheiro $chave `
+                -ImpressaoEsperada '0000000000000000000000000000000000000000'
+            Assert-Falso $r.Verificada
+            Assert-Contem $r.Detalhe 'outra chave'
+        }
+        finally {
+            $ErrorActionPreference = $anterior
+            Remove-Item -LiteralPath $t -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+else {
+    Saltar 'assinatura GPG de ponta a ponta' 'o gpg não está instalado nesta máquina — corre no runner'
 }
 
 

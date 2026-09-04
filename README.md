@@ -10,10 +10,10 @@
 **Builds virtual machines without the two things that go wrong: an image that is not what it claims, and a specification that leaves the host unusable**
 
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-1.3.1-1F6FEB?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-1.3.2-1F6FEB?style=for-the-badge)
 ![PowerShell](https://img.shields.io/badge/PowerShell-5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
 ![bash](https://img.shields.io/badge/bash-3.2+-4EAA25?style=for-the-badge&logo=gnubash&logoColor=white)
-![Tests](https://img.shields.io/badge/345_tests-2EA043?style=for-the-badge)
+![Tests](https://img.shields.io/badge/351_tests-2EA043?style=for-the-badge)
 
 <a href="../../tree/main"><img src="https://img.shields.io/badge/←_back_to_index-30363D?style=flat-square" /></a>
 
@@ -153,7 +153,7 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 
 ## Current state
 
-- **345 tests** — 113 Windows · 116 Linux · 116 macOS. None opens a network connection, creates a virtual machine or installs anything
+- **351 tests** — 119 Windows · 116 Linux · 116 macOS. None opens a network connection, creates a virtual machine or installs anything
 - **Seventeen images** in the catalogue: eleven Linux distributions including ARM64, two Microsoft evaluations, the macOS installer and two Android entries
 - Continuous integration on **three native runners** — a Linux version tested on a Windows runner proves nothing about what it does on Linux, and the macOS version, written for bash 3.2, is only confirmed as such on a Mac
 - Bilingual source throughout, PT-PT and EN-UK
@@ -190,6 +190,7 @@ Full documentation in [`Laboratorio-Virtual/README.md`](Laboratorio-Virtual/READ
 
 - **Creation in VMware and Parallels has not been exercised against the real products.** The `.vmx` is verified field by field and the `prlctl` calls follow the documentation, but neither the author's machine nor the CI runners have a licence for either. The first machine you build in one of them is the first real test
 - **Windows and macOS images are not downloaded automatically**, and that is deliberate — see above
+- **Four catalogue entries do not verify today**, found by sweeping every image against the real servers in 1.3.2: Fedora's manifest is a 404 (the entry points at release 41), Rocky's signature does not match the key given, openSUSE's key URL points at a signature file, and Kali redirects to a domain that is deliberately not on the allowlist. None is a code fault — the program refuses, which is what it should do
 - **The catalogue ages.** Six of the seventeen images carry a pinned GPG fingerprint; the rest rely on the checksum and the official server's HTTPS certificate, because their projects publish nothing stronger
 - **It does not convert images.** When a format does not suit the hypervisor it gives the `qemu-img` command and stops there. Converting three gigabytes is an operation whoever orders it should know they are ordering
 - **The UTM machine on macOS is pointed at, not built.** Assembling a `.utm` bundle from a script gives, easily, a machine that opens and does not boot

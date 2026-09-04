@@ -126,8 +126,30 @@ function Assert-Falso {
 }
 
 function Assert-Contem {
+    <#
+    .DESCRIPTION
+        PT-PT: A comparacao e literal, com `Contains`, e nao com `-like`. O
+               `-like` interpreta `[`, `]`, `*` e `?` como curingas, e um
+               fragmento com parentesis rectos -- um nome de tipo do .NET, por
+               exemplo -- nunca corresponderia. Foi assim que um teste desta
+               suite falhou por uma razao que nao tinha nada a ver com o que
+               estava a testar.
+
+               E o texto e cortado na mensagem. Sem o corte, comparar contra o
+               conteudo de um ficheiro despeja o ficheiro inteiro no ecra, e a
+               falha fica ilegivel no meio dele.
+        EN-UK: The comparison is literal, via `Contains`, not `-like`: `-like`
+               reads `[`, `]`, `*` and `?` as wildcards, so a fragment holding
+               square brackets -- a .NET type name, say -- would never match.
+
+               And the text is truncated in the message: without that,
+               comparing against a file's contents dumps the whole file.
+    #>
     param([string]$Texto, [string]$Fragmento)
-    if ($Texto -notlike "*$Fragmento*") { throw "o texto não contém <$Fragmento>: $Texto" }
+    if (-not $Texto.Contains($Fragmento)) {
+        $amostra = if ($Texto.Length -gt 200) { $Texto.Substring(0, 200) + '…' } else { $Texto }
+        throw "o texto não contém <$Fragmento>: $amostra"
+    }
 }
 
 function Assert-Lanca {
