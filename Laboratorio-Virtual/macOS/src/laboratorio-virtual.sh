@@ -798,30 +798,41 @@ criar_maquina() {
     #
     #        The list is a newline-separated string rather than an array: in
     #        Apple's bash 3.2, an empty array under `set -u` blows up.
+    #
+    # PT-PT: E chama-se `lista_hipervisores` e nao `chaves` porque neste mesmo
+    #        ficheiro ha um `chaves` que e um array, noutra funcao. Um nome so
+    #        para duas formas diferentes e uma armadilha para quem le -- e o
+    #        shellcheck, que segue o nome de uma ponta a outra do ficheiro,
+    #        reclama disso com razao.
+    # EN-UK: And it is called `lista_hipervisores` rather than `chaves` because
+    #        this same file has a `chaves` that is an array, in another
+    #        function. One name for two shapes is a trap for the reader -- and
+    #        shellcheck, which follows the name across the whole file, rightly
+    #        complains.
     titulo 'Em que hipervisor?'
-    local chaves='' indice=0
+    local lista_hipervisores='' indice=0
 
     if [[ "$tem_parallels" == 'sim' ]]; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}parallels"$'\n'
+        lista_hipervisores="${lista_hipervisores}parallels"$'\n'
         printf '    %d. Parallels Desktop — já instalada neste Mac\n' "$indice"
         nota '     Usa a que já tem. É a que melhor se dá com um Mac.'
     fi
     if [[ "$tem_fusion" == 'sim' ]]; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}fusion"$'\n'
+        lista_hipervisores="${lista_hipervisores}fusion"$'\n'
         printf '    %d. VMware Fusion — já instalada neste Mac\n' "$indice"
         nota '     Usa a que já tem. As máquinas ficam a par das outras que lá tiver.'
     fi
     if [[ "$tem_qemu" == 'sim' ]]; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}qemu"$'\n'
+        lista_hipervisores="${lista_hipervisores}qemu"$'\n'
         printf '    %d. QEMU — usa a aceleração da Apple, funciona em qualquer Mac\n' "$indice"
         nota '     Sem interface gráfica própria: a máquina é um comando que se guarda.'
     fi
     if [[ "$tem_vbox" == 'sim' ]]; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}virtualbox"$'\n'
+        lista_hipervisores="${lista_hipervisores}virtualbox"$'\n'
         printf '    %d. VirtualBox — da Oracle, interface própria, só em Macs Intel\n' "$indice"
         nota '     Melhor suporte de USB e de pastas partilhadas.'
     fi
@@ -851,7 +862,7 @@ criar_maquina() {
         [[ -z "$linha" ]] && continue
         n=$(( n + 1 ))
         if (( n == escolha )); then hipervisor="$linha"; fi
-    done <<< "$chaves"
+    done <<< "$lista_hipervisores"
     [[ -z "$hipervisor" ]] && return 0
 
     # --- de onde vem a imagem ------------------------------------------------

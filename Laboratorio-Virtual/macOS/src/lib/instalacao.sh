@@ -507,18 +507,18 @@ preparar_hipervisor() {
 
     local arq; arq="$(arquitectura)"
     local indice=0
-    local chaves=''
+    local lista_hipervisores=''
 
     if ! estado_qemu "$arq"; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}qemu"$'\n'
+        lista_hipervisores="${lista_hipervisores}qemu"$'\n'
         printf '    %d. Instalar o QEMU        — pelo Homebrew, com a aceleração da Apple\n' "$indice"
         printf '       Funciona em qualquer Mac, Intel ou com chip da Apple.\n'
     fi
 
     if ! apple_silicon && ! estado_virtualbox; then
         indice=$(( indice + 1 ))
-        chaves="${chaves}virtualbox"$'\n'
+        lista_hipervisores="${lista_hipervisores}virtualbox"$'\n'
         printf '    %d. Instalar o VirtualBox  — da Oracle, descarregado e verificado\n' "$indice"
         printf '       Interface própria, mais simples. Só em Macs Intel.\n'
     fi
@@ -550,7 +550,7 @@ preparar_hipervisor() {
         [[ -z "$linha" ]] && continue
         n=$(( n + 1 ))
         if (( n == escolha )); then chave="$linha"; fi
-    done <<< "$chaves"
+    done <<< "$lista_hipervisores"
 
     case "$chave" in
         qemu)       instalar_qemu ;;
