@@ -17,8 +17,10 @@
 - [As duas coisas que este programa faz melhor](#as-duas-coisas-que-este-programa-faz-melhor)
 - [Como a imagem é verificada](#como-a-imagem-é-verificada--how-the-image-is-verified)
 - [Trazer uma imagem sua](#trazer-uma-imagem-sua--bringing-your-own-image)
+- [O que já está instalado](#o-que-já-está-instalado--what-is-already-installed)
 - [Instalar um hipervisor](#instalar-um-hipervisor--installing-a-hypervisor)
 - [Instalação](#instalação--installation)
+- [Três perguntas, e depois nada](#três-perguntas-e-depois-nada--three-questions-then-nothing)
 - [O catálogo](#o-catálogo--the-catalogue)
 - [Como as especificações são calculadas](#como-as-especificações-são-calculadas)
 - [O que este programa não faz](#o-que-este-programa-não-faz)
@@ -166,10 +168,59 @@ paste, confirm the content matches the extension, and — crucially — know tha
 
 ---
 
+## O que já está instalado · What is already installed
+
+**PT** · Antes de propor instalar seja o que for, o programa olha para o que já
+lá está.
+**EN** · Before proposing to install anything, the program looks at what is
+already there.
+
+| | Reconhece | E sabe criar máquinas |
+| :--- | :--- | :--- |
+| **Windows** | Hyper-V · VirtualBox · **VMware Workstation** e Player | sim |
+| **Linux** | KVM/libvirt · VirtualBox · **VMware Workstation** | sim |
+| **macOS** | QEMU · VirtualBox · **Parallels Desktop** · **VMware Fusion** · UTM | sim, excepto UTM |
+
+Quem tem uma VMware paga pela empresa, com as máquinas todas lá dentro, não
+precisa de instalar um segundo hipervisor — e não devia. Os dois disputam as
+extensões de virtualização do processador e ficam ambos mais lentos.
+
+**Oferecer «quer usar a que já tem?» e depois não saber usá-la seria uma
+pergunta a fingir.** Por isso o trabalho não foi detectar: foi aprender a
+conduzir cada um deles.
+
+### E conduzem-se de maneiras que não se parecem nada
+
+A **Parallels** tem o `prlctl`, uma ferramenta de linha de comandos a sério:
+cria, configura e liga.
+
+A **VMware** não tem equivalente. Tem o `vmrun`, que liga e desliga mas não
+cria, e um ficheiro de texto — o `.vmx` — que descreve a máquina inteira e se
+escreve à mão. Não há aqui uma abstracção a partilhar entre as duas, e inventá-la
+só tornaria as duas piores.
+
+Escrever um `.vmx` à mão parece frágil e não é: o formato é estável há mais de
+vinte anos, e a alternativa — automatizar a interface gráfica — é que seria
+frágil. O que lá vai não é óbvio, e três campos decidem se a máquina arranca:
+
+- **`guestOS`** não é uma etiqueta: decide o controlador de disco, o relógio e a
+  placa de rede. Um Ubuntu criado como `other-64` arranca com metade das
+  definições erradas, e a lentidão nunca é associada a este campo
+- **o disco tem de existir antes do `.vmx`**, e a VMware não o cria sozinha —
+  isso é o `vmware-vdiskmanager`, que a versão gratuita do Player nem sempre traz
+- **`firmware = "efi"`** faz falta a um Windows 11, ou o instalador recusa-se a
+  começar com uma mensagem sobre outra coisa
+
+O caminho do disco vai **relativo**, para a pasta da máquina se poder mover para
+outro disco sem partir.
+
+---
+
 ## Instalar um hipervisor · Installing a hypervisor
 
 **PT** · Sem hipervisor não há onde criar a máquina. Quando não há nenhum, o
-programa pergunta qual quer e trata dele.
+programa pergunta qual quer e trata dele — e a hipótese de instalar outro
+aparece **sempre**, mesmo quando já há um a funcionar.
 **EN** · With no hypervisor there is nowhere to create the machine. When there
 is none, the program asks which one you want and sets it up.
 
@@ -246,6 +297,29 @@ Separadas, um catálogo adulterado não consegue mandar buscar um «instalador d
 hipervisor» a lado nenhum. Há um teste, nas três versões, que falha se as duas
 listas se tocarem.
 
+### A instalação é automática, e a única pergunta é onde
+
+Não há assistente para seguir. Em Windows o instalador corre em silêncio e o
+progresso aparece no terminal — tempo decorrido e megabytes escritos, que é
+verdade, e não uma barra a encher-se sozinha a fingir que sabe quanto falta.
+
+**E não se acredita no código de saída.** No fim vai-se procurar o `VBoxManage`
+onde ele devia ter ficado, porque um instalador que devolve zero sem ter
+instalado nada é uma coisa que acontece.
+
+A pergunta do sítio só se faz onde isso é mesmo uma escolha:
+
+- **Windows** — pergunta-se, porque o `INSTALLDIR` existe e o disco do sistema
+  está cheio em muitas máquinas
+- **Linux e macOS** — não se pergunta, e não é por esquecimento: quem decide onde
+  um pacote fica é a distribuição ou o Homebrew, e inventar uma pergunta cuja
+  resposta não muda nada seria pior do que não a fazer
+
+Um pormenor que valeu um aviso próprio: o `--msiparams INSTALLDIR=` da Oracle
+**não aceita espaços no caminho**. A pasta por omissão tem espaços e funciona à
+mesma — porque nesse caso não se lhe passa `INSTALLDIR` nenhum. Só quando se muda
+de sítio é que o problema aparece, e o programa avisa antes.
+
 ### O que continua a não se fazer
 
 - **Não se instala o Homebrew.** Instala-se passando um script da Internet
@@ -297,6 +371,49 @@ criar máquinas. Nada disto impede o arranque.
 ./executar.command --diagnostico  # macOS
 EXECUTAR.bat -Diagnostico         # Windows
 ```
+
+---
+
+## Três perguntas, e depois nada · Three questions, then nothing
+
+**PT** · Criar uma máquina são três decisões. O resto é trabalho, e o trabalho
+mostra-se enquanto acontece em vez de se pedir licença para ele.
+**EN** · Creating a machine is three decisions. The rest is work, and work is
+shown as it happens rather than asked permission for.
+
+1. **Em que hipervisor** — os que já cá estão, mais a hipótese de instalar outro
+2. **Onde guardar a imagem** — perguntado ao escolher a imagem, e não no fim.
+   Uma imagem anda pelos três a cinco gigabytes, e dizer isto depois de a
+   descarregar seria dizer tarde
+3. **As especificações e o nome, num ecrã só** — com os motivos por baixo:
+
+```
+    Nome            ubuntu-24-04
+    Processador     4 núcleo(s)          de 6 físicos
+    Memória         8 GB                 de 15.7 GB
+    Disco           40 GB dinâmico       321 GB livres
+    Rede            NAT                  alcança a Internet, não é alcançável de fora
+
+  Como cheguei a estes números:
+    · Memória: 16064 MB no anfitrião, menos 4016 MB reservados = 12048 disponíveis
+    · Processador: 4 dos 6 núcleos físicos, deixando 2 para o anfitrião
+
+    1. Criar com estas especificações
+    2. Alterar alguma coisa
+    0. Cancelar
+```
+
+**Depois desse ecrã não há mais perguntas.** Descarrega, verifica, cria.
+
+Um ecrã só, e não quatro perguntas seguidas: perguntar cada uma sem ver as
+outras obriga a decidir às cegas. E ao alterar, cada campo é validado contra
+**dois** limites ao mesmo tempo — o que o convidado precisa e o que o anfitrião
+tem. Nenhum dos dois sozinho chega: o primeiro deixa criar uma máquina que não
+cabe, o segundo deixa criar uma que cabe e não arranca.
+
+**A ordem também mudou:** o descarregamento vem depois deste ecrã. Descarregar
+cinco gigabytes antes de saber se a máquina cabe na memória do anfitrião é
+trabalho deitado fora.
 
 ---
 
@@ -414,15 +531,15 @@ corrompe-a.
 ## Estrutura · Structure
 
 ```
-├── Windows/              PowerShell · 94 testes
+├── Windows/              PowerShell · 110 testes
 │   ├── EXECUTAR.bat
-│   ├── src/              LaboratorioVirtual.ps1 + 7 módulos + catalogo.json
+│   ├── src/              LaboratorioVirtual.ps1 + 8 módulos + catalogo.json
 │   └── tests/
-├── Linux/                bash · 99 testes
+├── Linux/                bash · 116 testes
 │   ├── executar.sh
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
-├── macOS/                bash 3.2 · 97 testes
+├── macOS/                bash 3.2 · 116 testes
 │   ├── executar.command
 │   ├── src/              laboratorio-virtual.sh + lib/ + catalogo.json
 │   └── tests/
@@ -431,7 +548,8 @@ corrompe-a.
 └── CONTRIBUTING.md
 ```
 
-E dentro de cada versão, os mesmos sete módulos:
+E dentro de cada versão, os mesmos oito módulos — com uma excepção, explicada
+a seguir:
 
 | Módulo | O que faz |
 | :--- | :--- |
@@ -442,16 +560,25 @@ E dentro de cada versão, os mesmos sete módulos:
 | `recomendacao` | O cálculo das especificações. Não toca na máquina |
 | `hipervisor` | Detecção e criação, por hipervisor |
 | `instalacao` | Pôr um hipervisor a funcionar quando não há nenhum |
+| `vmware` · `terceiros` | Usar o hipervisor pago que já cá esteja |
+
+A excepção é o último. Em Windows e em Linux chama-se `vmware` e trata de um
+produto; num Mac chama-se `terceiros` e trata de **dois**, a Parallels e a
+Fusion, porque num Mac são os dois que se encontram instalados em máquinas
+reais.
 
 **PT** · Todo o código está comentado em português europeu e inglês britânico.
-Nenhum dos 290 testes toca na rede, cria uma máquina virtual ou instala seja o
+Nenhum dos 342 testes toca na rede, cria uma máquina virtual ou instala seja o
 que for — nem os do módulo de instalação, que verificam as decisões tomadas
 **antes** de instalar: que versão, que ficheiro, de que domínio, com que
-assinatura. As três suites correm em qualquer máquina, e depois cada versão é
-verificada no seu runner nativo pela integração contínua. Os poucos grupos que
-precisam mesmo do sistema — o `stat` do BSD, o `xattr` e o `spctl` num Mac, o
-`jq` em Linux — são saltados com uma explicação em vez de falharem, e correm no
-runner respectivo.
+assinatura. Nem os da VMware e da Parallels, que verificam o `.vmx` e as
+traduções de vocabulário sem precisar de nenhuma delas instalada.
+
+As três suites correm em qualquer máquina, e depois cada versão é verificada no
+seu runner nativo pela integração contínua. Os poucos grupos que precisam mesmo
+do sistema — o `stat` do BSD, o `xattr` e o `spctl` num Mac, o `jq` em Linux —
+são saltados com uma explicação em vez de falharem, e correm no runner
+respectivo.
 
 ---
 

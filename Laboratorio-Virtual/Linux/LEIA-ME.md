@@ -99,6 +99,39 @@ virt-viewer --connect qemu:///system NOME
 
 ---
 
+## A VMware que já cá está
+
+Se tiver uma **VMware Workstation** instalada, o programa reconhece-a e sabe
+criar máquinas nela. Aparece na lista dos hipervisores, em primeiro.
+
+**Em Linux isso conta mais do que em Windows.** A VMware Workstation e o KVM
+disputam as extensões de virtualização do processador, e a VMware costuma perder
+essa disputa em silêncio — com uma mensagem sobre o módulo `vmmon` que não
+explica nada. Propor a alguém que instale o KVM sem lhe perguntar se quer usar a
+VMware que já tem seria empurrá-lo para esse conflito.
+
+### Como se cria uma máquina na VMware
+
+Não há um `virsh`. Há um ficheiro de texto — o `.vmx` — que descreve a máquina
+inteira, e o `vmware-vdiskmanager`, que cria o disco. O `vmrun` liga e desliga,
+mas não cria.
+
+**Três campos decidem se a máquina arranca**, e nenhum é óbvio:
+
+- **`guestOS`** decide o controlador de disco, o relógio e a placa de rede. Um
+  Ubuntu criado como `other-64` arranca com metade das definições erradas
+- **o disco tem de existir antes do `.vmx`**, ou a VMware dá um erro que ninguém
+  associa à causa
+- **`firmware = "efi"`** faz falta a um Windows 11
+
+O caminho do disco vai **relativo**, para a pasta da máquina se poder mover para
+outro disco sem partir.
+
+Se o `vmware-vdiskmanager` não estiver instalado, o programa diz-lhe isso em vez
+de tentar e falhar a meio.
+
+---
+
 ## Instalar um hipervisor
 
 Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —

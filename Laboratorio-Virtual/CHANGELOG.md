@@ -8,6 +8,130 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.3.0] — 2026-09-04
+
+**PT** · O programa passou a reconhecer o que já está instalado, a instalar
+sozinho, e a perguntar só o que é mesmo uma decisão.
+**EN** · The program now recognises what is already installed, installs by
+itself, and asks only what is genuinely a decision.
+
+### Três coisas que estavam mal, e não eram bugs
+
+**Ignorava metade do que estava na máquina.** Quem tem uma VMware Workstation
+paga pela empresa, com as máquinas todas lá dentro, era convidado a instalar um
+segundo hipervisor — que é a receita conhecida para os dois ficarem lentos.
+
+**Fazia o utilizador acabar a instalação à mão.** Descarregava, verificava, e
+depois abria um assistente para ele clicar em «Seguinte» quatro vezes. Clicar
+quatro vezes não é uma decisão.
+
+**Perguntava demais e no sítio errado.** Especificações, nome, «criar?» —
+quatro paragens, cada uma sem ver as outras, e a decisão de onde guardar cinco
+gigabytes de imagem só aparecia depois de os descarregar.
+
+### Reconhece o que já lá está — e sabe usá-lo · Added
+
+| | Detecta | E sabe criar máquinas |
+| :--- | :--- | :--- |
+| **Windows** | VMware Workstation e Workstation Player | sim |
+| **Linux** | VMware Workstation | sim |
+| **macOS** | Parallels Desktop **e** VMware Fusion | sim |
+
+Oferecer «quer usar a que já tem?» e depois não saber usá-la seria uma pergunta
+a fingir. Por isso o trabalho aqui não foi detectar: foi aprender a conduzir
+cada um deles.
+
+**E conduzem-se de maneiras que não se parecem nada.** A Parallels tem o
+`prlctl`, uma ferramenta de linha de comandos a sério. A VMware não tem
+equivalente: tem o `vmrun`, que liga e desliga mas não cria, e um ficheiro de
+texto — o `.vmx` — que descreve a máquina inteira e se escreve à mão. Não há
+aqui uma abstracção a partilhar entre as duas, e inventá-la só tornaria as duas
+piores.
+
+Escrever um `.vmx` à mão parece frágil e não é: o formato é estável há mais de
+vinte anos, e a alternativa — automatizar a interface gráfica — é que seria
+frágil.
+
+**A hipótese de instalar outro aparece sempre**, mesmo quando já há um a
+funcionar. Quem tem só a VMware pode preferir o Hyper-V para uma máquina em
+concreto.
+
+### A instalação é automática · Changed
+
+Deixou de haver assistente para seguir. Em Windows o instalador corre em
+silêncio e o progresso aparece no terminal — tempo decorrido e megabytes
+escritos, que é verdade, e não uma barra a encher-se sozinha a fingir que sabe
+quanto falta.
+
+**E não se acredita no código de saída.** No fim vai-se procurar o `VBoxManage`
+onde ele devia ter ficado, porque um instalador que devolve zero sem ter
+instalado nada é uma coisa que acontece.
+
+**A única pergunta é onde.** E só onde isso é mesmo uma escolha:
+
+- **Windows** — pergunta-se, porque o `INSTALLDIR` existe e o disco do sistema
+  está cheio em muitas máquinas
+- **Linux e macOS** — não se pergunta, e não é por esquecimento: quem decide
+  onde um pacote fica é a distribuição ou o Homebrew. Inventar uma pergunta cuja
+  resposta não muda nada seria pior do que não a fazer, e o programa diz isso
+
+Há um pormenor do instalador da Oracle que valeu um aviso próprio: o
+`--msiparams INSTALLDIR=` **não aceita espaços no caminho**. A pasta por omissão
+tem espaços e funciona à mesma — porque nesse caso não se lhe passa `INSTALLDIR`
+nenhum. Só quando se muda de sítio é que o problema aparece, e o programa avisa
+antes em vez de deixar a instalação ir parar ao sítio errado.
+
+### As perguntas passaram a três, e na altura certa · Changed
+
+1. **Onde guardar a imagem** — perguntado ao escolher a imagem, e não no fim.
+   Uma imagem anda pelos três a cinco gigabytes, e dizer isto depois de a
+   descarregar seria dizer tarde
+2. **As especificações e o nome, num ecrã só** — com os motivos por baixo e três
+   opções: criar, alterar, cancelar
+3. **Nada.** Depois desse ecrã não há mais perguntas
+
+O ecrã de alterar valida cada campo contra **dois** limites ao mesmo tempo: o
+que o convidado precisa e o que o anfitrião tem. Nenhum dos dois sozinho chega —
+o primeiro deixa criar uma máquina que não cabe, o segundo deixa criar uma que
+cabe e não arranca.
+
+**E a ordem mudou:** o descarregamento passou para depois do ecrã das
+especificações. Descarregar cinco gigabytes antes de saber se a máquina cabe na
+memória do anfitrião é trabalho deitado fora.
+
+### O que continua a não se fazer
+
+- **Instalar o Homebrew.** Instala-se passando um script da Internet
+  directamente a um interpretador. Há um teste que falha se isso entrar aqui
+- **Instalar em silêncio sem mostrar.** Os comandos aparecem todos antes de
+  correrem. Mostrar não é o mesmo que pedir licença: mostra-se, não se pede
+- **Escolher pela pessoa.** Quando há uma VMware instalada e ela escolhe
+  instalar outro hipervisor à mesma, o programa diz que os dois vão disputar o
+  processador — e depois instala
+
+### Testes
+
+110 · 116 · 116 (Windows · Linux · macOS), **342** ao todo, contra 290 na 1.2.0.
+
+Nenhum dos testes novos precisa da VMware, da Parallels ou da Fusion instaladas,
+e isso é deliberado: são produtos pagos que nem quem escreveu isto nem os
+runners têm. O que se testa é o `.vmx`, que é texto e portanto verificável sem
+hipervisor nenhum, e as traduções de vocabulário — que é onde um erro não
+rebenta, apenas cria uma máquina com o controlador de disco errado que arranca
+devagar sem ninguém perceber porquê.
+
+Há um teste que existe só para impedir uma boa ideia futura: confirma que o
+vocabulário da Fusion e o da Parallels **continuam diferentes**. Se alguém um dia
+os «simplificar» para um só, falha.
+
+### Corrigido · Fixed
+
+- O arranque de testes de Windows não tinha `Saltar`; o `Vmware.ps1` nasceu sem
+  BOM e o PowerShell 5.1 leu-o como ANSI. Os dois são o mesmo erro repetido, e
+  os dois já têm quem os apanhe na integração contínua
+
+---
+
 ## [1.2.0] — 2026-09-02
 
 **PT** · O programa deixou de dizer o que falta instalar e passou a instalá-lo.

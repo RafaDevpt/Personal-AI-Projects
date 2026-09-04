@@ -80,6 +80,43 @@ O `-VerificarFicheiro` sai com código 0 quando a soma confere e 1 quando não c
 
 ---
 
+## A VMware que já cá está
+
+Se tiver uma **VMware Workstation** ou uma **Workstation Player** instalada, o
+programa reconhece-a e sabe criar máquinas nela. Aparece na lista dos
+hipervisores, em primeiro.
+
+Não é cortesia: pôr um segundo hipervisor numa máquina que já tem VMware é a
+receita conhecida para os dois ficarem lentos. Quem tem uma quase sempre a tem
+por motivo de trabalho, com máquinas lá dentro.
+
+### Como se cria uma máquina na VMware
+
+Não há um `VBoxManage`. Há um ficheiro de texto — o `.vmx` — que descreve a
+máquina inteira, e um programa à parte que cria o disco. O `vmrun` liga e
+desliga, mas não cria.
+
+Escrever um `.vmx` à mão parece frágil e não é: o formato é estável há mais de
+vinte anos, e a alternativa — automatizar a interface gráfica — é que seria
+frágil.
+
+**Três campos decidem se a máquina arranca**, e nenhum é óbvio:
+
+- **`guestOS`** não é uma etiqueta: decide o controlador de disco, o relógio e a
+  placa de rede. Um Ubuntu criado como `other-64` arranca com metade das
+  definições erradas, e a lentidão nunca é associada a este campo
+- **o disco tem de existir antes do `.vmx`.** A VMware não o cria a partir dele:
+  isso é o `vmware-vdiskmanager`, e a versão gratuita do Player nem sempre o
+  traz. Quando falta, o programa diz — em vez de escrever um `.vmx` que aponta
+  para um disco que não existe
+- **`firmware = "efi"`** faz falta a um Windows 11, ou o instalador recusa-se a
+  começar com uma mensagem sobre outra coisa
+
+O caminho do disco vai **relativo**, para a pasta da máquina se poder mover para
+outro disco sem partir.
+
+---
+
 ## Instalar um hipervisor
 
 Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —

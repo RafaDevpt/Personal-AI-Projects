@@ -51,6 +51,8 @@ passo() { :; }
 . "${FONTE}/lib/catalogo.sh"
 # shellcheck source=../src/lib/imagem_local.sh
 . "${FONTE}/lib/imagem_local.sh"
+# shellcheck source=../src/lib/terceiros.sh
+. "${FONTE}/lib/terceiros.sh"
 # shellcheck source=../src/lib/instalacao.sh
 . "${FONTE}/lib/instalacao.sh"
 
@@ -728,6 +730,149 @@ t_deteccao_homebrew() {
 
 teste 'não instala o Homebrew passando um script a um interpretador' t_nao_instala_homebrew
 teste 'a detecção do Homebrew corresponde à realidade desta máquina' t_deteccao_homebrew
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Os hipervisores de terceiros deste Mac
+#
+#        Nada aqui precisa da Parallels nem da Fusion instaladas, e isso e
+#        deliberado: sao produtos pagos, e nem quem escreveu isto nem o runner
+#        os tem. O que se testa e o `.vmx` -- que e texto, e portanto
+#        verificavel sem hipervisor nenhum -- as duas traducoes de vocabulario,
+#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#
+# EN-UK: This Mac's third-party hypervisors. Nothing here needs Parallels or
+#        Fusion installed, deliberately: they are paid products, and neither the
+#        author nor the runner has them.
+# ---------------------------------------------------------------------------
+grupo 'Detecção dos hipervisores de terceiros'
+
+t_fusion_deteccao() {
+    local e=0
+    estado_fusion || e=$?
+    case $e in
+        0|1|2) return 0 ;;
+        *) printf 'estado inesperado: %s\n' "$e"; return 1 ;;
+    esac
+}
+
+t_parallels_deteccao() {
+    # PT-PT: A pergunta e pelo `prlctl` e nao pela aplicacao: a aplicacao pode
+    #        estar instalada com as ferramentas de linha de comandos por
+    #        instalar, e nesse caso este programa nao lhe consegue tocar -- que
+    #        e a mesma coisa, do ponto de vista de quem esta a decidir.
+    # EN-UK: The question is about `prlctl`, not the application: the
+    #        application can be installed with its command-line tools missing.
+    if command -v prlctl >/dev/null 2>&1; then estado_parallels; else ! estado_parallels; fi
+}
+
+teste 'a detecção da Fusion corre sem rebentar' t_fusion_deteccao
+teste 'a detecção da Parallels corresponde à realidade desta máquina' t_parallels_deteccao
+
+
+grupo 'Vocabulário da Fusion e da Parallels'
+
+# PT-PT: Os dois produtos nao coincidem em nada, e nem sequer sao do mesmo
+#        genero: a Parallels quer o nome da distribuicao, a Fusion quer um
+#        identificador com a arquitectura la dentro. Traduzir mal nao rebenta --
+#        cria uma maquina com o controlador de disco errado, que arranca devagar
+#        sem ninguem perceber porque.
+# EN-UK: The two share no vocabulary and are not even of the same kind:
+#        Parallels wants the distribution's name, Fusion an identifier with the
+#        architecture inside. Translating wrong does not crash -- it creates a
+#        machine with the wrong disk controller.
+t_fusion_ubuntu() { afirmar_igual 'ubuntu-64'   "$(tipo_fusion 'ubuntu-24-04' 'linux')"; }
+t_fusion_alma()   { afirmar_igual 'rhel9-64'    "$(tipo_fusion 'almalinux-9' 'linux')"; }
+t_fusion_mint()   { afirmar_igual 'ubuntu-64'   "$(tipo_fusion 'linuxmint-22' 'linux')"; }
+t_fusion_outra()  {
+    afirmar_igual 'otherlinux-64' "$(tipo_fusion 'nunca-visto' 'linux')" \
+        && afirmar_igual 'windows11-64' "$(tipo_fusion 'nunca-visto' 'windows')"
+}
+
+t_prl_ubuntu()  { afirmar_igual 'ubuntu'      "$(distribuicao_parallels 'ubuntu-24-04' 'linux')"; }
+t_prl_fedora()  { afirmar_igual 'fedora-core' "$(distribuicao_parallels 'fedora-40' 'linux')"; }
+t_prl_windows() { afirmar_igual 'win-11'      "$(distribuicao_parallels 'windows-11' 'windows')"; }
+t_prl_outra()   { afirmar_igual 'linux'       "$(distribuicao_parallels 'nunca-visto' 'linux')"; }
+
+# PT-PT: Os dois vocabularios tem mesmo de ser diferentes. Se algum dia alguem
+#        os "simplificar" para um so, este teste falha -- que e o que se quer.
+# EN-UK: The two vocabularies must differ. Should anybody ever "simplify" them
+#        into one, this test fails -- which is the point.
+t_vocabularios_diferentes() {
+    local f p
+    f="$(tipo_fusion 'ubuntu-24-04' 'linux')"
+    p="$(distribuicao_parallels 'ubuntu-24-04' 'linux')"
+    afirmar_diferente "$f" "$p"
+}
+
+teste 'a Fusion reconhece o Ubuntu' t_fusion_ubuntu
+teste 'a Fusion reconhece a AlmaLinux como RHEL' t_fusion_alma
+teste 'para a Fusion, o Mint é um Ubuntu' t_fusion_mint
+teste 'uma distribuição desconhecida ainda dá um tipo utilizável' t_fusion_outra
+teste 'a Parallels reconhece o Ubuntu' t_prl_ubuntu
+teste 'a Parallels chama fedora-core à Fedora' t_prl_fedora
+teste 'a Parallels reconhece o Windows' t_prl_windows
+teste 'uma distribuição desconhecida ainda dá uma distribuição utilizável' t_prl_outra
+teste 'os dois vocabulários não são o mesmo, e não se devem juntar' t_vocabularios_diferentes
+
+
+grupo 'O ficheiro .vmx da Fusion'
+
+t_vmx_numeros() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 4 8 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'numvcpus = "4"' \
+        && afirmar_contem "$v" 'guestOS = "ubuntu-64"' \
+        && afirmar_contem "$v" 'displayName = "lab"'
+}
+
+# PT-PT: O campo chama-se `memsize` e e em megabytes. Passar-lhe os GB
+#        directamente dava a maquina oito megabytes de memoria, e o erro so
+#        aparece quando ela nao arranca.
+# EN-UK: The field is `memsize`, in megabytes.
+t_vmx_memoria() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 8 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'memsize = "8192"'
+}
+
+t_vmx_disco_relativo() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'nvme0:0.fileName = "lab.vmdk"' \
+        && ! printf '%s' "$v" | grep -q 'nvme0:0.fileName = "/'
+}
+
+t_vmx_com_cd() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk /Users/x/ubuntu.iso nao)"
+    afirmar_contem "$v" 'cdrom-image'
+}
+
+t_vmx_sem_cd() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    ! printf '%s' "$v" | grep -q 'cdrom-image'
+}
+
+t_vmx_nat() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'ethernet0.connectionType = "nat"'
+}
+
+t_vmx_efi() {
+    local v; v="$(conteudo_vmx lab windows11-64 2 4 lab.vmdk '' sim)"
+    afirmar_contem "$v" 'firmware = "efi"'
+}
+
+t_vmx_sem_pergunta() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'uuid.action = "create"'
+}
+
+teste 'leva os números que se lhe deram' t_vmx_numeros
+teste 'a memória vai em megabytes, e não em gigabytes' t_vmx_memoria
+teste 'o caminho do disco vai relativo, para o pacote se poder mover' t_vmx_disco_relativo
+teste 'um instalador leva CD' t_vmx_com_cd
+teste 'uma imagem de disco não leva CD' t_vmx_sem_cd
+teste 'a rede fica em NAT' t_vmx_nat
+teste 'um convidado de Windows leva EFI' t_vmx_efi
+teste 'não pergunta se a máquina foi movida na primeira arrancada' t_vmx_sem_pergunta
 
 
 resumo

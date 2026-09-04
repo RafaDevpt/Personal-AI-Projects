@@ -207,9 +207,15 @@ assinatura_pacote_confere() {
 # ---------------------------------------------------------------------------
 # PT-PT: Mostra os comandos, pergunta uma vez, e corre-os por ordem.
 #
-#        Os comandos aparecem **antes** da pergunta, todos. Perguntar "posso?" e
-#        so depois revelar o que se ia fazer nao e uma pergunta, e um
-#        formalismo.
+#        Os comandos aparecem **antes** de correrem, todos. Quem esta a olhar tem
+#        de poder ver o que vai acontecer -- mas mostrar nao e o mesmo que pedir
+#        licenca, e aqui nao se pede.
+#
+#        **Nao ha confirmacao.** Escolher "instalar o QEMU" num menu que diz
+#        "instalar o QEMU" ja e a resposta; perguntar outra vez nao acrescenta
+#        decisao nenhuma, so ruido. E o `sudo`, quando aparece, ja e uma paragem
+#        a serio -- ao contrario de um [s/N], pede uma coisa que so quem tem o
+#        Mac sabe.
 #
 #        O `sudo`, quando aparece, pede a palavra-passe no terminal a quem esta
 #        a usar. Este programa nunca a ve, nunca a guarda e nunca a passa a lado
@@ -218,20 +224,21 @@ assinatura_pacote_confere() {
 #        Recebe os comandos num texto separado por linhas, e nao num array, por
 #        causa do bash 3.2. Ver a nota no cabecalho.
 #
-# EN-UK: Shows the commands, asks once, runs them in order. They appear
-#        **before** the question, all of them. `sudo`, where it appears, asks
-#        for the password in the terminal; this program never sees or stores it.
-#        Commands arrive as a newline-separated string rather than an array,
-#        because of bash 3.2 -- see the header.
+# EN-UK: Shows the commands and runs them in order. They appear **before** they
+#        run, all of them -- but showing is not asking permission, and none is
+#        asked here. `sudo`, where it appears, asks for the password in the
+#        terminal; this program never sees or stores it. Commands arrive as a
+#        newline-separated string rather than an array, because of bash 3.2.
 #
-# $1 pergunta   $2 comandos, um por linha
+# $1 o que se vai fazer   $2 comandos, um por linha
 # ---------------------------------------------------------------------------
 executar_passos() {
-    local pergunta="$1" comandos="$2"
+    local titulo_passo="$1" comandos="$2"
 
     [[ -z "$comandos" ]] && { erro 'Não há nada a executar.'; return 1; }
 
     printf '\n'
+    printf '  %s\n' "$titulo_passo"
     printf '  Vão correr estes comandos, por esta ordem:\n'
     local linha
     while IFS= read -r linha; do
@@ -244,9 +251,6 @@ executar_passos() {
         printf '\n'
     fi
 
-    confirmar "$pergunta" || { printf '  Nada foi feito.\n'; return 1; }
-
-    printf '\n'
     while IFS= read -r linha; do
         [[ -z "$linha" ]] && continue
         printf '  $ %s\n' "$linha"
@@ -284,12 +288,21 @@ instalar_qemu() {
         return 1
     fi
 
+    # PT-PT: Em Windows pergunta-se onde instalar. Aqui nao se pergunta, e nao
+    #        e por esquecimento: quem decide onde uma formula fica e o Homebrew,
+    #        e inventar uma pergunta cuja resposta nao muda nada seria pior do
+    #        que nao a fazer. O que **se** escolhe -- onde ficam as imagens e as
+    #        maquinas -- e perguntado na altura de as criar.
+    # EN-UK: On Windows the install location is asked. Here it is not, and not
+    #        by oversight: Homebrew decides where a formula lands.
+    nota 'Onde ficam os ficheiros decide o Homebrew, e não este programa.'
+    printf '\n'
     printf '  O QEMU vem do Homebrew, que verifica a soma da fórmula por si.\n'
     printf '  Num Mac com chip da Apple, ele usa a aceleração do sistema (a\n'
     printf '  Hypervisor.framework) para convidados ARM; um convidado x86 é emulado,\n'
     printf '  e isso é uma diferença de dez a vinte vezes, não uma lentidão.\n'
 
-    executar_passos 'Instalar o QEMU?' 'brew install qemu' || return 1
+    executar_passos 'A instalar o QEMU pelo Homebrew.' 'brew install qemu' || return 1
 
     # PT-PT: Num Mac ARM, o firmware UEFI nao vem no pacote do QEMU e sem ele
     #        um convidado ARM nao arranca. Dizer isto agora poupa a tarde em
@@ -466,7 +479,7 @@ instalar_virtualbox() {
     printf '  VirtualBox instala uma interface de rede virtual. Não é avaria.\n'
 
     local resultado=0
-    executar_passos 'Instalar o VirtualBox?' "sudo installer -pkg '$pacote' -target /" || resultado=$?
+    executar_passos 'A instalar o VirtualBox.' "sudo installer -pkg '$pacote' -target /" || resultado=$?
 
     hdiutil detach "$ponto" -quiet || true
     rm -rf "$temporaria"

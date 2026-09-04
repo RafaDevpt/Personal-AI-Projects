@@ -74,9 +74,10 @@ $script:Raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $script:Raiz 'Hipervisor.ps1')
 . (Join-Path $script:Raiz 'Descarregar.ps1')
 . (Join-Path $script:Raiz 'ImagemLocal.ps1')
+. (Join-Path $script:Raiz 'Vmware.ps1')
 . (Join-Path $script:Raiz 'Instalacao.ps1')
 
-$script:Versao = '1.2.0'
+$script:Versao = '1.3.0'
 $script:Credito = 'Created by Redfox using Claude'
 $script:CaminhoCatalogo = Join-Path $script:Raiz 'catalogo.json'
 
@@ -119,6 +120,7 @@ function Show-Hipervisores {
 
     $hyperv = Get-EstadoHyperV
     $vbox = Get-EstadoVirtualBox
+    $vmware = Get-EstadoVMware
     $edicaoOk = Test-EdicaoSuportaHyperV -Edicao $Perfil.Edicao
 
     Write-Titulo 'Hipervisores'
@@ -143,6 +145,23 @@ function Show-Hipervisores {
         Write-Host '                 Este programa instala-o — a opção 5 do menu.' -ForegroundColor DarkGray
     }
 
+    # PT-PT: A VMware vem primeiro na lista quando esta ca. Quem ja a tem quase
+    #        sempre a tem por motivo de trabalho, com maquinas la dentro -- e a
+    #        primeira coisa que quer saber e se este programa a reconhece.
+    # EN-UK: VMware comes first in the list when present. Whoever has it almost
+    #        always has it for work, with machines inside -- and the first thing
+    #        they want to know is whether this program recognises it.
+    if ($vmware.Instalado) {
+        $versao = if ($vmware.Versao) { " $($vmware.Versao)" } else { '' }
+        if ($vmware.PodeCriar) {
+            Write-Host "  $($vmware.Produto.PadRight(14))instalada$versao — este programa sabe usá-la" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  $($vmware.Produto.PadRight(14))instalada$versao" -ForegroundColor DarkYellow
+            Write-Host "                 $($vmware.Detalhe)" -ForegroundColor DarkGray
+        }
+    }
+
     $aviso = Get-AvisoCoexistencia -HipervisorPresente $Perfil.HipervisorPresente `
         -VirtualBoxInstalado $vbox.Instalado
     if ($aviso) {
@@ -153,6 +172,7 @@ function Show-Hipervisores {
     return [pscustomobject]@{
         HyperV     = $hyperv
         VirtualBox = $vbox
+        VMware     = $vmware
         EdicaoOk   = $edicaoOk
     }
 }
@@ -178,6 +198,65 @@ function Read-Escolha {
             return $numero
         }
         Write-Host "  Escreva um número entre $minimo e $Maximo." -ForegroundColor DarkYellow
+    }
+}
+
+
+function Read-Texto {
+    <#
+    .SYNOPSIS
+        PT-PT: Le texto com um valor por omissao que o Enter aceita.
+        EN-UK: Reads text with a default that Enter accepts.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Pergunta,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Omissao
+    )
+    $resposta = Read-Host "  $Pergunta [$Omissao]"
+    if ([string]::IsNullOrWhiteSpace($resposta)) { return $Omissao }
+    return $resposta.Trim().Trim('"')
+}
+
+
+function Read-Numero {
+    <#
+    .SYNOPSIS
+        PT-PT: Le um numero dentro de limites, insistindo ate ser aceitavel.
+        EN-UK: Reads a number within limits, insisting until acceptable.
+
+    .DESCRIPTION
+        PT-PT: Os limites nao sao decorativos e a mensagem di-los. Deixar alguem
+               escrever 64 GB numa maquina com 16 nao e liberdade: e deixa-lo
+               criar uma maquina que nao arranca, e depois descobrir porque
+               sozinho.
+        EN-UK: The limits are not decorative and the message states them.
+               Letting somebody type 64 GB on a 16 GB machine is not freedom: it
+               is letting them create a machine that will not start.
+    #>
+    param(
+        [Parameter(Mandatory)][string]$Pergunta,
+        [Parameter(Mandatory)][double]$Omissao,
+        [Parameter(Mandatory)][double]$Minimo,
+        [Parameter(Mandatory)][double]$Maximo,
+        [string]$Unidade = ''
+    )
+
+    while ($true) {
+        $resposta = Read-Host "  $Pergunta [$Omissao$Unidade]"
+        if ([string]::IsNullOrWhiteSpace($resposta)) { return $Omissao }
+
+        $valor = 0.0
+        if (-not [double]::TryParse($resposta.Replace(',', '.'), [Globalization.NumberStyles]::Float,
+                [Globalization.CultureInfo]::InvariantCulture, [ref]$valor)) {
+            Write-Host '  Escreva um número.' -ForegroundColor DarkYellow
+            continue
+        }
+
+        if ($valor -lt $Minimo -or $valor -gt $Maximo) {
+            Write-Host "  Tem de estar entre $Minimo$Unidade e $Maximo$Unidade." -ForegroundColor DarkYellow
+            continue
+        }
+        return $valor
     }
 }
 
@@ -493,6 +572,129 @@ function Get-ImagemDoUtilizador {
 }
 
 
+function Confirm-Especificacoes {
+    <#
+    .SYNOPSIS
+        PT-PT: Mostra o que se vai criar e deixa mudar antes de criar.
+        EN-UK: Shows what will be created and allows changing it first.
+
+    .DESCRIPTION
+        PT-PT: Um ecra so, com tudo o que decide a maquina: o nome, os nucleos,
+               a memoria e o disco. A alternativa -- perguntar quatro coisas
+               seguidas e so depois mostrar o resultado -- obriga a decidir cada
+               uma sem ver as outras.
+
+               Os limites de cada campo vem de dois sitios ao mesmo tempo: do
+               que o convidado precisa (o minimo do catalogo) e do que o
+               anfitriao tem. Nenhum dos dois sozinho chega -- o primeiro deixa
+               criar uma maquina que nao cabe, e o segundo deixa criar uma que
+               cabe e nao arranca.
+
+               Depois deste ecra nao ha mais perguntas. Foi o que se pediu, e
+               faz sentido: a decisao ja foi toda tomada aqui.
+
+        EN-UK: One screen with everything that decides the machine: name, cores,
+               memory, disk. The alternative -- asking four things in a row and
+               only then showing the result -- forces each decision without
+               sight of the others.
+
+               Each field's limits come from two places at once: what the guest
+               needs (the catalogue's minimum) and what the host has. Neither
+               alone is enough.
+
+               After this screen there are no more questions.
+
+    .OUTPUTS
+        PT-PT: Um objecto com `Nome`, `Cpu`, `RamGb` e `DiscoGb`, ou $null se
+               desistiu.
+        EN-UK: An object with `Nome`, `Cpu`, `RamGb` and `DiscoGb`, or $null.
+    #>
+    param(
+        [Parameter(Mandatory)]$Perfil,
+        [Parameter(Mandatory)]$Especificacao,
+        [Parameter(Mandatory)]$Escolha,
+        [Parameter(Mandatory)][string]$NomeSugerido,
+        [Parameter(Mandatory)][double]$DiscoLivreGb
+    )
+
+    $nome = $NomeSugerido
+    $cpu = [int]$Especificacao.Cpu
+    $ram = [double]$Especificacao.RamGb
+    $disco = [double]$Especificacao.DiscoGb
+
+    while ($true) {
+        Write-Titulo 'A máquina que vai ser criada'
+
+        Write-Host "    Nome            $nome"
+        Write-Host "    Processador     $cpu núcleo(s)          de $($Perfil.NucleosFisicos) físicos"
+        Write-Host "    Memória         $ram GB                 de $($Perfil.MemoriaGb) GB"
+        if ($Escolha.Uso -eq 'disco') {
+            Write-Host "    Disco           o da imagem que trouxe, copiada"
+        }
+        else {
+            Write-Host "    Disco           $disco GB dinâmico     $DiscoLivreGb GB livres"
+        }
+        Write-Host "    Rede            NAT                   alcança a Internet, não é alcançável de fora"
+
+        if ($Especificacao.Motivos -and $Especificacao.Motivos.Count -gt 0) {
+            Write-Host ''
+            Write-Host '  Como cheguei a estes números:' -ForegroundColor DarkGray
+            foreach ($motivo in $Especificacao.Motivos) { Write-Host "    $motivo" -ForegroundColor DarkGray }
+        }
+        if ($Especificacao.Avisos -and $Especificacao.Avisos.Count -gt 0) {
+            Write-Host ''
+            foreach ($aviso in $Especificacao.Avisos) { Write-Host "  $aviso" -ForegroundColor Yellow }
+        }
+
+        Write-Host ''
+        Write-Host '    1. Criar com estas especificações'
+        Write-Host '    2. Alterar alguma coisa'
+        Write-Host '    0. Cancelar'
+        Write-Host ''
+
+        switch (Read-Escolha -Pergunta 'Número' -Maximo 2 -PermiteZero) {
+            0 { return $null }
+            1 {
+                return [pscustomobject]@{ Nome = $nome; Cpu = $cpu; RamGb = $ram; DiscoGb = $disco }
+            }
+            2 {
+                Write-Titulo 'Alterar'
+                Write-Host '  Enter em cada uma mantém o valor que está lá.' -ForegroundColor DarkGray
+                Write-Host ''
+
+                while ($true) {
+                    $novo = Read-Texto -Pergunta 'Nome' -Omissao $nome
+                    if ($novo -match '^[a-zA-Z0-9 ._\-]+$') { $nome = $novo; break }
+                    Write-Host '  Esse nome tem caracteres que o hipervisor não aceita.' -ForegroundColor DarkYellow
+                }
+
+                # PT-PT: Nunca mais nucleos virtuais do que fisicos. E a confusao
+                #        mais comum de quem cria a primeira maquina virtual, e o
+                #        resultado e o contrario do esperado: os nucleos passam
+                #        a disputar-se e a maquina fica mais lenta.
+                # EN-UK: Never more virtual cores than physical. The commonest
+                #        confusion of a first virtual machine, and the result is
+                #        the opposite of what is expected.
+                $cpu = [int](Read-Numero -Pergunta 'Núcleos' -Omissao $cpu `
+                    -Minimo ([double]$Escolha.Minimo.cpu) -Maximo ([double]$Perfil.NucleosFisicos))
+
+                $tectoRam = [math]::Round($Perfil.MemoriaGb - 2, 1)
+                if ($tectoRam -lt $Escolha.Minimo.ram_gb) { $tectoRam = [double]$Escolha.Minimo.ram_gb }
+                $ram = Read-Numero -Pergunta 'Memória' -Omissao $ram `
+                    -Minimo ([double]$Escolha.Minimo.ram_gb) -Maximo $tectoRam -Unidade ' GB'
+
+                if ($Escolha.Uso -ne 'disco') {
+                    $tectoDisco = [math]::Round($DiscoLivreGb - 5, 0)
+                    if ($tectoDisco -lt $Escolha.Minimo.disco_gb) { $tectoDisco = [double]$Escolha.Minimo.disco_gb }
+                    $disco = Read-Numero -Pergunta 'Disco' -Omissao $disco `
+                        -Minimo ([double]$Escolha.Minimo.disco_gb) -Maximo $tectoDisco -Unidade ' GB'
+                }
+            }
+        }
+    }
+}
+
+
 function Invoke-PreparacaoHipervisor {
     <#
     .SYNOPSIS
@@ -531,6 +733,22 @@ function Invoke-PreparacaoHipervisor {
     )
 
     Write-Titulo 'Preparar um hipervisor'
+
+    # PT-PT: Se ja ha uma VMware utilizavel, diz-se antes de propor instalar
+    #        seja o que for. Por em cima de uma VMware Workstation um segundo
+    #        hipervisor e o caminho conhecido para os dois ficarem lentos, e
+    #        quem tem uma quase sempre a tem por motivo de trabalho.
+    # EN-UK: If a usable VMware is already here, say so before proposing to
+    #        install anything. Putting a second hypervisor on top of VMware
+    #        Workstation is the known path to both being slow.
+    if ($Estado.VMware.Instalado -and $Estado.VMware.PodeCriar) {
+        Write-Host "  Já tem $($Estado.VMware.Produto) instalada, e este programa sabe criar" -ForegroundColor Green
+        Write-Host '  máquinas nela. Não precisa de instalar mais nada.' -ForegroundColor Green
+        Write-Host ''
+        Write-Host '  Instalar um segundo hipervisor nesta máquina é possível, mas os dois' -ForegroundColor DarkYellow
+        Write-Host '  passam a disputar o processador e ficam ambos mais lentos.' -ForegroundColor DarkYellow
+        Write-Host ''
+    }
 
     $accoes = New-Object System.Collections.ArrayList
 
@@ -588,13 +806,21 @@ function Invoke-PreparacaoHipervisor {
         }
 
         Write-Host ''
+        # PT-PT: Nao ha segunda pergunta. Escolher "activar o Hyper-V" num menu
+        #        que diz "activar o Hyper-V" ja e a resposta -- perguntar outra
+        #        vez nao acrescenta decisao nenhuma, so ruido. O que se faz e
+        #        dizer o que vai acontecer, que e diferente de pedir licenca.
+        # EN-UK: There is no second question. Choosing "enable Hyper-V" from a
+        #        menu that says "enable Hyper-V" is the answer -- asking again
+        #        adds no decision, only noise. What is done is saying what will
+        #        happen, which is not the same as asking permission.
+        Write-Host ''
         Write-Host '  O que vai acontecer:' -ForegroundColor White
         Write-Host '    - a funcionalidade Microsoft-Hyper-V-All é activada;'
         Write-Host '    - a máquina precisa de reiniciar para a passar a usar;'
         Write-Host '    - a partir daí o Windows corre em cima do hipervisor, e as máquinas'
         Write-Host '      do VirtualBox nesta máquina passam a ser mais lentas.'
         Write-Host ''
-        if (-not (Confirm-Accao 'Activar o Hyper-V?')) { return $false }
 
         try {
             Enable-HyperV -Confirm:$false
@@ -608,21 +834,53 @@ function Invoke-PreparacaoHipervisor {
 
     # --- VirtualBox --------------------------------------------------------
     Write-Host ''
-    Write-Host '  O que vai acontecer:' -ForegroundColor White
+    Write-Host '  O que vai acontecer, sem mais perguntas depois desta:' -ForegroundColor White
     Write-Host '    - pergunta-se à Oracle qual é a versão actual;'
     Write-Host '    - descarrega-se o instalador de download.virtualbox.org, e mais de'
     Write-Host '      lado nenhum, com o domínio verificado a cada redireccionamento;'
     Write-Host '    - confere-se a soma SHA-256 publicada pela Oracle;'
     Write-Host '    - confirma-se a assinatura Authenticode do executável;'
-    Write-Host '    - o instalador abre com a interface normal, para o poder ver.'
+    Write-Host '    - instala-se em silêncio, com o progresso aqui no ecrã;'
+    Write-Host '    - confirma-se no fim que o VBoxManage ficou onde devia.'
     Write-Host ''
     Write-Host '  A Oracle não assina o manifesto das somas com GPG. Das cinco camadas,' -ForegroundColor DarkYellow
     Write-Host '  essa não se aplica aqui, e o relatório vai dizê-lo.' -ForegroundColor DarkYellow
     Write-Host ''
-    if (-not (Confirm-Accao 'Descarregar e instalar o VirtualBox?')) { return $false }
+
+    # PT-PT: A unica pergunta desta operacao. E aqui e mesmo uma pergunta, e nao
+    #        uma confirmacao a fingir: o sitio importa em maquinas onde o disco
+    #        do sistema esta cheio, que sao muitas.
+    # EN-UK: The only question in this operation. And here it is a real one, not
+    #        a pretend confirmation: the location matters on machines whose
+    #        system disk is full, which are many.
+    Write-Titulo 'Onde quer o VirtualBox instalado?'
+    $predefinida = Get-PastaInstalacaoPredefinida
+    Write-Host '  Enter aceita o sítio onde o instalador da Oracle o põe.' -ForegroundColor DarkGray
+    Write-Host ''
+    $pastaInstalacao = Read-Texto -Pergunta 'Pasta' -Omissao $predefinida
+
+    if ($pastaInstalacao -ne $predefinida -and -not (Test-PastaInstalacaoSimples -Caminho $pastaInstalacao)) {
+        # PT-PT: Ver `Test-PastaInstalacaoSimples`. Isto nao e uma limitacao
+        #        deste programa: e do instalador silencioso da Oracle, e a
+        #        alternativa a avisar era deixar a instalacao ir para outro
+        #        sitio sem ninguem perceber porque.
+        # EN-UK: See `Test-PastaInstalacaoSimples`. Not this program's
+        #        limitation but Oracle's silent installer's, and the alternative
+        #        to warning was letting the install land elsewhere unexplained.
+        Write-Host ''
+        Write-Host '  Esse caminho tem espaços, e o instalador silencioso da Oracle não os' -ForegroundColor Yellow
+        Write-Host '  aceita quando se lhe indica um destino — a instalação iria parar ao' -ForegroundColor Yellow
+        Write-Host '  sítio errado, ou falharia com uma mensagem sobre outra coisa.' -ForegroundColor Yellow
+        Write-Host ''
+        Write-Host "  Uso antes o destino do próprio instalador: $predefinida" -ForegroundColor Cyan
+        Write-Host '  (Esse tem espaços também, e funciona — porque nesse caso não se lhe' -ForegroundColor DarkGray
+        Write-Host '  indica destino nenhum.)' -ForegroundColor DarkGray
+        $pastaInstalacao = $predefinida
+    }
 
     try {
-        return [bool](Install-VirtualBox -PastaDestino (Join-Path $PastaBase 'instaladores') -Confirm:$false)
+        return [bool](Install-VirtualBox -PastaDestino (Join-Path $PastaBase 'instaladores') `
+            -PastaInstalacao $pastaInstalacao -Confirm:$false)
     }
     catch {
         Write-Host ''
@@ -644,9 +902,38 @@ function Invoke-CriacaoMaquina {
     )
 
     # --- 1. O hipervisor ---------------------------------------------------
+    # PT-PT: A VMware entra na lista como qualquer outro, e entra em primeiro
+    #        quando esta ca. Quem ja a tem quase sempre a tem por motivo de
+    #        trabalho, com maquinas la dentro -- propor-lhe instalar um segundo
+    #        hipervisor antes de lhe perguntar se quer usar o que tem seria
+    #        ignorar metade do que esta na maquina.
+    # EN-UK: VMware joins the list like any other, and comes first when present.
+    #        Whoever has it almost always has it for work, with machines inside;
+    #        proposing a second hypervisor before asking whether they want the
+    #        one they have would ignore half of what is on the machine.
     $opcoes = New-Object System.Collections.ArrayList
-    if ($Estado.EdicaoOk -and $Estado.HyperV.Instalado) { [void]$opcoes.Add('hyperv') }
-    if ($Estado.VirtualBox.Instalado) { [void]$opcoes.Add('virtualbox') }
+
+    if ($Estado.VMware.Instalado -and $Estado.VMware.PodeCriar) {
+        [void]$opcoes.Add([pscustomobject]@{
+            Chave = 'vmware'
+            Texto = "$($Estado.VMware.Produto) — já instalada nesta máquina"
+            Nota  = 'Usa a que já tem. As máquinas ficam a par das outras que lá tiver.'
+        })
+    }
+    if ($Estado.EdicaoOk -and $Estado.HyperV.Instalado) {
+        [void]$opcoes.Add([pscustomobject]@{
+            Chave = 'hyperv'
+            Texto = 'Hyper-V — parte do Windows, mais rápido, mais integrado'
+            Nota  = 'Corre por baixo do sistema. Precisa de administrador para criar máquinas.'
+        })
+    }
+    if ($Estado.VirtualBox.Instalado) {
+        [void]$opcoes.Add([pscustomobject]@{
+            Chave = 'virtualbox'
+            Texto = 'VirtualBox — da Oracle, mais simples, melhor com USB e pastas partilhadas'
+            Nota  = 'Interface própria. Não precisa de administrador para criar máquinas.'
+        })
+    }
 
     # PT-PT: Sem hipervisor nenhum, o programa nao se limita a dizer que falta
     #        um: pergunta qual e trata dele. Depois de instalar, volta-se ao
@@ -669,14 +956,36 @@ function Invoke-CriacaoMaquina {
         return
     }
 
-    $hipervisor = $opcoes[0]
-    if ($opcoes.Count -gt 1) {
-        Write-Titulo 'Qual o hipervisor?'
-        Write-Host '    1. Hyper-V      — parte do Windows, mais rápido, mais integrado'
-        Write-Host '    2. VirtualBox   — da Oracle, mais simples, melhor com USB e pastas partilhadas'
-        $escolha = Read-Escolha -Pergunta 'Número' -Maximo 2
-        $hipervisor = if ($escolha -eq 1) { 'hyperv' } else { 'virtualbox' }
+    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando ja ha
+    #        um a funcionar. Quem tem so a VMware pode preferir o Hyper-V para
+    #        uma maquina em concreto, e nao ha razao para o obrigar a sair daqui
+    #        e voltar a entrar pelo menu principal.
+    # EN-UK: The option to install another appears **always**, even when one
+    #        already works. Somebody with only VMware may prefer Hyper-V for one
+    #        particular machine.
+    Write-Titulo 'Em que hipervisor?'
+    for ($i = 0; $i -lt $opcoes.Count; $i++) {
+        Write-Host "    $($i + 1). $($opcoes[$i].Texto)"
+        Write-Host "       $($opcoes[$i].Nota)" -ForegroundColor DarkGray
     }
+    $numeroInstalar = $opcoes.Count + 1
+    Write-Host "    $numeroInstalar. Instalar outro hipervisor"
+    Write-Host '       Nenhum destes serve, ou quer o que ainda não está cá.' -ForegroundColor DarkGray
+    Write-Host '    0. Voltar atrás'
+    Write-Host ''
+
+    $numero = Read-Escolha -Pergunta 'Número' -Maximo $numeroInstalar -PermiteZero
+    if ($numero -eq 0) { return }
+    if ($numero -eq $numeroInstalar) {
+        if (Invoke-PreparacaoHipervisor -Perfil $Perfil -Estado $Estado -PastaBase $PastaBase) {
+            Write-Host ''
+            Write-Host '  Volte ao menu e escolha outra vez «criar uma máquina virtual»: o' -ForegroundColor Cyan
+            Write-Host '  programa relê o estado da máquina de cada vez que o menu aparece.' -ForegroundColor Cyan
+        }
+        return
+    }
+
+    $hipervisor = $opcoes[$numero - 1].Chave
 
     # --- 2. De onde vem a imagem --------------------------------------------
     Write-Titulo 'De onde vem a imagem?'
@@ -714,51 +1023,98 @@ function Invoke-CriacaoMaquina {
         $escolha | Add-Member -NotePropertyName 'Entrada' -NotePropertyValue $null -Force
     }
 
-    # --- 3. As especificacoes ----------------------------------------------
-    # PT-PT: Uma appliance traz as suas, e uma imagem de disco traz o disco
-    #        feito. Nos dois casos nao ha nada a recomendar sobre o disco -- e
-    #        propor um tamanho que nao vai ser usado so confunde quem le.
-    # EN-UK: An appliance brings its own, and a disk image brings the disk ready.
-    #        In neither case is there anything to recommend about the disk.
+    # --- 3. Onde fica a imagem ---------------------------------------------
+    # PT-PT: Perguntado agora, e nao no fim: uma imagem de sistema operativo
+    #        anda pelos tres a cinco gigabytes, e o disco onde o Windows esta
+    #        instalado e, em muitas maquinas, o unico que nao tem espaco. Dizer
+    #        isto depois de descarregar seria dizer tarde.
+    # EN-UK: Asked now, not at the end: an operating-system image runs to three
+    #        or five gigabytes, and the disk Windows is installed on is, on many
+    #        machines, the one without room. Saying so after downloading would
+    #        be saying it late.
+    $pastaImagens = Join-Path $PastaBase 'Imagens'
+    $precisaDescarregar = ($escolha.Origem -eq 'catalogo' -and $escolha.Entrada.tipo -eq 'iso')
+
+    if ($precisaDescarregar) {
+        Write-Titulo 'Onde quer guardar a imagem?'
+        Write-Host '  A imagem fica guardada, e serve para criar mais máquinas depois sem a'
+        Write-Host '  voltar a descarregar. Enter aceita a pasta sugerida.'
+        Write-Host ''
+        $pastaImagens = Read-Texto -Pergunta 'Pasta' -Omissao $pastaImagens
+
+        try {
+            if (-not (Test-Path -LiteralPath $pastaImagens)) {
+                New-Item -ItemType Directory -Path $pastaImagens -Force -ErrorAction Stop | Out-Null
+            }
+        }
+        catch {
+            Write-Host "  Não consigo escrever em $pastaImagens : $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host '  Nada foi criado.' -ForegroundColor DarkGray
+            return
+        }
+    }
+
+    # --- 4. As especificacoes e o nome, num ecra so ------------------------
     $volume = Get-VolumeParaMaquinas -Volumes $Perfil.Volumes
     $livre = if ($volume) { $volume.LivreGb } else { 0 }
 
+    $pastaMaquinas = Join-Path $PastaBase 'Maquinas'
+    $sugestao = ($escolha.Id -replace '[^a-zA-Z0-9\-]', '-')
+    $plano = $null
+
     if ($escolha.Uso -eq 'apliancia') {
-        Write-Titulo 'Especificações'
-        Write-Host '  Uma appliance traz as suas próprias: memória, núcleos, discos e placas de'
-        Write-Host '  rede vêm todos decididos por quem a exportou. Ajuste-os no VirtualBox'
-        Write-Host '  depois de importar, se for preciso.'
-        $especificacao = [pscustomobject]@{ Viavel = $true; Cpu = 0; RamGb = 0; DiscoGb = 0; Motivos = @(); Avisos = @() }
+        # PT-PT: Uma appliance traz as suas: memoria, nucleos, discos e placas de
+        #        rede vem todos decididos por quem a exportou. Nao ha nada a
+        #        recomendar, e propor numeros que nao vao ser usados so confunde.
+        # EN-UK: An appliance brings its own. There is nothing to recommend, and
+        #        proposing numbers that will not be used only confuses.
+        Write-Titulo 'A máquina que vai ser importada'
+        Write-Host '  Uma appliance traz as suas próprias especificações: memória, núcleos,'
+        Write-Host '  discos e placas de rede vêm decididos por quem a exportou. Ajuste-os no'
+        Write-Host '  hipervisor depois de importar, se for preciso.'
+        Write-Host ''
+
+        $nome = Read-Texto -Pergunta 'Nome da máquina' -Omissao $sugestao
+        if ($nome -notmatch '^[a-zA-Z0-9 ._\-]+$') {
+            Write-Host '  Esse nome tem caracteres que o hipervisor não aceita. Nada foi criado.' -ForegroundColor Red
+            return
+        }
+        $plano = [pscustomobject]@{ Nome = $nome; Cpu = 0; RamGb = 0; DiscoGb = 0 }
     }
     else {
         $especificacao = Get-EspecificacaoRecomendada -NucleosFisicos $Perfil.NucleosFisicos `
             -MemoriaAnfitriaoGb $Perfil.MemoriaGb -DiscoLivreGb $livre `
             -Minimo $escolha.Minimo -Recomendado $escolha.Recomendado
 
-        Show-Recomendacao -Especificacao $especificacao -Imagem ([pscustomobject]@{ nome = $escolha.Nome })
-        if (-not $especificacao.Viavel) { return }
-
-        if ($escolha.Uso -eq 'disco') {
-            Write-Host ''
-            Write-Host '  O disco não conta: esta imagem já é o disco da máquina, e fica com o' -ForegroundColor DarkGray
-            Write-Host '  tamanho que traz. Se ficar curto, cresce-se depois pelo hipervisor.' -ForegroundColor DarkGray
+        if (-not $especificacao.Viavel) {
+            Show-Recomendacao -Especificacao $especificacao -Imagem ([pscustomobject]@{ nome = $escolha.Nome })
+            return
         }
 
-        Write-Host ''
-        if (-not (Confirm-Accao 'Continuar com estas especificações?')) {
+        $plano = Confirm-Especificacoes -Perfil $Perfil -Especificacao $especificacao `
+            -Escolha $escolha -NomeSugerido $sugestao -DiscoLivreGb $livre
+        if (-not $plano) {
             Write-Host '  Nada foi criado.' -ForegroundColor DarkGray
             return
         }
     }
 
-    # --- 4. A imagem --------------------------------------------------------
+    # --- 5. Daqui para baixo nao ha mais perguntas -------------------------
+    # PT-PT: Foi o que se pediu, e faz sentido: as decisoes ja foram todas
+    #        tomadas nos ecras acima. O que falta e trabalho, e o trabalho
+    #        mostra-se enquanto acontece em vez de se pedir licenca para ele.
+    # EN-UK: As asked, and it makes sense: every decision was taken on the
+    #        screens above. What is left is work, and work is shown as it
+    #        happens rather than asked permission for.
+    Write-Titulo "A criar $($plano.Nome)"
+
     $caminhoIso = $escolha.Caminho
 
     if ($escolha.Origem -eq 'catalogo') {
-        Write-Titulo 'Imagem do sistema'
+        Write-Host '  [1/2] A imagem do sistema' -ForegroundColor White
         if ($escolha.Entrada.tipo -eq 'iso') {
-            $pastaIso = Join-Path $PastaBase 'Imagens'
-            $obtida = Get-ImagemOficial -Imagem $escolha.Entrada -Dominios @($Catalogo.dominios_confiaveis) -PastaDestino $pastaIso
+            $obtida = Get-ImagemOficial -Imagem $escolha.Entrada `
+                -Dominios @($Catalogo.dominios_confiaveis) -PastaDestino $pastaImagens
             Show-Camadas -Camadas $obtida.Camadas -Notas $obtida.Notas
             $caminhoIso = $obtida.Caminho
         }
@@ -766,92 +1122,79 @@ function Invoke-CriacaoMaquina {
             $caminhoIso = Get-ImagemGuiada -Imagem $escolha.Entrada
         }
     }
+    else {
+        Write-Host '  [1/2] A imagem que trouxe' -ForegroundColor White
+        Write-Host "        $caminhoIso" -ForegroundColor DarkGray
+        Write-Host '        Imagem sua: as camadas de verificação do catálogo não se aplicam.' -ForegroundColor DarkYellow
+    }
 
     if (-not $caminhoIso) {
         Write-Host '  Sem imagem verificada, não há máquina virtual. Nada foi criado.' -ForegroundColor DarkYellow
         return
     }
 
-    # --- 5. O nome e a confirmacao ------------------------------------------
-    Write-Titulo 'Criar a máquina'
-    $sugestao = ($escolha.Id -replace '[^a-zA-Z0-9\-]', '-')
-    $nome = Read-Host "  Nome da máquina virtual [$sugestao]"
-    if ([string]::IsNullOrWhiteSpace($nome)) { $nome = $sugestao }
-    if ($nome -notmatch '^[a-zA-Z0-9 ._\-]+$') {
-        Write-Host '  Esse nome tem caracteres que o hipervisor não aceita. Nada foi criado.' -ForegroundColor Red
-        return
-    }
+    Write-Host '  [2/2] A máquina virtual' -ForegroundColor White
 
-    $pastaMaquinas = Join-Path $PastaBase 'Maquinas'
     if (-not (Test-Path -LiteralPath $pastaMaquinas)) {
         New-Item -ItemType Directory -Path $pastaMaquinas -Force | Out-Null
     }
 
-    Write-Host ''
-    Write-Host "  $nome" -ForegroundColor White
-    Write-Host "    hipervisor   $hipervisor"
-    Write-Host "    convidado    $($escolha.Nome)"
-    if ($escolha.Uso -eq 'apliancia') {
-        Write-Host "    origem       appliance — traz as especificações lá dentro"
-    }
-    else {
-        Write-Host "    processador  $($especificacao.Cpu) núcleo(s)"
-        Write-Host "    memória      $($especificacao.RamGb) GB"
-        if ($escolha.Uso -eq 'disco') {
-            Write-Host "    disco        a imagem que indicou, copiada para $pastaMaquinas"
-        }
-        else {
-            Write-Host "    disco        $($especificacao.DiscoGb) GB em $pastaMaquinas"
-        }
-        Write-Host "    rede         NAT — alcança a Internet, não é alcançável da rede local"
-    }
-    if ($escolha.Origem -eq 'local') {
-        Write-Host "    verificação  imagem trazida por si — ver o relatório acima" -ForegroundColor DarkYellow
-    }
-    Write-Host ''
+    try {
+        if ($escolha.Uso -eq 'apliancia') {
+            Import-ApliancaVirtualBox -VBoxManage $Estado.VirtualBox.VBoxManage `
+                -Caminho $caminhoIso -Nome $plano.Nome -PastaDestino $pastaMaquinas -Confirm:$false | Out-Null
 
-    if (-not (Confirm-Accao 'Criar?')) {
-        Write-Host '  Nada foi criado.' -ForegroundColor DarkGray
-        return
-    }
-
-    # --- 6. A criacao -------------------------------------------------------
-    if ($escolha.Uso -eq 'apliancia') {
-        Import-ApliancaVirtualBox -VBoxManage $Estado.VirtualBox.VBoxManage `
-            -Caminho $caminhoIso -Nome $nome -PastaDestino $pastaMaquinas -Confirm:$false | Out-Null
-
-        Write-Host ''
-        Write-Host "  Importada. Abra o VirtualBox e ligue a '$nome'." -ForegroundColor Green
-        Write-Host '  Uma appliance é a máquina de outra pessoa a correr na sua: confirme as' -ForegroundColor DarkGray
-        Write-Host '  definições de rede antes de a ligar, se não souber de onde veio.' -ForegroundColor DarkGray
-        return
-    }
-
-    if ($hipervisor -eq 'hyperv') {
-        if (-not $Perfil.Administrador) {
-            Write-Host '  O Hyper-V precisa de privilégios de administrador. Nada foi criado.' -ForegroundColor Red
+            Write-Host ''
+            Write-Host "  Importada. Abra o VirtualBox e ligue a '$($plano.Nome)'." -ForegroundColor Green
+            Write-Host '  Uma appliance é a máquina de outra pessoa a correr na sua: confirme as' -ForegroundColor DarkGray
+            Write-Host '  definições de rede antes de a ligar, se não souber de onde veio.' -ForegroundColor DarkGray
             return
         }
-        New-MaquinaHyperV -Nome $nome -Cpu $especificacao.Cpu -RamGb $especificacao.RamGb `
-            -DiscoGb $especificacao.DiscoGb -CaminhoIso $caminhoIso `
-            -PastaDestino $pastaMaquinas -Familia $escolha.Familia -Uso $escolha.Uso `
-            -Confirm:$false | Out-Null
 
-        Write-Host ''
-        Write-Host "  Criada. Abra o Gestor do Hyper-V e ligue a '$nome'." -ForegroundColor Green
+        switch ($hipervisor) {
+            'hyperv' {
+                if (-not $Perfil.Administrador) {
+                    Write-Host '  O Hyper-V precisa de privilégios de administrador. Nada foi criado.' -ForegroundColor Red
+                    return
+                }
+                New-MaquinaHyperV -Nome $plano.Nome -Cpu $plano.Cpu -RamGb $plano.RamGb `
+                    -DiscoGb $plano.DiscoGb -CaminhoIso $caminhoIso `
+                    -PastaDestino $pastaMaquinas -Familia $escolha.Familia -Uso $escolha.Uso `
+                    -Confirm:$false | Out-Null
+                $onde = 'o Gestor do Hyper-V'
+            }
+
+            'vmware' {
+                $tipo = Get-TipoVMware -Identificador $escolha.Id -Familia $escolha.Familia
+                New-MaquinaVMware -Estado $Estado.VMware -Nome $plano.Nome -Cpu $plano.Cpu `
+                    -RamGb $plano.RamGb -DiscoGb $plano.DiscoGb -CaminhoIso $caminhoIso `
+                    -PastaDestino $pastaMaquinas -TipoConvidado $tipo `
+                    -Uefi:($escolha.Familia -eq 'windows') -Uso $escolha.Uso -Confirm:$false | Out-Null
+                $onde = "a $($Estado.VMware.Produto)"
+            }
+
+            default {
+                $tipo = Get-TipoVirtualBox -Identificador $escolha.Id -Familia $escolha.Familia
+                New-MaquinaVirtualBox -VBoxManage $Estado.VirtualBox.VBoxManage -Nome $plano.Nome `
+                    -Cpu $plano.Cpu -RamGb $plano.RamGb -DiscoGb $plano.DiscoGb `
+                    -CaminhoIso $caminhoIso -PastaDestino $pastaMaquinas -TipoSistema $tipo `
+                    -Uefi:($escolha.Familia -eq 'windows') -Uso $escolha.Uso -Confirm:$false | Out-Null
+                $onde = 'o VirtualBox'
+            }
+        }
     }
-    else {
-        $tipo = Get-TipoVirtualBox -Identificador $escolha.Id -Familia $escolha.Familia
-        $uefi = ($escolha.Familia -eq 'windows')
-        New-MaquinaVirtualBox -VBoxManage $Estado.VirtualBox.VBoxManage -Nome $nome `
-            -Cpu $especificacao.Cpu -RamGb $especificacao.RamGb -DiscoGb $especificacao.DiscoGb `
-            -CaminhoIso $caminhoIso -PastaDestino $pastaMaquinas -TipoSistema $tipo `
-            -Uefi:$uefi -Uso $escolha.Uso -Confirm:$false | Out-Null
-
+    catch {
         Write-Host ''
-        Write-Host "  Criada. Abra o VirtualBox e ligue a '$nome'." -ForegroundColor Green
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host ''
+        Write-Host '  A máquina não foi criada. A imagem descarregada ficou onde estava e' -ForegroundColor DarkGray
+        Write-Host '  serve para uma segunda tentativa sem voltar a descarregar.' -ForegroundColor DarkGray
+        return
     }
 
+    Write-Host ''
+    Write-Host "  Criada. Abra $onde e ligue a '$($plano.Nome)'." -ForegroundColor Green
+    Write-Host "    $pastaMaquinas" -ForegroundColor DarkGray
     Write-Host '  A máquina não arranca sozinha com o anfitrião — abre-a quem a quiser.' -ForegroundColor DarkGray
 }
 

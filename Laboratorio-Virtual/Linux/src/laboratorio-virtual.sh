@@ -27,7 +27,7 @@ set -euo pipefail
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly RAIZ
-readonly VERSAO='1.2.0'
+readonly VERSAO='1.3.0'
 readonly CREDITO='Created by Redfox using Claude'
 readonly CATALOGO="${RAIZ}/catalogo.json"
 
@@ -58,6 +58,8 @@ titulo() {
 . "${RAIZ}/lib/hipervisor.sh"
 # shellcheck source=lib/imagem_local.sh
 . "${RAIZ}/lib/imagem_local.sh"
+# shellcheck source=lib/vmware.sh
+. "${RAIZ}/lib/vmware.sh"
 # shellcheck source=lib/instalacao.sh
 . "${RAIZ}/lib/instalacao.sh"
 
@@ -118,6 +120,22 @@ mostrar_hipervisores() {
         passo 'Este programa instala-o — a opção 5 do menu.'
     fi
 
+    # PT-PT: A VMware so aparece quando esta ca -- nao ha uma linha "VMware nao
+    #        instalada", porque este programa nao a instala e listar o que nao
+    #        se faz e ruido. Mas quando esta, reconhece-se: quem a tem quase
+    #        sempre a tem por motivo de trabalho, com maquinas la dentro.
+    # EN-UK: VMware only appears when present -- there is no "VMware not
+    #        installed" line, because this program does not install it and
+    #        listing what it will not do is noise. But when it is there, it is
+    #        recognised.
+    local vmw=0
+    estado_vmware || vmw=$?
+    case $vmw in
+        0) ok "VMware         $(versao_vmware) — este programa sabe usá-la" ;;
+        2) aviso 'VMware         instalada, mas sem o vmware-vdiskmanager'
+           passo 'É ele que cria os discos. Sem ele não dá para criar máquinas daqui.' ;;
+    esac
+
     return 0
 }
 
@@ -139,6 +157,55 @@ confirmar() {
     local resposta
     read -r -p "  $1 [s/N] " resposta || return 1
     [[ "$resposta" =~ ^[SsYy] ]]
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Le texto com um valor por omissao que o Enter aceita.
+# EN-UK: Reads text with a default that Enter accepts.
+# $1 pergunta   $2 valor por omissao
+# ---------------------------------------------------------------------------
+ler_texto() {
+    local pergunta="$1" omissao="$2" resposta
+    read -r -p "  ${pergunta} [${omissao}]: " resposta || return 1
+    [[ -z "$resposta" ]] && { printf '%s' "$omissao"; return 0; }
+    printf '%s' "$resposta"
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Le um numero inteiro dentro de limites, insistindo ate ser aceitavel.
+#
+#        Os limites nao sao decorativos e a mensagem di-los. Deixar alguem
+#        escrever 64 GB numa maquina com 16 nao e liberdade: e deixa-lo criar
+#        uma maquina que nao arranca, e depois descobrir porque sozinho.
+#
+# EN-UK: Reads an integer within limits, insisting until acceptable. The limits
+#        are not decorative and the message states them: letting somebody type
+#        64 GB on a 16 GB machine is not freedom, it is letting them create a
+#        machine that will not start.
+#
+# $1 pergunta   $2 omissao   $3 minimo   $4 maximo   $5 unidade
+# ---------------------------------------------------------------------------
+ler_numero() {
+    local pergunta="$1" omissao="$2" minimo="$3" maximo="$4" unidade="${5:-}"
+    local resposta
+
+    while true; do
+        read -r -p "  ${pergunta} [${omissao}${unidade}]: " resposta || return 1
+        [[ -z "$resposta" ]] && { printf '%s' "$omissao"; return 0; }
+
+        if [[ ! "$resposta" =~ ^[0-9]+$ ]]; then
+            aviso 'Escreva um número inteiro.'
+            continue
+        fi
+        if (( resposta < minimo || resposta > maximo )); then
+            aviso "Tem de estar entre ${minimo}${unidade} e ${maximo}${unidade}."
+            continue
+        fi
+        printf '%s' "$resposta"
+        return 0
+    done
 }
 
 
@@ -535,6 +602,125 @@ escolher_imagem_local() {
 
 
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# PT-PT: Mostra o que se vai criar e deixa mudar antes de criar.
+#
+#        Um ecra so, com tudo o que decide a maquina: o nome, os nucleos, a
+#        memoria e o disco. A alternativa -- perguntar quatro coisas seguidas e
+#        so depois mostrar o resultado -- obriga a decidir cada uma sem ver as
+#        outras.
+#
+#        Os limites de cada campo vem de dois sitios ao mesmo tempo: do que o
+#        convidado precisa (o minimo do catalogo) e do que o anfitriao tem.
+#        Nenhum dos dois sozinho chega -- o primeiro deixa criar uma maquina que
+#        nao cabe, e o segundo deixa criar uma que cabe e nao arranca.
+#
+#        **Depois deste ecra nao ha mais perguntas.**
+#
+#        A interface vai toda para o stderr e so o resultado sai pelo stdout, que
+#        e a convencao do resto deste ficheiro para uma funcao que devolve
+#        valores. Sem isso, o texto do menu vinha dentro da variavel.
+#
+# EN-UK: Shows what will be created and allows changing it first. One screen
+#        with everything that decides the machine. Each field's limits come from
+#        two places at once: what the guest needs and what the host has.
+#
+#        **After this screen there are no more questions.**
+#
+#        The interface goes to stderr and only the result to stdout, which is
+#        this file's convention for a function returning values.
+#
+# $1 nome sugerido  $2 uso  $3 cpu  $4 ram MB  $5 disco MB
+# $6 min cpu  $7 min ram MB  $8 min disco MB
+# $9 nucleos fisicos  ${10} memoria total MB  ${11} disco livre MB
+# ${12} a saida do recomendar, para os motivos e os avisos
+# ---------------------------------------------------------------------------
+confirmar_especificacoes() {
+    local nome="$1" uso="$2" cpu="$3" ram="$4" disco="$5"
+    local min_cpu="$6" min_ram="$7" min_disco="$8"
+    local nucleos="$9" mem_total="${10}" disco_livre="${11}" saida="${12}"
+
+    while true; do
+        titulo 'A máquina que vai ser criada' >&2
+
+        printf '    Nome            %s\n' "$nome" >&2
+        printf '    Processador     %s núcleo(s)          de %s físicos\n' "$cpu" "$nucleos" >&2
+        printf '    Memória         %s MB              de %s MB\n' "$ram" "$mem_total" >&2
+        if [[ "$uso" == 'disco' ]]; then
+            printf '    Disco           o da imagem que trouxe, copiada\n' >&2
+        else
+            printf '    Disco           %s MB dinâmico     %s MB livres\n' "$disco" "$disco_livre" >&2
+        fi
+        printf '    Rede            NAT                 alcança a Internet, não é alcançável de fora\n' >&2
+
+        printf '\n' >&2
+        nota 'Como cheguei a estes números:' >&2
+        printf '%s\n' "$saida" | grep '^motivo=' | cut -d= -f2- | while IFS= read -r m; do
+            nota "  · $m" >&2
+        done
+        printf '%s\n' "$saida" | grep '^aviso=' | cut -d= -f2- | while IFS= read -r a; do
+            aviso "⚠  $a"
+        done
+
+        printf '\n' >&2
+        printf '    1. Criar com estas especificações\n' >&2
+        printf '    2. Alterar alguma coisa\n' >&2
+        printf '    0. Cancelar\n\n' >&2
+
+        local escolha; escolha="$(ler_escolha 'Número' 2 0)" || return 1
+
+        case "$escolha" in
+            0) return 1 ;;
+            1)
+                printf 'nome=%s\n' "$nome"
+                printf 'cpu=%s\n' "$cpu"
+                printf 'ram_mb=%s\n' "$ram"
+                printf 'disco_mb=%s\n' "$disco"
+                return 0
+                ;;
+            2)
+                titulo 'Alterar' >&2
+                nota 'Enter em cada uma mantém o valor que está lá.' >&2
+                printf '\n' >&2
+
+                local novo
+                while true; do
+                    novo="$(ler_texto 'Nome' "$nome")" || return 1
+                    if [[ "$novo" =~ ^[a-zA-Z0-9._-]+$ ]]; then nome="$novo"; break; fi
+                    aviso 'Esse nome tem caracteres que o hipervisor não aceita.'
+                done
+
+                # PT-PT: Nunca mais nucleos virtuais do que fisicos. E a confusao
+                #        mais comum de quem cria a primeira maquina virtual, e o
+                #        resultado e o contrario do esperado: os nucleos passam a
+                #        disputar-se e a maquina fica mais lenta.
+                # EN-UK: Never more virtual cores than physical. The commonest
+                #        confusion of a first virtual machine, and the result is
+                #        the opposite of what is expected.
+                cpu="$(ler_numero 'Núcleos' "$cpu" "$min_cpu" "$nucleos")" || return 1
+
+                # PT-PT: O tecto deixa 2 GB para o anfitriao. Sem tecto nenhum,
+                #        dar toda a memoria ao convidado deixa o anfitriao a
+                #        trocar para o disco -- e a culpa parece ser da maquina
+                #        virtual, quando e de quem lhe deu a memoria toda.
+                # EN-UK: The ceiling leaves 2 GB for the host. Without one,
+                #        giving the guest all the memory leaves the host
+                #        swapping, and the virtual machine gets the blame.
+                local tecto_ram=$(( mem_total - 2048 ))
+                (( tecto_ram < min_ram )) && tecto_ram=$min_ram
+                ram="$(ler_numero 'Memória' "$ram" "$min_ram" "$tecto_ram" ' MB')" || return 1
+
+                if [[ "$uso" != 'disco' ]]; then
+                    local tecto_disco=$(( disco_livre - 5120 ))
+                    (( tecto_disco < min_disco )) && tecto_disco=$min_disco
+                    disco="$(ler_numero 'Disco' "$disco" "$min_disco" "$tecto_disco" ' MB')" || return 1
+                fi
+                ;;
+        esac
+    done
+}
+
+
 criar_maquina() {
     local libvirt=0
     estado_libvirt || libvirt=$?
@@ -559,16 +745,65 @@ criar_maquina() {
         return 0
     fi
 
-    local hipervisor='libvirt'
-    if (( libvirt == 0 )) && [[ "$tem_vbox" == 'sim' ]]; then
-        titulo 'Qual o hipervisor?'
-        printf '    1. KVM/libvirt  — parte do kernel, muito mais rápido\n'
-        printf '    2. VirtualBox   — da Oracle, interface própria, mais simples\n'
-        local escolha; escolha="$(ler_escolha 'Número' 2)"
-        [[ "$escolha" == '2' ]] && hipervisor='virtualbox'
-    elif (( libvirt != 0 )); then
-        hipervisor='virtualbox'
+    # PT-PT: A VMware entra na lista como qualquer outro, e entra em primeiro
+    #        quando esta ca. Em Linux isso conta mais do que em Windows: a
+    #        VMware Workstation e o KVM disputam as extensoes do processador, e
+    #        a VMware costuma perder essa disputa em silencio. Propor a alguem
+    #        que instale o KVM sem lhe perguntar se quer usar a VMware que tem
+    #        seria empurra-lo para esse conflito.
+    # EN-UK: VMware joins the list like any other, and comes first when present.
+    #        On Linux that matters more than on Windows: VMware Workstation and
+    #        KVM fight over the processor's virtualisation extensions, and
+    #        VMware usually loses quietly.
+    local -a chaves=() textos=() notas=()
+
+    local vmw=0
+    estado_vmware || vmw=$?
+    if (( vmw == 0 )); then
+        chaves+=('vmware')
+        textos+=('VMware Workstation — já instalada nesta máquina')
+        notas+=('Usa a que já tem. As máquinas ficam a par das outras que lá tiver.')
     fi
+    if (( libvirt == 0 )); then
+        chaves+=('libvirt')
+        textos+=('KVM/libvirt — parte do núcleo do Linux, muito mais rápido')
+        notas+=('Corre dentro do kernel. É o mais rápido de todos.')
+    fi
+    if [[ "$tem_vbox" == 'sim' ]]; then
+        chaves+=('virtualbox')
+        textos+=('VirtualBox — da Oracle, interface própria, mais simples')
+        notas+=('Melhor suporte de USB e de pastas partilhadas.')
+    fi
+
+    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando ja ha
+    #        um a funcionar: quem tem so a VMware pode preferir o KVM para uma
+    #        maquina em concreto, e nao ha razao para o obrigar a sair daqui.
+    # EN-UK: The option to install another appears **always**, even when one
+    #        already works.
+    titulo 'Em que hipervisor?'
+    local i
+    for (( i = 0; i < ${#chaves[@]}; i++ )); do
+        printf '    %d. %s\n' "$(( i + 1 ))" "${textos[$i]}"
+        nota "     ${notas[$i]}"
+    done
+    local n_instalar=$(( ${#chaves[@]} + 1 ))
+    printf '    %d. Instalar outro hipervisor\n' "$n_instalar"
+    nota '     Nenhum destes serve, ou quer o que ainda não está cá.'
+    printf '    0. Voltar atrás\n\n'
+
+    local escolha; escolha="$(ler_escolha 'Número' "$n_instalar" 0)" || return 0
+    [[ "$escolha" == '0' ]] && return 0
+
+    if (( escolha == n_instalar )); then
+        if preparar_hipervisor; then
+            printf '\n'
+            nota 'Volte ao menu e escolha outra vez «criar uma máquina virtual»: o'
+            nota 'programa relê o estado da máquina de cada vez que o menu aparece.'
+        fi
+        return 0
+    fi
+
+    local hipervisor="${chaves[$(( escolha - 1 ))]}"
 
     # --- de onde vem a imagem ------------------------------------------------
     titulo 'De onde vem a imagem?'
@@ -610,104 +845,119 @@ criar_maquina() {
         read -r min_cpu min_ram min_disco rec_cpu rec_ram rec_disco <<< "$(perfil_generico "$perfil")"
     fi
 
-    # --- as especificacoes ---------------------------------------------------
-    # PT-PT: Uma appliance traz as suas. Nao ha nada a recomendar quando o
-    #        ficheiro ja decidiu.
-    # EN-UK: An appliance brings its own. Nothing to recommend when the file has
-    #        already decided.
-    local cpu=0 ram=0 disco=0
+    # --- onde fica a imagem --------------------------------------------------
+    # PT-PT: Perguntado agora, e nao no fim: uma imagem de sistema operativo
+    #        anda pelos tres a cinco gigabytes, e a particao onde a pasta pessoal
+    #        esta e, em muitas maquinas, a que nao tem espaco. Dizer isto depois
+    #        de descarregar seria dizer tarde.
+    # EN-UK: Asked now, not at the end: an operating-system image runs to three
+    #        or five gigabytes, and the partition holding the home directory is,
+    #        on many machines, the one without room.
+    local pasta_imagens="${PASTA_BASE}/Imagens"
+    local tipo_catalogo=''
+    if [[ "$origem" == 'catalogo' ]]; then
+        tipo_catalogo="$(campo_imagem "$CATALOGO" "$id" '.tipo')"
+    fi
+
+    if [[ "$tipo_catalogo" == 'iso' ]]; then
+        titulo 'Onde quer guardar a imagem?'
+        printf '  A imagem fica guardada, e serve para criar mais máquinas depois sem a\n'
+        printf '  voltar a descarregar. Enter aceita a pasta sugerida.\n\n'
+        pasta_imagens="$(ler_texto 'Pasta' "$pasta_imagens")" || return 0
+
+        if ! mkdir -p "$pasta_imagens" 2>/dev/null; then
+            erro "Não consigo criar $pasta_imagens."
+            nota 'Nada foi criado.'
+            return 0
+        fi
+        if [[ ! -w "$pasta_imagens" ]]; then
+            erro "Não tenho permissão para escrever em $pasta_imagens."
+            nota 'Nada foi criado.'
+            return 0
+        fi
+    fi
+
+    # --- as especificacoes e o nome, num ecra so -----------------------------
+    local pasta_maquinas="${PASTA_BASE}/Maquinas"
+    local sugestao="${id//[^a-zA-Z0-9-]/-}"
+    local cpu=0 ram=0 disco=0 nome=''
+
     if [[ "$uso" == 'apliancia' ]]; then
-        titulo 'Especificações'
-        printf '  Uma appliance traz as suas próprias: memória, núcleos, discos e placas de\n'
-        printf '  rede vêm todos decididos por quem a exportou. Ajuste-os no VirtualBox\n'
-        printf '  depois de importar, se for preciso.\n'
+        # PT-PT: Uma appliance traz as suas: memoria, nucleos, discos e placas
+        #        de rede vem todos decididos por quem a exportou. Nao ha nada a
+        #        recomendar, e propor numeros que nao vao ser usados so confunde.
+        # EN-UK: An appliance brings its own. Nothing to recommend, and
+        #        proposing numbers that will not be used only confuses.
+        titulo 'A máquina que vai ser importada'
+        printf '  Uma appliance traz as suas próprias especificações: memória, núcleos,\n'
+        printf '  discos e placas de rede vêm decididos por quem a exportou. Ajuste-os no\n'
+        printf '  hipervisor depois de importar, se for preciso.\n\n'
+
+        nome="$(ler_texto 'Nome da máquina' "$sugestao")" || return 0
+        if [[ ! "$nome" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            erro 'Esse nome tem caracteres que o hipervisor não aceita. Nada foi criado.'
+            return 0
+        fi
     else
+        local nucleos mem_total disco_livre
+        nucleos="$(nucleos_fisicos)"
+        mem_total="$(memoria_total_mb)"
+        disco_livre="$(disco_livre_mb "$PASTA_BASE")"
 
-    local saida
-    saida="$(recomendar "$(nucleos_fisicos)" "$(memoria_total_mb)" "$(disco_livre_mb "$PASTA_BASE")" \
-        "$min_cpu" "$min_ram" "$min_disco" "$rec_cpu" "$rec_ram" "$rec_disco")"
+        local saida
+        saida="$(recomendar "$nucleos" "$mem_total" "$disco_livre" \
+            "$min_cpu" "$min_ram" "$min_disco" "$rec_cpu" "$rec_ram" "$rec_disco")"
 
-    titulo "Especificações recomendadas para $nome_imagem"
+        if [[ "$(valor_de viavel "$saida")" != 'sim' ]]; then
+            titulo "Especificações para $nome_imagem"
+            erro 'Esta máquina não tem recursos para este sistema convidado.'
+            printf '%s\n' "$saida" | grep '^aviso=' | cut -d= -f2- | while IFS= read -r a; do erro "$a"; done
+            return 0
+        fi
 
-    if [[ "$(valor_de viavel "$saida")" != 'sim' ]]; then
-        erro 'Esta máquina não tem recursos para este sistema convidado.'
-        printf '%s\n' "$saida" | grep '^aviso=' | cut -d= -f2- | while IFS= read -r a; do erro "$a"; done
-        return 0
+        local plano
+        plano="$(confirmar_especificacoes "$sugestao" "$uso" \
+            "$(valor_de cpu "$saida")" "$(valor_de ram_mb "$saida")" "$(valor_de disco_mb "$saida")" \
+            "$min_cpu" "$min_ram" "$min_disco" \
+            "$nucleos" "$mem_total" "$disco_livre" "$saida")" || {
+                nota 'Nada foi criado.'
+                return 0
+            }
+
+        nome="$(valor_de nome "$plano")"
+        cpu="$(valor_de cpu "$plano")"
+        ram="$(valor_de ram_mb "$plano")"
+        disco="$(valor_de disco_mb "$plano")"
     fi
 
-    local cpu ram disco
-    cpu="$(valor_de cpu "$saida")"
-    ram="$(valor_de ram_mb "$saida")"
-    disco="$(valor_de disco_mb "$saida")"
+    # --- daqui para baixo nao ha mais perguntas ------------------------------
+    # PT-PT: Foi o que se pediu, e faz sentido: as decisoes ja foram todas
+    #        tomadas nos ecras acima. O que falta e trabalho, e o trabalho
+    #        mostra-se enquanto acontece em vez de se pedir licenca para ele.
+    # EN-UK: As asked, and it makes sense: every decision was taken on the
+    #        screens above. What is left is work, and work is shown as it
+    #        happens rather than asked permission for.
+    titulo "A criar $nome"
 
-    printf '  Processador    %s núcleo(s) virtual(is)\n' "$cpu"
-    printf '  Memória        %s MB\n' "$ram"
-    if [[ "$uso" == 'disco' ]]; then
-        printf '  Disco          a imagem que indicou, com o tamanho que traz\n'
-    else
-        printf '  Disco          %s MB (dinâmico)\n' "$disco"
-    fi
-    printf '\n'
-    nota 'Como se chegou aqui:'
-    printf '%s\n' "$saida" | grep '^motivo=' | cut -d= -f2- | while IFS= read -r m; do nota "  · $m"; done
-    printf '%s\n' "$saida" | grep '^aviso=' | cut -d= -f2- | while IFS= read -r a; do aviso "⚠  $a"; done
-
-    if [[ "$uso" == 'disco' ]]; then
-        printf '\n'
-        nota 'O disco não conta: esta imagem já é o disco da máquina. Se ficar curto,'
-        nota 'cresce-se depois com o qemu-img resize.'
-    fi
-
-    printf '\n'
-    confirmar 'Continuar com estas especificações?' || { nota 'Nada foi criado.'; return 0; }
-    fi
-
-    # --- a imagem -------------------------------------------------------------
     local iso="$iso_local"
 
     if [[ "$origem" == 'catalogo' ]]; then
-        titulo 'Imagem do sistema'
-        local tipo_catalogo; tipo_catalogo="$(campo_imagem "$CATALOGO" "$id" '.tipo')"
+        printf '  [1/2] A imagem do sistema\n'
         if [[ "$tipo_catalogo" == 'iso' ]]; then
-            iso="$(obter_imagem_oficial "$id" "${PASTA_BASE}/Imagens")" || return 0
+            iso="$(obter_imagem_oficial "$id" "$pasta_imagens")" || return 0
         else
             iso="$(obter_imagem_guiada "$id")" || return 0
         fi
+    else
+        printf '  [1/2] A imagem que trouxe\n'
+        nota "        $iso"
+        aviso '        Imagem sua: as camadas de verificação do catálogo não se aplicam.'
     fi
 
     [[ -z "$iso" ]] && { aviso 'Sem imagem verificada, não há máquina virtual. Nada foi criado.'; return 0; }
 
-    # --- o nome e a confirmacao ----------------------------------------------
-    titulo 'Criar a máquina'
-    local sugestao="${id//[^a-zA-Z0-9-]/-}" nome
-    read -r -p "  Nome da máquina virtual [$sugestao]: " nome || return 0
-    [[ -z "$nome" ]] && nome="$sugestao"
-    if [[ ! "$nome" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-        erro 'Esse nome tem caracteres que o hipervisor não aceita. Nada foi criado.'
-        return 0
-    fi
-
-    local pasta_maquinas="${PASTA_BASE}/Maquinas"
-
-    printf '\n  %s\n' "$nome"
-    printf '    hipervisor   %s\n' "$hipervisor"
-    printf '    convidado    %s\n' "$nome_imagem"
-    if [[ "$uso" == 'apliancia' ]]; then
-        printf '    origem       appliance — traz as especificações lá dentro\n'
-    else
-        printf '    processador  %s núcleo(s)\n' "$cpu"
-        printf '    memória      %s MB\n' "$ram"
-        if [[ "$uso" == 'disco' ]]; then
-            printf '    disco        a imagem que indicou, copiada para %s\n' "$pasta_maquinas"
-        else
-            printf '    disco        %s MB em %s\n' "$disco" "$pasta_maquinas"
-        fi
-        printf '    rede         NAT — alcança a Internet, não é alcançável da rede local\n'
-    fi
-    [[ "$origem" == 'local' ]] && aviso '    verificação  imagem trazida por si — ver o relatório acima'
-    printf '\n'
-
-    confirmar 'Criar?' || { nota 'Nada foi criado.'; return 0; }
+    printf '  [2/2] A máquina virtual\n'
+    mkdir -p "$pasta_maquinas" || return 1
 
     if [[ "$uso" == 'apliancia' ]]; then
         importar_apliancia_virtualbox "$iso" "$nome" "$pasta_maquinas" || return 1
@@ -717,16 +967,39 @@ criar_maquina() {
         return 0
     fi
 
-    if [[ "$hipervisor" == 'libvirt' ]]; then
-        criar_maquina_libvirt "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
-            "$(variante_osinfo "$id" "$familia")" "$uso" || return 1
-        printf '\n'; ok "Criada. Abra com: virt-viewer --connect qemu:///system $nome"
-    else
-        local uefi='nao'; [[ "$familia" == 'windows' ]] && uefi='sim'
-        criar_maquina_virtualbox "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
-            "$(tipo_virtualbox "$id" "$familia")" "$uefi" "$uso" || return 1
-        printf '\n'; ok "Criada. Abra o VirtualBox e ligue a '$nome'."
-    fi
+    local uefi='nao'; [[ "$familia" == 'windows' ]] && uefi='sim'
+
+    case "$hipervisor" in
+        libvirt)
+            criar_maquina_libvirt "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
+                "$(variante_osinfo "$id" "$familia")" "$uso" || return 1
+            printf '\n'; ok "Criada. Abra com: virt-viewer --connect qemu:///system $nome"
+            ;;
+        vmware)
+            # PT-PT: A VMware trabalha em GB e nao em MB, ao contrario de tudo o
+            #        resto desta versao. A conversao e feita aqui e nao dentro do
+            #        modulo, para o modulo continuar a falar a lingua da VMware.
+            # EN-UK: VMware works in GB rather than MB, unlike everything else in
+            #        this version. The conversion happens here, not inside the
+            #        module, so the module keeps speaking VMware's language.
+            local ram_gb disco_gb
+            ram_gb="$(awk -v m="$ram" 'BEGIN { printf "%.1f", m / 1024 }')"
+            disco_gb=$(( disco / 1024 ))
+            (( disco_gb < 1 )) && disco_gb=1
+
+            criar_maquina_vmware "$nome" "$cpu" "$ram_gb" "$disco_gb" "$iso" \
+                "$pasta_maquinas" "$(tipo_vmware "$id" "$familia")" "$uefi" "$uso" >/dev/null || return 1
+            printf '\n'; ok "Criada. Abra a VMware e ligue a '$nome'."
+            nota "        ${pasta_maquinas}/${nome}"
+            ;;
+        *)
+            criar_maquina_virtualbox "$nome" "$cpu" "$ram" "$disco" "$iso" "$pasta_maquinas" \
+                "$(tipo_virtualbox "$id" "$familia")" "$uefi" "$uso" || return 1
+            printf '\n'; ok "Criada. Abra o VirtualBox e ligue a '$nome'."
+            ;;
+    esac
+
+    nota 'A máquina não arranca sozinha com o anfitrião — abre-a quem a quiser.'
 }
 
 

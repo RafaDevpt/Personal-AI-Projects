@@ -76,6 +76,43 @@ O lançador acrescenta ao `PATH` os dois prefixos do Homebrew — `/opt/homebrew
 
 ---
 
+## A Parallels e a Fusion que já cá estejam
+
+Num Mac, quem virtualiza a sério quase sempre pagou por uma destas: a
+**Parallels Desktop**, que é a mais usada, ou a **VMware Fusion**. O programa
+reconhece as duas e sabe criar máquinas em ambas. Aparecem na lista dos
+hipervisores, em primeiro.
+
+Esta é a maior diferença entre esta versão e as outras duas: em Windows e em
+Linux há **um** produto de terceiros a considerar, aqui há dois.
+
+### E conduzem-se de maneiras opostas
+
+A **Parallels** tem o `prlctl`, que é uma ferramenta de linha de comandos a
+sério: cria, configura e liga. Escreve-se-lhe o que se quer e ela faz.
+
+A **Fusion** não tem nada disso. Tem o `vmrun`, que liga e desliga mas não cria,
+e um ficheiro de texto — o `.vmx` — que descreve a máquina inteira e se escreve à
+mão. Parece frágil e não é: o formato é estável há mais de vinte anos, e a
+alternativa (automatizar a interface gráfica) é que seria frágil.
+
+Ou seja: para a Parallels chamam-se comandos, para a Fusion escreve-se um
+ficheiro. **Não há aqui uma abstracção a partilhar entre as duas**, e tentar
+inventá-la só tornaria as duas piores. Há um teste que confirma que os dois
+vocabulários continuam diferentes — se alguém um dia os «simplificar» para um
+só, falha.
+
+### Dois pormenores de um Mac
+
+Uma máquina de Fusion vive dentro de um pacote `.vmwarevm`, que é uma pasta que
+o Finder mostra como um ficheiro só. Criá-la numa pasta simples funciona, mas
+deixa ficheiros soltos no Finder — que não é o que quem usa um Mac espera.
+
+E o `vmrun` da Fusion vive dentro do pacote da aplicação, e **não está no
+PATH**. Procurar só no PATH dava «não instalada» num Mac onde está.
+
+---
+
 ## Instalar um hipervisor
 
 Sem hipervisor não há onde criar a máquina. A opção **5** do menu trata disso —

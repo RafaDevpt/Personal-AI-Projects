@@ -51,6 +51,8 @@ passo() { :; }
 . "${FONTE}/lib/catalogo.sh"
 # shellcheck source=../src/lib/imagem_local.sh
 . "${FONTE}/lib/imagem_local.sh"
+# shellcheck source=../src/lib/vmware.sh
+. "${FONTE}/lib/vmware.sh"
 # shellcheck source=../src/lib/instalacao.sh
 . "${FONTE}/lib/instalacao.sh"
 
@@ -706,6 +708,152 @@ else
     saltar 'uma chave válida de outra entidade é recusada' \
            'o gpg não está instalado nesta máquina — corre no runner'
 fi
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: A VMware que ja esteja instalada
+#
+#        Nada aqui precisa da VMware instalada, e isso e deliberado: quem
+#        escreveu isto nao a tem, e o runner tambem nao. O que se testa e o
+#        `.vmx` -- que e texto, e portanto verificavel sem hipervisor nenhum --
+#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#
+# EN-UK: VMware, when already installed. Nothing here needs it installed,
+#        deliberately: neither the author nor the runner has it. What is tested
+#        is the `.vmx` -- text, therefore checkable without any hypervisor --
+#        and the detection, which must say "not here" without blowing up.
+# ---------------------------------------------------------------------------
+grupo 'Detecção da VMware'
+
+t_vmware_deteccao() {
+    local e=0
+    estado_vmware || e=$?
+    # PT-PT: Qualquer um dos tres e uma resposta valida. O que nao pode e a
+    #        funcao rebentar ou devolver uma coisa que ninguem sabe interpretar.
+    # EN-UK: Any of the three is a valid answer. What it must not do is blow up
+    #        or return something nobody can interpret.
+    case $e in
+        0|1|2) return 0 ;;
+        *) printf 'estado inesperado: %s\n' "$e"; return 1 ;;
+    esac
+}
+
+teste 'a detecção corre nesta máquina sem rebentar' t_vmware_deteccao
+
+
+grupo 'Tipo de convidado da VMware'
+
+t_tipo_ubuntu() { afirmar_igual 'ubuntu-64'   "$(tipo_vmware 'ubuntu-24-04-desktop' 'linux')"; }
+t_tipo_debian() { afirmar_igual 'debian12-64' "$(tipo_vmware 'debian-12' 'linux')"; }
+t_tipo_alma()   { afirmar_igual 'rhel9-64'    "$(tipo_vmware 'almalinux-9' 'linux')"; }
+t_tipo_mint()   { afirmar_igual 'ubuntu-64'   "$(tipo_vmware 'linuxmint-22' 'linux')"; }
+t_tipo_kali()   { afirmar_igual 'debian12-64' "$(tipo_vmware 'kali-2024' 'linux')"; }
+
+# PT-PT: Este campo decide o controlador de disco e o relogio. Cair em
+#        `other-64` quando se sabe que e Linux seria criar uma maquina com
+#        metade das definicoes erradas -- e a lentidao que daqui resulta nunca e
+#        associada a este campo.
+# EN-UK: This field decides the disk controller and the clock. Falling to
+#        `other-64` when Linux is known would create a machine with half its
+#        settings wrong.
+t_tipo_desconhecida() {
+    afirmar_igual 'otherlinux-64' "$(tipo_vmware 'nunca-visto' 'linux')" \
+        && afirmar_igual 'windows11-64' "$(tipo_vmware 'nunca-visto' 'windows')" \
+        && afirmar_igual 'other-64' "$(tipo_vmware '' '')"
+}
+
+teste 'reconhece o Ubuntu' t_tipo_ubuntu
+teste 'reconhece o Debian' t_tipo_debian
+teste 'reconhece a AlmaLinux como RHEL' t_tipo_alma
+teste 'o Mint é um Ubuntu para efeitos da VMware' t_tipo_mint
+teste 'o Kali é um Debian para efeitos da VMware' t_tipo_kali
+teste 'uma distribuição desconhecida ainda dá um tipo utilizável' t_tipo_desconhecida
+
+
+grupo 'O ficheiro .vmx'
+
+t_vmx_numeros() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 4 8 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'numvcpus = "4"' \
+        && afirmar_contem "$v" 'guestOS = "ubuntu-64"' \
+        && afirmar_contem "$v" 'displayName = "lab"'
+}
+
+# PT-PT: O campo chama-se `memsize` e e em megabytes. Passar-lhe os GB
+#        directamente dava a maquina oito megabytes de memoria, e o erro so
+#        aparece quando ela nao arranca.
+# EN-UK: The field is `memsize`, in megabytes. Passing GB straight in would give
+#        the machine eight megabytes, and the mistake only shows when it will
+#        not boot.
+t_vmx_memoria_mb() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 8 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'memsize = "8192"'
+}
+
+t_vmx_memoria_fraccao() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 1.5 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'memsize = "1536"'
+}
+
+# PT-PT: O caminho do disco vai relativo para a pasta da maquina se poder mover
+#        para outro disco sem partir.
+# EN-UK: The disk path goes in relative so the machine folder can be moved.
+t_vmx_disco_relativo() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'nvme0:0.fileName = "lab.vmdk"' \
+        && ! printf '%s' "$v" | grep -q 'nvme0:0.fileName = "/'
+}
+
+# PT-PT: E a distincao que decide se a maquina arranca ou fica num ecra a dizer
+#        que nao ha nada para arrancar.
+# EN-UK: The distinction that decides whether the machine boots.
+t_vmx_com_cd() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk /imagens/ubuntu.iso nao)"
+    afirmar_contem "$v" 'cdrom-image' && afirmar_contem "$v" 'ubuntu.iso'
+}
+
+t_vmx_sem_cd() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    ! printf '%s' "$v" | grep -q 'cdrom-image'
+}
+
+t_vmx_nat() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'ethernet0.connectionType = "nat"'
+}
+
+# PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a comecar
+#        por causa do modo de arranque -- e a mensagem que da fala de outra coisa.
+# EN-UK: Without `firmware = "efi"`, the Windows 11 installer refuses to start
+#        over boot mode, with a message about something else.
+t_vmx_efi() {
+    local v; v="$(conteudo_vmx lab windows11-64 2 4 lab.vmdk '' sim)"
+    afirmar_contem "$v" 'firmware = "efi"'
+}
+
+t_vmx_sem_efi() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    ! printf '%s' "$v" | grep -q 'firmware'
+}
+
+# PT-PT: Uma maquina acabada de criar por um script nao foi movida nem copiada,
+#        e a pergunta da VMware na primeira arrancada so confunde quem a abre.
+# EN-UK: A machine a script just created was neither moved nor copied.
+t_vmx_sem_pergunta() {
+    local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
+    afirmar_contem "$v" 'uuid.action = "create"'
+}
+
+teste 'leva os números que se lhe deram' t_vmx_numeros
+teste 'a memória vai em megabytes, e não em gigabytes' t_vmx_memoria_mb
+teste 'meio gigabyte também dá o número certo' t_vmx_memoria_fraccao
+teste 'o caminho do disco vai relativo, para a pasta se poder mover' t_vmx_disco_relativo
+teste 'um instalador leva CD' t_vmx_com_cd
+teste 'uma imagem de disco não leva CD' t_vmx_sem_cd
+teste 'a rede fica em NAT' t_vmx_nat
+teste 'um convidado de Windows leva EFI' t_vmx_efi
+teste 'um convidado de Linux não leva EFI' t_vmx_sem_efi
+teste 'não pergunta se a máquina foi movida na primeira arrancada' t_vmx_sem_pergunta
 
 
 resumo

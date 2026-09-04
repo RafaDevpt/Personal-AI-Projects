@@ -323,10 +323,15 @@ variante_rpm() {
 # ---------------------------------------------------------------------------
 # PT-PT: Mostra os comandos, pergunta uma vez, e corre-os por ordem.
 #
-#        Os comandos sao mostrados **antes** da pergunta, todos, e nao um a um
-#        pelo caminho. Quem responde tem de poder ver ao que esta a dizer que
-#        sim -- perguntar "posso?" e so depois revelar o que se ia fazer nao e
-#        uma pergunta, e um formalismo.
+#        Os comandos sao mostrados **antes** de correrem, todos, e nao um a um
+#        pelo caminho. Quem esta a olhar tem de poder ver o que vai acontecer --
+#        mas mostrar nao e o mesmo que pedir licenca, e aqui nao se pede.
+#
+#        **Nao ha confirmacao.** Escolher "instalar o VirtualBox" num menu que
+#        diz "instalar o VirtualBox" ja e a resposta; perguntar outra vez nao
+#        acrescenta decisao nenhuma, so ruido. E o `sudo`, que vem a seguir, ja
+#        e uma paragem a serio -- ao contrario de um [s/N], pede uma coisa que
+#        so quem tem a maquina sabe.
 #
 #        O `sudo` pede a palavra-passe no terminal, a quem esta a usar. Este
 #        programa nunca a ve, nunca a guarda e nunca a passa a lado nenhum.
@@ -335,20 +340,22 @@ variante_rpm() {
 #        update` falhado dava um `install` que instalava a versao errada, ou
 #        nenhuma, com uma mensagem sobre outra coisa qualquer.
 #
-# EN-UK: Shows the commands, asks once, runs them in order. They are shown
-#        **before** the question, all of them: whoever answers must be able to
-#        see what they are agreeing to. `sudo` asks for the password in the
-#        terminal; this program never sees, stores or forwards it. It stops at
-#        the first command that fails -- carrying on after a failed
-#        `apt-get update` would install the wrong version, or none.
+# EN-UK: Shows the commands and runs them in order. They are shown **before**
+#        they run, all of them -- but showing is not the same as asking
+#        permission, and none is asked here: choosing "install VirtualBox" from
+#        a menu that says so is the answer. `sudo`, which comes next, is a real
+#        stop, unlike a [y/N]. It stops at the first command that fails --
+#        carrying on after a failed `apt-get update` would install the wrong
+#        version, or none.
 # ---------------------------------------------------------------------------
 executar_passos() {
-    local pergunta="$1"; shift
+    local titulo_passo="$1"; shift
     local -a comandos=("$@")
 
     (( ${#comandos[@]} == 0 )) && { erro 'Não há nada a executar.'; return 1; }
 
     printf '\n'
+    printf '  %s\n' "$titulo_passo"
     printf '  Vão correr estes comandos, por esta ordem:\n'
     local comando
     for comando in "${comandos[@]}"; do
@@ -358,9 +365,6 @@ executar_passos() {
     printf '  O sudo vai pedir-lhe a palavra-passe. Este programa não a vê nem a guarda.\n'
     printf '\n'
 
-    confirmar "$pergunta" || { printf '  Nada foi feito.\n'; return 1; }
-
-    printf '\n'
     for comando in "${comandos[@]}"; do
         printf '  $ %s\n' "$comando"
         if ! bash -c "$comando"; then
@@ -399,8 +403,21 @@ instalar_libvirt() {
     printf '  O KVM faz parte do núcleo do Linux e já cá está. O que falta são as\n'
     printf '  ferramentas que falam com ele, o serviço do libvirt, e a permissão\n'
     printf '  para este utilizador lhes chegar.\n'
+    printf '\n'
+    # PT-PT: Em Windows pergunta-se onde instalar. Aqui nao se pergunta, e nao e
+    #        por esquecimento: quem decide onde um pacote fica e a distribuicao,
+    #        e inventar uma pergunta cuja resposta nao muda nada seria pior do
+    #        que nao a fazer. O que **se** escolhe -- onde ficam as imagens e as
+    #        maquinas -- e perguntado na altura de as criar.
+    # EN-UK: On Windows the install location is asked. Here it is not, and not
+    #        by oversight: the distribution decides where a package lands, and
+    #        inventing a question whose answer changes nothing would be worse
+    #        than not asking. What **is** chosen -- where images and machines
+    #        go -- is asked when they are created.
+    nota 'Onde ficam os ficheiros decide a distribuição, e não este programa —'
+    nota 'é o que se ganha em usar o gestor de pacotes em vez de um instalador.'
 
-    executar_passos 'Instalar o KVM com o libvirt?' "${passos[@]}" || return 1
+    executar_passos 'A instalar o KVM com o libvirt.' "${passos[@]}" || return 1
 
     local em_falta
     em_falta="$(grupos_em_falta "$(id -Gn 2>/dev/null || true)" | tr '\n' ' ')"
@@ -553,7 +570,7 @@ instalar_virtualbox() {
         printf '  assinatura de cada pacote — nesta instalação e em todas as futuras.\n'
     fi
 
-    executar_passos 'Instalar o VirtualBox?' "${passos[@]}" || return 1
+    executar_passos 'A instalar o VirtualBox.' "${passos[@]}" || return 1
 
     printf '\n'
     aviso 'O VirtualBox compila um módulo para o núcleo ao instalar.'

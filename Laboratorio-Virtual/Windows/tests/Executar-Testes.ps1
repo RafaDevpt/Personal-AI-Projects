@@ -48,6 +48,7 @@ $fonte = Join-Path (Split-Path -Parent $raiz) 'src'
 . (Join-Path $fonte 'Hipervisor.ps1')
 . (Join-Path $fonte 'Descarregar.ps1')
 . (Join-Path $fonte 'ImagemLocal.ps1')
+. (Join-Path $fonte 'Vmware.ps1')
 . (Join-Path $fonte 'Instalacao.ps1')
 
 Write-Host ''
@@ -879,6 +880,165 @@ Teste 'um ficheiro que não existe não rebenta' {
     $r = Test-AssinaturaAuthenticode -Caminho 'Z:\nada\nenhum.exe' -Assinante 'Oracle'
     Assert-Falso $r.Valida
     Assert-Contem $r.Detalhe 'não existe'
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: A VMware que ja esteja instalada
+#
+#        Nada aqui precisa da VMware instalada, e isso e deliberado: quem
+#        escreveu isto nao a tem, e o runner tambem nao. O que se testa e o
+#        `.vmx` -- que e texto, e portanto verificavel sem hipervisor nenhum --
+#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#
+# EN-UK: VMware, when already installed. Nothing here needs VMware installed,
+#        deliberately: neither the author nor the runner has it. What is tested
+#        is the `.vmx` -- which is text, and therefore checkable without any
+#        hypervisor -- and the detection, which must say "not here" without
+#        blowing up.
+# ---------------------------------------------------------------------------
+Grupo 'Detecção da VMware'
+
+Teste 'a detecção corre nesta máquina sem rebentar' {
+    $r = Get-EstadoVMware
+    Assert-Verdadeiro ($null -ne $r)
+    Assert-Verdadeiro ($r.Instalado -is [bool])
+}
+
+Teste 'quando não está instalada, diz que não está e não inventa caminhos' {
+    $r = Get-EstadoVMware
+    if (-not $r.Instalado) {
+        Assert-Igual '' $r.Pasta
+        Assert-Falso $r.PodeCriar
+        Assert-Contem $r.Detalhe 'Não está instalada'
+    }
+    else {
+        # PT-PT: Numa maquina que a tenha, o que tem de ser verdade e outra
+        #        coisa: a pasta existe mesmo.
+        # EN-UK: On a machine that has it, what must hold is different.
+        Assert-Verdadeiro (Test-Path -LiteralPath $r.Pasta)
+    }
+}
+
+
+Grupo 'Tipo de convidado da VMware'
+
+Teste 'reconhece as distribuições do catálogo' {
+    Assert-Igual 'ubuntu-64'   (Get-TipoVMware -Identificador 'ubuntu-24-04-desktop' -Familia 'linux')
+    Assert-Igual 'debian12-64' (Get-TipoVMware -Identificador 'debian-12' -Familia 'linux')
+    Assert-Igual 'fedora-64'   (Get-TipoVMware -Identificador 'fedora-40' -Familia 'linux')
+    Assert-Igual 'rhel9-64'    (Get-TipoVMware -Identificador 'almalinux-9' -Familia 'linux')
+}
+
+Teste 'o Mint é um Ubuntu e o Kali é um Debian, para efeitos da VMware' {
+    Assert-Igual 'ubuntu-64'   (Get-TipoVMware -Identificador 'linuxmint-22' -Familia 'linux')
+    Assert-Igual 'debian12-64' (Get-TipoVMware -Identificador 'kali-2024' -Familia 'linux')
+}
+
+Teste 'uma distribuição desconhecida ainda dá um tipo utilizável' {
+    # PT-PT: Este campo decide o controlador de disco e o relogio. Cair em
+    #        `other-64` quando se sabe que e Linux seria criar uma maquina com
+    #        metade das definicoes erradas.
+    # EN-UK: This field decides the disk controller and the clock. Falling to
+    #        `other-64` when Linux is known would create a machine with half its
+    #        settings wrong.
+    Assert-Igual 'otherlinux-64' (Get-TipoVMware -Identificador 'nunca-visto' -Familia 'linux')
+    Assert-Igual 'windows11-64'  (Get-TipoVMware -Identificador 'nunca-visto' -Familia 'windows')
+    Assert-Igual 'other-64'      (Get-TipoVMware -Identificador '' -Familia '')
+}
+
+
+Grupo 'O ficheiro .vmx'
+
+Teste 'leva os números que se lhe deram' {
+    $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 4 -RamGb 8 -FicheiroDisco 'lab.vmdk'
+    Assert-Contem $v 'numvcpus = "4"'
+    Assert-Contem $v 'memsize = "8192"'
+    Assert-Contem $v 'guestOS = "ubuntu-64"'
+    Assert-Contem $v 'displayName = "lab"'
+}
+
+Teste 'a memória vai em megabytes, e não em gigabytes' {
+    # PT-PT: O campo chama-se `memsize` e e em MB. Meter la um 8 dava a uma
+    #        maquina oito megabytes de memoria, e o erro so aparece quando ela
+    #        nao arranca.
+    # EN-UK: The field is `memsize`, in MB. Putting an 8 there would give the
+    #        machine eight megabytes, and the mistake only shows when it will
+    #        not boot.
+    $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 1.5 -FicheiroDisco 'lab.vmdk'
+    Assert-Contem $v 'memsize = "1536"'
+}
+
+Teste 'o caminho do disco vai relativo, para a pasta se poder mover' {
+    $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 -FicheiroDisco 'lab.vmdk'
+    Assert-Contem $v 'nvme0:0.fileName = "lab.vmdk"'
+    Assert-Falso ($v -match 'nvme0:0\.fileName = "[A-Za-z]:')
+}
+
+Teste 'um instalador leva CD, uma imagem de disco não leva' {
+    # PT-PT: E a distincao que decide se a maquina arranca ou fica num ecra a
+    #        dizer que nao ha nada para arrancar. Ver o cabecalho do ImagemLocal.
+    # EN-UK: The distinction that decides whether the machine boots.
+    $com = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 `
+        -FicheiroDisco 'lab.vmdk' -FicheiroIso 'C:\imagens\ubuntu.iso'
+    Assert-Contem $com 'cdrom-image'
+    Assert-Contem $com 'ubuntu.iso'
+
+    $sem = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 `
+        -FicheiroDisco 'lab.vmdk' -FicheiroIso ''
+    Assert-Falso ($sem -match 'cdrom-image')
+}
+
+Teste 'a rede fica em NAT' {
+    $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 -FicheiroDisco 'lab.vmdk'
+    Assert-Contem $v 'ethernet0.connectionType = "nat"'
+}
+
+Teste 'um convidado de Windows leva EFI, um de Linux não precisa' {
+    # PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a
+    #        comecar por causa do arranque -- e a mensagem que da fala de outra
+    #        coisa qualquer.
+    # EN-UK: Without `firmware = "efi"`, the Windows 11 installer refuses to
+    #        start over boot mode, with a message about something else.
+    $w = New-VmxConteudo -Nome 'lab' -TipoConvidado 'windows11-64' -Cpu 2 -RamGb 4 `
+        -FicheiroDisco 'lab.vmdk' -Uefi
+    Assert-Contem $w 'firmware = "efi"'
+
+    $l = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 -FicheiroDisco 'lab.vmdk'
+    Assert-Falso ($l -match 'firmware')
+}
+
+Teste 'não pergunta se a máquina foi movida na primeira arrancada' {
+    # PT-PT: Uma maquina acabada de criar por um script nao foi movida nem
+    #        copiada, e a pergunta so confunde quem a abre.
+    # EN-UK: A machine a script just created was neither moved nor copied.
+    $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 -FicheiroDisco 'lab.vmdk'
+    Assert-Contem $v 'uuid.action = "create"'
+}
+
+
+Grupo 'Onde o VirtualBox é instalado'
+
+Teste 'um caminho sem espaços serve ao instalador silencioso' {
+    Assert-Verdadeiro (Test-PastaInstalacaoSimples -Caminho 'D:\VirtualBox')
+}
+
+Teste 'um caminho com espaços não serve, e é preciso avisar antes' {
+    # PT-PT: O `--msiparams INSTALLDIR=` da Oracle parte-se ao meio com um
+    #        espaco no caminho. A pasta por omissao tem espacos e funciona na
+    #        mesma, porque nesse caso nao se lhe passa INSTALLDIR nenhum.
+    # EN-UK: Oracle's `--msiparams INSTALLDIR=` breaks in half on a space. The
+    #        default folder has spaces and works anyway, because in that case no
+    #        INSTALLDIR is passed at all.
+    Assert-Falso (Test-PastaInstalacaoSimples -Caminho 'C:\Program Files\Oracle\VirtualBox')
+}
+
+Teste 'um caminho vazio não serve' {
+    Assert-Falso (Test-PastaInstalacaoSimples -Caminho '')
+}
+
+Teste 'a pasta por omissão é a do instalador da Oracle' {
+    Assert-Contem (Get-PastaInstalacaoPredefinida) 'Oracle\VirtualBox'
 }
 
 

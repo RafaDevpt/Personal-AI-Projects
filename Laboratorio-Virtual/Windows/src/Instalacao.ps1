@@ -367,31 +367,165 @@ function Get-InstaladorVirtualBox {
 }
 
 
+function Get-PastaInstalacaoPredefinida {
+    <#
+    .SYNOPSIS
+        PT-PT: A pasta onde o instalador da Oracle poe o VirtualBox por omissao.
+        EN-UK: Where Oracle's installer puts VirtualBox by default.
+    #>
+    [CmdletBinding()]
+    [OutputType([string])]
+    param()
+    return (Join-Path $env:ProgramFiles 'Oracle\VirtualBox')
+}
+
+
+function Test-PastaInstalacaoSimples {
+    <#
+    .SYNOPSIS
+        PT-PT: A pasta escolhida serve para o instalador silencioso?
+        EN-UK: Is the chosen folder usable by the silent installer?
+
+    .DESCRIPTION
+        PT-PT: O `--msiparams INSTALLDIR=` da Oracle nao aguenta espacos no
+               caminho: a linha de comandos que o instalador monta por dentro
+               parte-se ao meio e a instalacao vai para o sitio errado, ou falha
+               com uma mensagem sobre outra coisa.
+
+               O caminho por omissao tem espacos -- `C:\Program Files\...` -- e
+               funciona na mesma, porque nesse caso nao se passa `INSTALLDIR`
+               nenhum e o instalador usa o dele. E so quando se muda de sitio
+               que o problema aparece.
+
+               Por isso esta funcao existe: para o programa poder avisar antes
+               de instalar, em vez de deixar descobrir depois.
+
+        EN-UK: Oracle's `--msiparams INSTALLDIR=` cannot cope with spaces in the
+               path: the command line the installer assembles internally breaks
+               in half and the install lands in the wrong place, or fails with a
+               message about something else.
+
+               The default path has spaces -- `C:\Program Files\...` -- and works
+               anyway, because in that case no `INSTALLDIR` is passed at all. The
+               problem only appears when the location is changed.
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param([Parameter(Mandatory)][AllowEmptyString()][string]$Caminho)
+
+    if ([string]::IsNullOrWhiteSpace($Caminho)) { return $false }
+    return ($Caminho -notmatch '\s')
+}
+
+
+function Show-ProgressoInstalacao {
+    <#
+    .SYNOPSIS
+        PT-PT: Acompanha um processo a instalar, escrevendo o que vai acontecendo.
+        EN-UK: Follows an installing process, printing what is going on.
+
+    .DESCRIPTION
+        PT-PT: O instalador corre em silencio, e um silencio de tres minutos com
+               o cursor a piscar e indistinguivel de uma coisa encravada. Quem
+               esta a olhar precisa de saber que ainda esta a andar.
+
+               O que se mostra e verdade e nao uma animacao: o tempo decorrido e
+               o tamanho do que ja foi escrito na pasta de destino. Uma barra
+               falsa a encher-se sozinha seria pior do que nada, porque mentia
+               sobre quanto falta.
+
+        EN-UK: The installer runs silently, and three minutes of silence with a
+               blinking cursor is indistinguishable from something stuck.
+
+               What is shown is true rather than an animation: elapsed time and
+               how much has been written to the destination folder. A fake bar
+               filling itself would be worse than nothing, because it would lie
+               about how much is left.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][System.Diagnostics.Process]$Processo,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$PastaObservada
+    )
+
+    $inicio = Get-Date
+    $marcas = @('|', '/', '-', '\')
+    $i = 0
+
+    while (-not $Processo.HasExited) {
+        Start-Sleep -Milliseconds 500
+        $decorrido = [int]((Get-Date) - $inicio).TotalSeconds
+
+        $tamanho = ''
+        if ($PastaObservada -and (Test-Path -LiteralPath $PastaObservada)) {
+            try {
+                $bytes = (Get-ChildItem -LiteralPath $PastaObservada -Recurse -File -ErrorAction SilentlyContinue |
+                    Measure-Object -Property Length -Sum).Sum
+                if ($bytes) { $tamanho = ('  ·  {0:N0} MB escritos' -f ($bytes / 1MB)) }
+            }
+            catch { $tamanho = '' }
+        }
+
+        Write-Host ("`r    {0}  a instalar  ·  {1}s decorridos{2}   " -f $marcas[$i % 4], $decorrido, $tamanho) `
+            -NoNewline -ForegroundColor DarkGray
+        $i++
+    }
+
+    Write-Host "`r                                                                              `r" -NoNewline
+    return $Processo.ExitCode
+}
+
+
 function Install-VirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Descarrega, verifica e lanca o instalador do VirtualBox.
-        EN-UK: Downloads, verifies and launches the VirtualBox installer.
+        PT-PT: Descarrega, verifica e instala o VirtualBox, sem interface.
+        EN-UK: Downloads, verifies and installs VirtualBox, headlessly.
 
     .DESCRIPTION
-        PT-PT: O instalador e lancado com a interface normal, e nao em modo
-               silencioso. Instalar coisas caladas na maquina de alguem e uma
-               liberdade que este programa nao toma: o instalador da Oracle
-               avisa que a rede vai abaixo por instantes, pergunta pelas
-               funcionalidades e mostra o que vai fazer. Esconder isso para
-               poupar tres cliques nao e um bom negocio.
+        PT-PT: A instalacao e automatica: quem escolheu instalar ja respondeu a
+               pergunta que interessava, e obriga-lo a seguir um assistente a
+               clicar em "Seguinte" quatro vezes nao acrescenta decisao nenhuma.
 
-        EN-UK: The installer is launched with its normal interface, not silently.
-               Installing things quietly on somebody's machine is a liberty this
-               program does not take: Oracle's installer warns that networking
-               drops for a moment, asks about features, and shows what it will
-               do. Hiding that to save three clicks is a poor trade.
+               O que se mostra e o processo, passo a passo, no proprio terminal.
+               O que **nao** se faz e esconder o que esta a acontecer: cada fase
+               e escrita, o relatorio de verificacao aparece por inteiro, e o
+               resultado e confirmado no fim indo procurar o `VBoxManage` onde
+               ele devia ter ficado -- e nao acreditando no codigo de saida do
+               instalador, que da zero em situacoes em que nada foi instalado.
+
+               **A elevacao.** Instalar exige administrador. Quando o programa
+               nao o e, o instalador e lancado com `-Verb RunAs`, o que faz o
+               Windows mostrar o pedido de consentimento -- que e de quem esta a
+               usar a maquina, e nao deste programa.
+
+        EN-UK: The installation is automatic: whoever chose to install has
+               already answered the question that mattered, and making them
+               click "Next" four times adds no decision.
+
+               What is shown is the process, step by step, in the terminal. What
+               is **not** done is hiding what happens: every phase is printed,
+               the verification report appears in full, and the result is
+               confirmed at the end by looking for `VBoxManage` where it should
+               be -- rather than trusting the installer's exit code, which
+               returns zero in situations where nothing was installed.
+
+               **Elevation.** Installing needs administrator. When the program is
+               not, the installer is launched with `-Verb RunAs`, which makes
+               Windows show the consent prompt -- which belongs to whoever is
+               using the machine, not to this program.
     #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    param([Parameter(Mandatory)][string]$PastaDestino)
+    param(
+        [Parameter(Mandatory)][string]$PastaDestino,
+        [AllowEmptyString()][string]$PastaInstalacao = ''
+    )
 
     if (-not $PSCmdlet.ShouldProcess('VirtualBox', 'Descarregar e instalar')) { return $false }
 
+    # --- 1. descarregar e verificar ----------------------------------------
+    Write-Host ''
+    Write-Host '  [1/4] Descarregar e verificar' -ForegroundColor White
     $pacote = Get-InstaladorVirtualBox -PastaDestino $PastaDestino
 
     Show-Camadas -Camadas $pacote.Camadas -Notas @(
@@ -404,15 +538,76 @@ function Install-VirtualBox {
         "Certificado: $($pacote.Certificado)"
     )
 
-    Write-Host "  Instalador verificado em $($pacote.Caminho)" -ForegroundColor Green
-    Write-Host ''
-    Write-Host '  O instalador vai abrir com a interface normal. Durante a instalação a' -ForegroundColor Yellow
-    Write-Host '  rede desta máquina cai por alguns segundos — o VirtualBox instala uma' -ForegroundColor Yellow
-    Write-Host '  placa de rede virtual. Não é avaria.' -ForegroundColor Yellow
-    Write-Host ''
+    # --- 2. o destino -------------------------------------------------------
+    Write-Host '  [2/4] Preparar' -ForegroundColor White
 
-    Start-Process -FilePath $pacote.Caminho -Wait
+    $predefinida = Get-PastaInstalacaoPredefinida
+    $argumentos = New-Object System.Collections.ArrayList
+    [void]$argumentos.Add('--silent')
+
+    $pastaFinal = $predefinida
+    if ($PastaInstalacao -and $PastaInstalacao -ne $predefinida) {
+        [void]$argumentos.Add('--msiparams')
+        [void]$argumentos.Add("INSTALLDIR=$PastaInstalacao")
+        $pastaFinal = $PastaInstalacao
+        Write-Host "        destino  $pastaFinal" -ForegroundColor DarkGray
+    }
+    else {
+        # PT-PT: Sem `INSTALLDIR`, e de proposito: ver `Test-PastaInstalacaoSimples`.
+        # EN-UK: No `INSTALLDIR`, deliberately: see `Test-PastaInstalacaoSimples`.
+        Write-Host "        destino  $pastaFinal  (o do próprio instalador)" -ForegroundColor DarkGray
+    }
+
+    Write-Host '        a rede desta máquina vai cair por alguns segundos' -ForegroundColor DarkGray
+    Write-Host '        — o VirtualBox instala uma placa de rede virtual' -ForegroundColor DarkGray
+
+    # --- 3. instalar --------------------------------------------------------
+    Write-Host '  [3/4] Instalar' -ForegroundColor White
+
+    $parametros = @{
+        FilePath     = $pacote.Caminho
+        ArgumentList = $argumentos.ToArray()
+        PassThru     = $true
+        ErrorAction  = 'Stop'
+    }
+    # PT-PT: `RunAs` faz o Windows pedir consentimento. Se o programa ja estiver
+    #        elevado, nao pede nada e corre na mesma.
+    # EN-UK: `RunAs` makes Windows ask for consent. If the program is already
+    #        elevated, nothing is asked and it runs anyway.
+    $parametros['Verb'] = 'RunAs'
+
+    try {
+        $processo = Start-Process @parametros
+    }
+    catch {
+        throw ("Não foi possível lançar o instalador: $($_.Exception.Message)`n" +
+               'Se recusou o pedido de elevação do Windows, nada foi instalado — e é isso ' +
+               'que devia acontecer.')
+    }
+
+    $codigo = Show-ProgressoInstalacao -Processo $processo -PastaObservada $pastaFinal
+
+    # --- 4. confirmar -------------------------------------------------------
+    Write-Host '  [4/4] Confirmar' -ForegroundColor White
+
+    # PT-PT: Nao se acredita no codigo de saida. Confirma-se que o `VBoxManage`
+    #        esta la, porque e ele que este programa vai usar a seguir -- e um
+    #        instalador que devolve zero sem ter instalado nada e uma coisa que
+    #        acontece.
+    # EN-UK: The exit code is not trusted. What is confirmed is that
+    #        `VBoxManage` is there, because that is what this program will use
+    #        next -- and an installer returning zero having installed nothing is
+    #        a thing that happens.
+    $estado = Get-EstadoVirtualBox
+    if (-not $estado.Instalado) {
+        throw ("O instalador terminou com o código $codigo, mas o VBoxManage não está onde devia.`n" +
+               'Alguma coisa correu mal e este programa não quer dizer que correu bem. ' +
+               "O instalador verificado ficou em $($pacote.Caminho), se o quiser correr à mão.")
+    }
+
+    $versao = if ($estado.Versao) { " $($estado.Versao)" } else { '' }
+    Write-Host "        VirtualBox$versao em $($estado.VBoxManage)" -ForegroundColor Green
     Write-Host ''
-    Write-Host '  O instalador terminou.' -ForegroundColor Green
+    Write-Host '  Instalado e pronto a usar.' -ForegroundColor Green
     return $true
 }
