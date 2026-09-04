@@ -801,14 +801,14 @@ criar_maquina() {
     #
     # PT-PT: E chama-se `lista_hipervisores` e nao `chaves` porque neste mesmo
     #        ficheiro ha um `chaves` que e um array, noutra funcao. Um nome so
-    #        para duas formas diferentes e uma armadilha para quem le -- e o
-    #        shellcheck, que segue o nome de uma ponta a outra do ficheiro,
-    #        reclama disso com razao.
+    #        para duas formas diferentes e uma armadilha para quem le, e o
+    #        analisador estatico reclama disso com razao: ele segue o nome de
+    #        uma ponta a outra do ficheiro.
     # EN-UK: And it is called `lista_hipervisores` rather than `chaves` because
     #        this same file has a `chaves` that is an array, in another
-    #        function. One name for two shapes is a trap for the reader -- and
-    #        shellcheck, which follows the name across the whole file, rightly
-    #        complains.
+    #        function. One name for two shapes is a trap for the reader, and
+    #        the static analyser rightly complains: it follows the name across
+    #        the whole file.
     titulo 'Em que hipervisor?'
     local lista_hipervisores='' indice=0
 

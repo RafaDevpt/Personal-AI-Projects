@@ -216,7 +216,7 @@ criar_maquina_libvirt() {
         # EN-UK: The quotes are not decorative. An array element with commas is
         #        indistinguishable, to a reader, from somebody who tried to
         #        separate elements with commas instead of spaces -- and
-        #        shellcheck flags it (SC2054) precisely because that mistake
+        #        o analisador estatico marca-o (SC2054) precisamente porque esse erro
         #        happens and yields one element where three were meant.
         --network "network=default,model=virtio"
         --graphics spice
