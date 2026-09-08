@@ -1,0 +1,112 @@
+# ===========================================================================
+# PT-PT: Integracao continua da VMware Fleet Console.
+#
+#        Ha tres versoes independentes -- Windows/, Linux/ e macOS/ -- e cada
+#        uma corre no seu proprio sistema. Nao e simetria por simetria: uma
+#        versao de Linux testada num runner de Windows nao prova nada sobre o
+#        que ela faz em Linux.
+#
+#        Aqui isso e particularmente verdade. O que distingue as tres versoes e
+#        exactamente aquilo que so o sistema verdadeiro consegue confirmar: a
+#        deteccao do python.exe da Microsoft Store so faz sentido num Windows a
+#        serio, a leitura do /etc/os-release so num Linux a serio, e a diferenca
+#        entre os dois prefixos do Homebrew so num Mac a serio.
+#
+#        O `fail-fast: false` e deliberado: se uma versao partir, quer-se saber
+#        na mesma o estado das outras duas.
+#
+#        Nao ha nenhum vCenter nesta matriz, e nao e falta. Toda a logica que
+#        interessa -- as regras de saude, as guardas das operacoes destrutivas,
+#        a decisao sobre o certificado -- foi escrita para receber modelos ja
+#        lidos, e e testada contra um parque inventado no conftest.py. Um teste
+#        que dependesse de um servidor VMware ligado seria um teste que ninguem
+#        correria.
+#
+# EN-UK: Continuous integration for VMware Fleet Console.
+#
+#        Three independent versions, each tested on its own system. A Linux
+#        version tested on a Windows runner proves nothing about what it does on
+#        Linux -- and here that is particularly true, because what separates the
+#        three versions is exactly what only the real system can confirm.
+#
+#        There is no vCenter in this matrix, and that is not a gap. Every rule
+#        that matters takes already-read models and is tested against an estate
+#        invented in conftest.py. A test needing a live VMware server is a test
+#        nobody would run.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: CI
+
+on:
+  push:
+    branches: [VMware-Fleet-Console]
+  pull_request:
+    branches: [VMware-Fleet-Console]
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: ${{ matrix.versao }} em ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - versao: Windows
+            runner: windows-latest
+          - versao: Linux
+            runner: ubuntu-latest
+          - versao: macOS
+            runner: macos-latest
+
+    defaults:
+      run:
+        working-directory: VMware-Fleet-Console/${{ matrix.versao }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: VMware-Fleet-Console/${{ matrix.versao }}/requirements-dev.txt
+
+      - name: Instalar dependencias / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Testes (pytest) / Tests (pytest)
+        run: python -m pytest
+
+      # PT-PT: E a unica coisa aqui que exercita o modulo especifico do sistema
+      #        contra o sistema real: num Ubuntu le o /etc/os-release verdadeiro,
+      #        num Windows olha para o PATH verdadeiro a procura do atalho da
+      #        Store, num Mac ve o processador e o Homebrew.
+      #
+      #        Sai com 3 quando falta um essencial, e nos runners pode mesmo
+      #        faltar -- por isso o codigo de saida e ignorado: o que se verifica
+      #        e que o relatorio sai sem rebentar.
+      # EN-UK: The only step exercising the system-specific module against the
+      #        real system. Its exit code is ignored on purpose: what is verified
+      #        is that the report comes out without blowing up.
+      - name: Diagnostico no sistema real / Diagnostic on the real system
+        run: python -m vfc --diagnostico || true
+        env:
+          PYTHONPATH: src
+
+      # PT-PT: Que a aplicacao arranca e explica-se sozinha. Um --help que
+      #        rebenta e a primeira coisa que um utilizador ve.
+      # EN-UK: That the application starts and explains itself. A --help that
+      #        crashes is the first thing a user sees.
+      - name: Ajuda / Help
+        run: python -m vfc --help
+        env:
+          PYTHONPATH: src

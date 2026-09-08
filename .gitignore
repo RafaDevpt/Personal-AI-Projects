@@ -1,0 +1,78 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositorio.
+#
+#        Aqui a entrada que mais importa e o `definicoes.json`. Nao por causa
+#        de senhas — nao ha la nenhuma, e nao ha caminho no programa que
+#        escreva uma — mas porque ele contem a lista dos servidores de
+#        virtualizacao da casa, com endereco e nome de utilizador. E o mapa de
+#        por onde comecar.
+#
+#        A segunda sao os relatorios. Um relatorio de estado do parque diz que
+#        maquinas existem, onde vivem, quais estao expostas e quais nao tem
+#        VMware Tools. Nao e material para um repositorio publico.
+#
+#        A aplicacao escreve as duas coisas na pasta do utilizador e nunca aqui
+#        dentro. Estas regras sao a segunda linha de defesa, para o caso de
+#        alguem apontar a pasta de saida para dentro do repositorio.
+#
+# EN-UK: What must never enter the repository.
+#
+#        The entry that matters most is `definicoes.json` — not for passwords,
+#        there are none and no path in the program writes one, but because it
+#        lists the house's virtualisation servers with address and username. It
+#        is the map of where to start.
+#
+#        The second is the reports: an estate report says which machines exist,
+#        where they live, which are exposed and which have no VMware Tools.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# --- PT-PT: Definicoes reais / EN-UK: Real settings ------------------------
+definicoes.json
+config.json
+*.local.json
+.env
+.env.*
+
+# --- PT-PT: Relatorios do parque / EN-UK: Estate reports -------------------
+estado-*.txt
+estado-*.json
+relatorio-*.txt
+relatorio-*.pdf
+
+# --- PT-PT: Bytecode e cache / EN-UK: Bytecode and cache -------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- PT-PT: Ambientes virtuais / EN-UK: Virtual environments ---------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- PT-PT: Empacotamento / EN-UK: Packaging -------------------------------
+build/
+dist/
+*.egg-info/
+*.spec
+
+# --- PT-PT: Registos / EN-UK: Logs -----------------------------------------
+*.log
+logs/
+
+# --- PT-PT: Sistema operativo e editores / EN-UK: OS and editors -----------
+Thumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
