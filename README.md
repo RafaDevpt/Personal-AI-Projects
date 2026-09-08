@@ -348,40 +348,40 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 ![Tests](https://img.shields.io/badge/tests-691_passing-2EA043?style=flat-square)
 ![Branch](https://img.shields.io/badge/branch-VMware--Fleet--Console-1F6FEB?style=flat-square)
 
-O parque VMware inteiro num ecrã de terminal, sem abrir o browser e sem voltar a autenticar-se de cada vez. Liga-se a um **vCenter** ou directamente a um **anfitrião ESXi**, diz se está tudo bem — e trata do que se faz a seguir: ligar e encerrar máquinas, snapshots, modo de manutenção.
+The whole VMware estate on one terminal screen, with no browser and no re-authenticating every time. Connects to a **vCenter** or straight to an **ESXi host**, says whether everything is all right — and handles what comes next: power operations, snapshots, maintenance mode.
 
 `Python` · `pyVmomi` · `Textual` · `vSphere API`
 
 <details>
-<summary><b>O certificado, que é onde quase toda a automação de vSphere falha</b></summary>
+<summary><b>The certificate, which is where vSphere tooling usually goes wrong</b></summary>
 
-Praticamente todos os ESXi e vCenter apresentam um certificado auto-assinado, e por isso quase toda a gente que escreve automação para vSphere acaba a escrever a linha que desliga a verificação. A partir dessa linha a ligação está **cifrada mas não autenticada**: qualquer coisa no meio pode apresentar-se como o servidor e receber a senha de administrador do vSphere em texto limpo do outro lado do túnel.
+Nearly every ESXi and vCenter presents a self-signed certificate, so nearly everybody writing vSphere automation ends up writing the line that switches verification off. Past that line the connection is **encrypted but not authenticated**: anything in the middle can present itself as the server and take a vSphere administrator password in clear text out of the far end of the tunnel.
 
-Aqui faz-se o que o SSH faz. Valida-se a cadeia; se não validar, **não se liga** — mostra-se a impressão digital SHA-256 e espera-se que alguém a compare com a que o servidor mostra, antes de qualquer credencial sair da máquina. Aceite uma vez, fica guardada.
+This does what SSH does. Validate the chain; if it fails, **do not connect** — show the SHA-256 fingerprint and wait for somebody to compare it against what the server displays, before any credential leaves the machine. Once accepted, it is pinned.
 
-E **uma impressão digital diferente pára a ligação**. Acontece quando o certificado é regenerado — e acontece quando não se está a falar com o servidor de sempre. É chato uma vez por ano, e é a diferença entre notar uma substituição de certificado e não notar.
-
-</details>
-
-<details>
-<summary><b>Encerrar não é desligar, e a aplicação nunca esconde a diferença</b></summary>
-
-`ShutdownGuest` pede ao sistema convidado que se encerre. `PowerOff` é o botão da tomada. As duas opções aparecem sempre juntas, com o que cada uma faz escrito ao lado — e quando não há VMware Tools a correr, a opção limpa aparece **como recusa com a razão**, em vez de desaparecer sem explicação.
-
-As operações destrutivas não têm "Sim" e "Não": têm uma caixa onde é preciso **escrever o nome do objecto**. Um botão de confirmar ensina a carregar em confirmar; escrever `SRV-DC01` obriga a ler que a máquina prestes a ser desligada se chama SRV-DC01.
-
-**Nenhuma senha vai para disco**, e não há campo para o fazer — uma senha de administrador do vCenter abre o parque inteiro, e cifrá-la com uma chave que também está na máquina não resolve isso, adia-o.
+And **a changed fingerprint stops the connection**. That happens when a certificate is regenerated — and it happens when you are not talking to the same server any more. A nuisance once a year, and the difference between noticing a certificate substitution and not noticing one.
 
 </details>
 
 <details>
-<summary><b>A guarda que já custou horas a quem não a tinha</b></summary>
+<summary><b>Shutting down is not powering off, and the difference is never hidden</b></summary>
 
-Pôr um anfitrião em modo de manutenção com máquinas ligadas em cima: num cluster com DRS o vCenter migra-as e a tarefa acaba. **Sem DRS** — que é um anfitrião só, e é a maioria dos sítios pequenos — a tarefa fica a 2% *para sempre*, **sem erro nenhum**, à espera que alguém desligue as máquinas à mão.
+`ShutdownGuest` asks the guest to shut itself down. `PowerOff` is the wall socket. Both options always appear together with what each one does written beside them — and when VMware Tools are not running, the clean option appears **as a refusal with the reason**, rather than silently disappearing.
 
-Por isso as máquinas ligadas são contadas antes, e o aviso diz quantas são e o que vai acontecer. Na mesma linha: uma máquina cujo anfitrião não responde não recebe ordens — o vCenter continua a listá-la com o último estado conhecido, e é assim que se liga uma máquina que já estava ligada.
+Destructive operations have no Yes and No: they have a box where the **object's name** must be typed. A confirm button teaches people to press confirm; typing `SRV-DC01` forces you to read that the machine about to be stopped is called SRV-DC01.
 
-E há a que se sabe sempre tarde: **um ESXi com licença gratuita tem a API só de leitura**. A aplicação detecta-o na ligação e di-lo no cabeçalho, em vez de deixar todos os botões falharem com um `RestrictedVersion` que não fala de licenças.
+**No password is ever written to disk**, and there is no field for one — a vCenter administrator password opens the whole estate, and encrypting it with a key that also sits on the machine does not fix that, it postpones it.
+
+</details>
+
+<details>
+<summary><b>The guard that has already cost hours to people who lacked it</b></summary>
+
+Putting a host into maintenance mode with machines still running on it: in a DRS cluster vCenter migrates them and the task finishes. **Without DRS** — a single host, which is most small sites — the task sits at 2% *forever*, **with no error at all**, waiting for somebody to power the machines off by hand.
+
+So the running machines are counted first, and the warning says how many and what will happen. Same family: a machine whose host is unreachable takes no orders — vCenter still lists it at its last known state, and that is how somebody powers on a machine that was already on.
+
+And the one always learned too late: **a free-licensed ESXi has a read-only API**. It is detected on connect and stated in the header, instead of letting every button fail with a `RestrictedVersion` that says nothing about licences.
 
 </details>
 
