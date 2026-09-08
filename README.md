@@ -112,6 +112,10 @@ gitGraph
     commit id: "Verified images"
     commit id: "Bring your own"
     checkout main
+    branch VMware-Fleet-Console
+    commit id: "TUI + pyVmomi"
+    commit id: "Trust on first use"
+    checkout main
     commit id: "Project index"
 ```
 
@@ -127,6 +131,7 @@ gitGraph
 | `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti | Windows · Linux · macOS |
 | `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port | Windows · Linux · macOS |
 | `Virtual-Lab-Builder` | 🧪 Project | Builds virtual machines from verified official images | Windows · Linux · macOS |
+| `VMware-Fleet-Console` | 🖥️ Project | vCenter and ESXi maintenance from a terminal | Windows · Linux · macOS |
 
 </div>
 
@@ -338,7 +343,47 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 </td>
 <td width="50%" valign="top">
 
-&nbsp;
+### 🖥️ VMware Fleet Console
+![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-691_passing-2EA043?style=flat-square)
+![Branch](https://img.shields.io/badge/branch-VMware--Fleet--Console-1F6FEB?style=flat-square)
+
+O parque VMware inteiro num ecrã de terminal, sem abrir o browser e sem voltar a autenticar-se de cada vez. Liga-se a um **vCenter** ou directamente a um **anfitrião ESXi**, diz se está tudo bem — e trata do que se faz a seguir: ligar e encerrar máquinas, snapshots, modo de manutenção.
+
+`Python` · `pyVmomi` · `Textual` · `vSphere API`
+
+<details>
+<summary><b>O certificado, que é onde quase toda a automação de vSphere falha</b></summary>
+
+Praticamente todos os ESXi e vCenter apresentam um certificado auto-assinado, e por isso quase toda a gente que escreve automação para vSphere acaba a escrever a linha que desliga a verificação. A partir dessa linha a ligação está **cifrada mas não autenticada**: qualquer coisa no meio pode apresentar-se como o servidor e receber a senha de administrador do vSphere em texto limpo do outro lado do túnel.
+
+Aqui faz-se o que o SSH faz. Valida-se a cadeia; se não validar, **não se liga** — mostra-se a impressão digital SHA-256 e espera-se que alguém a compare com a que o servidor mostra, antes de qualquer credencial sair da máquina. Aceite uma vez, fica guardada.
+
+E **uma impressão digital diferente pára a ligação**. Acontece quando o certificado é regenerado — e acontece quando não se está a falar com o servidor de sempre. É chato uma vez por ano, e é a diferença entre notar uma substituição de certificado e não notar.
+
+</details>
+
+<details>
+<summary><b>Encerrar não é desligar, e a aplicação nunca esconde a diferença</b></summary>
+
+`ShutdownGuest` pede ao sistema convidado que se encerre. `PowerOff` é o botão da tomada. As duas opções aparecem sempre juntas, com o que cada uma faz escrito ao lado — e quando não há VMware Tools a correr, a opção limpa aparece **como recusa com a razão**, em vez de desaparecer sem explicação.
+
+As operações destrutivas não têm "Sim" e "Não": têm uma caixa onde é preciso **escrever o nome do objecto**. Um botão de confirmar ensina a carregar em confirmar; escrever `SRV-DC01` obriga a ler que a máquina prestes a ser desligada se chama SRV-DC01.
+
+**Nenhuma senha vai para disco**, e não há campo para o fazer — uma senha de administrador do vCenter abre o parque inteiro, e cifrá-la com uma chave que também está na máquina não resolve isso, adia-o.
+
+</details>
+
+<details>
+<summary><b>A guarda que já custou horas a quem não a tinha</b></summary>
+
+Pôr um anfitrião em modo de manutenção com máquinas ligadas em cima: num cluster com DRS o vCenter migra-as e a tarefa acaba. **Sem DRS** — que é um anfitrião só, e é a maioria dos sítios pequenos — a tarefa fica a 2% *para sempre*, **sem erro nenhum**, à espera que alguém desligue as máquinas à mão.
+
+Por isso as máquinas ligadas são contadas antes, e o aviso diz quantas são e o que vai acontecer. Na mesma linha: uma máquina cujo anfitrião não responde não recebe ordens — o vCenter continua a listá-la com o último estado conhecido, e é assim que se liga uma máquina que já estava ligada.
+
+E há a que se sabe sempre tarde: **um ESXi com licença gratuita tem a API só de leitura**. A aplicação detecta-o na ligação e di-lo no cabeçalho, em vez de deixar todos os botões falharem com um `RestrictedVersion` que não fala de licenças.
+
+</details>
 
 </td>
 </tr>
@@ -355,7 +400,7 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder`, `Network-Topology-Mapper` or `Virtual-Lab-Builder`. Branch names are **case-sensitive**.
+Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder`, `Network-Topology-Mapper`, `Virtual-Lab-Builder` or `VMware-Fleet-Console`. Branch names are **case-sensitive**.
 
 </details>
 
