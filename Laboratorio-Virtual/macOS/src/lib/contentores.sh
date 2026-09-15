@@ -391,7 +391,14 @@ preparar_segredos() {
         [ -z "$chave" ] && continue
         valor="$(jq -r --argjson i "$indice" --arg k "$chave" '.servicos[$i].ambiente[$k]' "$ficheiro")"
         if [ "$valor" = '@gerar@' ]; then
-            novo="$(gerar_palavra_passe)"
+            # PT-PT: O comprimento vai explicito e nao pela omissao da funcao.
+            #        Dito aqui, le-se no sitio onde importa -- e o shellcheck
+            #        deixa de avisar que a funcao aceita um argumento que
+            #        ninguem lhe passa (SC2120), que e um aviso justo.
+            # EN-UK: The length is passed explicitly rather than left to the
+            #        function's default: it reads where it matters, and it
+            #        answers SC2120 instead of silencing it.
+            novo="$(gerar_palavra_passe 24)"
             export "SEGREDO_${chave}=${novo}"
             SEGREDOS_MOSTRAR+=("${chave}=${novo}")
         fi
