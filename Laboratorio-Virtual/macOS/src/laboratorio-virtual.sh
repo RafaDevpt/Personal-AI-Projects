@@ -42,6 +42,7 @@ readonly RAIZ
 readonly VERSAO='1.3.2'
 readonly CREDITO='Created by Redfox using Claude'
 readonly CATALOGO="${RAIZ}/catalogo.json"
+readonly CATALOGO_SERVICOS="${RAIZ}/catalogo-servicos.json"
 
 VERMELHO="\033[0;31m"; AMARELO="\033[0;33m"; VERDE="\033[0;32m"
 AZUL="\033[0;36m"; CINZA="\033[0;90m"; FIM="\033[0m"
@@ -74,6 +75,7 @@ titulo() {
 . "${RAIZ}/lib/terceiros.sh"
 # shellcheck source=lib/instalacao.sh
 . "${RAIZ}/lib/instalacao.sh"
+. "${RAIZ}/lib/contentores.sh"
 
 
 # ---------------------------------------------------------------------------
@@ -1141,6 +1143,237 @@ mostrar_diagnostico() {
 }
 
 
+# ---------------------------------------------------------------------------
+# PT-PT: Mostra o que ha de Docker. Devolve 0 quando responde.
+#
+#        Separa duas coisas que se confundem: estar instalado e estar a
+#        responder. O servico parado da um erro diferente de nao estar
+#        instalado, e a solucao tambem e outra.
+# EN-UK: Shows what Docker is here; returns 0 when it answers. Installed and
+#        answering are different problems with different fixes.
+# ---------------------------------------------------------------------------
+mostrar_estado_docker() {
+    local estado instalado responde versao
+    estado="$(estado_docker)"
+    instalado="$(printf '%s' "$estado" | cut -f1)"
+    responde="$(printf '%s' "$estado" | cut -f2)"
+    versao="$(printf '%s' "$estado" | cut -f3)"
+
+    if [ "$responde" = 'sim' ]; then
+        ok "Docker            a responder (versão ${versao})"
+        return 0
+    fi
+
+    if [ "$instalado" = 'sim' ]; then
+        aviso 'Docker            instalado, mas o serviço não responde'
+        nota '  Abra a aplicação Docker Desktop e espere que o ícone fique verde.'
+        nota '  Se usa o colima, arranque-o com:'
+        passo 'colima start'
+    else
+        nota 'Docker            não está instalado'
+        nota '  O Docker Desktop está em https://www.docker.com/products/docker-desktop/'
+        nota '  Em alternativa, o colima corre contentores sem aplicação gráfica:'
+        passo 'brew install colima docker && colima start'
+    fi
+    return 1
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Escreve o catalogo de servicos por categoria.
+# EN-UK: Prints the services catalogue by category.
+# ---------------------------------------------------------------------------
+mostrar_catalogo_servicos() {
+    titulo 'Serviços que este programa sabe pôr de pé'
+
+    local chave descricao id nome imagem
+    while IFS= read -r chave; do
+        [ -z "$chave" ] && continue
+        descricao="$(jq -r --arg c "$chave" '.categorias[$c]' "$CATALOGO_SERVICOS")"
+        [ "$(jq -r --arg c "$chave" '[.servicos[] | select(.categoria == $c)] | length' "$CATALOGO_SERVICOS")" -eq 0 ] && continue
+        printf '\n  %s\n' "$descricao"
+        while IFS=$'\t' read -r id nome imagem; do
+            [ -z "$id" ] && continue
+            printf '    %-16s %s\n' "$id" "$nome"
+            printf '                     %s\n' "$imagem"
+        done <<EOF
+$(jq -r --arg c "$chave" '.servicos[] | select(.categoria == $c) | "\(.id)\t\(.nome)\t\(.imagem)"' "$CATALOGO_SERVICOS")
+EOF
+    done <<EOF
+$(jq -r '.categorias | keys[]' "$CATALOGO_SERVICOS")
+EOF
+
+    printf '\n'
+    nota 'Nenhuma imagem usa «latest»: todas trazem versão fixa, para que a mesma'
+    nota 'ordem dê o mesmo resultado daqui a um mês.'
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Deixa escolher um servico. Escreve o indice, ou nada se desistir.
+# EN-UK: Lets the user pick a service. Prints the index, or nothing on cancel.
+# ---------------------------------------------------------------------------
+escolher_servico() {
+    local total i id nome marca
+    total="$(jq -r '.servicos | length' "$CATALOGO_SERVICOS")"
+
+    titulo 'Qual serviço?' >&2
+    i=0
+    while [ "$i" -lt "$total" ]; do
+        id="$(jq -r --argjson i "$i" '.servicos[$i].id' "$CATALOGO_SERVICOS")"
+        nome="$(jq -r --argjson i "$i" '.servicos[$i].nome' "$CATALOGO_SERVICOS")"
+        marca=' '
+        [ "$(jq -r --argjson i "$i" '.servicos[$i] | has("aviso_pt")' "$CATALOGO_SERVICOS")" = 'true' ] && marca='!'
+        printf '    %2d. %s %-18s %s\n' "$((i + 1))" "$marca" "$id" "$nome" >&2
+        i=$((i + 1))
+    done
+    printf '     0.   Voltar atrás\n\n' >&2
+    nota 'O ! marca serviços que pedem acesso para lá do contentor.' >&2
+    printf '\n' >&2
+
+    local n; n="$(ler_escolha 'Número' "$total" 0)" || return 1
+    [ "$n" -eq 0 ] && return 1
+    printf '%s\n' "$((n - 1))"
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Pergunta, avisa e arranca.
+#
+#        O aviso aparece antes da pergunta e nao depois. Um aviso que so aparece
+#        depois de a pessoa dizer que sim nao e um aviso, e uma desculpa.
+# EN-UK: Asks, warns and starts. The warning comes before the question.
+# ---------------------------------------------------------------------------
+arrancar_servico_interactivo() {
+    local indice="$1" pasta="$2"
+    local nome notas imagem ram aviso_txt
+
+    nome="$(jq -r --argjson i "$indice" '.servicos[$i].nome' "$CATALOGO_SERVICOS")"
+    imagem="$(jq -r --argjson i "$indice" '.servicos[$i].imagem' "$CATALOGO_SERVICOS")"
+    ram="$(jq -r --argjson i "$indice" '.servicos[$i].minimo.ram_mb' "$CATALOGO_SERVICOS")"
+    notas="$(jq -r --argjson i "$indice" '.servicos[$i].notas_pt // empty' "$CATALOGO_SERVICOS")"
+    aviso_txt="$(jq -r --argjson i "$indice" '.servicos[$i].aviso_pt // empty' "$CATALOGO_SERVICOS")"
+
+    titulo "$nome"
+    [ -n "$notas" ] && printf '  %s\n' "$notas"
+    printf '\n  Imagem      %s\n' "$imagem"
+    printf '  Memória     %s MB no mínimo\n' "$ram"
+
+    local porta
+    while IFS= read -r porta; do
+        [ -n "$porta" ] && printf '  Endereço    http://127.0.0.1:%s\n' "$porta"
+    done <<EOF
+$(jq -r --argjson i "$indice" '.servicos[$i].portas // [] | .[] | .anfitriao' "$CATALOGO_SERVICOS")
+EOF
+
+    if [ -n "$aviso_txt" ]; then
+        printf '\n'
+        aviso 'Atenção'
+        aviso "$aviso_txt"
+    fi
+
+    printf '\n'
+    confirmar 'Pôr este serviço de pé?' || return 0
+
+    preparar_segredos "$CATALOGO_SERVICOS" "$indice"
+
+    local criado
+    if ! criado="$(arrancar_servico "$CATALOGO_SERVICOS" "$indice" "$pasta")"; then
+        return 1
+    fi
+
+    printf '\n'
+    ok "De pé: ${criado}"
+    while IFS= read -r porta; do
+        [ -n "$porta" ] && ok "Abra http://127.0.0.1:${porta}"
+    done <<EOF
+$(jq -r --argjson i "$indice" '.servicos[$i].portas // [] | .[] | .anfitriao' "$CATALOGO_SERVICOS")
+EOF
+
+    if [ "${#SEGREDOS_MOSTRAR[@]}" -gt 0 ]; then
+        # PT-PT: Mostra-se uma vez e nao se guarda em lado nenhum. Escrever a
+        #        senha num ficheiro ao lado do servico poupava este incomodo e
+        #        tirava-lhe o sentido.
+        # EN-UK: Shown once and stored nowhere.
+        printf '\n'
+        aviso 'Apontar agora — não fica guardado em lado nenhum:'
+        local par
+        for par in "${SEGREDOS_MOSTRAR[@]}"; do
+            printf '    %s\n' "${par/=/ = }"
+        done
+    fi
+}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: O menu dos servicos em contentores.
+# EN-UK: The containerised-services menu.
+# ---------------------------------------------------------------------------
+servicos() {
+    exigir_jq || return 0
+    carregar_catalogo_servicos "$CATALOGO_SERVICOS" || return 0
+
+    local pasta="${PASTA_BASE}/contentores"
+
+    while true; do
+        titulo 'Serviços em contentores'
+        local responde='nao'
+        mostrar_estado_docker && responde='sim'
+
+        local lista; lista="$(servicos_laboratorio)"
+        if [ -n "$lista" ]; then
+            printf '\n  Já de pé:\n'
+            printf '%s\n' "$lista" | while IFS=$'\t' read -r n e _; do
+                printf '    %-22s %s\n' "$n" "$e"
+            done
+        fi
+
+        printf '\n'
+        printf '    1. Pôr um serviço de pé\n'
+        printf '    2. Ver o catálogo de serviços\n'
+        printf '    3. Parar um serviço\n'
+        printf '    0. Voltar atrás\n\n'
+
+        local escolha; escolha="$(ler_escolha 'Número' 3 0)" || return 0
+        case "$escolha" in
+            0) return 0 ;;
+            1) if [ "$responde" != 'sim' ]; then
+                   erro 'Sem Docker a responder não há nada a arrancar.'
+               else
+                   local idx
+                   if idx="$(escolher_servico)"; then
+                       arrancar_servico_interactivo "$idx" "$pasta" || true
+                   fi
+               fi ;;
+            2) mostrar_catalogo_servicos ;;
+            3) if [ -z "$lista" ]; then
+                   nota 'Não há nada de pé para parar.'
+               else
+                   titulo 'Parar qual?'
+                   local nomes=() n i=0
+                   while IFS=$'\t' read -r n _ _; do
+                       [ -z "$n" ] && continue
+                       nomes+=("$n"); i=$((i + 1))
+                       printf '    %d. %s\n' "$i" "$n"
+                   done <<EOF
+$lista
+EOF
+                   printf '    0. Voltar atrás\n\n'
+                   local k; k="$(ler_escolha 'Número' "${#nomes[@]}" 0)" || true
+                   if [ -n "${k:-}" ] && [ "$k" -gt 0 ]; then
+                       local alvo="${nomes[$((k - 1))]}" apagar='nao'
+                       confirmar "Apagar também o contentor «${alvo}»? Os dados no disco ficam" && apagar='sim'
+                       if parar_servico "$alvo" "$apagar"; then ok "${alvo} parado."; fi
+                   fi
+               fi ;;
+        esac
+
+        printf '\n'
+        read -r -p '  Enter para continuar ' _ || return 0
+    done
+}
+
+
 menu() {
     while true; do
         mostrar_hipervisores
@@ -1151,9 +1384,10 @@ menu() {
         printf '    3. Verificar uma imagem que já tenho\n'
         printf '    4. Ver o catálogo e as impressões digitais\n'
         printf '    5. Preparar um hipervisor  (instalar o QEMU ou o VirtualBox)\n'
+        printf '    6. Serviços em contentores  (base de dados, painel, servidor web)\n'
         printf '    0. Sair\n\n'
 
-        local escolha; escolha="$(ler_escolha 'Número' 5 0)" || return 0
+        local escolha; escolha="$(ler_escolha 'Número' 6 0)" || return 0
         case "$escolha" in
             0) return 0 ;;
             1) criar_maquina || true ;;
@@ -1165,6 +1399,7 @@ menu() {
                [[ -n "$caminho" && -n "$soma" ]] && { verificar_ficheiro_local "$caminho" "$soma" || true; } ;;
             4) mostrar_catalogo ;;
             5) preparar_hipervisor || true ;;
+            6) servicos || true ;;
         esac
 
         printf '\n'

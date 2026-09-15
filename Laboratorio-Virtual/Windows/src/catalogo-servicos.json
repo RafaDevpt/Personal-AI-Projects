@@ -1,0 +1,494 @@
+{
+  "_leia_isto_primeiro_pt": "Este ficheiro e a fronteira de seguranca da parte de contentores, tal como o catalogo.json e a das imagens. Nenhum contentor e descarregado de um registo que nao esteja em 'registos_confiaveis', e nenhuma imagem daqui usa a etiqueta 'latest'. Ver 'como_funciona' antes de acrescentar uma entrada.",
+  "_read_this_first_en": "This file is the security boundary for the container side, as catalogo.json is for images. No container is pulled from a registry absent from 'registos_confiaveis', and no image here uses the 'latest' tag. Read 'como_funciona' before adding an entry.",
+  "versao_esquema": 1,
+  "actualizado_em": "2026-09-15",
+  "como_funciona": {
+    "pt": [
+      "1. As etiquetas sao fixas e nunca 'latest'. 'latest' muda debaixo dos pes: a mesma ordem, no mesmo computador, com uma semana de intervalo, traz software diferente. Num laboratorio isso destroi a unica coisa que um laboratorio tem de dar -- repetir o mesmo resultado.",
+      "2. A verificacao nao e feita por nos. Ao contrario de uma ISO, uma imagem de contentor e enderecada pelo conteudo: o Docker calcula o digest do que recebeu e compara-o com o do manifesto, e recusa sozinho o que nao bater certo. Acrescentar aqui uma soma SHA-256 escrita a mao seria teatro -- repetiria uma verificacao que ja acontece, e ficaria desactualizada a primeira correccao de seguranca.",
+      "3. Quem quiser fixar ao byte pode: o campo 'digest' e opcional e, quando existe, e usado em vez da etiqueta. Fica ao criterio de quem usa, porque fixar o digest tambem quer dizer nao receber correccoes de seguranca sem intervencao.",
+      "4. Os servicos marcados com 'aviso_pt' pedem acesso que vai alem do contentor -- ao socket do Docker, a portas privilegiadas ou a capacidades de rede do anfitriao. O programa mostra esse aviso antes de arrancar e pergunta, sempre.",
+      "5. Nada aqui e exposto para fora da maquina. As portas sao publicadas em 127.0.0.1, e quem quiser abrir a rede tem de o fazer de proposito."
+    ],
+    "en": [
+      "1. Tags are pinned and never 'latest', so the same command a week apart brings the same software -- the one thing a lab must guarantee.",
+      "2. Verification is not ours to do. Unlike an ISO, a container image is content-addressed: Docker computes the digest of what it received and refuses a mismatch by itself. A hand-written SHA-256 here would be theatre.",
+      "3. Byte-exact pinning is available through the optional 'digest' field, at the cost of not receiving security fixes unattended.",
+      "4. Services carrying 'aviso_pt' need access beyond the container. The program shows the warning and asks, every time.",
+      "5. Ports are published on 127.0.0.1. Opening them to the network has to be deliberate."
+    ]
+  },
+  "_nota_registos_pt": "Lista curta de proposito, para caber numa auditoria de um minuto. 'docker.io' e o registo publico do Docker; 'ghcr.io' e o da GitHub; 'lscr.io' e o da LinuxServer.io, que reempacota software conhecido com um utilizador nao-root configuravel; 'quay.io' e o da Red Hat.",
+  "_registries_note_en": "Deliberately short, so it fits a one-minute audit.",
+  "registos_confiaveis": [
+    "docker.io",
+    "ghcr.io",
+    "lscr.io",
+    "quay.io"
+  ],
+  "categorias": {
+    "gestao": "Gerir os proprios contentores",
+    "rede": "Rede, DNS e proxy",
+    "dados": "Bases de dados e armazenamento",
+    "monitorizacao": "Ver o que esta a acontecer",
+    "trabalho": "Ferramentas de trabalho",
+    "pessoal": "Uso pessoal em casa"
+  },
+  "servicos": [
+    {
+      "id": "portainer",
+      "nome": "Portainer CE",
+      "categoria": "gestao",
+      "registo": "docker.io",
+      "imagem": "portainer/portainer-ce:2.21.4-alpine",
+      "pagina_oficial": "https://www.portainer.io/",
+      "portas": [
+        {
+          "anfitriao": 9443,
+          "contentor": 9443,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/data"
+        }
+      ],
+      "ambiente": {},
+      "requer_socket_docker": true,
+      "minimo": {
+        "ram_mb": 256,
+        "disco_gb": 1
+      },
+      "aviso_pt": "Precisa do socket do Docker, o que lhe da controlo total sobre o anfitriao: quem entra no Portainer pode arrancar um contentor privilegiado e, a partir dai, fazer o que quiser a maquina. Instale-o so se for usar, e ponha uma palavra-passe forte no primeiro ecra.",
+      "aviso_en": "Requires the Docker socket, which grants full host control.",
+      "notas_pt": "Interface web para ver, arrancar e parar contentores sem decorar comandos. E o primeiro servico a instalar para quem esta a comecar."
+    },
+    {
+      "id": "nginx",
+      "nome": "Nginx",
+      "categoria": "rede",
+      "registo": "docker.io",
+      "imagem": "nginx:1.27-alpine",
+      "pagina_oficial": "https://nginx.org/",
+      "portas": [
+        {
+          "anfitriao": 8080,
+          "contentor": 80,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "html",
+          "destino": "/usr/share/nginx/html"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 64,
+        "disco_gb": 1
+      },
+      "notas_pt": "Servidor web. Serve para experimentar paginas, testar um proxy ou ter onde apontar quando se esta a aprender redes."
+    },
+    {
+      "id": "pihole",
+      "nome": "Pi-hole",
+      "categoria": "rede",
+      "registo": "docker.io",
+      "imagem": "pihole/pihole:2024.07.0",
+      "pagina_oficial": "https://pi-hole.net/",
+      "portas": [
+        {
+          "anfitriao": 5353,
+          "contentor": 53,
+          "protocolo": "udp"
+        },
+        {
+          "anfitriao": 8081,
+          "contentor": 80,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "etc",
+          "destino": "/etc/pihole"
+        },
+        {
+          "nome": "dnsmasq",
+          "destino": "/etc/dnsmasq.d"
+        }
+      ],
+      "ambiente": {
+        "TZ": "Europe/Lisbon"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 2
+      },
+      "aviso_pt": "O DNS fica em 5353 e nao em 53, porque a porta 53 e privilegiada e no Windows costuma estar ocupada. Para o usar como DNS da rede tem de mudar a porta de proposito e saber o que isso implica.",
+      "notas_pt": "Bloqueia publicidade e rastreadores ao nivel do DNS. Num laboratorio serve para ver o transito de DNS da rede."
+    },
+    {
+      "id": "postgres",
+      "nome": "PostgreSQL 16",
+      "categoria": "dados",
+      "registo": "docker.io",
+      "imagem": "postgres:16.4-alpine",
+      "pagina_oficial": "https://www.postgresql.org/",
+      "portas": [
+        {
+          "anfitriao": 5432,
+          "contentor": 5432,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/var/lib/postgresql/data"
+        }
+      ],
+      "ambiente": {
+        "POSTGRES_PASSWORD": "@gerar@",
+        "POSTGRES_DB": "laboratorio"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 2
+      },
+      "notas_pt": "Base de dados relacional. A palavra-passe e gerada no momento e mostrada uma vez -- nao fica escrita no catalogo."
+    },
+    {
+      "id": "mariadb",
+      "nome": "MariaDB 11",
+      "categoria": "dados",
+      "registo": "docker.io",
+      "imagem": "mariadb:11.4",
+      "pagina_oficial": "https://mariadb.org/",
+      "portas": [
+        {
+          "anfitriao": 3306,
+          "contentor": 3306,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/var/lib/mysql"
+        }
+      ],
+      "ambiente": {
+        "MARIADB_ROOT_PASSWORD": "@gerar@",
+        "MARIADB_DATABASE": "laboratorio"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 2
+      },
+      "notas_pt": "Alternativa ao PostgreSQL, compativel com MySQL. Util quando o que se quer testar so fala MySQL."
+    },
+    {
+      "id": "redis",
+      "nome": "Redis 7",
+      "categoria": "dados",
+      "registo": "docker.io",
+      "imagem": "redis:7.4-alpine",
+      "pagina_oficial": "https://redis.io/",
+      "portas": [
+        {
+          "anfitriao": 6379,
+          "contentor": 6379,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/data"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 128,
+        "disco_gb": 1
+      },
+      "notas_pt": "Armazenamento chave-valor em memoria. Usa-se como cache ou fila de tarefas."
+    },
+    {
+      "id": "minio",
+      "nome": "MinIO",
+      "categoria": "dados",
+      "registo": "quay.io",
+      "imagem": "quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z",
+      "pagina_oficial": "https://min.io/",
+      "portas": [
+        {
+          "anfitriao": 9000,
+          "contentor": 9000,
+          "protocolo": "tcp"
+        },
+        {
+          "anfitriao": 9001,
+          "contentor": 9001,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/data"
+        }
+      ],
+      "ambiente": {
+        "MINIO_ROOT_USER": "laboratorio",
+        "MINIO_ROOT_PASSWORD": "@gerar@"
+      },
+      "comando": "server /data --console-address :9001",
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 5
+      },
+      "notas_pt": "Armazenamento compativel com o S3 da Amazon. Serve para testar codigo que fala com o S3 sem pagar nem sair da maquina. Vem do quay.io e nao do Docker Hub: a MinIO retirou de la as imagens."
+    },
+    {
+      "id": "uptime-kuma",
+      "nome": "Uptime Kuma",
+      "categoria": "monitorizacao",
+      "registo": "docker.io",
+      "imagem": "louislam/uptime-kuma:1.23.13-alpine",
+      "pagina_oficial": "https://github.com/louislam/uptime-kuma",
+      "portas": [
+        {
+          "anfitriao": 3001,
+          "contentor": 3001,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/app/data"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 256,
+        "disco_gb": 1
+      },
+      "notas_pt": "Vigia servicos e avisa quando um cai. E o mais simples de perceber de tudo o que ha nesta area."
+    },
+    {
+      "id": "grafana",
+      "nome": "Grafana",
+      "categoria": "monitorizacao",
+      "registo": "docker.io",
+      "imagem": "grafana/grafana:11.1.4",
+      "pagina_oficial": "https://grafana.com/",
+      "portas": [
+        {
+          "anfitriao": 3000,
+          "contentor": 3000,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/var/lib/grafana"
+        }
+      ],
+      "ambiente": {
+        "GF_SECURITY_ADMIN_PASSWORD": "@gerar@"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 2
+      },
+      "notas_pt": "Graficos e paineis. Sozinho nao mede nada -- precisa de uma fonte de dados, tipicamente o Prometheus."
+    },
+    {
+      "id": "prometheus",
+      "nome": "Prometheus",
+      "categoria": "monitorizacao",
+      "registo": "docker.io",
+      "imagem": "prom/prometheus:v2.54.1",
+      "pagina_oficial": "https://prometheus.io/",
+      "portas": [
+        {
+          "anfitriao": 9090,
+          "contentor": 9090,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/prometheus"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 5
+      },
+      "notas_pt": "Recolhe metricas ao longo do tempo. Combina-se com o Grafana para as ver."
+    },
+    {
+      "id": "gitea",
+      "nome": "Gitea",
+      "categoria": "trabalho",
+      "registo": "docker.io",
+      "imagem": "gitea/gitea:1.22.3",
+      "pagina_oficial": "https://about.gitea.com/",
+      "portas": [
+        {
+          "anfitriao": 3002,
+          "contentor": 3000,
+          "protocolo": "tcp"
+        },
+        {
+          "anfitriao": 2222,
+          "contentor": 22,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/data"
+        }
+      ],
+      "ambiente": {
+        "USER_UID": "1000",
+        "USER_GID": "1000"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 5
+      },
+      "notas_pt": "Servidor de Git com interface web, leve. Serve para guardar repositorios sem os por na nuvem."
+    },
+    {
+      "id": "n8n",
+      "nome": "n8n",
+      "categoria": "trabalho",
+      "registo": "docker.io",
+      "imagem": "n8nio/n8n:1.58.2",
+      "pagina_oficial": "https://n8n.io/",
+      "portas": [
+        {
+          "anfitriao": 5678,
+          "contentor": 5678,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/home/node/.n8n"
+        }
+      ],
+      "ambiente": {
+        "GENERIC_TIMEZONE": "Europe/Lisbon"
+      },
+      "minimo": {
+        "ram_mb": 512,
+        "disco_gb": 2
+      },
+      "notas_pt": "Automatiza tarefas ligando servicos uns aos outros, com fluxos desenhados no ecra."
+    },
+    {
+      "id": "vaultwarden",
+      "nome": "Vaultwarden",
+      "categoria": "pessoal",
+      "registo": "docker.io",
+      "imagem": "vaultwarden/server:1.32.0-alpine",
+      "pagina_oficial": "https://github.com/dani-garcia/vaultwarden",
+      "portas": [
+        {
+          "anfitriao": 8082,
+          "contentor": 80,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/data"
+        }
+      ],
+      "ambiente": {
+        "SIGNUPS_ALLOWED": "true"
+      },
+      "minimo": {
+        "ram_mb": 256,
+        "disco_gb": 1
+      },
+      "aviso_pt": "Guarda palavras-passe. Num laboratorio serve para experimentar; para uso a serio precisa de HTTPS a frente e de copias de seguranca do volume -- sem isso, perder o volume e perder o cofre.",
+      "notas_pt": "Servidor compativel com o Bitwarden, mas leve o suficiente para correr em casa."
+    },
+    {
+      "id": "nextcloud",
+      "nome": "Nextcloud",
+      "categoria": "pessoal",
+      "registo": "docker.io",
+      "imagem": "nextcloud:29-apache",
+      "pagina_oficial": "https://nextcloud.com/",
+      "portas": [
+        {
+          "anfitriao": 8083,
+          "contentor": 80,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "dados",
+          "destino": "/var/www/html"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 1024,
+        "disco_gb": 10
+      },
+      "notas_pt": "Nuvem pessoal: ficheiros, calendario e contactos na propria maquina. Com SQLite chega para experimentar; para uso continuado convem juntar-lhe o PostgreSQL."
+    },
+    {
+      "id": "jellyfin",
+      "nome": "Jellyfin",
+      "categoria": "pessoal",
+      "registo": "docker.io",
+      "imagem": "jellyfin/jellyfin:10.9.11",
+      "pagina_oficial": "https://jellyfin.org/",
+      "portas": [
+        {
+          "anfitriao": 8096,
+          "contentor": 8096,
+          "protocolo": "tcp"
+        }
+      ],
+      "volumes": [
+        {
+          "nome": "config",
+          "destino": "/config"
+        },
+        {
+          "nome": "media",
+          "destino": "/media"
+        }
+      ],
+      "ambiente": {},
+      "minimo": {
+        "ram_mb": 1024,
+        "disco_gb": 5
+      },
+      "notas_pt": "Servidor de media sem subscricao nem conta. Ponha os ficheiros no volume 'media'."
+    }
+  ]
+}

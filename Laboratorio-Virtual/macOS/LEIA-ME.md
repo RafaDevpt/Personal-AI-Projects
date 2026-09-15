@@ -257,6 +257,74 @@ Duas opções que não são óbvias e que o script leva:
 
 ---
 
+## Serviços em contentores
+
+Uma máquina virtual é a resposta certa quando se quer experimentar **um
+sistema**. Quando o que se quer é experimentar **um serviço** — uma base de
+dados, um painel, um servidor web — trinta minutos e oito gigabytes são um preço
+alto por uma coisa que num contentor fica de pé em segundos.
+
+A opção 6 do menu abre o catálogo de serviços. São quinze, divididos por
+categorias:
+
+| Categoria | Serviços |
+|---|---|
+| Gerir os próprios contentores | Portainer |
+| Rede, DNS e proxy | Nginx, Pi-hole |
+| Bases de dados e armazenamento | PostgreSQL, MariaDB, Redis, MinIO |
+| Ver o que está a acontecer | Uptime Kuma, Grafana, Prometheus |
+| Ferramentas de trabalho | Gitea, n8n |
+| Uso pessoal em casa | Vaultwarden, Nextcloud, Jellyfin |
+
+### O que o programa garante
+
+**Nada fica exposto à rede.** As portas são publicadas em `127.0.0.1`, o que
+quer dizer que o serviço responde a esta máquina e a mais nenhuma. Abrir à rede
+local é possível, mas tem de ser feito de propósito e por si.
+
+**A versão não muda debaixo dos pés.** Nenhuma imagem do catálogo usa `latest`.
+A mesma ordem, daqui a um mês, traz exactamente o mesmo software — que é a única
+coisa que um laboratório tem mesmo de garantir.
+
+**Só se mexe no que foi criado aqui.** Os contentores deste programa levam a
+etiqueta `laboratorio-virtual=1`. Parar ou apagar nunca toca em nada que não a
+tenha, mesmo que o nome coincida.
+
+**As palavras-passe são geradas e mostradas uma vez.** Não ficam guardadas em
+lado nenhum — nem no catálogo, nem num ficheiro ao lado do serviço. Aponte-as
+quando aparecerem.
+
+### O aviso do Portainer, e porque está lá
+
+Alguns serviços precisam de acesso para lá do próprio contentor, e no menu
+aparecem marcados com `!`. O Portainer é o caso mais claro: precisa do socket do
+Docker, o que lhe dá controlo total sobre a máquina. Quem entrar no Portainer
+pode arrancar um contentor privilegiado e, a partir daí, fazer o que quiser.
+
+O programa mostra esse aviso **antes** de perguntar se quer avançar, e não
+depois. Um aviso que só aparece depois de a pessoa dizer que sim não é um aviso,
+é uma desculpa.
+
+### Onde ficam os dados
+
+Cada serviço tem a sua pasta debaixo de `contentores/`, na pasta base do
+laboratório. Parar um serviço não apaga nada; apagar o contentor também não
+apaga a pasta. Para se desfazer de vez de um serviço, apague a pasta à mão
+depois de o ter apagado — assim não há forma de perder dados por engano.
+
+### O Docker não é instalado por este programa
+
+Este programa não instala o Docker. O Docker Desktop está em
+<https://www.docker.com/products/docker-desktop/>.
+
+Se preferir não ter uma aplicação gráfica a correr sempre, o `colima` põe
+contentores de pé a partir do terminal e o programa funciona igual com ele:
+
+```sh
+brew install colima docker
+colima start
+```
+
 ## Onde ficam as coisas
 
 ```

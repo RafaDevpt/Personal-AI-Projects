@@ -55,8 +55,10 @@ passo() { :; }
 . "${FONTE}/lib/vmware.sh"
 # shellcheck source=../src/lib/instalacao.sh
 . "${FONTE}/lib/instalacao.sh"
+. "${FONTE}/lib/contentores.sh"
 
 CATALOGO="${FONTE}/catalogo.json"
+CATALOGO_SERVICOS="${FONTE}/catalogo-servicos.json"
 SOMA_EXEMPLO='9f2f1cbd3ef1a0d4a49a63b3e9b3d9f0c1a2b3c4d5e6f708192a3b4c5d6e7f80'
 DOMINIOS=(releases.ubuntu.com cdimage.debian.org)
 
@@ -854,6 +856,219 @@ teste 'a rede fica em NAT' t_vmx_nat
 teste 'um convidado de Windows leva EFI' t_vmx_efi
 teste 'um convidado de Linux não leva EFI' t_vmx_sem_efi
 teste 'não pergunta se a máquina foi movida na primeira arrancada' t_vmx_sem_pergunta
+
+
+# ===========================================================================
+grupo 'Referência de imagem de contentor'
+# ===========================================================================
+
+t_img_fixa()      { afirmar_vazio "$(problema_referencia_imagem 'nginx:1.27-alpine' 'docker.io')"; }
+t_img_sem_etiq()  { afirmar_contem "$(problema_referencia_imagem 'nginx' 'docker.io')" 'não tem etiqueta'; }
+t_img_latest()    { afirmar_contem "$(problema_referencia_imagem 'nginx:latest' 'docker.io')" 'latest'; }
+t_img_quay()      { afirmar_vazio "$(problema_referencia_imagem 'quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z' 'quay.io')"; }
+
+# PT-PT: O ataque que a validacao existe para apanhar: o campo 'registo' diz
+#        docker.io e passa na lista, mas a imagem vinha de outro sitio.
+# EN-UK: The attack this exists for: the declared registry passes the allowlist
+#        while the image comes from somewhere else.
+t_img_outro_reg() { afirmar_contem "$(problema_referencia_imagem 'exemplo.net/x:1.0' 'docker.io')" 'registo no nome'; }
+t_img_prefixo()   { afirmar_contem "$(problema_referencia_imagem 'ghcr.io/alguem/x:1.0' 'quay.io')" 'não começa por'; }
+
+# PT-PT: Em `registo.local:5000/coisa` os dois pontos sao da porta. Se fossem
+#        lidos como etiqueta, «5000/coisa» passava por etiqueta fixa.
+# EN-UK: In `registry.local:5000/thing` the colon belongs to the port.
+t_img_porta()     { afirmar_contem "$(problema_referencia_imagem 'registo.local:5000/coisa' 'docker.io')" 'não tem etiqueta'; }
+t_img_vazia()     { afirmar_contem "$(problema_referencia_imagem '' 'docker.io')" 'vazia'; }
+
+teste 'aceita uma etiqueta fixa no Docker Hub' t_img_fixa
+teste 'recusa uma imagem sem etiqueta' t_img_sem_etiq
+teste 'recusa a etiqueta latest' t_img_latest
+teste 'aceita uma imagem do quay com o registo declarado' t_img_quay
+teste 'recusa uma imagem que traz outro registo no nome' t_img_outro_reg
+teste 'recusa uma imagem que não começa pelo registo declarado' t_img_prefixo
+teste 'não confunde a porta do registo com a etiqueta' t_img_porta
+teste 'recusa uma referência vazia' t_img_vazia
+
+
+# ===========================================================================
+grupo 'Nome do contentor'
+# ===========================================================================
+
+t_nome_simples()  { afirmar_igual 'lab-postgres' "$(nome_contentor 'postgres')"; }
+t_nome_espaco()   { afirmar_igual 'lab-uptime-kuma' "$(nome_contentor 'uptime kuma')"; }
+t_nome_maiusc()   { afirmar_igual 'lab-gitea' "$(nome_contentor 'Gitea')"; }
+t_nome_mau()      { ! nome_contentor '///' 2>/dev/null; }
+
+teste 'um id simples fica com o prefixo' t_nome_simples
+teste 'caracteres que o Docker não aceita são trocados' t_nome_espaco
+teste 'as maiúsculas descem' t_nome_maiusc
+teste 'um id que não dá nenhum nome utilizável rebenta' t_nome_mau
+
+
+# ===========================================================================
+grupo 'Palavra-passe gerada'
+# ===========================================================================
+
+t_senha_tam()   { local p; p="$(gerar_palavra_passe 32)"; afirmar_igual 32 "${#p}"; }
+t_senha_dif()   { afirmar_diferente "$(gerar_palavra_passe)" "$(gerar_palavra_passe)"; }
+
+# PT-PT: Uma senha com aspas, cifrao ou barra parte a linha ou muda de
+#        significado consoante a shell. O alfabeto nao tem nenhum deles.
+# EN-UK: A password with quotes, dollars or backslashes breaks the command line.
+t_senha_shell() { local p; p="$(gerar_palavra_passe 128)"; [[ "$p" =~ ^[A-Za-z0-9]+$ ]]; }
+
+# PT-PT: Sem I, l, 1, O, o, 0. Uma senha mostrada uma vez no ecra tem de poder
+#        ser copiada a mao sem ficar a duvida.
+# EN-UK: No I, l, 1, O, o or 0: a password shown once must be transcribable.
+t_senha_legivel() { local p; p="$(gerar_palavra_passe 128)"; ! [[ "$p" =~ [IlO1o0] ]]; }
+
+teste 'tem o comprimento pedido' t_senha_tam
+teste 'duas seguidas não são iguais' t_senha_dif
+teste 'não usa caracteres que uma linha de comandos interpreta' t_senha_shell
+teste 'não usa caracteres que se confundem ao ler' t_senha_legivel
+
+
+# ===========================================================================
+grupo 'Catálogo de serviços e linha do Docker'
+# ===========================================================================
+
+if ! command -v jq >/dev/null 2>&1; then
+    saltar 'catálogo de serviços' 'o jq não está instalado nesta máquina; na integração contínua está'
+else
+    t_serv_valido()  { afirmar_vazio "$(validar_catalogo_servicos "$CATALOGO_SERVICOS")"; }
+    t_serv_alguns()  { local n; n="$(jq '.servicos | length' "$CATALOGO_SERVICOS")"; (( n > 0 )); }
+
+    # PT-PT: Nenhuma imagem do catalogo pode escapar a regra da etiqueta fixa.
+    #        O teste existe para ela nao se perder na proxima entrada que
+    #        alguem acrescentar com pressa.
+    # EN-UK: No catalogue image may escape the pinned-tag rule.
+    t_serv_etiquetas() {
+        local i total mau=''
+        total="$(jq '.servicos | length' "$CATALOGO_SERVICOS")"
+        for (( i = 0; i < total; i++ )); do
+            local im rg
+            im="$(jq -r --argjson i "$i" '.servicos[$i].imagem' "$CATALOGO_SERVICOS")"
+            rg="$(jq -r --argjson i "$i" '.servicos[$i].registo' "$CATALOGO_SERVICOS")"
+            local p; p="$(problema_referencia_imagem "$im" "$rg")"
+            [ -n "$p" ] && mau="${mau}${im} "
+        done
+        afirmar_vazio "$mau"
+    }
+
+    t_serv_registos() {
+        local fora
+        fora="$(jq -r '. as $c | .servicos[] | select(($c.registos_confiaveis | index(.registo)) | not) | .id' "$CATALOGO_SERVICOS")"
+        afirmar_vazio "$fora"
+    }
+
+    t_serv_registo_fora() {
+        local falso="${TMP}/servicos-falso.json"
+        cat > "$falso" <<'JSON'
+{ "versao_esquema": 1, "registos_confiaveis": ["docker.io"],
+  "servicos": [ { "id": "x", "nome": "X", "categoria": "dados", "registo": "mau.io",
+                  "imagem": "mau.io/x:1.0", "minimo": { "ram_mb": 64 } } ] }
+JSON
+        afirmar_contem "$(validar_catalogo_servicos "$falso")" 'não está em «registos_confiaveis»'
+    }
+
+    t_serv_id_repetido() {
+        local falso="${TMP}/servicos-repetido.json"
+        cat > "$falso" <<'JSON'
+{ "versao_esquema": 1, "registos_confiaveis": ["docker.io"],
+  "servicos": [ { "id": "x", "nome": "X", "categoria": "dados", "registo": "docker.io",
+                  "imagem": "x:1.0", "minimo": { "ram_mb": 64 } },
+                { "id": "x", "nome": "Y", "categoria": "dados", "registo": "docker.io",
+                  "imagem": "y:1.0", "minimo": { "ram_mb": 64 } } ] }
+JSON
+        afirmar_contem "$(validar_catalogo_servicos "$falso")" 'mais do que uma vez'
+    }
+
+    t_serv_porta_fora() {
+        local falso="${TMP}/servicos-porta.json"
+        cat > "$falso" <<'JSON'
+{ "versao_esquema": 1, "registos_confiaveis": ["docker.io"],
+  "servicos": [ { "id": "x", "nome": "X", "categoria": "dados", "registo": "docker.io",
+                  "imagem": "x:1.0", "minimo": { "ram_mb": 64 },
+                  "portas": [ { "anfitriao": 70000, "contentor": 80, "protocolo": "tcp" } ] } ] }
+JSON
+        afirmar_contem "$(validar_catalogo_servicos "$falso")" 'fora do intervalo'
+    }
+
+    t_serv_campo_falta() {
+        local falso="${TMP}/servicos-campo.json"
+        cat > "$falso" <<'JSON'
+{ "versao_esquema": 1, "registos_confiaveis": ["docker.io"],
+  "servicos": [ { "id": "x", "registo": "docker.io", "imagem": "x:1.0" } ] }
+JSON
+        afirmar_contem "$(validar_catalogo_servicos "$falso")" 'falta o campo'
+    }
+
+    # PT-PT: A partir daqui testa-se a linha que seria dada ao Docker. Nada
+    #        corre: o que interessa provar e o que ia ser feito.
+    # EN-UK: From here the tested thing is the line Docker would be given.
+    exemplo_servicos() {
+        cat > "${TMP}/servicos-exemplo.json" <<'JSON'
+{ "versao_esquema": 1, "registos_confiaveis": ["docker.io"],
+  "servicos": [
+    { "id": "exemplo", "nome": "Exemplo", "categoria": "dados", "registo": "docker.io",
+      "imagem": "exemplo:1.0", "minimo": { "ram_mb": 64 },
+      "portas": [ { "anfitriao": 8080, "contentor": 80, "protocolo": "tcp" } ],
+      "volumes": [ { "nome": "dados", "destino": "/var/dados" } ],
+      "ambiente": { "SENHA": "@gerar@", "TZ": "Europe/Lisbon" } },
+    { "id": "gestor", "nome": "G", "categoria": "gestao", "registo": "docker.io",
+      "imagem": "g:1.0", "minimo": { "ram_mb": 64 }, "requer_socket_docker": true },
+    { "id": "c", "nome": "C", "categoria": "dados", "registo": "docker.io",
+      "imagem": "c:1.0", "minimo": { "ram_mb": 64 }, "comando": "server /data" }
+  ] }
+JSON
+        printf '%s\n' "${TMP}/servicos-exemplo.json"
+    }
+
+    linha_exemplo() {
+        local f; f="$(exemplo_servicos)"
+        SEGREDO_SENHA="${2:-abc123}" argumentos_docker "$f" "${1:-0}" '/lab' | tr '\n' ' '
+    }
+
+    t_doc_local()    { afirmar_contem "$(linha_exemplo 0)" '127.0.0.1:8080:80/tcp'; }
+    t_doc_etiqueta() { afirmar_contem "$(linha_exemplo 0)" 'laboratorio-virtual=1'; }
+    t_doc_nome()     { afirmar_contem "$(linha_exemplo 0)" '--name lab-exemplo'; }
+    t_doc_volume()   { afirmar_contem "$(linha_exemplo 0)" '/lab/dados:/var/dados'; }
+    t_doc_segredo()  { afirmar_contem "$(linha_exemplo 0)" 'SENHA=abc123'; }
+    t_doc_ambiente() { afirmar_contem "$(linha_exemplo 0)" 'TZ=Europe/Lisbon'; }
+    t_doc_reinicia() { afirmar_contem "$(linha_exemplo 0)" '--restart unless-stopped'; }
+    t_doc_sem_sock() { ! [[ "$(linha_exemplo 0)" == *docker.sock* ]]; }
+    t_doc_com_sock() { afirmar_contem "$(linha_exemplo 1)" 'docker.sock'; }
+    t_doc_comando()  { afirmar_contem "$(linha_exemplo 2)" 'c:1.0 server /data'; }
+
+    # PT-PT: Melhor rebentar do que arrancar um servico com a senha literal
+    #        «@gerar@», que era o que acontecia se isto passasse em silencio.
+    # EN-UK: Better to fail than start a service whose password is «@gerar@».
+    t_doc_sem_segredo() {
+        local f; f="$(exemplo_servicos)"
+        ! ( unset SEGREDO_SENHA; argumentos_docker "$f" 0 '/lab' ) 2>/dev/null
+    }
+
+    teste 'o catálogo que vem no projecto passa na validação' t_serv_valido
+    teste 'o catálogo traz serviços' t_serv_alguns
+    teste 'todas as imagens do catálogo têm etiqueta fixa' t_serv_etiquetas
+    teste 'todos os registos usados estão na lista curta' t_serv_registos
+    teste 'recusa um serviço cujo registo não está na lista' t_serv_registo_fora
+    teste 'recusa um id repetido' t_serv_id_repetido
+    teste 'recusa uma porta fora do intervalo' t_serv_porta_fora
+    teste 'apanha um campo obrigatório em falta' t_serv_campo_falta
+    teste 'publica sempre em 127.0.0.1' t_doc_local
+    teste 'leva a etiqueta do laboratório' t_doc_etiqueta
+    teste 'o nome do contentor leva o prefixo lab-' t_doc_nome
+    teste 'o volume sai debaixo da pasta de dados' t_doc_volume
+    teste 'o segredo entra pela variável de ambiente' t_doc_segredo
+    teste 'uma variável normal passa tal e qual' t_doc_ambiente
+    teste 'o serviço arranca outra vez depois de reiniciar a máquina' t_doc_reinicia
+    teste 'o socket do Docker não entra quando não é pedido' t_doc_sem_sock
+    teste 'o socket do Docker entra quando o serviço o pede' t_doc_com_sock
+    teste 'o comando extra vai depois da imagem' t_doc_comando
+    teste 'uma variável por gerar sem segredo rebenta' t_doc_sem_segredo
+fi
+
 
 
 resumo

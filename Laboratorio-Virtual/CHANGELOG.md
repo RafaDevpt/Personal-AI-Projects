@@ -8,6 +8,89 @@ versionamento segundo [SemVer](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [1.4.0] — 2026-09-15
+
+**PT** · Um laboratório passa a poder pôr serviços de pé em contentores, e não
+só máquinas virtuais.
+**EN** · A lab can now stand up services in containers, not only virtual
+machines.
+
+### Porquê
+
+Muito do que se quer experimentar num laboratório — uma base de dados, um
+servidor web, um painel de monitorização — não precisa de um sistema operativo
+inteiro só para si. Numa máquina virtual são trinta minutos e oito gigabytes;
+num contentor são segundos e algumas centenas de megabytes. A máquina virtual
+continua a ser a resposta certa quando se quer experimentar **um sistema**; o
+contentor é a resposta certa quando se quer experimentar **um serviço**.
+
+### O que traz
+
+Uma opção nova no menu — «Serviços em contentores» — com um catálogo de quinze
+serviços de trabalho e de uso pessoal: Portainer, Nginx, Pi-hole, PostgreSQL,
+MariaDB, Redis, MinIO, Uptime Kuma, Grafana, Prometheus, Gitea, n8n,
+Vaultwarden, Nextcloud e Jellyfin.
+
+### As regras são as mesmas, aplicadas ao que muda
+
+O `catalogo-servicos.json` é a fronteira de segurança da parte dos contentores,
+tal como o `catalogo.json` é a das imagens. Quatro regras, e cada uma existe por
+uma razão concreta:
+
+**O registo tem de estar na lista curta.** Nenhuma imagem vem de um registo fora
+de `registos_confiaveis`, e o campo que declara o registo é confrontado com o
+nome da imagem — uma entrada que diga `docker.io` mas traga `exemplo.net/x:1.0`
+é recusada, porque senão bastava mentir num campo para passar na lista.
+
+**Nada de `latest`.** Uma etiqueta móvel faz com que a mesma ordem, na mesma
+máquina, com uma semana de intervalo, traga software diferente. Isso tira ao
+laboratório a única coisa que ele tem de dar: repetir o resultado. Uma
+referência sem etiqueta nenhuma é recusada pela mesma razão, porque vale
+`latest`.
+
+**As portas ficam em 127.0.0.1.** Publicar em 0.0.0.0 põe o serviço a responder
+a toda a rede local — que é raramente o que se quer e nunca o que se espera.
+
+**Só se mexe no que é nosso.** Todo o contentor criado aqui leva a etiqueta
+`laboratorio-virtual=1`, e parar ou apagar só olha para contentores que a
+tenham. Um nome coincidente não chega.
+
+### O que não se faz, e porquê
+
+**Não há somas SHA-256 escritas à mão no catálogo.** Ao contrário de uma ISO,
+uma imagem de contentor é endereçada pelo conteúdo: o Docker calcula o digest do
+que recebeu e recusa sozinho o que não bater certo. Uma soma nossa repetiria uma
+verificação que já acontece e ficaria desactualizada à primeira correcção de
+segurança. Quem quiser fixar ao byte tem o campo `digest`, opcional.
+
+**O programa não instala o Docker.** Instala o VirtualBox, mas não isto. O
+instalador da Docker pede decisões sobre o WSL, sobre grupos de utilizadores e
+sobre licenciamento que não são nossas para tomar em silêncio — em particular,
+pôr um utilizador no grupo `docker` dá-lhe na prática o mesmo poder que o root.
+O programa diz onde ir buscar e qual é o comando; carregar no botão é de quem
+usa.
+
+### Segredos
+
+As palavras-passe dos serviços que precisam de uma são geradas no momento, de
+`/dev/urandom` ou do gerador criptográfico do Windows, e mostradas **uma única
+vez**. Não ficam escritas no catálogo nem em ficheiro nenhum. O alfabeto não tem
+nada que uma shell interprete, nem nada que se confunda a ler — sem `I`, `l`,
+`1`, `O`, `o` ou `0` — porque uma senha mostrada uma vez tem de poder ser
+copiada à mão.
+
+Nas versões de Linux e macOS os segredos passam ao `docker` pelo **ambiente** e
+não pela linha de comandos: um argumento fica visível na lista de processos a
+qualquer utilizador da máquina.
+
+### Testes
+
+121 testes novos, distribuídos pelas três versões: 392 no total, contra 325
+antes. Nenhum precisa de Docker instalado — o que é verificado é a linha que
+*seria* dada ao Docker, que é onde estão as decisões que interessam.
+
+---
+
 ## [1.3.2] — 2026-09-04
 
 **PT** · A verificação de assinaturas GPG nunca tinha funcionado em Windows, e

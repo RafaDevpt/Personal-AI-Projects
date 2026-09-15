@@ -141,6 +141,27 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 
 ---
 
+## Services, when a whole machine is too much
+
+A virtual machine is the right answer for trying out **a system**. For trying out **a service** — a database, a dashboard, a web server — thirty minutes and eight gigabytes is a steep price for something a container stands up in seconds.
+
+Fifteen services, from the working ones to the domestic: Portainer, Nginx, Pi-hole, PostgreSQL, MariaDB, Redis, MinIO, Uptime Kuma, Grafana, Prometheus, Gitea, n8n, Vaultwarden, Nextcloud, Jellyfin.
+
+The catalogue is a security boundary, exactly as the image catalogue is, with four rules that each exist for a reason:
+
+| Rule | What it prevents |
+| :--- | :--- |
+| The registry must be on the short list, **and must match the image name** | A catalogue entry that declares `docker.io` while pulling from `example.net` |
+| No `latest`, and no untagged reference | The same command, a week apart, quietly bringing different software |
+| Ports published on `127.0.0.1` | A lab service answering the whole local network because nobody said otherwise |
+| Only containers labelled `laboratorio-virtual=1` are ever stopped or removed | Reaching somebody else's container because a name happened to match |
+
+No hand-written SHA-256 sums here, deliberately. Unlike an ISO, a container image is content-addressed: Docker computes the digest of what it received and refuses a mismatch by itself. A sum of ours would repeat a check that already happens and go stale at the first security fix. The optional `digest` field is there for anyone who wants byte-exact pinning, at the cost of not receiving those fixes unattended.
+
+Passwords are generated at the moment of use and shown **once**. They are written to no file, and the alphabet holds nothing a shell interprets and nothing that misreads — no `I`, `l`, `1`, `O`, `o` or `0` — because a password shown once has to be transcribable by hand. On Linux and macOS they reach `docker` through the environment rather than the command line, which any user of the machine can read.
+
+---
+
 ## What this program refuses to do
 
 - **Download Windows or macOS around the vendor's form.** Microsoft requires one; Apple only distributes on a Mac. It opens the official page and verifies the file afterwards
@@ -148,12 +169,14 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 - **Install Homebrew.** It is installed by piping a script from the Internet straight into an interpreter, which is the pattern this program exists to avoid. There is a test that fails if that ever appears here
 - **Offer VirtualBox on an Apple Silicon Mac.** Oracle now publishes an ARM build, but on an ARM host only ARM guests get hardware acceleration — and VirtualBox is almost always wanted for an x86 guest
 - **Manage machines after they are created.** It is not an administration panel. It creates, and gets out of the way
+- **Install Docker.** It installs VirtualBox, but not this. The Docker installer asks for decisions about WSL, about user groups and about licensing that are not ours to take quietly — putting a user in the `docker` group grants them, in practice, the same power as root. The program says where to get it and what the command is; pressing the button is the user's
 
 ---
 
 ## Current state
 
-- **351 tests** — 119 Windows · 116 Linux · 116 macOS. None opens a network connection, creates a virtual machine or installs anything
+- **456 tests** — 154 Windows · 151 Linux · 151 macOS. None opens a network connection, creates a virtual machine, pulls a container image or installs anything
+- **Fifteen services** in the container catalogue, every tag verified against its registry
 - **Seventeen images** in the catalogue: eleven Linux distributions including ARM64, two Microsoft evaluations, the macOS installer and two Android entries
 - Continuous integration on **three native runners** — a Linux version tested on a Windows runner proves nothing about what it does on Linux, and the macOS version, written for bash 3.2, is only confirmed as such on a Mac
 - Bilingual source throughout, PT-PT and EN-UK

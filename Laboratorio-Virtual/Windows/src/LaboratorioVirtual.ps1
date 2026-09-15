@@ -76,10 +76,12 @@ $script:Raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $script:Raiz 'ImagemLocal.ps1')
 . (Join-Path $script:Raiz 'Vmware.ps1')
 . (Join-Path $script:Raiz 'Instalacao.ps1')
+. (Join-Path $script:Raiz 'Contentores.ps1')
 
 $script:Versao = '1.3.2'
 $script:Credito = 'Created by Redfox using Claude'
 $script:CaminhoCatalogo = Join-Path $script:Raiz 'catalogo.json'
+$script:CaminhoCatalogoServicos = Join-Path $script:Raiz 'catalogo-servicos.json'
 
 
 function Write-Titulo {
@@ -1235,6 +1237,239 @@ function Show-Catalogo {
 }
 
 
+function Show-EstadoDocker {
+    <#
+    .SYNOPSIS
+        PT-PT: Mostra o que ha de Docker e devolve o estado.
+        EN-UK: Shows what Docker is here and returns the state.
+    #>
+    [CmdletBinding()]
+    param()
+
+    $estado = Get-EstadoDocker
+    if ($estado.Responde) {
+        Write-Host "  Docker            a responder (versão $($estado.Versao))" -ForegroundColor Green
+    }
+    elseif ($estado.Instalado) {
+        Write-Host '  Docker            instalado, mas parado' -ForegroundColor Yellow
+        Write-Host "  $($estado.Motivo)" -ForegroundColor DarkGray
+    }
+    else {
+        Write-Host '  Docker            não está instalado' -ForegroundColor DarkGray
+        Write-Host '  Instale o Docker Desktop a partir de https://www.docker.com/products/docker-desktop/' -ForegroundColor DarkGray
+        Write-Host '  e volte aqui. Este programa não o instala por si — o instalador da Docker pede' -ForegroundColor DarkGray
+        Write-Host '  decisões sobre o WSL que não são nossas para tomar.' -ForegroundColor DarkGray
+    }
+    return $estado
+}
+
+
+function Show-CatalogoServicos {
+    <#
+    .SYNOPSIS
+        PT-PT: Escreve o catalogo de servicos por categoria.
+        EN-UK: Prints the services catalogue by category.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)]$Catalogo)
+
+    Write-Titulo 'Serviços que este programa sabe pôr de pé'
+    foreach ($chave in $Catalogo.categorias.PSObject.Properties.Name) {
+        $desta = @($Catalogo.servicos | Where-Object { $_.categoria -eq $chave })
+        if ($desta.Count -eq 0) { continue }
+        Write-Host ''
+        Write-Host "  $($Catalogo.categorias.$chave)" -ForegroundColor Cyan
+        foreach ($s in $desta) {
+            Write-Host ("    {0,-16} {1}" -f $s.id, $s.nome)
+            Write-Host ("                     {0}" -f $s.imagem) -ForegroundColor DarkGray
+        }
+    }
+    Write-Host ''
+    Write-Host '  Nenhuma imagem usa «latest»: todas trazem versão fixa, para que a mesma' -ForegroundColor DarkGray
+    Write-Host '  ordem dê o mesmo resultado daqui a um mês.' -ForegroundColor DarkGray
+}
+
+
+function Select-Servico {
+    <#
+    .SYNOPSIS
+        PT-PT: Deixa escolher um servico do catalogo. Devolve nada se desistir.
+        EN-UK: Lets the user pick a service. Returns nothing on cancel.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)]$Catalogo)
+
+    $todos = @($Catalogo.servicos)
+    Write-Titulo 'Qual serviço?'
+    $i = 0
+    foreach ($s in $todos) {
+        $i++
+        $marca = if ($s.PSObject.Properties.Name -contains 'aviso_pt') { ' !' } else { '  ' }
+        Write-Host ("    {0,2}.{1} {2,-18} {3}" -f $i, $marca, $s.id, $s.nome)
+    }
+    Write-Host '     0.   Voltar atrás'
+    Write-Host ''
+    Write-Host '  O ! marca serviços que pedem acesso para lá do contentor.' -ForegroundColor DarkGray
+    Write-Host ''
+
+    $n = Read-Escolha -Pergunta 'Número' -Maximo $todos.Count -PermiteZero
+    if ($n -eq 0) { return }
+    return $todos[$n - 1]
+}
+
+
+function Invoke-ArranqueServico {
+    <#
+    .SYNOPSIS
+        PT-PT: Pergunta, avisa e arranca um servico.
+        EN-UK: Asks, warns and starts a service.
+
+    .DESCRIPTION
+        PT-PT: O aviso aparece antes da pergunta e nao depois. Um aviso que so
+               aparece depois de a pessoa dizer que sim nao e um aviso, e uma
+               desculpa.
+        EN-UK: The warning comes before the question, not after.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]$Servico,
+        [Parameter(Mandatory)][string]$PastaDados
+    )
+
+    Write-Titulo $Servico.nome
+    if ($Servico.PSObject.Properties.Name -contains 'notas_pt') {
+        Write-Host "  $($Servico.notas_pt)" -ForegroundColor Gray
+    }
+    Write-Host ''
+    Write-Host "  Imagem      $($Servico.imagem)"
+    Write-Host "  Memória     $($Servico.minimo.ram_mb) MB no mínimo"
+
+    $portas = @(Get-CampoOpcional -Objecto $Servico -Nome 'portas')
+    foreach ($p in $portas) {
+        Write-Host ("  Endereço    http://127.0.0.1:{0}" -f $p.anfitriao)
+    }
+
+    if ($Servico.PSObject.Properties.Name -contains 'aviso_pt') {
+        Write-Host ''
+        Write-Host '  Atenção' -ForegroundColor Yellow
+        Write-Host "  $($Servico.aviso_pt)" -ForegroundColor Yellow
+    }
+
+    Write-Host ''
+    if (-not (Confirm-Accao -Pergunta 'Pôr este serviço de pé?')) { return }
+
+    $segredos = Get-SegredosNecessarios -Servico $Servico
+    try {
+        $nome = Start-Servico -Servico $Servico -PastaDados $PastaDados -Segredos $segredos
+    }
+    catch {
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        return
+    }
+
+    Write-Host ''
+    Write-Host "  De pé: $nome" -ForegroundColor Green
+    foreach ($p in $portas) {
+        Write-Host ("  Abra http://127.0.0.1:{0}" -f $p.anfitriao) -ForegroundColor Green
+    }
+
+    if ($segredos.Count -gt 0) {
+        # PT-PT: Mostra-se uma vez e nao se guarda em lado nenhum. Escrever a
+        #        senha num ficheiro ao lado do servico poupava este incomodo e
+        #        tirava-lhe o sentido.
+        # EN-UK: Shown once and stored nowhere. Writing it to a file beside the
+        #        service would save the bother and defeat the point.
+        Write-Host ''
+        Write-Host '  Apontar agora — não fica guardado em lado nenhum:' -ForegroundColor Yellow
+        foreach ($chave in $segredos.Keys) {
+            Write-Host ("    {0} = {1}" -f $chave, $segredos[$chave]) -ForegroundColor White
+        }
+    }
+}
+
+
+function Invoke-Servicos {
+    <#
+    .SYNOPSIS
+        PT-PT: O menu dos servicos em contentores.
+        EN-UK: The containerised-services menu.
+    #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string]$PastaBase)
+
+    try {
+        $catalogo = Import-CatalogoServicos -Caminho $script:CaminhoCatalogoServicos
+    }
+    catch {
+        Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+        return
+    }
+
+    $pastaDados = Join-Path $PastaBase 'contentores'
+
+    while ($true) {
+        Write-Titulo 'Serviços em contentores'
+        $estado = Show-EstadoDocker
+
+        $acorrer = @(Get-ServicosLaboratorio)
+        if ($acorrer.Count -gt 0) {
+            Write-Host ''
+            Write-Host '  Já de pé:' -ForegroundColor Cyan
+            foreach ($c in $acorrer) {
+                Write-Host ("    {0,-22} {1}" -f $c.Nome, $c.Estado)
+            }
+        }
+
+        Write-Host ''
+        Write-Host '    1. Pôr um serviço de pé'
+        Write-Host '    2. Ver o catálogo de serviços'
+        Write-Host '    3. Parar um serviço'
+        Write-Host '    0. Voltar atrás'
+        Write-Host ''
+
+        switch (Read-Escolha -Pergunta 'Número' -Maximo 3 -PermiteZero) {
+            0 { return }
+            1 {
+                if (-not $estado.Responde) {
+                    Write-Host '  Sem Docker a responder não há nada a arrancar.' -ForegroundColor Red
+                    break
+                }
+                $escolhido = Select-Servico -Catalogo $catalogo
+                if ($escolhido) {
+                    Invoke-ArranqueServico -Servico $escolhido -PastaDados $pastaDados
+                }
+            }
+            2 { Show-CatalogoServicos -Catalogo $catalogo }
+            3 {
+                if ($acorrer.Count -eq 0) {
+                    Write-Host '  Não há nada de pé para parar.' -ForegroundColor DarkGray
+                    break
+                }
+                Write-Titulo 'Parar qual?'
+                $i = 0
+                foreach ($c in $acorrer) { $i++; Write-Host ("    {0}. {1}" -f $i, $c.Nome) }
+                Write-Host '    0. Voltar atrás'
+                Write-Host ''
+                $n = Read-Escolha -Pergunta 'Número' -Maximo $acorrer.Count -PermiteZero
+                if ($n -eq 0) { break }
+                $alvo = $acorrer[$n - 1].Nome
+                $apagar = Confirm-Accao -Pergunta "Apagar também o contentor «$alvo»? Os dados no disco ficam"
+                try {
+                    Stop-Servico -Nome $alvo -Apagar:$apagar
+                    Write-Host "  $alvo parado." -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "  $($_.Exception.Message)" -ForegroundColor Red
+                }
+            }
+        }
+
+        Write-Host ''
+        Read-Host '  Enter para continuar' | Out-Null
+    }
+}
+
+
 function Show-Menu {
     param(
         [Parameter(Mandatory)]$Perfil,
@@ -1251,10 +1486,11 @@ function Show-Menu {
         Write-Host '    3. Verificar uma imagem que já tenho'
         Write-Host '    4. Ver o catálogo e as impressões digitais'
         Write-Host '    5. Preparar um hipervisor  (activar o Hyper-V ou instalar o VirtualBox)'
+        Write-Host '    6. Serviços em contentores  (base de dados, painel, servidor web)'
         Write-Host '    0. Sair'
         Write-Host ''
 
-        switch (Read-Escolha -Pergunta 'Número' -Maximo 5 -PermiteZero) {
+        switch (Read-Escolha -Pergunta 'Número' -Maximo 6 -PermiteZero) {
             0 { return }
             1 { Invoke-CriacaoMaquina -Perfil $Perfil -Catalogo $Catalogo -Estado $estado -PastaBase $PastaBase }
             2 { Show-Perfil -Perfil $Perfil }
@@ -1269,6 +1505,7 @@ function Show-Menu {
             }
             4 { Show-Catalogo -Catalogo $Catalogo }
             5 { [void](Invoke-PreparacaoHipervisor -Perfil $Perfil -Estado $estado -PastaBase $PastaBase) }
+            6 { Invoke-Servicos -PastaBase $PastaBase }
         }
 
         Write-Host ''

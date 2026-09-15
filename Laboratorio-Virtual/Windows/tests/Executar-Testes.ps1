@@ -51,6 +51,7 @@ $fonte = Join-Path (Split-Path -Parent $raiz) 'src'
 $script:Fonte = $fonte
 . (Join-Path $fonte 'Vmware.ps1')
 . (Join-Path $fonte 'Instalacao.ps1')
+. (Join-Path $fonte 'Contentores.ps1')
 
 Write-Host ''
 Write-Host '  Laboratório Virtual · testes da versão de Windows' -ForegroundColor White
@@ -1253,6 +1254,237 @@ if ($gpgReal) {
 else {
     Saltar 'assinatura GPG de ponta a ponta' 'o gpg não está instalado nesta máquina — corre no runner'
 }
+
+
+# ===========================================================================
+Grupo 'Referência de imagem de contentor'
+# ===========================================================================
+
+Teste 'aceita uma etiqueta fixa no Docker Hub' {
+    Assert-Igual '' (Test-ReferenciaImagem -Imagem 'nginx:1.27-alpine' -Registo 'docker.io')
+}
+
+Teste 'recusa uma imagem sem etiqueta' {
+    # PT-PT: Sem etiqueta o Docker assume «latest» -- o problema que queremos
+    #        evitar, so que escondido.
+    # EN-UK: With no tag Docker assumes «latest» -- the very problem, hidden.
+    Assert-Contem (Test-ReferenciaImagem -Imagem 'nginx' -Registo 'docker.io') 'não tem etiqueta'
+}
+
+Teste 'recusa a etiqueta latest' {
+    Assert-Contem (Test-ReferenciaImagem -Imagem 'nginx:latest' -Registo 'docker.io') 'latest'
+}
+
+Teste 'aceita uma imagem do quay com o registo declarado' {
+    Assert-Igual '' (Test-ReferenciaImagem -Imagem 'quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z' -Registo 'quay.io')
+}
+
+Teste 'recusa uma imagem que traz outro registo no nome' {
+    # PT-PT: E o ataque que a validacao existe para apanhar: o campo 'registo'
+    #        diz docker.io e passa na lista, mas a imagem vinha de outro sitio.
+    # EN-UK: The attack the validation exists for: the declared registry passes
+    #        the allowlist while the image comes from somewhere else.
+    Assert-Contem (Test-ReferenciaImagem -Imagem 'exemplo.net/x:1.0' -Registo 'docker.io') 'registo no nome'
+}
+
+Teste 'recusa uma imagem que não começa pelo registo declarado' {
+    Assert-Contem (Test-ReferenciaImagem -Imagem 'ghcr.io/alguem/x:1.0' -Registo 'quay.io') 'não começa por'
+}
+
+Teste 'não confunde a porta do registo com a etiqueta' {
+    # PT-PT: Em `registo.local:5000/coisa` os dois pontos sao da porta. Se fossem
+    #        lidos como etiqueta, «5000/coisa» passava por etiqueta fixa.
+    # EN-UK: In `registry.local:5000/thing` the colon belongs to the port.
+    Assert-Contem (Test-ReferenciaImagem -Imagem 'registo.local:5000/coisa' -Registo 'docker.io') 'não tem etiqueta'
+}
+
+Teste 'recusa uma referência vazia' {
+    Assert-Contem (Test-ReferenciaImagem -Imagem '' -Registo 'docker.io') 'vazia'
+}
+
+
+# ===========================================================================
+Grupo 'Validação do catálogo de serviços'
+# ===========================================================================
+
+Teste 'o catálogo que vem no projecto passa na validação' {
+    $c = Import-CatalogoServicos -Caminho (Join-Path $script:Fonte 'catalogo-servicos.json')
+    Assert-Verdadeiro (@($c.servicos).Count -gt 0)
+}
+
+Teste 'todas as imagens do catálogo têm etiqueta fixa' {
+    $c = Import-CatalogoServicos -Caminho (Join-Path $script:Fonte 'catalogo-servicos.json')
+    foreach ($s in $c.servicos) {
+        Assert-Igual '' (Test-ReferenciaImagem -Imagem $s.imagem -Registo $s.registo)
+    }
+}
+
+Teste 'todos os registos usados estão na lista curta' {
+    $c = Import-CatalogoServicos -Caminho (Join-Path $script:Fonte 'catalogo-servicos.json')
+    foreach ($s in $c.servicos) {
+        Assert-Verdadeiro ($s.registo -in @($c.registos_confiaveis))
+    }
+}
+
+Teste 'recusa um serviço cujo registo não está na lista' {
+    $mau = '{"versao_esquema":1,"registos_confiaveis":["docker.io"],"servicos":[
+        {"id":"x","nome":"X","categoria":"dados","registo":"mau.io","imagem":"mau.io/x:1.0","minimo":{"ram_mb":64}}]}' | ConvertFrom-Json
+    Assert-Contem (@(Test-CatalogoServicos -Catalogo $mau) -join ' ') "não está em 'registos_confiaveis'"
+}
+
+Teste 'recusa um id repetido' {
+    $mau = '{"versao_esquema":1,"registos_confiaveis":["docker.io"],"servicos":[
+        {"id":"x","nome":"X","categoria":"dados","registo":"docker.io","imagem":"x:1.0","minimo":{"ram_mb":64}},
+        {"id":"x","nome":"Y","categoria":"dados","registo":"docker.io","imagem":"y:1.0","minimo":{"ram_mb":64}}]}' | ConvertFrom-Json
+    Assert-Contem (@(Test-CatalogoServicos -Catalogo $mau) -join ' ') 'mais do que uma vez'
+}
+
+Teste 'recusa uma porta fora do intervalo' {
+    $mau = '{"versao_esquema":1,"registos_confiaveis":["docker.io"],"servicos":[
+        {"id":"x","nome":"X","categoria":"dados","registo":"docker.io","imagem":"x:1.0","minimo":{"ram_mb":64},
+         "portas":[{"anfitriao":70000,"contentor":80,"protocolo":"tcp"}]}]}' | ConvertFrom-Json
+    Assert-Contem (@(Test-CatalogoServicos -Catalogo $mau) -join ' ') 'fora do intervalo'
+}
+
+Teste 'apanha um campo obrigatório em falta' {
+    $mau = '{"versao_esquema":1,"registos_confiaveis":["docker.io"],"servicos":[
+        {"id":"x","registo":"docker.io","imagem":"x:1.0"}]}' | ConvertFrom-Json
+    Assert-Contem (@(Test-CatalogoServicos -Catalogo $mau) -join ' ') "falta o campo"
+}
+
+Teste 'um catálogo sem o campo de serviços não passa' {
+    $mau = '{"versao_esquema":1,"registos_confiaveis":["docker.io"]}' | ConvertFrom-Json
+    Assert-Contem (@(Test-CatalogoServicos -Catalogo $mau) -join ' ') 'servicos'
+}
+
+
+# ===========================================================================
+Grupo 'Linha de comando do Docker'
+# ===========================================================================
+
+$servicoExemplo = '{"id":"exemplo","nome":"Exemplo","categoria":"dados","registo":"docker.io",
+    "imagem":"exemplo:1.0","minimo":{"ram_mb":64},
+    "portas":[{"anfitriao":8080,"contentor":80,"protocolo":"tcp"}],
+    "volumes":[{"nome":"dados","destino":"/var/dados"}],
+    "ambiente":{"SENHA":"@gerar@","TZ":"Europe/Lisbon"}}' | ConvertFrom-Json
+
+Teste 'publica sempre em 127.0.0.1' {
+    # PT-PT: Sem isto o Docker publica em todas as interfaces, e um servico de
+    #        laboratorio passa a responder a rede toda sem ninguem ter pedido.
+    # EN-UK: Without this Docker publishes on every interface.
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha '127.0.0.1:8080:80/tcp'
+}
+
+Teste 'leva a etiqueta do laboratório' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha 'laboratorio-virtual=1'
+}
+
+Teste 'o nome do contentor leva o prefixo lab-' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha '--name lab-exemplo'
+}
+
+Teste 'o volume sai debaixo da pasta de dados' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha 'C:\Lab\dados:/var/dados'
+}
+
+Teste 'o segredo gerado entra na linha' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'abc123' }) -join ' '
+    Assert-Contem $linha 'SENHA=abc123'
+}
+
+Teste 'uma variável por gerar sem segredo rebenta' {
+    # PT-PT: Melhor rebentar do que arrancar um servico com a senha literal
+    #        «@gerar@», que era o que acontecia se isto passasse em silencio.
+    # EN-UK: Better to raise than start a service whose password is the literal
+    #        «@gerar@».
+    Assert-Lanca { New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{} }
+}
+
+Teste 'uma variável normal passa tal e qual' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha 'TZ=Europe/Lisbon'
+}
+
+Teste 'o socket do Docker não entra quando não é pedido' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Falso ($linha -match 'docker\.sock')
+}
+
+Teste 'o socket do Docker entra quando o serviço o pede' {
+    $comSocket = '{"id":"gestor","nome":"G","categoria":"gestao","registo":"docker.io",
+        "imagem":"g:1.0","minimo":{"ram_mb":64},"requer_socket_docker":true}' | ConvertFrom-Json
+    $linha = (New-ArgumentosDocker -Servico $comSocket -PastaDados 'C:\Lab') -join ' '
+    Assert-Contem $linha 'docker.sock'
+}
+
+Teste 'o comando extra vai depois da imagem' {
+    $comComando = '{"id":"c","nome":"C","categoria":"dados","registo":"docker.io",
+        "imagem":"c:1.0","minimo":{"ram_mb":64},"comando":"server /data"}' | ConvertFrom-Json
+    $linha = (New-ArgumentosDocker -Servico $comComando -PastaDados 'C:\Lab') -join ' '
+    Assert-Contem $linha 'c:1.0 server /data'
+}
+
+Teste 'o serviço arranca outra vez depois de reiniciar a máquina' {
+    $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
+    Assert-Contem $linha '--restart unless-stopped'
+}
+
+
+# ===========================================================================
+Grupo 'Nome do contentor'
+# ===========================================================================
+
+Teste 'um id simples fica com o prefixo' {
+    Assert-Igual 'lab-postgres' (Get-NomeContentor -Id 'postgres')
+}
+
+Teste 'caracteres que o Docker não aceita são trocados' {
+    Assert-Igual 'lab-uptime-kuma' (Get-NomeContentor -Id 'uptime kuma')
+}
+
+Teste 'as maiúsculas descem' {
+    Assert-Igual 'lab-gitea' (Get-NomeContentor -Id 'Gitea')
+}
+
+Teste 'um id que não dá nenhum nome utilizável rebenta' {
+    Assert-Lanca { Get-NomeContentor -Id '///' }
+}
+
+
+# ===========================================================================
+Grupo 'Palavra-passe gerada'
+# ===========================================================================
+
+Teste 'tem o comprimento pedido' {
+    Assert-Igual 32 (New-PalavraPasse -Comprimento 32).Length
+}
+
+Teste 'duas seguidas não são iguais' {
+    Assert-Falso ((New-PalavraPasse) -eq (New-PalavraPasse))
+}
+
+Teste 'não usa caracteres que uma linha de comandos interpreta' {
+    # PT-PT: Uma senha com aspas, cifrao ou barra parte a linha ou muda de
+    #        significado consoante a shell. Gera-se de um alfabeto que nao tem
+    #        nenhum deles, e assim nao ha que escapar coisa nenhuma.
+    # EN-UK: A password with quotes, dollars or backslashes breaks the command
+    #        line or changes meaning depending on the shell.
+    $p = New-PalavraPasse -Comprimento 128
+    Assert-Verdadeiro ($p -match '^[A-Za-z0-9]+$')
+}
+
+Teste 'não usa caracteres que se confundem ao ler' {
+    # PT-PT: Sem O/0, I/l/1. Uma senha mostrada uma vez no ecra tem de poder ser
+    #        copiada a mao sem ficar a duvida.
+    # EN-UK: No O/0 or I/l/1: a password shown once must be transcribable.
+    $p = New-PalavraPasse -Comprimento 128
+    Assert-Falso ($p -cmatch '[O0Il1]')
+}
+
 
 
 exit (Show-Resumo)
