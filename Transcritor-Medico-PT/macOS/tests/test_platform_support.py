@@ -78,7 +78,7 @@ class TestProcessador:
         #        without looking in both the application would report FFmpeg as
         #        missing on a machine where it is installed.
         # PT-PT: `as_posix()` e não `str()`: o `str()` de um Path muda de forma
-        #        conforme o sistema onde o teste corre, e este ficheiro também e
+        #        conforme o sistema onde o teste corre, e este ficheiro também é
         #        útil fora de um Mac — a suite corre localmente antes de ir para
         #        a integração contínua.
         # EN-UK: `as_posix()` rather than `str()`: a Path's `str()` changes shape
