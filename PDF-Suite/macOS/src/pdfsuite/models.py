@@ -422,7 +422,7 @@ class Comparacao:
                estimativa a aparência de um facto.
 
         EN-UK: Does the gap between first and second justify the choice? Five
-               points on a hundred-point scale sit inside the error margin of
+               points on a hundred-point scale sit within the margin of error of
                automatic extraction. Saying "A wins" when A and B are level is
                worse than saying nothing, because it lends a guess the look of
                a fact.

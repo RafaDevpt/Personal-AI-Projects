@@ -103,7 +103,7 @@ def _aparencia_marca(escrita: PdfWriter, largura: float, altura: float, marcada:
            quando o leitor não a tem, aparece um rectângulo vazio no lugar.
            Dois traços desenhados não dependem de letra nenhuma.
 
-    EN-UK: A tick box's appearance stream. Draws the frame always and the cross
+    EN-UK: A tick box's appearance stream. Always draws the frame, and the cross
            only in the checked state. The cross is two strokes rather than the
            ZapfDingbats tick character: the tick requires declaring that font in
            the document resources and shows as an empty rectangle when the
