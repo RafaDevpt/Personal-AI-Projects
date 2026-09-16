@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PT-PT: Testes das particularidades do Linux, na versao de Linux do
+PT-PT: Testes das particularidades do Linux, na versão de Linux do
        Printer Remote Toner Monitor.
 
-       As outras duas versoes tem os seus, nas pastas ao lado, e testam coisas
-       diferentes — porque as particularidades de cada sistema sao diferentes.
+       As outras duas versões tem os seus, nas pastas ao lado, e testam coisas
+       diferentes — porque as particularidades de cada sistema são diferentes.
 
 EN-UK: Linux specifics tests, in the Linux version of Printer Remote Toner Monitor.
 
@@ -24,7 +24,7 @@ from tonermon.platform_support import Distro
 
 
 class TestDeteccaoDaDistribuicao:
-    """PT-PT: Que familia de Linux. / EN-UK: Which Linux family."""
+    """PT-PT: Que família de Linux. / EN-UK: Which Linux family."""
 
     @pytest.mark.parametrize(
         ("identificador", "esperado"),
@@ -46,8 +46,8 @@ class TestDeteccaoDaDistribuicao:
         assert ps.detect_distro('ID="fedora"\n') is Distro.FEDORA
 
     def test_derivada_pelo_id_like(self) -> None:
-        # PT-PT: O Linux Mint nao esta na lista e funciona, porque diz de quem
-        #        deriva. E isto que faz o suporte cobrir distribuicoes que nunca
+        # PT-PT: O Linux Mint não esta na lista e funciona, porque diz de quem
+        #        deriva. E isto que faz o suporte cobrir distribuições que nunca
         #        vimos.
         # EN-UK: Linux Mint is not on the list and works, because it says what
         #        it derives from.
@@ -81,7 +81,7 @@ class TestComandosDeInstalacao:
 
     def test_o_tkinter_muda_de_nome_entre_distribuicoes(self) -> None:
         # PT-PT: `python3-tk` na Debian, `python3-tkinter` na Fedora, `tk` no
-        #        Arch. Tres nomes para o mesmo pacote.
+        #        Arch. Três nomes para o mesmo pacote.
         # EN-UK: Three names for the same package.
         assert "python3-tk" in ps.install_command("tkinter", Distro.DEBIAN)
         assert "python3-tkinter" in ps.install_command("tkinter", Distro.FEDORA)
@@ -93,7 +93,7 @@ class TestComandosDeInstalacao:
             assert ps.install_command(componente, familia).strip()
 
     def test_distribuicao_desconhecida_nao_inventa_um_gestor(self) -> None:
-        # PT-PT: Sugerir `apt` a quem nao o tem e pior do que dizer «instale o
+        # PT-PT: Sugerir `apt` a quem não o tem é pior do que dizer «instale o
         #        pacote».
         # EN-UK: Suggesting `apt` to somebody without it is worse than saying
         #        "install the package".
@@ -124,7 +124,7 @@ class TestAmbienteGrafico:
         assert "nenhum" in ps.display_server({})
 
     def test_wayland_ganha_ao_display(self) -> None:
-        # PT-PT: Numa sessao Wayland o DISPLAY tambem esta definido, por causa
+        # PT-PT: Numa sessão Wayland o DISPLAY também esta definido, por causa
         #        do XWayland. O que interessa e o servidor real.
         # EN-UK: On a Wayland session DISPLAY is also set, because of XWayland.
         assert ps.display_server(
@@ -139,7 +139,7 @@ class TestPastaDeDados:
         assert ps.app_data_dir("App", home=tmp_path) == tmp_path / ".config" / "App"
 
     def test_respeita_o_xdg_config_home(self, tmp_path: Path, monkeypatch) -> None:
-        # PT-PT: Quem define esta variavel fe-lo de proposito.
+        # PT-PT: Quem define esta variável fe-lo de propósito.
         # EN-UK: Whoever sets this variable meant to.
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "outro"))
         assert ps.app_data_dir("App", home=tmp_path) == tmp_path / "outro" / "App"
@@ -159,7 +159,7 @@ def test_o_relatorio_sai_em_qualquer_distribuicao(familia: Distro) -> None:
 
 
 class TestRequisitos:
-    """PT-PT: O relatorio de diagnostico. / EN-UK: The diagnostic report."""
+    """PT-PT: O relatório de diagnóstico. / EN-UK: The diagnostic report."""
 
     def test_ha_requisitos_verificados(self) -> None:
         assert ps.check_requirements()
@@ -186,7 +186,7 @@ class TestRequisitos:
 
     def test_opcional_em_falta_nao_e_apresentado_como_grave(self) -> None:
         # PT-PT: Apresentar um opcional com a mesma gravidade de um essencial
-        #        levaria alguem a instalar coisas de que nao precisa.
+        #        levaria alguém a instalar coisas de que não precisa.
         # EN-UK: Presenting an optional with an essential's severity would have
         #        somebody installing things they do not need.
         requisito = ps.Requirement(
@@ -196,13 +196,13 @@ class TestRequisitos:
 
 
 class TestPastaDeConfiguracao:
-    """PT-PT: Onde a aplicacao guarda o que e dela."""
+    """PT-PT: Onde a aplicação guarda o que é dela."""
 
     def test_a_configuracao_vai_para_o_sitio_certo(self) -> None:
         assert APP_FOLDER_NAME in str(caminho_de_configuracao())
 
     def test_nunca_escreve_dentro_do_repositorio(self) -> None:
-        # PT-PT: Uma configuracao local no repositorio acaba num commit.
+        # PT-PT: Uma configuração local no repositório acaba num commit.
         # EN-UK: A local configuration inside the repository ends up in a commit.
         raiz = Path(__file__).resolve().parent.parent
         assert raiz not in caminho_de_configuracao().resolve().parents
@@ -210,10 +210,10 @@ class TestPastaDeConfiguracao:
 
 def test_o_modulo_nao_sabe_de_outros_sistemas() -> None:
     """
-    PT-PT: Esta versao e so de Linux, e isso e uma propriedade a
-           manter. Se alguem acrescentar aqui uma ramificacao por sistema
-           operativo, e porque copiou de outra versao em vez de a ler — e a
-           razao de haver tres pastas desaparece.
+    PT-PT: Esta versão e só de Linux, e isso é uma propriedade a
+           manter. Se alguém acrescentar aqui uma ramificação por sistema
+           operativo, e porque copiou de outra versão em vez de a ler — e a
+           razão de haver três pastas desaparece.
 
     EN-UK: This version is Linux-only, and that is a property worth
            keeping.

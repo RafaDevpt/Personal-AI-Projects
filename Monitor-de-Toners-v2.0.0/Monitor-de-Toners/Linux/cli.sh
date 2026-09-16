@@ -4,9 +4,9 @@
 #
 #          ./cli.sh --help
 #
-#        Nao prepara o ambiente de proposito: se ele nao existir, diz o que
-#        executar. Um script agendado que decide instalar dependencias a meio
-#        da noite e um script que um dia enche o disco sem ninguem dar por isso.
+#        Não prepara o ambiente de propósito: se ele não existir, diz o que
+#        executar. Um script agendado que decide instalar dependências a meio
+#        da noite e um script que um dia enche o disco sem ninguém dar por isso.
 #
 # EN-UK: Monitor de Toners headless mode on Linux. It does not prepare the
 #        environment on purpose: if it is missing, it says what to run.
