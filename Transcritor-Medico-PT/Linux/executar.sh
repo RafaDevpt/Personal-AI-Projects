@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Arranque do Transcritor Medico PT em Linux.
+# PT-PT: Arranque do Transcritor Médico PT em Linux.
 #
-#        Prepara o ambiente na primeira execucao e arranca nas seguintes. Antes
-#        disso verifica as tres dependencias que o pip nao instala — o FFmpeg,
+#        Prepara o ambiente na primeira execução e arranca nas seguintes. Antes
+#        disso verifica as três dependências que o pip não instala — o FFmpeg,
 #        o Tkinter e o PortAudio — porque em Linux nenhuma delas vem por
-#        omissao, e falhar aqui com uma mensagem clara poupa meia hora a
-#        perceber porque e que a janela nao abre.
+#        omissão, e falhar aqui com uma mensagem clara poupa meia hora a
+#        perceber porque e que a janela não abre.
 #
-#        As instrucoes sao as da distribuicao onde isto esta a correr. Um
-#        utilizador de Fedora que leia "sudo apt install" conclui, com razao,
-#        que a aplicacao nao foi pensada para o sistema dele.
+#        As instruções são as da distribuição onde isto esta a correr. Um
+#        utilizador de Fedora que leia "sudo apt install" conclui, com razão,
+#        que a aplicação não foi pensada para o sistema dele.
 #
 # EN-UK: Portuguese Medical Transcriber launcher for Linux.
 #
@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e macOS
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and macOS versions
 #        live in the folders alongside, each complete and independent.
@@ -43,10 +43,10 @@ ok()    { printf "${VERDE}[OK]${FIM} %s\n" "$1"; }
 passo() { printf "        %s\n" "$1" >&2; }
 
 # ---------------------------------------------------------------------------
-# PT-PT: Que distribuicao, e portanto que gestor de pacotes.
+# PT-PT: Que distribuição, e portanto que gestor de pacotes.
 #
 #        O ID_LIKE e o que faz isto funcionar num Linux Mint ou num Pop!_OS sem
-#        eles estarem em lado nenhum desta lista: uma distribuicao derivada
+#        eles estarem em lado nenhum desta lista: uma distribuição derivada
 #        preenche esse campo precisamente para dizer "trate-me como uma Debian".
 #
 # EN-UK: Which distribution, and therefore which package manager.
@@ -67,8 +67,8 @@ gestor_de_pacotes() {
         *" debian "*|*" ubuntu "*) echo "apt" ;;
         *" fedora "*|*" rhel "*)   echo "dnf" ;;
         *" arch "*)                echo "pacman" ;;
-        # PT-PT: O `*opensuse*` sem espacos apanha o `ID=opensuse-leap` de uma
-        #        instalacao que nao declare ID_LIKE.
+        # PT-PT: O `*opensuse*` sem espaços apanha o `ID=opensuse-leap` de uma
+        #        instalação que não declare ID_LIKE.
         # EN-UK: The space-less `*opensuse*` catches `ID=opensuse-leap` on an
         #        installation that declares no ID_LIKE.
         *" suse "*|*opensuse*)     echo "zypper" ;;
@@ -122,7 +122,7 @@ if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)";
 fi
 
 # ---------------------------------------------------------------------------
-# PT-PT: Dependencias de sistema / EN-UK: System dependencies
+# PT-PT: Dependências de sistema / EN-UK: System dependencies
 # ---------------------------------------------------------------------------
 FALTA_ESSENCIAL=0
 
@@ -165,9 +165,9 @@ if [ ! -x ".venv/bin/python" ]; then
     printf "\n"
 fi
 
-# PT-PT: O PortAudio so se verifica depois de o ambiente existir, porque e o
+# PT-PT: O PortAudio só se verifica depois de o ambiente existir, porque e o
 #        sounddevice de dentro dele que precisa da biblioteca de C. Em Linux o
-#        pacote de Python instala-se sem problema e falha so na importacao.
+#        pacote de Python instala-se sem problema e falha só na importação.
 # EN-UK: PortAudio is only checked once the environment exists, because it is
 #        the sounddevice inside it that needs the C library. On Linux the Python
 #        package installs fine and only fails at import time.

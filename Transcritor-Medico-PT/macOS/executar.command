@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Arranque do Transcritor Medico PT em macOS.
+# PT-PT: Arranque do Transcritor Médico PT em macOS.
 #
-#        A extensao .command e o que permite abrir isto com duplo clique no
+#        A extensão .command e o que permite abrir isto com duplo clique no
 #        Finder, tal como o .bat em Windows.
 #
 #        Duas particularidades do macOS tratadas aqui.
 #
-#        **O PATH do Homebrew.** Um script aberto pelo Finder nao herda
-#        necessariamente o ambiente da shell, e o `brew` instala em sitios
+#        **O PATH do Homebrew.** Um script aberto pelo Finder não herda
+#        necessariamente o ambiente da shell, e o `brew` instala em sítios
 #        diferentes conforme o processador: /opt/homebrew nos Apple Silicon e
 #        /usr/local nos Intel. Sem os acrescentar, o FFmpeg esta instalado e a
-#        aplicacao jura que nao esta.
+#        aplicação jura que não esta.
 #
-#        **O Tkinter.** O Python que vem com o macOS traz uma versao de Tk
-#        antiga que abre janelas com aspecto errado e falha em coisas basicas.
-#        A verificacao aqui distingue "nao ha Tkinter" de "ha um Tkinter mau", e
+#        **O Tkinter.** O Python que vem com o macOS traz uma versão de Tk
+#        antiga que abre janelas com aspecto errado e falha em coisas básicas.
+#        A verificação aqui distingue "não há Tkinter" de "há um Tkinter mau", e
 #        diz o que fazer em cada caso.
 #
 # EN-UK: Portuguese Medical Transcriber launcher for macOS.
@@ -33,15 +33,15 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e macOS
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and macOS versions
 #        live in the folders alongside, each complete and independent.
 PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
-# PT-PT: Os dois sitios onde o Homebrew instala. Acrescentar os dois e
-#        inofensivo: o que nao existir e simplesmente ignorado pela shell.
+# PT-PT: Os dois sítios onde o Homebrew instala. Acrescentar os dois e
+#        inofensivo: o que não existir e simplesmente ignorado pela shell.
 # EN-UK: The two places Homebrew installs to. Adding both is harmless: whichever
 #        does not exist is simply ignored by the shell.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -73,9 +73,9 @@ if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)";
     exit 1
 fi
 
-# PT-PT: O Python que vem com o macOS e para uso do sistema, e a Apple ja
-#        avisou que o vai retirar. Correr uma aplicacao em cima dele funciona
-#        ate a proxima actualizacao do sistema o mexer por baixo dos pes.
+# PT-PT: O Python que vem com o macOS e para uso do sistema, e a Apple já
+#        avisou que o vai retirar. Correr uma aplicação em cima dele funciona
+#        até a próxima actualização do sistema o mexer por baixo dos pes.
 # EN-UK: The Python shipped with macOS is for the system's own use, and Apple
 #        has already said it will be removed. Running an application on it works
 #        until the next system update moves it from under your feet.
@@ -85,7 +85,7 @@ if [ "$(command -v python3)" = "/usr/bin/python3" ]; then
 fi
 
 # ---------------------------------------------------------------------------
-# PT-PT: Dependencias de sistema / EN-UK: System dependencies
+# PT-PT: Dependências de sistema / EN-UK: System dependencies
 # ---------------------------------------------------------------------------
 if ! command -v ffmpeg >/dev/null 2>&1; then
     erro "O FFmpeg nao esta instalado. E ele que descodifica o audio antes de o modelo o ouvir."
@@ -129,9 +129,9 @@ if ! .venv/bin/python -c "import sounddevice" >/dev/null 2>&1; then
     passo "a transcricao de ficheiros funciona na mesma"
 fi
 
-# PT-PT: Na primeira vez que a aplicacao grava, o macOS pergunta se pode usar o
+# PT-PT: Na primeira vez que a aplicação grava, o macOS pergunta se pode usar o
 #        microfone. Se a pergunta for recusada, o ditado deixa de funcionar sem
-#        dizer porque — e a permissao so se repoe nas Definicoes do Sistema.
+#        dizer porque — e a permissão só se repoe nas Definições do Sistema.
 # EN-UK: The first time the application records, macOS asks whether it may use
 #        the microphone. If the prompt is declined, dictation stops working with
 #        no explanation — and the permission is only restored in System Settings.

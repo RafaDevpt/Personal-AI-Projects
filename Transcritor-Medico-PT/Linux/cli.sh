@@ -2,18 +2,18 @@
 # ===========================================================================
 # PT-PT: Modo sem interface, em Linux.
 #
-#        Para o cron, para um servidor sem ambiente grafico, ou simplesmente
+#        Para o cron, para um servidor sem ambiente gráfico, ou simplesmente
 #        para transcrever uma pasta inteira sem estar a olhar:
 #
 #          ./cli.sh --batch --audio-dir ~/Gravacoes --output-dir ~/Texto
 #          ./cli.sh --diagnostico
 #
-#        Codigos de saida: 0 tudo bem, 1 houve falhas, 2 nada a fazer,
+#        Códigos de saída: 0 tudo bem, 1 houve falhas, 2 nada a fazer,
 #        3 ambiente por preparar, 130 interrompido.
 #
-#        Nao prepara o ambiente: se ele nao existir, diz o que executar. Um
-#        script de cron que decide instalar dependencias a meio da noite e um
-#        script que um dia enche o disco sem ninguem dar por isso.
+#        Não prepara o ambiente: se ele não existir, diz o que executar. Um
+#        script de cron que decide instalar dependências a meio da noite e um
+#        script que um dia enche o disco sem ninguém dar por isso.
 #
 # EN-UK: Headless mode on Linux.
 #
@@ -29,7 +29,7 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e macOS
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and macOS versions
 #        live in the folders alongside, each complete and independent.

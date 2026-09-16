@@ -77,10 +77,10 @@ class TestProcessador:
         #        Finder-launched process does not inherit the shell PATH, and
         #        without looking in both the application would report FFmpeg as
         #        missing on a machine where it is installed.
-        # PT-PT: `as_posix()` e nao `str()`: o `str()` de um Path muda de forma
-        #        conforme o sistema onde o teste corre, e este ficheiro tambem e
-        #        util fora de um Mac — a suite corre localmente antes de ir para
-        #        a integracao continua.
+        # PT-PT: `as_posix()` e não `str()`: o `str()` de um Path muda de forma
+        #        conforme o sistema onde o teste corre, e este ficheiro também e
+        #        útil fora de um Mac — a suite corre localmente antes de ir para
+        #        a integração contínua.
         # EN-UK: `as_posix()` rather than `str()`: a Path's `str()` changes shape
         #        with the system running the test, and this file is also useful
         #        off a Mac — the suite runs locally before reaching CI.

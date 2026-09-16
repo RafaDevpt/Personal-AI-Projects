@@ -95,8 +95,8 @@ class TestEscritaDoFicheiro:
         """
         gravador = rec.AudioRecorder(destino)
         destino.parent.mkdir(parents=True, exist_ok=True)
-        # PT-PT: Aberto de proposito sem gestor de contexto: e o proprio
-        #        gravador que o fecha em stop(), que e o que se esta a testar.
+        # PT-PT: Aberto de propósito sem gestor de contexto: e o próprio
+        #        gravador que o fecha em stop(), que é o que se esta a testar.
         # EN-UK: Deliberately opened without a context manager: the recorder
         #        itself closes it in stop(), which is what is under test.
         gravador._wave = wave.open(str(destino), "wb")  # noqa: SIM115

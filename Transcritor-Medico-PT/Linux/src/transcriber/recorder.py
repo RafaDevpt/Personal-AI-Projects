@@ -338,9 +338,9 @@ class AudioRecorder:
 
         try:
             self.destination.parent.mkdir(parents=True, exist_ok=True)
-            # PT-PT: O ficheiro fica aberto de proposito, e por isso nao leva
+            # PT-PT: O ficheiro fica aberto de propósito, e por isso não leva
             #        gestor de contexto: e escrito bloco a bloco pelo fio de
-            #        audio, ao longo de toda a gravacao, e so fecha em stop().
+            #        audio, ao longo de toda a gravação, e só fecha em stop().
             # EN-UK: The file is deliberately left open, and so takes no context
             #        manager: it is written block by block by the audio thread
             #        throughout the recording, and closes only in stop().

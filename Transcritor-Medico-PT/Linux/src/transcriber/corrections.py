@@ -319,7 +319,7 @@ class CorrectionEngine:
     def _match_case(original: str, replacement: str) -> str:
         """
         PT-PT: Devolve a substituição com a capitalização do texto original.
-               Sem isto, corrigir "Vomito" no início de uma frase produzia
+               Sem isto, corrigir "Vómito" no início de uma frase produzia
                "vómito" em minúscula e partia a pontuação.
 
         EN-UK: Returns the replacement carrying the original text's
