@@ -175,7 +175,7 @@ impressao_da_chave() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A chave e mesmo a da Oracle?
+# PT-PT: A chave é mesmo a da Oracle?
 # EN-UK: Is the key really Oracle's?
 # ---------------------------------------------------------------------------
 chave_oracle_confere() {
@@ -328,7 +328,7 @@ variante_rpm() {
 #        mas mostrar não é o mesmo que pedir licença, e aqui não se pede.
 #
 #        **Não há confirmação.** Escolher "instalar o VirtualBox" num menu que
-#        diz "instalar o VirtualBox" já e a resposta; perguntar outra vez não
+#        diz "instalar o VirtualBox" já é a resposta; perguntar outra vez não
 #        acrescenta decisão nenhuma, só ruído. E o `sudo`, que vem a seguir, já
 #        e uma paragem a sério -- ao contrário de um [s/N], pede uma coisa que
 #        só quem tem a máquina sabe.

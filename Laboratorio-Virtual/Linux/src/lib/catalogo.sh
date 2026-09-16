@@ -16,7 +16,7 @@
 #        Usa-se o `jq` e não um leitor de JSON escrito a mão. Ler JSON com
 #        `grep` e `sed` funciona até ao primeiro valor com uma chaveta dentro de
 #        uma string, e a partir dai da respostas erradas em silêncio -- o que
-#        num ficheiro que decide de onde se descarrega e a última coisa que se
+#        num ficheiro que decide de onde se descarrega é a última coisa que se
 #        quer.
 #
 # EN-UK: Reading and validating the image catalogue.

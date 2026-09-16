@@ -336,7 +336,7 @@ Teste 'reconhece uma máquina com as extensões activas' {
 
 Teste 'uma máquina com Hyper-V a correr conta como capaz' {
     # PT-PT: A armadilha do módulo. Com o Hyper-V ligado, o WMI reporta as
-    #        extensões como desligadas -- porque o Windows já e um convidado.
+    #        extensões como desligadas -- porque o Windows já é um convidado.
     # EN-UK: The module's trap. With Hyper-V on, WMI reports the extensions as
     #        off -- because Windows is itself a guest by then.
     $r = Test-VirtualizacaoDisponivel -Perfil (Novo-Perfil -Hipervisor $true -Firmware $false)
@@ -577,7 +577,7 @@ Teste 'o VirtualBox fala VDI, VMDK e VHD' {
 }
 
 Teste 'quando o formato não serve, diz-se como converter' {
-    # PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+    # PT-PT: Uma mensagem que só diz "não é suportado" deixa a pessoa no mesmo
     #        sítio. Uma que diz o comando resolve-lhe o problema.
     # EN-UK: A message saying only "not supported" leaves the person where they
     #        were. One with the command solves their problem.
@@ -737,7 +737,7 @@ Teste 'recusa um ficheiro vazio' {
 }
 
 Teste 'recusa uma versão com barras — ia ser colada num endereço' {
-    # PT-PT: Este e o teste que interessa. O texto vem do servidor da Oracle e
+    # PT-PT: Este é o teste que interessa. O texto vem do servidor da Oracle e
     #        vai para dentro de um URL; se passasse uma barra ou um `..`, o
     #        endereço deixava de apontar para onde o programa julga.
     # EN-UK: This is the test that matters. The text comes from Oracle's server
@@ -827,7 +827,7 @@ Teste 'a lista da instalação não entrou na lista do catálogo' {
 Grupo 'Assinatura Authenticode'
 
 # PT-PT: Este grupo corre contra ficheiros a sério desta máquina, e não contra
-#        simulacoes. Um ficheiro assinado pela Microsoft e a única forma de
+#        simulacoes. Um ficheiro assinado pela Microsoft é a única forma de
 #        provar que a função distingue "esta assinado" de "esta assinado por
 #        quem devia" -- que é a diferença que aqui interessa.
 # EN-UK: This group runs against real files on this machine. A Microsoft-signed
@@ -1151,7 +1151,7 @@ if ($gpgReal) {
     $cygReal = Get-CaminhoCygpath -Gpg $gpgReal
     if ($cygReal) {
         Teste 'com cygpath, um caminho de Windows vira POSIX' {
-            # PT-PT: Este e o defeito que fez tudo falhar. Um programa MSYS lê
+            # PT-PT: Este é o defeito que fez tudo falhar. Um programa MSYS lê
             #        `C:\Users\...` como **um nome relativo** -- a barra
             #        invertida e um caracter válido num nome POSIX -- e resolve-o
             #        contra a pasta actual. Barras normais também não chegam.

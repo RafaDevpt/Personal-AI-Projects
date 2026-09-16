@@ -211,7 +211,7 @@ function Enable-HyperV {
 
     .DESCRIPTION
         PT-PT: Isto altera o sistema, e por isso nunca corre sozinho: quem chama
-               tem de ter pedido confirmação antes. O `-NoRestart` e deliberado —
+               tem de ter pedido confirmação antes. O `-NoRestart` é deliberado —
                reiniciar a máquina de alguém sem lhe perguntar, no meio de um
                programa, não se faz. O programa diz que é preciso reiniciar e
                deixa a decisão a quem esta a usar.
@@ -248,7 +248,7 @@ function New-MaquinaHyperV {
 
     .DESCRIPTION
         PT-PT: Três detalhes decidem se o convidado arranca ou fica num ecrã
-               preto, e nenhum deles e óbvio.
+               preto, e nenhum deles é óbvio.
 
                **O modelo de Arranque Seguro.** Uma máquina de Geração 2 tem
                Arranque Seguro ligado, com o certificado da Microsoft. A maioria
@@ -264,8 +264,8 @@ function New-MaquinaHyperV {
                **O comutador.** Por omissão usa-se o Comutador Predefinido, que
                faz NAT: a máquina virtual chega a Internet e não aparece na rede
                local. Um comutador externo poria a máquina de laboratório
-               directamente na rede da empresa, o que raramente e o que se quer
-               e nunca e o que se espera.
+               directamente na rede da empresa, o que raramente é o que se quer
+               e nunca é o que se espera.
 
         EN-UK: Three details decide whether the guest boots or sits on a black
                screen: the Secure Boot template (most Linux distributions are

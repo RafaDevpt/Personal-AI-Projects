@@ -16,7 +16,7 @@
 #        `lscpu -p` da a resposta certa; o `nproc` fica como aproximação para
 #        quando ele não existe.
 #
-#        **Ter as extensões do processador não chega.** E preciso que o
+#        **Ter as extensões do processador não chega.** É preciso que o
 #        `/dev/kvm` exista **e** que o utilizador o consiga abrir. Um
 #        `/dev/kvm` que existe e não se lê da um erro de permissão a meio da
 #        criação da máquina, que é a pior altura para o descobrir. Aqui

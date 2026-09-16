@@ -85,7 +85,7 @@ $script:TiposDeImagem = @{
 }
 
 # PT-PT: A assinatura de cada formato, e onde ela esta. O engano honesto que
-#        isto apanha e sempre o mesmo: o ficheiro que o utilizador julga que é
+#        isto apanha é sempre o mesmo: o ficheiro que o utilizador julga que é
 #        uma ISO e afinal um `.zip` que ninguém extraiu.
 # EN-UK: Each format's signature and where it lives. The honest mistake this
 #        catches is always the same: the supposed ISO is a `.zip` nobody
@@ -113,7 +113,7 @@ $script:FormatosPorHipervisor = @{
 }
 
 # PT-PT: Perfis para um convidado que o catálogo não conhece. São deliberadamente
-#        conservadores: e melhor propor pouco e o utilizador aumentar do que
+#        conservadores: é melhor propor pouco e o utilizador aumentar do que
 #        propor de mais e ele só descobrir quando o anfitrião ficar a nadar.
 # EN-UK: Profiles for a guest the catalogue does not know. Deliberately
 #        conservative: better to propose little and have the user raise it.
@@ -153,7 +153,7 @@ function Get-TipoDeImagem {
         EN-UK: How this file attaches to a virtual machine.
 
     .DESCRIPTION
-        PT-PT: Decide pela extensão, e não pelo conteúdo. E deliberado: a
+        PT-PT: Decide pela extensão, e não pelo conteúdo. É deliberado: a
                extensão e o que o utilizador escolheu chamar ao ficheiro, e uma
                `.qcow2` com nome de `.iso` e um problema para resolver com ele e
                não para adivinhar em silêncio. A assinatura serve depois, para
@@ -191,7 +191,7 @@ function Test-FormatoSuportado {
                hipervisor nenhum.
 
                Quando não serve, devolve o comando de conversão. Uma mensagem que
-               só diz "não e suportado" deixa a pessoa no mesmo sítio; uma que
+               só diz "não é suportado" deixa a pessoa no mesmo sítio; uma que
                diz `qemu-img convert -O vhdx` resolve-lhe o problema.
         EN-UK: It takes the extension and hypervisor as arguments so every
                combination can be tested with no hypervisor installed. When the

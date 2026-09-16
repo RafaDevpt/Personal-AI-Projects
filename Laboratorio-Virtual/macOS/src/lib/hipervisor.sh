@@ -7,8 +7,8 @@
 #
 #        **QEMU** e a opção que funciona em todos os Macs. Instala-se pelo
 #        Homebrew, usa a Hypervisor.framework da Apple para acelerar por
-#        hardware, e e o mesmo QEMU que esta por baixo de quase tudo o resto. E
-#        também a opção que este programa conduz, porque e a única que se deixa
+#        hardware, e é o mesmo QEMU que esta por baixo de quase tudo o resto. E
+#        também a opção que este programa conduz, porque é a única que se deixa
 #        conduzir: e uma linha de comandos, e não uma aplicação com janelas.
 #
 #        **VirtualBox** só serve em Macs Intel. A Oracle tem uma pré-visualização
@@ -16,7 +16,7 @@
 #        Mac com chip da Apple, este programa nem sequer o oferece -- oferecer e
 #        deixar alguém perder uma tarde a perceber porque e que não arranca.
 #
-#        **UTM** e a melhor opção para quem quer janelas, e não é conduzida
+#        **UTM** é a melhor opção para quem quer janelas, e não é conduzida
 #        daqui. E gratuita, e código aberto, e assenta no mesmo QEMU. O programa
 #        aponta para ela em vez de fingir que a controla: criar uma máquina de
 #        UTM a partir de um script exige montar um pacote `.utm` a mão, e um

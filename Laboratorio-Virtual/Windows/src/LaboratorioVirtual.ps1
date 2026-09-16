@@ -393,8 +393,8 @@ function Get-ImagemDoUtilizador {
         EN-UK: Walks the user through choosing an image they already have.
 
     .DESCRIPTION
-        PT-PT: Esta e a porta que fica fora da cadeia de verificação, e por isso
-               e a que tem de ser mais clara sobre o que não garante. O programa
+        PT-PT: Esta é a porta que fica fora da cadeia de verificação, e por isso
+               é a que tem de ser mais clara sobre o que não garante. O programa
                mostra tudo o que consegue descobrir -- de onde o ficheiro veio,
                se o conteúdo corresponde a extensão, se a soma confere -- e
                depois pergunta. A decisão e do utilizador; o trabalho do programa
@@ -526,7 +526,7 @@ function Get-ImagemDoUtilizador {
     if (-not (Confirm-Accao 'Continuar com esta imagem?')) { return $null }
 
     # --- a familia, que decide o arranque ----------------------------------
-    # PT-PT: Não e cosmética. Em Hyper-V, decide o modelo de Arranque Seguro --
+    # PT-PT: Não é cosmética. Em Hyper-V, decide o modelo de Arranque Seguro --
     #        e uma imagem de Linux com o modelo da Microsoft não arranca, sem
     #        dizer porque.
     # EN-UK: Not cosmetic. On Hyper-V it decides the Secure Boot template, and a
@@ -809,7 +809,7 @@ function Invoke-PreparacaoHipervisor {
 
         Write-Host ''
         # PT-PT: Não há segunda pergunta. Escolher "activar o Hyper-V" num menu
-        #        que diz "activar o Hyper-V" já e a resposta -- perguntar outra
+        #        que diz "activar o Hyper-V" já é a resposta -- perguntar outra
         #        vez não acrescenta decisão nenhuma, só ruído. O que se faz e
         #        dizer o que vai acontecer, que é diferente de pedir licença.
         # EN-UK: There is no second question. Choosing "enable Hyper-V" from a
@@ -849,7 +849,7 @@ function Invoke-PreparacaoHipervisor {
     Write-Host '  essa não se aplica aqui, e o relatório vai dizê-lo.' -ForegroundColor DarkYellow
     Write-Host ''
 
-    # PT-PT: A única pergunta desta operação. E aqui e mesmo uma pergunta, e não
+    # PT-PT: A única pergunta desta operação. E aqui é mesmo uma pergunta, e não
     #        uma confirmação a fingir: o sítio importa em máquinas onde o disco
     #        do sistema esta cheio, que são muitas.
     # EN-UK: The only question in this operation. And here it is a real one, not
@@ -1527,7 +1527,7 @@ function Show-Menu {
 #        e dito no princípio e repetido em caso de erro.
 #
 #        O `Start-Transcript` apanha o `Write-Host` desde o PowerShell 5, o que
-#        quer dizer que o que fica no ficheiro e exactamente o que apareceu no
+#        quer dizer que o que fica no ficheiro é exactamente o que apareceu no
 #        ecrã, e não uma versão resumida.
 #
 #        Vai para o `LOCALAPPDATA` e não para a pasta das máquinas, por duas

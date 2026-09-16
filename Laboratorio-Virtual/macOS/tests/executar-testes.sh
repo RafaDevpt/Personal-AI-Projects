@@ -3,7 +3,7 @@
 # PT-PT: Testes do Laboratório Virtual, versão de macOS.
 #
 #        Nenhum teste toca na rede, cria uma máquina virtual ou instala seja o
-#        que for. Não e limitação: e o desenho. O que interessa provar aqui e o
+#        que for. Não é limitação: e o desenho. O que interessa provar aqui e o
 #        que decide -- se um domínio passa, se um manifesto e lido como deve, se
 #        a recomendação faz a conta certa -- e nada disso precisa de um
 #        hipervisor a responder.
@@ -275,7 +275,7 @@ t_binario_novo()  { afirmar_igual 'qemu-system-x86_64' "$(binario_qemu 'coisa')"
 
 # PT-PT: Num Apple Silicon, o QEMU acelerado só corre convidados ARM. Uma imagem
 #        de x86_64 corre por emulacao pura -- dez a vinte vezes mais devagar.
-#        Este e o cálculo que decide se o utilizador e avisado antes de
+#        Este é o cálculo que decide se o utilizador e avisado antes de
 #        descarregar três gigabytes.
 t_acelera_igual()    { acelera 'arm64' 'arm64'; }
 t_acelera_intel()    { acelera 'x86_64' 'x86_64'; }
@@ -425,7 +425,7 @@ t_vbox_vdi()        { formato_suportado '.vdi' 'virtualbox' >/dev/null; }
 t_vbox_ova()        { formato_suportado '.ova' 'virtualbox' >/dev/null; }
 t_vbox_sem_qcow()   { ! formato_suportado '.qcow2' 'virtualbox' >/dev/null; }
 
-# PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+# PT-PT: Uma mensagem que só diz "não é suportado" deixa a pessoa no mesmo
 #        sítio. Uma que diz o comando resolve-lhe o problema.
 t_diz_como_converter() {
     local s; s="$(formato_suportado '.qcow2' 'virtualbox' || true)"
@@ -528,7 +528,7 @@ t_img_sem_assinatura() {
 t_sem_ficheiro_assinatura() { ! assinatura_ficheiro "${TMP}/nada.iso" >/dev/null; }
 
 # PT-PT: Não encontrar a marca de origem não quer dizer que o ficheiro seja de
-#        confiança; quer dizer que o sistema não sabe. E a mesma diferença que o
+#        confiança; quer dizer que o sistema não sabe. É a mesma diferença que o
 #        resto do programa faz entre "não encontrei" e "não consegui olhar".
 t_origem_desconhecida() {
     local s; s="$(origem_ficheiro "$ISO_BOA" || true)"
@@ -715,7 +715,7 @@ fi
 
 grupo 'Homebrew'
 
-# PT-PT: Este programa recusa-se a instalar o Homebrew, e a razão e a mesma que
+# PT-PT: Este programa recusa-se a instalar o Homebrew, e a razão é a mesma que
 #        o levou a existir: instala-se passando um script da Internet
 #        directamente a um interpretador. Não seria coerente recusar esse padrão
 #        com imagens e aceita-lo com o resto.
@@ -762,7 +762,7 @@ t_parallels_deteccao() {
     # PT-PT: A pergunta e pelo `prlctl` e não pela aplicação: a aplicação pode
     #        estar instalada com as ferramentas de linha de comandos por
     #        instalar, e nesse caso este programa não lhe consegue tocar -- que
-    #        e a mesma coisa, do ponto de vista de quem esta a decidir.
+    #        é a mesma coisa, do ponto de vista de quem esta a decidir.
     # EN-UK: The question is about `prlctl`, not the application: the
     #        application can be installed with its command-line tools missing.
     if command -v prlctl >/dev/null 2>&1; then estado_parallels; else ! estado_parallels; fi

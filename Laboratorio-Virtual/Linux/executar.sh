@@ -8,7 +8,7 @@
 #        máquinas -- e ver a lista de imagens e as especificações recomendadas
 #        continua a valer a pena antes de instalar seja o que for.
 #
-#        Sobre o sudo: não se pede aqui, e e de propósito. Só a criação da
+#        Sobre o sudo: não se pede aqui, e é de propósito. Só a criação da
 #        máquina precisa de permissões, e essas resolvem-se com os grupos `kvm`
 #        e `libvirt` -- que é a forma certa -- e não correndo o programa todo
 #        como root. Um programa que corre como root para fazer o que podia fazer

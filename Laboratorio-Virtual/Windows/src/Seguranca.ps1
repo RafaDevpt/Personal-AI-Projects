@@ -53,7 +53,7 @@
 
 Set-StrictMode -Version Latest
 
-# PT-PT: O agente de utilizador identifica a ferramenta. Não e cosmética: um
+# PT-PT: O agente de utilizador identifica a ferramenta. Não é cosmética: um
 #        administrador de espelho que veja tráfego estranho consegue perceber o
 #        que o gerou, e há projectos que bloqueiam clientes sem identificação.
 # EN-UK: The user agent identifies the tool. Not cosmetic: a mirror
@@ -204,7 +204,7 @@ function Invoke-DescarregamentoSeguro {
     #        verificação estava a falhar em servidores que este programa lista.
     #
     #        O `HttpWebRequest` com `AllowAutoRedirect = $false` devolve o 3xx
-    #        como uma resposta **normal**, com os cabeçalhos acessíveis. Não e
+    #        como uma resposta **normal**, com os cabeçalhos acessíveis. Não é
     #        só um remendo: e mais explicito do que o que ca estava, porque cada
     #        salto passa a ser um objecto que se inspecciona em vez de uma
     #        excepção que se apanha.
@@ -335,7 +335,7 @@ function Invoke-DescarregamentoSeguro {
                     #        parcial. Ele nunca passaria na soma -- mas deixa-lo
                     #        no disco e deixar uma armadilha para quem o
                     #        encontrar mais tarde e não souber de onde veio, que
-                    #        e a mesma regra que se aplica a um ficheiro que
+                    #        é a mesma regra que se aplica a um ficheiro que
                     #        falha a verificação. Sai.
                     # EN-UK: A connection cut halfway leaves a partial file. It
                     #        would never pass the checksum -- but leaving it on
@@ -461,7 +461,7 @@ function Test-SomaFicheiro {
         PT-PT: A comparação ignora maiúsculas, porque os manifestos não são
                consistentes entre projectos, e não aceita uma soma vazia: uma
                comparação contra vazio devolveria verdadeiro em algumas
-               implementações distraidas, e este e o passo que não pode falhar.
+               implementações distraidas, e este é o passo que não pode falhar.
         EN-UK: The comparison is case-insensitive, because manifests are not
                consistent between projects, and rejects an empty checksum: a
                comparison against nothing returns true in some careless
@@ -645,13 +645,13 @@ function Test-AssinaturaGpg {
 
     .DESCRIPTION
         PT-PT: Corre num porta-chaves próprio e temporário, e não no do
-               utilizador. Não e arrumação: importar chaves de projectos para o
+               utilizador. Não é arrumação: importar chaves de projectos para o
                porta-chaves pessoal de alguém muda a confiança dele para coisas
                que nada tem a ver com este programa, e e um efeito secundário
                que uma ferramenta não deve ter.
 
                A impressão digital fixada, quando existe, e uma condição e não
-               um aviso. Uma assinatura válida de uma chave errada e exactamente
+               um aviso. Uma assinatura válida de uma chave errada é exactamente
                o que um atacante com um catálogo adulterado produziria.
 
         EN-UK: It runs on its own temporary keyring rather than the user's.

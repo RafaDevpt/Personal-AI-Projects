@@ -2,7 +2,7 @@
 # ===========================================================================
 # PT-PT: Laboratório Virtual — criação assistida de máquinas virtuais em Linux.
 #
-#        Esta e a versão para Linux. Há outras duas, completas e independentes,
+#        Esta é a versão para Linux. Há outras duas, completas e independentes,
 #        nas pastas `Windows/` e `macOS/` ao lado desta.
 #
 #        O programa faz quatro coisas, por esta ordem: olha para a máquina,
@@ -451,7 +451,7 @@ mostrar_camada() {
 # ---------------------------------------------------------------------------
 # PT-PT: Conduz a escolha de uma imagem que o utilizador já tem.
 #
-#        Esta e a porta que fica fora da cadeia de verificação, e por isso é a
+#        Esta é a porta que fica fora da cadeia de verificação, e por isso é a
 #        que tem de ser mais clara sobre o que não garante. O programa mostra
 #        tudo o que consegue descobrir -- de onde o ficheiro veio, se o conteúdo
 #        corresponde a extensão, se a soma confere -- e depois pergunta. A
@@ -850,7 +850,7 @@ criar_maquina() {
     # --- onde fica a imagem --------------------------------------------------
     # PT-PT: Perguntado agora, e não no fim: uma imagem de sistema operativo
     #        anda pelos três a cinco gigabytes, e a partição onde a pasta pessoal
-    #        esta e, em muitas máquinas, a que não tem espaço. Dizer isto depois
+    #        esta é, em muitas máquinas, a que não tem espaço. Dizer isto depois
     #        de descarregar seria dizer tarde.
     # EN-UK: Asked now, not at the end: an operating-system image runs to three
     #        or five gigabytes, and the partition holding the home directory is,
@@ -1056,7 +1056,7 @@ mostrar_diagnostico() {
 #
 #        Separa duas coisas que se confundem: estar instalado e estar a
 #        responder. O serviço parado da um erro diferente de não estar
-#        instalado, e a solução também e outra.
+#        instalado, e a solução também é outra.
 # EN-UK: Shows what Docker is here; returns 0 when it answers. Installed and
 #        answering are different problems with different fixes.
 # ---------------------------------------------------------------------------

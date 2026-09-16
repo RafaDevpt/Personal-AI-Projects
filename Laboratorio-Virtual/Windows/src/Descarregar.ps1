@@ -313,9 +313,9 @@ function Test-FicheiroLocal {
                automaticamente -- as da Microsoft, por exemplo, que exigem um
                formulário. O utilizador descarrega do sítio oficial, copia a
                soma que a própria página mostra, e este passo confirma que o
-               ficheiro que ficou no disco e mesmo aquele.
+               ficheiro que ficou no disco é mesmo aquele.
 
-               Não e tão forte como a verificação completa, e o programa não
+               Não é tão forte como a verificação completa, e o programa não
                finge que é: a soma vem da mesma página de onde veio o ficheiro.
                E, ainda assim, apanha um descarregamento truncado e um ficheiro
                trocado a meio do caminho.

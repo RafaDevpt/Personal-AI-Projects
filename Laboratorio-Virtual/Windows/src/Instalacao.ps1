@@ -553,7 +553,7 @@ function Install-VirtualBox {
         Write-Host "        destino  $pastaFinal" -ForegroundColor DarkGray
     }
     else {
-        # PT-PT: Sem `INSTALLDIR`, e de propósito: ver `Test-PastaInstalacaoSimples`.
+        # PT-PT: Sem `INSTALLDIR`, é de propósito: ver `Test-PastaInstalacaoSimples`.
         # EN-UK: No `INSTALLDIR`, deliberately: see `Test-PastaInstalacaoSimples`.
         Write-Host "        destino  $pastaFinal  (o do próprio instalador)" -ForegroundColor DarkGray
     }

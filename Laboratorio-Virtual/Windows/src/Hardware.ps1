@@ -112,7 +112,7 @@ function Get-PerfilAnfitriao {
 
     # PT-PT: Sem núcleos físicos legíveis, os lógicos servem de aproximação. E
     #        uma sobrestimativa quando há hyper-threading, e por isso o
-    #        recomendador tira sempre um núcleo -- mas e melhor do que zero, que
+    #        recomendador tira sempre um núcleo -- mas é melhor do que zero, que
     #        bloquearia o cálculo todo.
     # EN-UK: With no readable physical cores, the logical ones approximate. An
     #        overestimate where hyper-threading exists, hence the recommender

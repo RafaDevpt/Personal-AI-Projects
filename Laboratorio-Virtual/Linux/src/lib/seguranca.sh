@@ -27,7 +27,7 @@
 #        imagem do Linux Mint, que só existe em espelhos, e tão verificável
 #        como a do Ubuntu.
 #
-#        **O nome do ficheiro nunca e inventado.** Sai do manifesto, que é o
+#        **O nome do ficheiro nunca é inventado.** Sai do manifesto, que é o
 #        documento assinado.
 #
 # EN-UK: Verified downloading. This program's security boundary.
@@ -214,7 +214,7 @@ ler_manifesto() {
 # PT-PT: Compara a soma SHA-256 de um ficheiro com a esperada.
 #
 #        Não aceita uma soma vazia: uma comparação contra vazio devolveria
-#        verdadeiro em algumas implementações distraidas, e este e o passo que
+#        verdadeiro em algumas implementações distraidas, e este é o passo que
 #        não pode falhar.
 #
 # EN-UK: Compares a file's SHA-256 against the expected one. It rejects an empty
@@ -238,13 +238,13 @@ soma_confere() {
 #        de quem o assinou.
 #
 #        Corre num porta-chaves próprio e temporário, e não no do utilizador.
-#        Não e arrumação: importar chaves de projectos para o porta-chaves
+#        Não é arrumação: importar chaves de projectos para o porta-chaves
 #        pessoal de alguém muda a confiança dele para coisas que nada tem a ver
 #        com este programa, e e um efeito secundário que uma ferramenta não deve
 #        ter.
 #
 #        A impressão digital fixada, quando existe, e uma condição e não um
-#        aviso. Uma assinatura válida de uma chave errada e exactamente o que um
+#        aviso. Uma assinatura válida de uma chave errada é exactamente o que um
 #        atacante com um catálogo adulterado produziria.
 #
 #        A decisão e tomada sobre o `--status-fd`, que da linhas estáveis feitas

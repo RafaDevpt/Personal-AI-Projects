@@ -165,7 +165,7 @@ tipo_virtualbox() {
 # ---------------------------------------------------------------------------
 # PT-PT: Cria uma máquina virtual com o libvirt.
 #
-#        O `--noautoconsole` e deliberado: sem ele, o `virt-install` abre uma
+#        O `--noautoconsole` é deliberado: sem ele, o `virt-install` abre uma
 #        consola e fica la agarrado até a instalação acabar, e o programa que o
 #        chamou parece bloqueado. Assim cria a máquina, devolve o controlo, e
 #        quem quiser ver liga-se com o `virt-viewer`.
@@ -177,7 +177,7 @@ tipo_virtualbox() {
 #        deliberate: without it `virt-install` attaches a console and stays
 #        there until the install finishes, and the calling program looks hung.
 #
-#        E o `--import` e o que trata de uma imagem que já e um disco: diz ao
+#        E o `--import` e o que trata de uma imagem que já é um disco: diz ao
 #        virt-install para saltar a instalação e arrancar o que la esta. Sem
 #        ele, o libvirt cria a máquina a espera de um instalador que não existe
 #        e o utilizador vê um "no bootable device" sem perceber porque.

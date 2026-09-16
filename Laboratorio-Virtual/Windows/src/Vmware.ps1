@@ -191,7 +191,7 @@ function Get-TipoVMware {
 
     .DESCRIPTION
         PT-PT: Ver o cabeçalho: este campo decide o controlador de disco, o
-               relógio e a placa de rede sugerida. Não e uma etiqueta.
+               relógio e a placa de rede sugerida. Não é uma etiqueta.
         EN-UK: See the header: this field decides the disk controller, the clock
                and the suggested network card. It is not a label.
     #>

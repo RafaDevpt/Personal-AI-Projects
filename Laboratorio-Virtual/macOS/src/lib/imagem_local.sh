@@ -17,7 +17,7 @@
 #        **Perguntar de onde veio.** E aqui que o macOS ganha aos outros dois:
 #        o Gatekeeper põe uma quarentena em tudo o que é descarregado, e o
 #        Spotlight guarda ao lado o endereço de onde veio, no atributo
-#        `com.apple.metadata:kMDItemWhereFroms`. Não e um texto -- e um plist
+#        `com.apple.metadata:kMDItemWhereFroms`. Não é um texto -- e um plist
 #        binário, e por isso passa pelo `plutil` para se conseguir ler.
 #
 #        Mostrar o endereço ao utilizador e a forma mais directa de ele reparar
@@ -28,7 +28,7 @@
 #        fornecedor, compara-se. Se não tiver, diz-se o que isso significa.
 #
 #        **Confirmar que o ficheiro e o que parece.** Uma ISO começa por `CD001`
-#        no sector 16; um qcow2 começa por `QFI\xfb`. Não e uma medida de
+#        no sector 16; um qcow2 começa por `QFI\xfb`. Não é uma medida de
 #        segurança -- quem adultera um ficheiro também lhe põe a assinatura
 #        certa -- mas apanha o engano honesto: o `.zip` que ainda não foi
 #        extraído, o descarregamento que ficou a meio, o ficheiro errado.
@@ -59,7 +59,7 @@
 # ---------------------------------------------------------------------------
 # PT-PT: Como e que este ficheiro se liga a uma máquina virtual.
 #
-#        Decide pela extensão, e não pelo conteúdo. E deliberado: a extensão e o
+#        Decide pela extensão, e não pelo conteúdo. É deliberado: a extensão e o
 #        que o utilizador escolheu chamar ao ficheiro, e uma `.qcow2` com nome
 #        de `.iso` e um problema para resolver com ele e não para adivinhar em
 #        silêncio. A assinatura serve depois, para confirmar que as duas coisas
@@ -107,7 +107,7 @@ extensao_de() {
 #        VirtualBox e mais estreito, e não lê `.qcow2` de forma fiável.
 #
 #        Devolve 0 quando serve. Quando não serve, escreve o comando de
-#        conversão: uma mensagem que só diz "não e suportado" deixa a pessoa no
+#        conversão: uma mensagem que só diz "não é suportado" deixa a pessoa no
 #        mesmo sítio.
 #
 # EN-UK: Whether a hypervisor can attach this format without conversion. QEMU is

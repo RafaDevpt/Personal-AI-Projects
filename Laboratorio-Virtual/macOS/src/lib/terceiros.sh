@@ -378,7 +378,7 @@ criar_maquina_parallels() {
     # PT-PT: A rede em modo partilhado e o NAT da Parallels: a máquina alcança a
     #        Internet e não é alcançável a partir da rede local. O modo `bridged`
     #        poria a máquina de laboratório directamente na rede da empresa, que
-    #        raramente e o que se quer e nunca e o que se espera.
+    #        raramente é o que se quer e nunca é o que se espera.
     # EN-UK: Shared networking is Parallels' NAT. `bridged` would put a lab
     #        machine straight onto the company network.
     prlctl set "$nome" --device-set net0 --type shared >/dev/null 2>&1 || true

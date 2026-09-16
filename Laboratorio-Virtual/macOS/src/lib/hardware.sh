@@ -21,7 +21,7 @@
 #        soma, e falha exactamente no passo que não pode falhar.
 #
 #        **O `kern.hv_support` responde a pergunta toda.** Ao contrário do
-#        Linux, onde e preciso cruzar os sinalizadores do processador com o
+#        Linux, onde é preciso cruzar os sinalizadores do processador com o
 #        `/dev/kvm` e com os grupos do utilizador, o macOS tem um único valor
 #        que diz se a Hypervisor.framework esta disponível. Vale 1 em qualquer
 #        Mac com chip da Apple e em qualquer Intel razoavelmente recente.

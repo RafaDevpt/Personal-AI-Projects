@@ -225,7 +225,7 @@ carregar_catalogo_servicos() {
 #
 #        Separa duas coisas que se confundem: estar instalado e estar a
 #        responder. O serviço parado da um erro diferente de não estar
-#        instalado, e a solução também e outra.
+#        instalado, e a solução também é outra.
 # EN-UK: Reports Docker's state as three tab-separated fields. Installed and
 #        answering are different problems with different fixes.
 # ---------------------------------------------------------------------------

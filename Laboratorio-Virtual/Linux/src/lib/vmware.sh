@@ -91,7 +91,7 @@ versao_vmware() {
 #        Este campo não é uma etiqueta: e ele que decide o controlador de disco,
 #        o relógio e a placa de rede que a VMware configura. Um Ubuntu criado
 #        como `other-64` arranca com metade das definições erradas, e a lentidão
-#        que daqui resulta nunca e associada a este campo.
+#        que daqui resulta nunca é associada a este campo.
 #
 # EN-UK: Maps the catalogue family to VMware's `guestOS`. Not a label: it
 #        decides the disk controller, the clock and the network card.

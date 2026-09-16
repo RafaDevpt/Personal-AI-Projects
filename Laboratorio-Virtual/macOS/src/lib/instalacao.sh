@@ -25,7 +25,7 @@
 #        duas verificam-se contra a cadeia de certificados **da Apple**, que não
 #        veio da Oracle.
 #
-#        E a única camada desta cadeia que não depende do canal que trouxe o
+#        É a única camada desta cadeia que não depende do canal que trouxe o
 #        ficheiro. Por isso é uma condição e não um aviso: não passa, apaga-se.
 #
 #        **Nota sobre o bash.** Este ficheiro corre no bash 3.2, que é o que a
@@ -212,8 +212,8 @@ assinatura_pacote_confere() {
 #        licença, e aqui não se pede.
 #
 #        **Não há confirmação.** Escolher "instalar o QEMU" num menu que diz
-#        "instalar o QEMU" já e a resposta; perguntar outra vez não acrescenta
-#        decisão nenhuma, só ruído. E o `sudo`, quando aparece, já e uma paragem
+#        "instalar o QEMU" já é a resposta; perguntar outra vez não acrescenta
+#        decisão nenhuma, só ruído. E o `sudo`, quando aparece, já é uma paragem
 #        a sério -- ao contrário de um [s/N], pede uma coisa que só quem tem o
 #        Mac sabe.
 #
@@ -328,7 +328,7 @@ instalar_virtualbox() {
 
     local arq; arq="$(arquitectura)"
 
-    # PT-PT: A Oracle passou a publicar uma versão para Apple Silicon. Não e
+    # PT-PT: A Oracle passou a publicar uma versão para Apple Silicon. Não é
     #        oferecida aqui, e a razão não é a de haver ou não ficheiro: num
     #        anfitrião ARM só há aceleração por hardware para convidados ARM, e
     #        quem procura o VirtualBox procura-o quase sempre para correr um

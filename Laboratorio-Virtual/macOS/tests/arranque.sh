@@ -2,10 +2,10 @@
 # ===========================================================================
 # PT-PT: Arranque de testes mínimo, sem dependências.
 #
-#        Não usa `bats`, e a razão e a mesma que levou a versão de Windows a não
+#        Não usa `bats`, e a razão é a mesma que levou a versão de Windows a não
 #        usar Pester: um projecto que se descreve como "uma pasta e um lancador"
 #        não pode começar por pedir que se instale um arranque de testes. O
-#        `bats` e melhor do que isto em quase tudo -- só perde em não estar ca.
+#        `bats` é melhor do que isto em quase tudo -- só perde em não estar ca.
 #
 #        O que se perde e o relatório bonito e a paralelizacao. O que se ganha e
 #        que isto corre em qualquer máquina com bash, sem rede, sem instalar

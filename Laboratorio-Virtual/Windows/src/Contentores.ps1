@@ -266,7 +266,7 @@ function Get-EstadoDocker {
         PT-PT: Separa duas coisas que se confundem: estar instalado e estar a
                responder. O Docker Desktop instalado mas parado da um erro
                completamente diferente de não estar instalado, e a solução
-               também e outra -- num caso abre-se a aplicação, no outro
+               também é outra -- num caso abre-se a aplicação, no outro
                instala-se.
         EN-UK: It separates two things people conflate: being installed and
                answering. Installed-but-stopped needs a different fix from
@@ -323,7 +323,7 @@ function New-PalavraPasse {
 
     .DESCRIPTION
         PT-PT: Usa o geração criptografica do sistema e não o `Get-Random`, que
-               e previsível a partir da semente. Sai sem caracteres que dão
+               é previsível a partir da semente. Sai sem caracteres que dão
                problemas quando a linha passa por uma shell.
         EN-UK: Uses the system's cryptographic generator rather than
                `Get-Random`, which is seed-predictable. Shell-safe alphabet.

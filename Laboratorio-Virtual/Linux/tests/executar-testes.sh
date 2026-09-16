@@ -3,7 +3,7 @@
 # PT-PT: Testes do Laboratório Virtual, versão de Linux.
 #
 #        Nenhum teste toca na rede, cria uma máquina virtual ou instala seja o
-#        que for. Não e limitação: e o desenho. O que interessa provar aqui e o
+#        que for. Não é limitação: e o desenho. O que interessa provar aqui e o
 #        que decide -- se um domínio passa, se um manifesto e lido como deve, se
 #        a recomendação faz a conta certa -- e nada disso precisa de um
 #        hipervisor a responder.
@@ -412,7 +412,7 @@ t_vbox_vdi()        { formato_suportado '.vdi' 'virtualbox' >/dev/null; }
 t_vbox_ova()        { formato_suportado '.ova' 'virtualbox' >/dev/null; }
 t_vbox_sem_qcow()   { ! formato_suportado '.qcow2' 'virtualbox' >/dev/null; }
 
-# PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+# PT-PT: Uma mensagem que só diz "não é suportado" deixa a pessoa no mesmo
 #        sítio. Uma que diz o comando resolve-lhe o problema.
 t_diz_como_converter() {
     local s; s="$(formato_suportado '.qcow2' 'virtualbox' || true)"
@@ -503,7 +503,7 @@ t_img_sem_assinatura() {
 t_sem_ficheiro_assinatura() { ! assinatura_ficheiro "${TMP}/nada.iso" >/dev/null; }
 
 # PT-PT: Não encontrar a marca de origem não quer dizer que o ficheiro seja de
-#        confiança; quer dizer que o sistema não sabe. E a mesma diferença que o
+#        confiança; quer dizer que o sistema não sabe. É a mesma diferença que o
 #        resto do programa faz entre "não encontrei" e "não consegui olhar".
 t_origem_desconhecida() {
     local s; s="$(origem_ficheiro "$ISO_BOA" || true)"
@@ -539,7 +539,7 @@ t_versao_com_fim()  { afirmar_igual '7.2.16' "$(versao_valida '7.2.16
 ')"; }
 t_versao_vazia()    { ! versao_valida '' >/dev/null 2>&1; }
 
-# PT-PT: Este e o teste que interessa deste grupo. O texto vem do servidor da
+# PT-PT: Este é o teste que interessa deste grupo. O texto vem do servidor da
 #        Oracle e vai ser colado dentro de um URL; se passasse uma barra ou um
 #        `..`, o endereço deixava de apontar para onde o programa julga.
 # EN-UK: The test that matters here. The text comes from Oracle's server and
@@ -753,7 +753,7 @@ t_tipo_kali()   { afirmar_igual 'debian12-64' "$(tipo_vmware 'kali-2024' 'linux'
 
 # PT-PT: Este campo decide o controlador de disco e o relógio. Cair em
 #        `other-64` quando se sabe que é Linux seria criar uma máquina com
-#        metade das definições erradas -- e a lentidão que daqui resulta nunca e
+#        metade das definições erradas -- e a lentidão que daqui resulta nunca é
 #        associada a este campo.
 # EN-UK: This field decides the disk controller and the clock. Falling to
 #        `other-64` when Linux is known would create a machine with half its

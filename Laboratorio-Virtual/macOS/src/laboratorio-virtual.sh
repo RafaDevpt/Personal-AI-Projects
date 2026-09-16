@@ -2,7 +2,7 @@
 # ===========================================================================
 # PT-PT: Laboratório Virtual — criação assistida de máquinas virtuais em macOS.
 #
-#        Esta e a versão para macOS. Há outras duas, completas e independentes,
+#        Esta é a versão para macOS. Há outras duas, completas e independentes,
 #        nas pastas `Windows/` e `Linux/` ao lado desta.
 #
 #        **Escrita para o bash 3.2**, que é o que um Mac traz. Nada de
@@ -119,7 +119,7 @@ mostrar_hipervisores() {
     fi
 
     if apple_silicon; then
-        # PT-PT: Não e teimosia. A pré-visualização do VirtualBox para Apple
+        # PT-PT: Não é teimosia. A pré-visualização do VirtualBox para Apple
         #        Silicon e uma pré-visualização há anos, e oferece-la e deixar
         #        alguém perder uma tarde a perceber porque e que não arranca.
         # EN-UK: Not stubbornness. Oracle's Apple Silicon preview has been a
@@ -492,7 +492,7 @@ mostrar_camada() {
 # ---------------------------------------------------------------------------
 # PT-PT: Conduz a escolha de uma imagem que o utilizador já tem.
 #
-#        Esta e a porta que fica fora da cadeia de verificação, e por isso é a
+#        Esta é a porta que fica fora da cadeia de verificação, e por isso é a
 #        que tem de ser mais clara sobre o que não garante. O programa mostra
 #        tudo o que consegue descobrir -- de onde o ficheiro veio, se o conteúdo
 #        corresponde a extensão, se a soma confere -- e depois pergunta. A
@@ -1148,7 +1148,7 @@ mostrar_diagnostico() {
 #
 #        Separa duas coisas que se confundem: estar instalado e estar a
 #        responder. O serviço parado da um erro diferente de não estar
-#        instalado, e a solução também e outra.
+#        instalado, e a solução também é outra.
 # EN-UK: Shows what Docker is here; returns 0 when it answers. Installed and
 #        answering are different problems with different fixes.
 # ---------------------------------------------------------------------------
