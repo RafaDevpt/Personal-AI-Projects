@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Arranque do Laboratorio Virtual em Linux.
+# PT-PT: Arranque do Laboratório Virtual em Linux.
 #
-#        Este lancador nao instala nada e nao pede sudo. Verifica o que falta,
-#        diz o comando de instalacao **da distribuicao onde esta a correr**, e
-#        arranca na mesma: o programa corre sem hipervisor nenhum, so nao cria
-#        maquinas -- e ver a lista de imagens e as especificacoes recomendadas
+#        Este lancador não instala nada e não pede sudo. Verifica o que falta,
+#        diz o comando de instalação **da distribuição onde esta a correr**, e
+#        arranca na mesma: o programa corre sem hipervisor nenhum, só não cria
+#        máquinas -- e ver a lista de imagens e as especificações recomendadas
 #        continua a valer a pena antes de instalar seja o que for.
 #
-#        Sobre o sudo: nao se pede aqui, e e de proposito. So a criacao da
-#        maquina precisa de permissoes, e essas resolvem-se com os grupos `kvm`
-#        e `libvirt` -- que e a forma certa -- e nao correndo o programa todo
+#        Sobre o sudo: não se pede aqui, e e de propósito. Só a criação da
+#        máquina precisa de permissões, e essas resolvem-se com os grupos `kvm`
+#        e `libvirt` -- que é a forma certa -- e não correndo o programa todo
 #        como root. Um programa que corre como root para fazer o que podia fazer
-#        sem isso e um habito que se paga mais tarde.
+#        sem isso é um hábito que se paga mais tarde.
 #
 # EN-UK: Virtual Lab launcher for Linux.
 #

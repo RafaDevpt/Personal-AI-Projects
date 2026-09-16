@@ -1,42 +1,42 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Preparar um hipervisor que ainda nao esta pronto a usar.
+    PT-PT: Preparar um hipervisor que ainda não esta pronto a usar.
     EN-UK: Preparing a hypervisor that is not ready yet.
 
 .DESCRIPTION
     PT-PT
-    Ate aqui, quando nao havia hipervisor nenhum, o programa dizia-o e dava um
-    endereco. Isso e deixar a pessoa a meio: o que ela queria era uma maquina
+    Até aqui, quando não havia hipervisor nenhum, o programa dizia-o e dava um
+    endereço. Isso é deixar a pessoa a meio: o que ela queria era uma máquina
     virtual, e ficou com um separador do navegador aberto.
 
     Este ficheiro fecha esse buraco. O Hyper-V activa-se; o VirtualBox
     descarrega-se e instala-se.
 
-    **E aqui ha um problema que nao existia no resto do programa.** As
-    distribuicoes do catalogo assinam os manifestos das somas com GPG, e e por
-    isso que a cadeia de verificacao tem quatro camadas. A Oracle **nao o faz**:
+    **E aqui há um problema que não existia no resto do programa.** As
+    distribuições do catálogo assinam os manifestos das somas com GPG, e e por
+    isso que a cadeia de verificação tem quatro camadas. A Oracle **não o faz**:
     o `SHA256SUMS` do VirtualBox e um ficheiro simples, sem assinatura em claro e
     sem `.asc` ao lado, na mesma directoria de onde vem o instalador. Uma soma
-    obtida pelo mesmo canal do ficheiro nao prova que o ficheiro e o da Oracle --
+    obtida pelo mesmo canal do ficheiro não prova que o ficheiro e o da Oracle --
     prova que chegou inteiro.
 
-    Fingir que sao quatro camadas seria a unica mentira que este programa conta,
-    e no sitio onde ela custaria mais caro. Por isso a camada da assinatura
-    aparece com `[--]`, com a razao escrita ao lado.
+    Fingir que são quatro camadas seria a única mentira que este programa conta,
+    e no sítio onde ela custaria mais caro. Por isso a camada da assinatura
+    aparece com `[--]`, com a razão escrita ao lado.
 
-    **O que salva o caso e uma coisa que so o Windows sabe fazer.** O instalador
+    **O que salva o caso e uma coisa que só o Windows sabe fazer.** O instalador
     da Oracle e assinado com Authenticode, e essa assinatura verifica-se contra a
-    cadeia de certificados do Windows -- que **nao** veio da Oracle. E a unica
-    camada desta cadeia que nao depende do mesmo canal que trouxe o ficheiro, e
-    e por isso que aqui e obrigatoria e nao um aviso: um instalador que nao passe
+    cadeia de certificados do Windows -- que **não** veio da Oracle. E a única
+    camada desta cadeia que não depende do mesmo canal que trouxe o ficheiro, e
+    é por isso que aqui e obrigatória e não um aviso: um instalador que não passe
     e apagado.
 
-    A versao e o nome do ficheiro nao estao escritos em lado nenhum deste
-    programa. A versao vem do `LATEST.TXT` da Oracle, e o nome sai do manifesto,
-    exactamente pela mesma razao que o resto do programa nunca inventa um nome:
-    o numero de compilacao (`174877` na 7.2.16) muda a cada versao e um nome
-    fixado aqui estaria errado dentro de um mes -- e um nome errado nao se
+    A versão e o nome do ficheiro não estão escritos em lado nenhum deste
+    programa. A versão vem do `LATEST.TXT` da Oracle, e o nome sai do manifesto,
+    exactamente pela mesma razão que o resto do programa nunca inventa um nome:
+    o número de compilação (`174877` na 7.2.16) muda a cada versão e um nome
+    fixado aqui estaria errado dentro de um mês -- e um nome errado não se
     distingue de um ataque.
 
     EN-UK
@@ -75,17 +75,17 @@ Set-StrictMode -Version Latest
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Lista de dominios **propria**, separada da do catalogo de propósito.
+# PT-PT: Lista de domínios **própria**, separada da do catálogo de propósito.
 #
-#        A tentacao era juntar `download.virtualbox.org` a lista do catalogo e
+#        A tentacao era juntar `download.virtualbox.org` a lista do catálogo e
 #        acabar. Isso alargaria a lista por onde se descarregam **imagens de
-#        sistemas operativos** para incluir um sitio que nao serve imagens de
-#        sistemas operativos -- e a lista do catalogo e curta precisamente para
+#        sistemas operativos** para incluir um sítio que não serve imagens de
+#        sistemas operativos -- e a lista do catálogo e curta precisamente para
 #        caber numa auditoria de um minuto.
 #
-#        Duas listas separadas querem dizer que um catalogo adulterado nao
+#        Duas listas separadas querem dizer que um catálogo adulterado não
 #        consegue mandar buscar um "instalador de hipervisor" a lado nenhum, e
-#        que este ficheiro nao consegue descarregar uma ISO.
+#        que este ficheiro não consegue descarregar uma ISO.
 #
 # EN-UK: A **separate** domain list, deliberately not the catalogue's. Merging
 #        them would widen the list used for operating-system images to include a
@@ -101,8 +101,8 @@ $script:DominiosVirtualBox = @(
 
 $script:BaseVirtualBox = 'https://download.virtualbox.org/virtualbox'
 
-# PT-PT: O nome no certificado do instalador. A comparacao e feita contra o
-#        campo `Subject` da assinatura Authenticode e nao contra o nome do
+# PT-PT: O nome no certificado do instalador. A comparação e feita contra o
+#        campo `Subject` da assinatura Authenticode e não contra o nome do
 #        ficheiro, que qualquer um escolhe.
 # EN-UK: The name on the installer's certificate. Compared against the
 #        Authenticode signature's `Subject`, not the filename, which anybody
@@ -113,7 +113,7 @@ $script:AssinanteVirtualBox = 'Oracle'
 function Get-DominiosVirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Os dominios de onde este ficheiro aceita descarregar.
+        PT-PT: Os domínios de onde este ficheiro aceita descarregar.
         EN-UK: The domains this file accepts downloading from.
     #>
     [CmdletBinding()]
@@ -126,18 +126,18 @@ function Get-DominiosVirtualBox {
 function Read-VersaoVirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Le a versao do conteudo do `LATEST.TXT`.
+        PT-PT: Lê a versão do conteúdo do `LATEST.TXT`.
         EN-UK: Reads the version out of `LATEST.TXT`'s content.
 
     .DESCRIPTION
         PT-PT: Separada do descarregamento para se poder testar sem rede, e
                porque o que ela faz e mais delicado do que parece: este texto
-               vem de fora e vai ser **colado num endereco**. Se passasse
-               `../..` ou uma barra, o endereco resultante deixava de apontar
+               vem de fora e vai ser **colado num endereço**. Se passasse
+               `../..` ou uma barra, o endereço resultante deixava de apontar
                para onde este programa pensa que aponta.
 
-               Por isso a validacao nao e "tem la um numero": e a linha inteira
-               tem de ser tres numeros separados por pontos, e nada mais.
+               Por isso a validação não é "tem la um número": e a linha inteira
+               tem de ser três números separados por pontos, e nada mais.
 
         EN-UK: Kept apart from the download so it can be tested offline, and
                because it does something more delicate than it looks: this text
@@ -164,16 +164,16 @@ function Read-VersaoVirtualBox {
 function Get-PadraoInstalador {
     <#
     .SYNOPSIS
-        PT-PT: A expressao que identifica o instalador no manifesto.
+        PT-PT: A expressão que identifica o instalador no manifesto.
         EN-UK: The expression identifying the installer in the manifest.
 
     .DESCRIPTION
-        PT-PT: O nome completo tem o numero de compilacao no meio --
-               `VirtualBox-7.2.16-174877-Win.exe` -- e esse numero nao se
-               adivinha. O padrao fixa tudo o resto e deixa so ele em aberto,
-               que e o maximo que se pode fixar sem inventar.
+        PT-PT: O nome completo tem o número de compilação no meio --
+               `VirtualBox-7.2.16-174877-Win.exe` -- e esse número não se
+               adivinha. O padrão fixa tudo o resto e deixa só ele em aberto,
+               que é o máximo que se pode fixar sem inventar.
 
-               O `$` no fim nao e decorativo: sem ele, um manifesto adulterado
+               O `$` no fim não é decorativo: sem ele, um manifesto adulterado
                com uma linha `VirtualBox-7.2.16-1-Win.exe.zip` correspondia.
 
         EN-UK: The full name carries the build number in the middle --
@@ -196,19 +196,19 @@ function Get-PadraoInstalador {
 function Test-AssinaturaAuthenticode {
     <#
     .SYNOPSIS
-        PT-PT: Confirma que um executavel esta assinado, e por quem.
+        PT-PT: Confirma que um executável esta assinado, e por quem.
         EN-UK: Confirms an executable is signed, and by whom.
 
     .DESCRIPTION
-        PT-PT: Duas condicoes, e as duas fazem falta.
+        PT-PT: Duas condições, e as duas fazem falta.
 
                A primeira e o estado ser `Valid`: a assinatura confere com o
-               conteudo do ficheiro e o certificado sobe ate uma raiz em que o
+               conteúdo do ficheiro e o certificado sobe até uma raiz em que o
                Windows confia. Um ficheiro alterado a um byte da `HashMismatch`.
 
                A segunda e o nome no certificado. Sem ela, um instalador
-               assinado por **qualquer** empresa com um certificado valido
-               passava -- e o que se quer saber nao e se alguem assinou, e se
+               assinado por **qualquer** empresa com um certificado válido
+               passava -- e o que se quer saber não é se alguém assinou, e se
                quem assinou foi a Oracle.
 
         EN-UK: Two conditions, both needed. First, a `Valid` status: the
@@ -278,11 +278,11 @@ function Get-InstaladorVirtualBox {
         EN-UK: Downloads and verifies the VirtualBox installer.
 
     .DESCRIPTION
-        PT-PT: Pela ordem: versao, manifesto, nome, ficheiro, soma, assinatura.
+        PT-PT: Pela ordem: versão, manifesto, nome, ficheiro, soma, assinatura.
 
-               Repare-se que a soma vem **antes** da assinatura mas nao e ela que
+               Repare-se que a soma vem **antes** da assinatura mas não é ela que
                decide. A soma apanha um descarregamento a meio; a assinatura
-               apanha um ficheiro que nao e da Oracle. Sao perguntas diferentes,
+               apanha um ficheiro que não é da Oracle. São perguntas diferentes,
                e por isso as duas correm.
 
         EN-UK: In order: version, manifest, name, file, checksum, signature. The
@@ -310,9 +310,9 @@ function Get-InstaladorVirtualBox {
     $texto = Invoke-DescarregamentoSeguro -Endereco "$script:BaseVirtualBox/LATEST.TXT" -Dominios $dominios
     $versao = Read-VersaoVirtualBox -Conteudo $texto
 
-    # PT-PT: Chegar aqui ja prova as duas primeiras camadas: o descarregamento
-    #        so devolve conteudo depois de cada salto ter passado pela lista de
-    #        dominios e pela exigencia de HTTPS.
+    # PT-PT: Chegar aqui já prova as duas primeiras camadas: o descarregamento
+    #        só devolve conteúdo depois de cada salto ter passado pela lista de
+    #        domínios e pela exigencia de HTTPS.
     # EN-UK: Getting here already proves the first two layers: the download only
     #        returns content after every hop passed the domain list and the HTTPS
     #        requirement.
@@ -370,7 +370,7 @@ function Get-InstaladorVirtualBox {
 function Get-PastaInstalacaoPredefinida {
     <#
     .SYNOPSIS
-        PT-PT: A pasta onde o instalador da Oracle poe o VirtualBox por omissao.
+        PT-PT: A pasta onde o instalador da Oracle põe o VirtualBox por omissão.
         EN-UK: Where Oracle's installer puts VirtualBox by default.
     #>
     [CmdletBinding()]
@@ -387,17 +387,17 @@ function Test-PastaInstalacaoSimples {
         EN-UK: Is the chosen folder usable by the silent installer?
 
     .DESCRIPTION
-        PT-PT: O `--msiparams INSTALLDIR=` da Oracle nao aguenta espacos no
+        PT-PT: O `--msiparams INSTALLDIR=` da Oracle não aguenta espaços no
                caminho: a linha de comandos que o instalador monta por dentro
-               parte-se ao meio e a instalacao vai para o sitio errado, ou falha
+               parte-se ao meio e a instalação vai para o sítio errado, ou falha
                com uma mensagem sobre outra coisa.
 
-               O caminho por omissao tem espacos -- `C:\Program Files\...` -- e
-               funciona na mesma, porque nesse caso nao se passa `INSTALLDIR`
-               nenhum e o instalador usa o dele. E so quando se muda de sitio
+               O caminho por omissão tem espaços -- `C:\Program Files\...` -- e
+               funciona na mesma, porque nesse caso não se passa `INSTALLDIR`
+               nenhum e o instalador usa o dele. E só quando se muda de sítio
                que o problema aparece.
 
-               Por isso esta funcao existe: para o programa poder avisar antes
+               Por isso esta função existe: para o programa poder avisar antes
                de instalar, em vez de deixar descobrir depois.
 
         EN-UK: Oracle's `--msiparams INSTALLDIR=` cannot cope with spaces in the
@@ -425,12 +425,12 @@ function Show-ProgressoInstalacao {
         EN-UK: Follows an installing process, printing what is going on.
 
     .DESCRIPTION
-        PT-PT: O instalador corre em silencio, e um silencio de tres minutos com
-               o cursor a piscar e indistinguivel de uma coisa encravada. Quem
+        PT-PT: O instalador corre em silêncio, e um silêncio de três minutos com
+               o cursor a piscar e indistinguível de uma coisa encravada. Quem
                esta a olhar precisa de saber que ainda esta a andar.
 
-               O que se mostra e verdade e nao uma animacao: o tempo decorrido e
-               o tamanho do que ja foi escrito na pasta de destino. Uma barra
+               O que se mostra é verdade e não uma animação: o tempo decorrido e
+               o tamanho do que já foi escrito na pasta de destino. Uma barra
                falsa a encher-se sozinha seria pior do que nada, porque mentia
                sobre quanto falta.
 
@@ -483,21 +483,21 @@ function Install-VirtualBox {
         EN-UK: Downloads, verifies and installs VirtualBox, headlessly.
 
     .DESCRIPTION
-        PT-PT: A instalacao e automatica: quem escolheu instalar ja respondeu a
+        PT-PT: A instalação e automática: quem escolheu instalar já respondeu a
                pergunta que interessava, e obriga-lo a seguir um assistente a
-               clicar em "Seguinte" quatro vezes nao acrescenta decisao nenhuma.
+               clicar em "Seguinte" quatro vezes não acrescenta decisão nenhuma.
 
-               O que se mostra e o processo, passo a passo, no proprio terminal.
-               O que **nao** se faz e esconder o que esta a acontecer: cada fase
-               e escrita, o relatorio de verificacao aparece por inteiro, e o
+               O que se mostra e o processo, passo a passo, no próprio terminal.
+               O que **não** se faz e esconder o que esta a acontecer: cada fase
+               e escrita, o relatório de verificação aparece por inteiro, e o
                resultado e confirmado no fim indo procurar o `VBoxManage` onde
-               ele devia ter ficado -- e nao acreditando no codigo de saida do
-               instalador, que da zero em situacoes em que nada foi instalado.
+               ele devia ter ficado -- e não acreditando no código de saída do
+               instalador, que da zero em situações em que nada foi instalado.
 
-               **A elevacao.** Instalar exige administrador. Quando o programa
-               nao o e, o instalador e lancado com `-Verb RunAs`, o que faz o
-               Windows mostrar o pedido de consentimento -- que e de quem esta a
-               usar a maquina, e nao deste programa.
+               **A elevação.** Instalar exige administrador. Quando o programa
+               não o e, o instalador e lançado com `-Verb RunAs`, o que faz o
+               Windows mostrar o pedido de consentimento -- que é de quem esta a
+               usar a máquina, e não deste programa.
 
         EN-UK: The installation is automatic: whoever chose to install has
                already answered the question that mattered, and making them
@@ -553,7 +553,7 @@ function Install-VirtualBox {
         Write-Host "        destino  $pastaFinal" -ForegroundColor DarkGray
     }
     else {
-        # PT-PT: Sem `INSTALLDIR`, e de proposito: ver `Test-PastaInstalacaoSimples`.
+        # PT-PT: Sem `INSTALLDIR`, e de propósito: ver `Test-PastaInstalacaoSimples`.
         # EN-UK: No `INSTALLDIR`, deliberately: see `Test-PastaInstalacaoSimples`.
         Write-Host "        destino  $pastaFinal  (o do próprio instalador)" -ForegroundColor DarkGray
     }
@@ -570,8 +570,8 @@ function Install-VirtualBox {
         PassThru     = $true
         ErrorAction  = 'Stop'
     }
-    # PT-PT: `RunAs` faz o Windows pedir consentimento. Se o programa ja estiver
-    #        elevado, nao pede nada e corre na mesma.
+    # PT-PT: `RunAs` faz o Windows pedir consentimento. Se o programa já estiver
+    #        elevado, não pede nada e corre na mesma.
     # EN-UK: `RunAs` makes Windows ask for consent. If the program is already
     #        elevated, nothing is asked and it runs anyway.
     $parametros['Verb'] = 'RunAs'
@@ -590,7 +590,7 @@ function Install-VirtualBox {
     # --- 4. confirmar -------------------------------------------------------
     Write-Host '  [4/4] Confirmar' -ForegroundColor White
 
-    # PT-PT: Nao se acredita no codigo de saida. Confirma-se que o `VBoxManage`
+    # PT-PT: Não se acredita no código de saída. Confirma-se que o `VBoxManage`
     #        esta la, porque e ele que este programa vai usar a seguir -- e um
     #        instalador que devolve zero sem ter instalado nada e uma coisa que
     #        acontece.

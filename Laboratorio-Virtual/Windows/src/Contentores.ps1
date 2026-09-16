@@ -1,34 +1,34 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Servicos em contentores -- catalogo, estado do Docker e arranque.
+    PT-PT: Serviços em contentores -- catálogo, estado do Docker e arranque.
     EN-UK: Containerised services -- catalogue, Docker state and launching.
 
 .DESCRIPTION
     PT-PT
-    Um laboratorio nao e so maquinas virtuais. Muito do que se quer experimentar
-    -- uma base de dados, um servidor web, um painel de monitorizacao -- nao
-    precisa de um sistema operativo inteiro so para si, e por um contentor fica
-    de pe em segundos em vez de meia hora.
+    Um laboratório não é só máquinas virtuais. Muito do que se quer experimentar
+    -- uma base de dados, um servidor web, um painel de monitorizacao -- não
+    precisa de um sistema operativo inteiro só para si, e por um contentor fica
+    de pé em segundos em vez de meia hora.
 
-    As regras aqui sao as mesmas do resto do programa, aplicadas ao que muda:
+    As regras aqui são as mesmas do resto do programa, aplicadas ao que muda:
 
-    **O registo tem de estar na lista.** Tal como nenhuma ISO vem de um dominio
-    fora do catalogo, nenhuma imagem vem de um registo fora de
+    **O registo tem de estar na lista.** Tal como nenhuma ISO vem de um domínio
+    fora do catálogo, nenhuma imagem vem de um registo fora de
     'registos_confiaveis'. E verificado ao carregar e outra vez antes de puxar.
 
-    **Nada de 'latest'.** Uma etiqueta movel faz com que a mesma ordem, na mesma
-    maquina, com uma semana de intervalo, traga software diferente. Isso tira ao
-    laboratorio a unica coisa que ele tem de dar: repetir o resultado.
+    **Nada de 'latest'.** Uma etiqueta móvel faz com que a mesma ordem, na mesma
+    máquina, com uma semana de intervalo, traga software diferente. Isso tira ao
+    laboratório a única coisa que ele tem de dar: repetir o resultado.
 
-    **As portas ficam em 127.0.0.1.** Publicar em 0.0.0.0 poe o servico a
-    responder a toda a rede local -- que e raramente o que se quer e nunca o que
-    se espera. Quem quiser abrir, abre de proposito.
+    **As portas ficam em 127.0.0.1.** Publicar em 0.0.0.0 põe o serviço a
+    responder a toda a rede local -- que é raramente o que se quer e nunca o que
+    se espera. Quem quiser abrir, abre de propósito.
 
-    **So se mexe no que e nosso.** Todo o contentor criado aqui leva a etiqueta
-    'laboratorio-virtual=1', e parar ou apagar so olha para contentores que a
-    tenham. Sem isto, um 'id' repetido no catalogo podia levar o programa a
-    apagar um contentor que alguem tinha posto a maozinha.
+    **Só se mexe no que é nosso.** Todo o contentor criado aqui leva a etiqueta
+    'laboratório-virtual=1', e parar ou apagar só olha para contentores que a
+    tenham. Sem isto, um 'id' repetido no catálogo podia levar o programa a
+    apagar um contentor que alguém tinha posto a maozinha.
 
     EN-UK
     A lab is not only virtual machines. A database, a web server or a dashboard
@@ -45,7 +45,7 @@
 
 Set-StrictMode -Version Latest
 
-# PT-PT: A etiqueta que separa o que e nosso do que e do utilizador.
+# PT-PT: A etiqueta que separa o que é nosso do que é do utilizador.
 # EN-UK: The label telling ours from the user's own containers.
 $script:EtiquetaLaboratorio = 'laboratorio-virtual'
 
@@ -53,7 +53,7 @@ $script:EtiquetaLaboratorio = 'laboratorio-virtual'
 function Import-CatalogoServicos {
     <#
     .SYNOPSIS
-        PT-PT: Le o catalogo de servicos e valida-o.
+        PT-PT: Lê o catálogo de serviços e valida-o.
         EN-UK: Reads the services catalogue and validates it.
     #>
     [CmdletBinding()]
@@ -85,14 +85,14 @@ function Import-CatalogoServicos {
 function Get-CampoOpcional {
     <#
     .SYNOPSIS
-        PT-PT: Le um campo que pode nao existir, sem rebentar.
+        PT-PT: Lê um campo que pode não existir, sem rebentar.
         EN-UK: Reads a field that may not exist, without blowing up.
 
     .DESCRIPTION
         PT-PT: Sob `Set-StrictMode -Version Latest`, ler uma propriedade que
-               nao existe num objecto vindo do `ConvertFrom-Json` levanta
-               excepcao. Como 'portas', 'volumes' e 'comando' sao opcionais de
-               proposito, a entrada mais simples do catalogo -- a que nao publica
+               não existe num objecto vindo do `ConvertFrom-Json` levanta
+               excepção. Como 'portas', 'volumes' e 'comando' são opcionais de
+               propósito, a entrada mais simples do catálogo -- a que não pública
                portas nenhumas -- era precisamente a que rebentava.
         EN-UK: Under `Set-StrictMode -Version Latest`, reading an absent
                property on a `ConvertFrom-Json` object raises. Since 'portas',
@@ -106,8 +106,8 @@ function Get-CampoOpcional {
         $Omissao = @()
     )
 
-    # PT-PT: A omissao e `@()` e nao `$null` por uma razao que custa a acreditar
-    #        ate se ver: `@($null)` nao e uma lista vazia, e uma lista com um
+    # PT-PT: A omissão e `@()` e não `$null` por uma razão que custa a acreditar
+    #        até se ver: `@($null)` não é uma lista vazia, e uma lista com um
     #        elemento nulo. Devolver $null aqui punha o ciclo das portas a correr
     #        uma vez com $porta a nulo -- e a rebentar na primeira propriedade.
     # EN-UK: The fallback is `@()` rather than `$null`: `@($null)` is not an
@@ -124,7 +124,7 @@ function Get-CampoOpcional {
 function Test-CatalogoServicos {
     <#
     .SYNOPSIS
-        PT-PT: Procura problemas no catalogo de servicos e devolve-os todos.
+        PT-PT: Procura problemas no catálogo de serviços e devolve-os todos.
         EN-UK: Looks for problems and returns all of them.
 
     .OUTPUTS
@@ -198,13 +198,13 @@ function Test-CatalogoServicos {
 function Test-ReferenciaImagem {
     <#
     .SYNOPSIS
-        PT-PT: Verifica uma referencia de imagem: registo certo e etiqueta fixa.
+        PT-PT: Verifica uma referência de imagem: registo certo e etiqueta fixa.
         EN-UK: Checks an image reference: right registry and a pinned tag.
 
     .DESCRIPTION
-        PT-PT: Devolve a descricao do problema, ou nada quando esta bem. E a
-               funcao que impede uma entrada de catalogo de puxar de onde lhe
-               apetecer, e por isso e testada a serio.
+        PT-PT: Devolve a descrição do problema, ou nada quando esta bem. E a
+               função que impede uma entrada de catálogo de puxar de onde lhe
+               apetecer, e por isso é testada a sério.
         EN-UK: Returns the problem description, or nothing when fine.
     #>
     [CmdletBinding()]
@@ -216,8 +216,8 @@ function Test-ReferenciaImagem {
 
     if (-not $Imagem) { return 'a referência da imagem está vazia.' }
 
-    # PT-PT: A etiqueta e o que vem depois dos dois pontos -- mas so se o que
-    #        vem depois nao tiver uma barra. Sem esta condicao, um endereco com
+    # PT-PT: A etiqueta e o que vem depois dos dois pontos -- mas só se o que
+    #        vem depois não tiver uma barra. Sem esta condição, um endereço com
     #        porta (registo.local:5000/coisa) era lido como se '5000/coisa'
     #        fosse a etiqueta.
     # EN-UK: The tag is what follows the colon -- but only when what follows has
@@ -239,8 +239,8 @@ function Test-ReferenciaImagem {
     $semEtiqueta = $Imagem.Substring(0, $posicao)
 
     if ($Registo -eq 'docker.io') {
-        # PT-PT: No Docker Hub a referencia escreve-se sem o nome do registo.
-        #        Se alguem la meter outro registo, o campo 'registo' passa a
+        # PT-PT: No Docker Hub a referência escreve-se sem o nome do registo.
+        #        Se alguém la meter outro registo, o campo 'registo' passa a
         #        mentir -- e e o campo que foi validado contra a lista.
         # EN-UK: On Docker Hub the reference is written without the registry
         #        name, so another one here would make the validated field lie.
@@ -259,14 +259,14 @@ function Test-ReferenciaImagem {
 function Get-EstadoDocker {
     <#
     .SYNOPSIS
-        PT-PT: Diz o que ha de Docker nesta maquina e se responde.
+        PT-PT: Diz o que há de Docker nesta máquina e se responde.
         EN-UK: Reports what Docker is here and whether it answers.
 
     .DESCRIPTION
         PT-PT: Separa duas coisas que se confundem: estar instalado e estar a
                responder. O Docker Desktop instalado mas parado da um erro
-               completamente diferente de nao estar instalado, e a solucao
-               tambem e outra -- num caso abre-se a aplicacao, no outro
+               completamente diferente de não estar instalado, e a solução
+               também e outra -- num caso abre-se a aplicação, no outro
                instala-se.
         EN-UK: It separates two things people conflate: being installed and
                answering. Installed-but-stopped needs a different fix from
@@ -294,8 +294,8 @@ function Get-EstadoDocker {
     $estado.Executavel = $comando.Source
 
     try {
-        # PT-PT: `docker version` fala com o servico; `docker --version` nao.
-        #        E a diferenca entre saber se responde e saber se existe.
+        # PT-PT: `docker version` fala com o serviço; `docker --version` não.
+        #        E a diferença entre saber se responde e saber se existe.
         # EN-UK: `docker version` talks to the daemon; `docker --version` does
         #        not. That is the difference between answering and existing.
         $saida = & $comando.Source 'version' '--format' '{{.Server.Version}}' 2>&1
@@ -318,12 +318,12 @@ function Get-EstadoDocker {
 function New-PalavraPasse {
     <#
     .SYNOPSIS
-        PT-PT: Gera uma palavra-passe aleatoria para um servico.
+        PT-PT: Gera uma palavra-passe aleatória para um serviço.
         EN-UK: Generates a random password for a service.
 
     .DESCRIPTION
-        PT-PT: Usa o geracao criptografica do sistema e nao o `Get-Random`, que
-               e previsivel a partir da semente. Sai sem caracteres que dao
+        PT-PT: Usa o geração criptografica do sistema e não o `Get-Random`, que
+               e previsível a partir da semente. Sai sem caracteres que dão
                problemas quando a linha passa por uma shell.
         EN-UK: Uses the system's cryptographic generator rather than
                `Get-Random`, which is seed-predictable. Shell-safe alphabet.
@@ -365,13 +365,13 @@ function Get-NomeContentor {
 function New-ArgumentosDocker {
     <#
     .SYNOPSIS
-        PT-PT: Constroi a linha do `docker run` a partir de uma entrada.
+        PT-PT: Constrói a linha do `docker run` a partir de uma entrada.
         EN-UK: Builds the `docker run` command line from a catalogue entry.
 
     .DESCRIPTION
-        PT-PT: Devolve os argumentos e nao corre nada, de proposito: assim
+        PT-PT: Devolve os argumentos e não corre nada, de propósito: assim
                testa-se o que vai ser feito sem precisar de Docker instalado --
-               que e o que permite a estes testes correrem na integracao
+               que é o que permite a estes testes correrem na integração
                continua.
         EN-UK: It returns the arguments and runs nothing, on purpose: that is
                what lets the tests check what would happen without Docker.
@@ -400,8 +400,8 @@ function New-ArgumentosDocker {
 
     foreach ($porta in @(Get-CampoOpcional -Objecto $Servico -Nome 'portas')) {
         $protocolo = if ($porta.PSObject.Properties.Name -contains 'protocolo') { [string]$porta.protocolo } else { 'tcp' }
-        # PT-PT: O 127.0.0.1 a frente e o que mantem o servico dentro da
-        #        maquina. Sem ele, o Docker publica em todas as interfaces.
+        # PT-PT: O 127.0.0.1 a frente e o que mantém o serviço dentro da
+        #        máquina. Sem ele, o Docker pública em todas as interfaces.
         # EN-UK: The leading 127.0.0.1 is what keeps the service on this
         #        machine. Without it Docker publishes on every interface.
         [void]$argumentos.Add('--publish')
@@ -448,7 +448,7 @@ function New-ArgumentosDocker {
 function Get-SegredosNecessarios {
     <#
     .SYNOPSIS
-        PT-PT: Gera um segredo para cada variavel marcada com @gerar@.
+        PT-PT: Gera um segredo para cada variável marcada com @gerar@.
         EN-UK: Generates a secret for each variable marked @gerar@.
     #>
     [CmdletBinding()]
@@ -476,8 +476,8 @@ function Get-ServicosLaboratorio {
         EN-UK: Lists containers created by this program.
 
     .DESCRIPTION
-        PT-PT: Filtra pela etiqueta. Nunca devolve um contentor que nao tenha
-               sido criado aqui -- e o que garante que parar ou apagar nao
+        PT-PT: Filtra pela etiqueta. Nunca devolve um contentor que não tenha
+               sido criado aqui -- e o que garante que parar ou apagar não
                atinge trabalho de outra pessoa.
         EN-UK: Filtered by label, so stopping or removing never reaches
                somebody else's work.
@@ -488,11 +488,11 @@ function Get-ServicosLaboratorio {
     $estado = Get-EstadoDocker
     if (-not $estado.Responde) { return @() }
 
-    # PT-PT: O `$LASTEXITCODE` so existe depois de correr um comando nativo, e
-    #        sob `Set-StrictMode` ler uma variavel que nunca foi definida
-    #        levanta excepcao. Se o `docker` nao chegar a arrancar -- apagado
-    #        entre a deteccao e aqui, bloqueado por politica -- e o proprio `&`
-    #        que rebenta, e o codigo de saida nunca chega a ser escrito.
+    # PT-PT: O `$LASTEXITCODE` só existe depois de correr um comando nativo, e
+    #        sob `Set-StrictMode` ler uma variável que nunca foi definida
+    #        levanta excepção. Se o `docker` não chegar a arrancar -- apagado
+    #        entre a detecção e aqui, bloqueado por política -- e o próprio `&`
+    #        que rebenta, e o código de saída nunca chega a ser escrito.
     # EN-UK: `$LASTEXITCODE` only exists after a native command has run, and
     #        under `Set-StrictMode` reading an unset variable raises. If
     #        `docker` never starts, the exit code is never written.
@@ -521,13 +521,13 @@ function Get-ServicosLaboratorio {
 function Start-Servico {
     <#
     .SYNOPSIS
-        PT-PT: Arranca um servico do catalogo.
+        PT-PT: Arranca um serviço do catálogo.
         EN-UK: Starts a service from the catalogue.
 
     .DESCRIPTION
-        PT-PT: A imagem e puxada num passo separado do arranque. Sao dois erros
-               diferentes -- nao chegar a imagem, ou nao arrancar o contentor --
-               e quem le a mensagem precisa de saber qual deles foi.
+        PT-PT: A imagem e puxada num passo separado do arranque. São dois erros
+               diferentes -- não chegar a imagem, ou não arrancar o contentor --
+               e quem lê a mensagem precisa de saber qual deles foi.
         EN-UK: The image is pulled in a step of its own. Not reaching the image
                and not starting the container are different failures.
     #>
@@ -570,8 +570,8 @@ function Stop-Servico {
         EN-UK: Stops a container belonging to this program.
 
     .DESCRIPTION
-        PT-PT: Confirma a etiqueta antes de mexer. Um nome coincidente nao
-               chega: o que autoriza parar e a etiqueta que so nos pomos.
+        PT-PT: Confirma a etiqueta antes de mexer. Um nome coincidente não
+               chega: o que autoriza parar e a etiqueta que só nos pomos.
         EN-UK: The label, not the name, is what authorises stopping it.
     #>
     [CmdletBinding()]

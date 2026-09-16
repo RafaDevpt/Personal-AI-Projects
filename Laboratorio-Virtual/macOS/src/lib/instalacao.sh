@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Preparar um hipervisor que ainda nao esta instalado.
+# PT-PT: Preparar um hipervisor que ainda não esta instalado.
 #
-#        Ate aqui, sem hipervisor nenhum, o programa dizia o comando e ficava-se
-#        por ai. Isto trata do assunto, e num Mac trata-o de uma terceira
-#        maneira -- as tres versoes deste projecto fazem aqui tres coisas
+#        Até aqui, sem hipervisor nenhum, o programa dizia o comando e ficava-se
+#        por aí. Isto trata do assunto, e num Mac trata-o de uma terceira
+#        maneira -- as três versões deste projecto fazem aqui três coisas
 #        diferentes, e nenhuma delas por gosto.
 #
-#        **O QEMU vem do Homebrew.** Nao ha nada a verificar a mao: o Homebrew
-#        tem as somas nas suas proprias formulas e confirma-as. Reescrever isso
+#        **O QEMU vem do Homebrew.** Não há nada a verificar a mão: o Homebrew
+#        tem as somas nas suas próprias fórmulas e confirma-as. Reescrever isso
 #        aqui era substituir uma coisa que funciona por uma pior.
 #
-#        **O que este ficheiro nao faz e instalar o proprio Homebrew.** A forma
+#        **O que este ficheiro não faz e instalar o próprio Homebrew.** A forma
 #        de o instalar e passar um script da Internet directamente a um
-#        interpretador -- exactamente o padrao que este programa inteiro existe
-#        para evitar. Se o Homebrew nao estiver ca, diz-se onde esta e porque
-#        nao se faz por si.
+#        interpretador -- exactamente o padrão que este programa inteiro existe
+#        para evitar. Se o Homebrew não estiver ca, diz-se onde esta e porque
+#        não se faz por si.
 #
-#        **O VirtualBox descarrega-se, e aqui ha uma coisa que so um Mac sabe
-#        fazer.** Como em Windows, a Oracle nao assina o `SHA256SUMS` com GPG: a
-#        soma vem do mesmo servidor que o ficheiro e so prova que ele chegou
+#        **O VirtualBox descarrega-se, e aqui há uma coisa que só um Mac sabe
+#        fazer.** Como em Windows, a Oracle não assina o `SHA256SUMS` com GPG: a
+#        soma vem do mesmo servidor que o ficheiro e só prova que ele chegou
 #        inteiro. O que prova a origem e a assinatura da Apple -- o `.dmg` esta
 #        notarizado e o `.pkg` la dentro esta assinado com um Developer ID, e as
-#        duas verificam-se contra a cadeia de certificados **da Apple**, que nao
+#        duas verificam-se contra a cadeia de certificados **da Apple**, que não
 #        veio da Oracle.
 #
-#        E a unica camada desta cadeia que nao depende do canal que trouxe o
-#        ficheiro. Por isso e uma condicao e nao um aviso: nao passa, apaga-se.
+#        E a única camada desta cadeia que não depende do canal que trouxe o
+#        ficheiro. Por isso é uma condição e não um aviso: não passa, apaga-se.
 #
-#        **Nota sobre o bash.** Este ficheiro corre no bash 3.2, que e o que a
-#        Apple traz. A versao de Linux guarda a lista de comandos num array; aqui
-#        nao se pode, porque no 3.2 um array vazio com `set -u` rebenta ao ser
+#        **Nota sobre o bash.** Este ficheiro corre no bash 3.2, que é o que a
+#        Apple traz. A versão de Linux guarda a lista de comandos num array; aqui
+#        não se pode, porque no 3.2 um array vazio com `set -u` rebenta ao ser
 #        expandido. Guarda-se num texto separado por linhas.
 #
 # EN-UK: Preparing a hypervisor that is not installed yet. All three versions of
@@ -59,7 +59,7 @@
 # Created by Redfox using Claude
 # ===========================================================================
 
-# PT-PT: Lista de dominios propria, separada da do catalogo de proposito.
+# PT-PT: Lista de domínios própria, separada da do catálogo de propósito.
 # EN-UK: A separate domain list, deliberately not the catalogue's.
 DOMINIOS_VIRTUALBOX='download.virtualbox.org www.virtualbox.org'
 
@@ -77,13 +77,13 @@ dominios_virtualbox() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Valida o conteudo do `LATEST.TXT` e devolve a versao.
+# PT-PT: Valida o conteúdo do `LATEST.TXT` e devolve a versão.
 #
-#        Este texto vem de fora e vai ser colado num endereco. Se trouxesse uma
-#        barra ou um `..`, o endereco resultante deixava de apontar para onde
+#        Este texto vem de fora e vai ser colado num endereço. Se trouxesse uma
+#        barra ou um `..`, o endereço resultante deixava de apontar para onde
 #        este programa julga que aponta.
 #
-#        A funcao nao escreve nada: valida e devolve. Quem chama e que sabe
+#        A função não escreve nada: valida e devolve. Quem chama e que sabe
 #        como se fala com quem esta a usar -- e assim isto testa-se sem
 #        arrastar o ponto de entrada inteiro para dentro da suite.
 #
@@ -101,12 +101,12 @@ versao_valida() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A expressao que identifica o instalador no manifesto.
+# PT-PT: A expressão que identifica o instalador no manifesto.
 #
-#        O nome completo tem o numero de compilacao no meio --
-#        `VirtualBox-7.2.16-174877-OSX.dmg` -- e esse numero nao se adivinha. O
-#        padrao fixa tudo o resto, que e o maximo que se pode fixar sem
-#        inventar. O `$` no fim nao e decorativo: sem ele, uma linha adulterada
+#        O nome completo tem o número de compilação no meio --
+#        `VirtualBox-7.2.16-174877-OSX.dmg` -- e esse número não se adivinha. O
+#        padrão fixa tudo o resto, que é o máximo que se pode fixar sem
+#        inventar. O `$` no fim não é decorativo: sem ele, uma linha adulterada
 #        a dizer `...-OSX.dmg.zip` correspondia.
 #
 # EN-UK: The expression identifying the installer in the manifest. The build
@@ -137,19 +137,19 @@ tem_homebrew() {
 # ---------------------------------------------------------------------------
 # PT-PT: O ficheiro passa no Gatekeeper, e foi assinado por quem devia?
 #
-#        Duas condicoes, e as duas fazem falta.
+#        Duas condições, e as duas fazem falta.
 #
-#        A primeira e o `spctl` aceitar: a assinatura confere com o conteudo, o
-#        certificado sobe ate uma raiz da Apple e o ficheiro foi notarizado --
-#        o que quer dizer que passou pela Apple e nao esta na lista de
+#        A primeira e o `spctl` aceitar: a assinatura confere com o conteúdo, o
+#        certificado sobe até uma raiz da Apple e o ficheiro foi notarizado --
+#        o que quer dizer que passou pela Apple e não esta na lista de
 #        revogacoes.
 #
 #        A segunda e o nome no certificado. Sem ela, um `.dmg` assinado por
-#        **qualquer** programador registado na Apple passava, e a pergunta nao e
-#        se alguem assinou: e se quem assinou foi a Oracle.
+#        **qualquer** programador registado na Apple passava, e a pergunta não é
+#        se alguém assinou: e se quem assinou foi a Oracle.
 #
 #        O `--context context:primary-signature` e o que faz o `spctl` avaliar
-#        isto como um ficheiro descarregado e nao como uma aplicacao a executar.
+#        isto como um ficheiro descarregado e não como uma aplicação a executar.
 #        Sem ele, a resposta e sobre outra coisa.
 #
 # EN-UK: Does the file pass Gatekeeper, and was it signed by the right party?
@@ -181,7 +181,7 @@ assinatura_apple_confere() {
 # PT-PT: O pacote esta assinado com um Developer ID, e de quem?
 #
 #        O `pkgutil --check-signature` escreve a cadeia de certificados inteira.
-#        E a verificacao mais legivel das duas: quem esta a olhar ve o nome da
+#        E a verificação mais legível das duas: quem esta a olhar vê o nome da
 #        Oracle e a autoridade da Apple por cima dele.
 #
 # EN-UK: Is the package Developer ID signed, and by whom? `pkgutil
@@ -208,21 +208,21 @@ assinatura_pacote_confere() {
 # PT-PT: Mostra os comandos, pergunta uma vez, e corre-os por ordem.
 #
 #        Os comandos aparecem **antes** de correrem, todos. Quem esta a olhar tem
-#        de poder ver o que vai acontecer -- mas mostrar nao e o mesmo que pedir
-#        licenca, e aqui nao se pede.
+#        de poder ver o que vai acontecer -- mas mostrar não é o mesmo que pedir
+#        licença, e aqui não se pede.
 #
-#        **Nao ha confirmacao.** Escolher "instalar o QEMU" num menu que diz
-#        "instalar o QEMU" ja e a resposta; perguntar outra vez nao acrescenta
-#        decisao nenhuma, so ruido. E o `sudo`, quando aparece, ja e uma paragem
-#        a serio -- ao contrario de um [s/N], pede uma coisa que so quem tem o
+#        **Não há confirmação.** Escolher "instalar o QEMU" num menu que diz
+#        "instalar o QEMU" já e a resposta; perguntar outra vez não acrescenta
+#        decisão nenhuma, só ruído. E o `sudo`, quando aparece, já e uma paragem
+#        a sério -- ao contrário de um [s/N], pede uma coisa que só quem tem o
 #        Mac sabe.
 #
 #        O `sudo`, quando aparece, pede a palavra-passe no terminal a quem esta
-#        a usar. Este programa nunca a ve, nunca a guarda e nunca a passa a lado
+#        a usar. Este programa nunca a vê, nunca a guarda e nunca a passa a lado
 #        nenhum.
 #
-#        Recebe os comandos num texto separado por linhas, e nao num array, por
-#        causa do bash 3.2. Ver a nota no cabecalho.
+#        Recebe os comandos num texto separado por linhas, e não num array, por
+#        causa do bash 3.2. Ver a nota no cabeçalho.
 #
 # EN-UK: Shows the commands and runs them in order. They appear **before** they
 #        run, all of them -- but showing is not asking permission, and none is
@@ -288,11 +288,11 @@ instalar_qemu() {
         return 1
     fi
 
-    # PT-PT: Em Windows pergunta-se onde instalar. Aqui nao se pergunta, e nao
-    #        e por esquecimento: quem decide onde uma formula fica e o Homebrew,
-    #        e inventar uma pergunta cuja resposta nao muda nada seria pior do
-    #        que nao a fazer. O que **se** escolhe -- onde ficam as imagens e as
-    #        maquinas -- e perguntado na altura de as criar.
+    # PT-PT: Em Windows pergunta-se onde instalar. Aqui não se pergunta, e não
+    #        e por esquecimento: quem decide onde uma fórmula fica e o Homebrew,
+    #        e inventar uma pergunta cuja resposta não muda nada seria pior do
+    #        que não a fazer. O que **se** escolhe -- onde ficam as imagens e as
+    #        máquinas -- e perguntado na altura de as criar.
     # EN-UK: On Windows the install location is asked. Here it is not, and not
     #        by oversight: Homebrew decides where a formula lands.
     nota 'Onde ficam os ficheiros decide o Homebrew, e não este programa.'
@@ -304,9 +304,9 @@ instalar_qemu() {
 
     executar_passos 'A instalar o QEMU pelo Homebrew.' 'brew install qemu' || return 1
 
-    # PT-PT: Num Mac ARM, o firmware UEFI nao vem no pacote do QEMU e sem ele
-    #        um convidado ARM nao arranca. Dizer isto agora poupa a tarde em
-    #        que a maquina fica num ecra preto sem explicacao.
+    # PT-PT: Num Mac ARM, o firmware UEFI não vem no pacote do QEMU e sem ele
+    #        um convidado ARM não arranca. Dizer isto agora poupa a tarde em
+    #        que a máquina fica num ecrã preto sem explicação.
     # EN-UK: On an ARM Mac the UEFI firmware does not ship with QEMU's package,
     #        and without it an ARM guest will not boot.
     if apple_silicon; then
@@ -328,9 +328,9 @@ instalar_virtualbox() {
 
     local arq; arq="$(arquitectura)"
 
-    # PT-PT: A Oracle passou a publicar uma versao para Apple Silicon. Nao e
-    #        oferecida aqui, e a razao nao e a de haver ou nao ficheiro: num
-    #        anfitriao ARM so ha aceleracao por hardware para convidados ARM, e
+    # PT-PT: A Oracle passou a publicar uma versão para Apple Silicon. Não e
+    #        oferecida aqui, e a razão não é a de haver ou não ficheiro: num
+    #        anfitrião ARM só há aceleração por hardware para convidados ARM, e
     #        quem procura o VirtualBox procura-o quase sempre para correr um
     #        convidado x86 -- que teria de ser emulado. O QEMU faz isso melhor e
     #        di-lo a frente.
@@ -440,10 +440,10 @@ instalar_virtualbox() {
     printf '    certificados da Apple — que não veio da Oracle.\n'
     printf '\n'
 
-    # PT-PT: A imagem e montada numa pasta propria e nao em /Volumes, para nao
-    #        chocar com uma montagem que ja la esteja, e desmonta-se no fim
-    #        aconteca o que acontecer. Uma imagem esquecida montada e a razao
-    #        pela qual a instalacao seguinte falha sem dizer porque.
+    # PT-PT: A imagem e montada numa pasta própria e não em /Volumes, para não
+    #        chocar com uma montagem que já la esteja, e desmonta-se no fim
+    #        aconteca o que acontecer. Uma imagem esquecida montada e a razão
+    #        pela qual a instalação seguinte falha sem dizer porque.
     # EN-UK: The image is mounted in a folder of its own rather than /Volumes,
     #        so it cannot clash with an existing mount, and is detached at the
     #        end whatever happens.

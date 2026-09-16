@@ -1,20 +1,20 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Testes do Laboratorio Virtual, versao de Windows.
+    PT-PT: Testes do Laboratório Virtual, versão de Windows.
     EN-UK: Virtual Lab tests, Windows version.
 
 .DESCRIPTION
     PT-PT
-    Nenhum teste toca na rede, cria uma maquina virtual ou activa uma
-    funcionalidade do Windows. Nao e limitacao: e o desenho. O que interessa
-    provar aqui e o que decide -- se um dominio passa, se um manifesto e lido
-    como deve, se a recomendacao faz a conta certa -- e nada disso precisa de um
+    Nenhum teste toca na rede, cria uma máquina virtual ou activa uma
+    funcionalidade do Windows. Não e limitação: e o desenho. O que interessa
+    provar aqui e o que decide -- se um domínio passa, se um manifesto e lido
+    como deve, se a recomendação faz a conta certa -- e nada disso precisa de um
     hipervisor a responder.
 
-    O que fica de fora, e fica assumidamente, e a criacao da maquina em si. Essa
-    so se testa contra um hipervisor a serio, e um teste que precise de um
-    hipervisor nao corre na integracao continua e por isso nao corre nunca.
+    O que fica de fora, e fica assumidamente, e a criação da máquina em si. Essa
+    só se testa contra um hipervisor a sério, e um teste que precise de um
+    hipervisor não corre na integração contínua e por isso não corre nunca.
 
     EN-UK
     No test touches the network, creates a virtual machine or enables a Windows
@@ -73,7 +73,7 @@ Teste 'recusa HTTP mesmo num domínio da lista' {
 }
 
 Teste 'recusa um domínio que apenas começa por um da lista' {
-    # PT-PT: O truque classico. Se a comparacao fosse por prefixo, isto passava.
+    # PT-PT: O truque clássico. Se a comparação fosse por prefixo, isto passava.
     # EN-UK: The classic trick. With a prefix comparison, this would pass.
     Assert-Falso (Test-DominioConfiavel -Endereco 'https://releases.ubuntu.com.exemplo.net/x' -Dominios $dominios)
 }
@@ -84,7 +84,7 @@ Teste 'recusa um domínio que apenas termina num da lista' {
 
 Teste 'recusa um endereço com o domínio na parte do utilizador' {
     # PT-PT: `https://releases.ubuntu.com@mau.net/` vai para o mau.net. Um leitor
-    #        humano distraido le o principio da linha e assume o contrario.
+    #        humano distraído lê o princípio da linha e assume o contrário.
     # EN-UK: `https://releases.ubuntu.com@bad.net/` goes to bad.net. A distracted
     #        human reads the start of the line and assumes otherwise.
     Assert-Falso (Test-DominioConfiavel -Endereco 'https://releases.ubuntu.com@exemplo.net/x' -Dominios $dominios)
@@ -124,8 +124,8 @@ Teste 'lê o formato BSD, que a Fedora e a Rocky usam' {
 }
 
 Teste 'atravessa um manifesto assinado em claro' {
-    # PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP nao sao
-    #        linhas de soma, e um leitor que rebentasse nelas nao servia.
+    # PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP não são
+    #        linhas de soma, e um leitor que rebentasse nelas não servia.
     # EN-UK: Fedora signs the manifest inline. The PGP markers are not checksum
     #        lines, and a reader breaking on them would be useless.
     $conteudo = @"
@@ -163,7 +163,7 @@ Teste 'fica só com o nome quando o manifesto traz o caminho' {
 }
 
 Teste 'ignora uma soma que não tem 64 dígitos' {
-    # PT-PT: Um manifesto de SHA-1 nao deve passar por um de SHA-256.
+    # PT-PT: Um manifesto de SHA-1 não deve passar por um de SHA-256.
     # EN-UK: A SHA-1 manifest must not pass as a SHA-256 one.
     $r = Read-Manifesto -Conteudo 'da39a3ee5e6b4b0d3255bfef95601890afd80709 *ubuntu.iso' -Padrao 'ubuntu\.iso$'
     Assert-Verdadeiro ($null -eq $r)
@@ -196,7 +196,7 @@ try {
     }
 
     Teste 'recusa uma soma vazia' {
-        # PT-PT: E o caso que uma comparacao distraida deixava passar.
+        # PT-PT: E o caso que uma comparação distraida deixava passar.
         # EN-UK: The case a careless comparison would let through.
         Assert-Falso (Test-SomaFicheiro -Caminho $temporario -SomaEsperada '')
     }
@@ -226,8 +226,8 @@ Teste 'acrescenta a barra em falta' {
 
 Teste 'um nome com .. não sai do servidor' {
     # PT-PT: O nome vem de um manifesto. Se o manifesto for adulterado e trouxer
-    #        `../../etc/x`, o resultado continua a ser um endereco no mesmo
-    #        anfitriao -- e a lista de dominios volta a verifica-lo.
+    #        `../../etc/x`, o resultado continua a ser um endereço no mesmo
+    #        anfitrião -- e a lista de domínios volta a verifica-lo.
     # EN-UK: The name comes from a manifest. Should a tampered one carry
     #        `../../etc/x`, the result is still an address on the same host --
     #        and the domain list checks it again.
@@ -256,7 +256,7 @@ Teste 'deixa um núcleo para o anfitrião' {
 }
 
 Teste 'não dá mais memória do que o recomendado, por muita que haja' {
-    # PT-PT: 64 GB no anfitriao nao fazem um Ubuntu correr melhor com 24.
+    # PT-PT: 64 GB no anfitrião não fazem um Ubuntu correr melhor com 24.
     # EN-UK: 64 GB on the host does not make an Ubuntu run better with 24.
     $r = Get-EspecificacaoRecomendada -NucleosFisicos 16 -MemoriaAnfitriaoGb 64 -DiscoLivreGb 900 `
         -Minimo $ubuntu.Minimo -Recomendado $ubuntu.Recomendado
@@ -278,8 +278,8 @@ Teste 'baixa do recomendado quando não há, e avisa' {
 }
 
 Teste 'uma máquina pequena ainda corre um convidado pequeno' {
-    # PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitriao de 4 GB
-    #        ficava sem nada e o programa recusava ate um Alpine de 1 GB.
+    # PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitrião de 4 GB
+    #        ficava sem nada e o programa recusava até um Alpine de 1 GB.
     # EN-UK: The case the fixed 4 GB reserve broke: a 4 GB host was left with
     #        nothing and the program refused even a 1 GB Alpine.
     $r = Get-EspecificacaoRecomendada -NucleosFisicos 2 -MemoriaAnfitriaoGb 4 -DiscoLivreGb 60 `
@@ -309,7 +309,7 @@ Teste 'encolhe o disco para deixar folga no anfitrião' {
 }
 
 Teste 'explica sempre como chegou aos números' {
-    # PT-PT: Um numero sem explicacao nao ensina ninguem a mexer nele depois.
+    # PT-PT: Um número sem explicação não ensina ninguém a mexer nele depois.
     # EN-UK: A number with no explanation teaches nobody how to change it later.
     $r = Get-EspecificacaoRecomendada -NucleosFisicos 8 -MemoriaAnfitriaoGb 16 -DiscoLivreGb 300 `
         -Minimo $ubuntu.Minimo -Recomendado $ubuntu.Recomendado
@@ -335,8 +335,8 @@ Teste 'reconhece uma máquina com as extensões activas' {
 }
 
 Teste 'uma máquina com Hyper-V a correr conta como capaz' {
-    # PT-PT: A armadilha do modulo. Com o Hyper-V ligado, o WMI reporta as
-    #        extensoes como desligadas -- porque o Windows ja e um convidado.
+    # PT-PT: A armadilha do módulo. Com o Hyper-V ligado, o WMI reporta as
+    #        extensões como desligadas -- porque o Windows já e um convidado.
     # EN-UK: The module's trap. With Hyper-V on, WMI reports the extensions as
     #        off -- because Windows is itself a guest by then.
     $r = Test-VirtualizacaoDisponivel -Perfil (Novo-Perfil -Hipervisor $true -Firmware $false)
@@ -424,9 +424,9 @@ Teste 'o catálogo que vem no projecto passa na validação' {
 }
 
 Teste 'todas as imagens descarregáveis têm manifesto e padrão' {
-    # PT-PT: Sem manifesto nao ha verificacao, e este programa nao descarrega o
-    #        que nao consegue verificar. O teste existe para essa regra nao se
-    #        perder na proxima entrada que alguem acrescentar com pressa.
+    # PT-PT: Sem manifesto não há verificação, e este programa não descarrega o
+    #        que não consegue verificar. O teste existe para essa regra não se
+    #        perder na próxima entrada que alguém acrescentar com pressa.
     # EN-UK: With no manifest there is no verification, and this program does not
     #        download what it cannot verify.
     $catalogo = Import-Catalogo -Caminho $catalogoReal
@@ -447,8 +447,8 @@ Teste 'todos os directórios de descarregamento estão na lista curta' {
 }
 
 Teste 'recusa um catálogo com um endereço fora da lista' {
-    # PT-PT: O ataque que esta validacao existe para travar: alguem edita o
-    #        catalogo e troca um endereco por outro parecido.
+    # PT-PT: O ataque que esta validação existe para travar: alguém edita o
+    #        catálogo e troca um endereço por outro parecido.
     # EN-UK: The attack this validation exists to stop: somebody edits the
     #        catalogue and swaps an address for a similar one.
     $falso = [pscustomobject]@{
@@ -506,8 +506,8 @@ Teste 'recusa uma impressão digital que não é uma impressão digital' {
 }
 
 Teste 'filtra as imagens pela arquitectura do anfitrião' {
-    # PT-PT: Uma imagem de x86_64 num anfitriao ARM nao arranca devagar: nao
-    #        arranca. Mostra-la seria oferecer um ecra preto.
+    # PT-PT: Uma imagem de x86_64 num anfitrião ARM não arranca devagar: não
+    #        arranca. Mostra-la seria oferecer um ecrã preto.
     # EN-UK: An x86_64 image on an ARM host does not boot slowly: it does not
     #        boot. Showing it would be offering a black screen.
     $catalogo = Import-Catalogo -Caminho $catalogoReal
@@ -517,7 +517,7 @@ Teste 'filtra as imagens pela arquitectura do anfitrião' {
 }
 
 Teste 'AMD64 e x86_64 são a mesma coisa' {
-    # PT-PT: O Windows chama-lhe AMD64, o catalogo chama-lhe x86_64.
+    # PT-PT: O Windows chama-lhe AMD64, o catálogo chama-lhe x86_64.
     # EN-UK: Windows calls it AMD64, the catalogue calls it x86_64.
     $catalogo = Import-Catalogo -Caminho $catalogoReal
     $a = @(Get-ImagensCompativeis -Catalogo $catalogo -Arquitectura 'AMD64').Count
@@ -535,8 +535,8 @@ Teste 'uma ISO é um instalador' {
 }
 
 Teste 'um disco já feito não é um instalador' {
-    # PT-PT: E a distincao que decide entre uma maquina que arranca e um ecra a
-    #        dizer que nao ha nada para arrancar. Uma .vhdx **e** a maquina.
+    # PT-PT: E a distinção que decide entre uma máquina que arranca e um ecrã a
+    #        dizer que não há nada para arrancar. Uma .vhdx **e** a máquina.
     # EN-UK: The distinction between a machine that boots and a "nothing to
     #        boot" screen. A .vhdx **is** the machine.
     foreach ($nome in @('a.vhdx', 'a.vhd', 'a.qcow2', 'a.vdi', 'a.vmdk', 'a.img', 'a.raw')) {
@@ -561,8 +561,8 @@ Teste 'um formato desconhecido é desconhecido' {
 
 Teste 'o Hyper-V só fala VHD e VHDX' {
     # PT-PT: E o mais estreito dos dois. Uma .qcow2 de uma appliance tem de ser
-    #        convertida antes, e dizer isso a cabeca poupa a alguem criar uma
-    #        maquina que nunca vai arrancar.
+    #        convertida antes, e dizer isso a cabeça poupa a alguém criar uma
+    #        máquina que nunca vai arrancar.
     # EN-UK: The narrower of the two. A .qcow2 must be converted first.
     Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.vhdx' -Hipervisor 'hyperv').Suportado
     Assert-Verdadeiro (Test-FormatoSuportado -Extensao '.iso' -Hipervisor 'hyperv').Suportado
@@ -577,8 +577,8 @@ Teste 'o VirtualBox fala VDI, VMDK e VHD' {
 }
 
 Teste 'quando o formato não serve, diz-se como converter' {
-    # PT-PT: Uma mensagem que so diz "nao e suportado" deixa a pessoa no mesmo
-    #        sitio. Uma que diz o comando resolve-lhe o problema.
+    # PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+    #        sítio. Uma que diz o comando resolve-lhe o problema.
     # EN-UK: A message saying only "not supported" leaves the person where they
     #        were. One with the command solves their problem.
     $r = Test-FormatoSuportado -Extensao '.qcow2' -Hipervisor 'hyperv'
@@ -617,7 +617,7 @@ $pastaFalsa = Join-Path ([IO.Path]::GetTempPath()) ("lv-img-" + [Guid]::NewGuid(
 New-Item -ItemType Directory -Path $pastaFalsa -Force | Out-Null
 
 try {
-    # PT-PT: Uma ISO de mentira, com o CD001 no sitio certo — o sector 16.
+    # PT-PT: Uma ISO de mentira, com o CD001 no sítio certo — o sector 16.
     # EN-UK: A fake ISO with CD001 in the right place — sector 16.
     $iso = Join-Path $pastaFalsa 'boa.iso'
     $bytes = New-Object byte[] 0x8100
@@ -625,7 +625,7 @@ try {
     [Array]::Copy($cd001, 0, $bytes, 0x8001, 5)
     [IO.File]::WriteAllBytes($iso, $bytes)
 
-    # PT-PT: E um .zip com nome de ISO, que e o engano honesto mais comum.
+    # PT-PT: E um .zip com nome de ISO, que é o engano honesto mais comum.
     # EN-UK: And a .zip named as an ISO, the commonest honest mistake.
     $falsa = Join-Path $pastaFalsa 'ma.iso'
     $lixo = New-Object byte[] 0x9000
@@ -666,8 +666,8 @@ try {
     }
 
     Teste 'um .img não tem assinatura, e isso não é uma falha' {
-        # PT-PT: Sao bytes em bruto. Nao ha nada para verificar, e recusar por
-        #        isso seria recusar um formato legitimo.
+        # PT-PT: São bytes em bruto. Não há nada para verificar, e recusar por
+        #        isso seria recusar um formato legítimo.
         # EN-UK: Raw bytes. There is nothing to check, and refusing on that
         #        basis would refuse a legitimate format.
         $r = Test-AssinaturaFicheiro -Caminho $img
@@ -688,9 +688,9 @@ try {
     }
 
     Teste 'um ficheiro local sem marca de origem diz que não se sabe' {
-        # PT-PT: Nao encontrar a marca nao quer dizer que o ficheiro seja de
-        #        confianca; quer dizer que o Windows nao sabe. A diferenca e a
-        #        mesma que o resto do programa faz entre "nao encontrei" e "nao
+        # PT-PT: Não encontrar a marca não quer dizer que o ficheiro seja de
+        #        confiança; quer dizer que o Windows não sabe. A diferença e a
+        #        mesma que o resto do programa faz entre "não encontrei" e "não
         #        consegui olhar".
         # EN-UK: Not finding the mark does not mean the file is trustworthy; it
         #        means Windows does not know.
@@ -710,11 +710,11 @@ finally {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Instalacao de um hipervisor
+# PT-PT: Instalação de um hipervisor
 #
-#        Nada aqui instala coisa nenhuma. O que se testa sao as decisoes que se
-#        tomam **antes** de instalar -- que versao, que ficheiro, de que
-#        dominio, com que assinatura -- porque sao essas que decidem se o que
+#        Nada aqui instala coisa nenhuma. O que se testa são as decisões que se
+#        tomam **antes** de instalar -- que versão, que ficheiro, de que
+#        domínio, com que assinatura -- porque são essas que decidem se o que
 #        se instala e o da Oracle ou o de outra pessoa.
 #
 # EN-UK: Installing a hypervisor. Nothing here installs anything. What is tested
@@ -739,7 +739,7 @@ Teste 'recusa um ficheiro vazio' {
 Teste 'recusa uma versão com barras — ia ser colada num endereço' {
     # PT-PT: Este e o teste que interessa. O texto vem do servidor da Oracle e
     #        vai para dentro de um URL; se passasse uma barra ou um `..`, o
-    #        endereco deixava de apontar para onde o programa julga.
+    #        endereço deixava de apontar para onde o programa julga.
     # EN-UK: This is the test that matters. The text comes from Oracle's server
     #        and goes into a URL; a slash or a `..` would make it point
     #        elsewhere.
@@ -768,7 +768,7 @@ Teste 'encontra o instalador de Windows entre todos os ficheiros da versão' {
 }
 
 Teste 'o número de compilação não está fixado no programa' {
-    # PT-PT: Se estivesse, o programa deixava de funcionar na versao seguinte.
+    # PT-PT: Se estivesse, o programa deixava de funcionar na versão seguinte.
     # EN-UK: Were it pinned, the program would break on the next release.
     $padrao = Get-PadraoInstalador -Versao '7.2.16'
     Assert-Verdadeiro ('VirtualBox-7.2.16-174877-Win.exe' -match $padrao)
@@ -805,8 +805,8 @@ Teste 'recusa HTTP, como em todo o resto do programa' {
 }
 
 Teste 'não deixa descarregar uma imagem de sistema por esta lista' {
-    # PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
-    #        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+    # PT-PT: As duas listas são separadas de propósito. Se fossem uma só, um
+    #        catálogo adulterado podia mandar buscar uma "imagem" ao servidor da
     #        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor
     #        da Ubuntu. Nenhuma das duas coisas faz sentido.
     # EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
@@ -826,10 +826,10 @@ Teste 'a lista da instalação não entrou na lista do catálogo' {
 
 Grupo 'Assinatura Authenticode'
 
-# PT-PT: Este grupo corre contra ficheiros a serio desta maquina, e nao contra
-#        simulacoes. Um ficheiro assinado pela Microsoft e a unica forma de
-#        provar que a funcao distingue "esta assinado" de "esta assinado por
-#        quem devia" -- que e a diferenca que aqui interessa.
+# PT-PT: Este grupo corre contra ficheiros a sério desta máquina, e não contra
+#        simulacoes. Um ficheiro assinado pela Microsoft e a única forma de
+#        provar que a função distingue "esta assinado" de "esta assinado por
+#        quem devia" -- que é a diferença que aqui interessa.
 # EN-UK: This group runs against real files on this machine. A Microsoft-signed
 #        binary is the only way to prove the function tells "it is signed" from
 #        "it is signed by the right party".
@@ -844,8 +844,8 @@ if (Test-Path -LiteralPath $binarioAssinado) {
     }
 
     Teste 'recusa um executável assinado por outra entidade' {
-        # PT-PT: Assinado esta, e valido tambem. So que nao pela Oracle -- e e
-        #        exactamente essa a situacao que esta camada existe para apanhar.
+        # PT-PT: Assinado esta, e válido também. Só que não pela Oracle -- e e
+        #        exactamente essa a situação que esta camada existe para apanhar.
         # EN-UK: Signed it is, and validly. Just not by Oracle -- which is
         #        precisely what this layer exists to catch.
         $r = Test-AssinaturaAuthenticode -Caminho $binarioAssinado -Assinante 'Oracle'
@@ -861,10 +861,10 @@ else {
 Teste 'recusa um ficheiro que não está assinado' {
     $temporario = Join-Path ([IO.Path]::GetTempPath()) ("lv-" + [Guid]::NewGuid().ToString('N') + '.exe')
     try {
-        # PT-PT: Bytes escritos directamente, e nao com `Set-Content -Encoding
-        #        Byte`: esse parametro existe no Windows PowerShell 5.1 e foi
-        #        retirado no 6. Como a integracao continua corre em `pwsh`, o
-        #        teste passava nesta maquina e falhava no runner.
+        # PT-PT: Bytes escritos directamente, e não com `Set-Content -Encoding
+        #        Byte`: esse parâmetro existe no Windows PowerShell 5.1 e foi
+        #        retirado no 6. Como a integração contínua corre em `pwsh`, o
+        #        teste passava nesta máquina e falhava no runner.
         # EN-UK: Bytes written directly rather than with `Set-Content -Encoding
         #        Byte`: that parameter exists in Windows PowerShell 5.1 and was
         #        removed in 6. Since CI runs `pwsh`, the test passed here and
@@ -886,12 +886,12 @@ Teste 'um ficheiro que não existe não rebenta' {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A VMware que ja esteja instalada
+# PT-PT: A VMware que já esteja instalada
 #
-#        Nada aqui precisa da VMware instalada, e isso e deliberado: quem
-#        escreveu isto nao a tem, e o runner tambem nao. O que se testa e o
-#        `.vmx` -- que e texto, e portanto verificavel sem hipervisor nenhum --
-#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#        Nada aqui precisa da VMware instalada, e isso é deliberado: quem
+#        escreveu isto não a tem, e o runner também não. O que se testa e o
+#        `.vmx` -- que é texto, e portanto verificável sem hipervisor nenhum --
+#        e a detecção, que tem de saber dizer "não esta ca" sem rebentar.
 #
 # EN-UK: VMware, when already installed. Nothing here needs VMware installed,
 #        deliberately: neither the author nor the runner has it. What is tested
@@ -915,7 +915,7 @@ Teste 'quando não está instalada, diz que não está e não inventa caminhos' 
         Assert-Contem $r.Detalhe 'Não está instalada'
     }
     else {
-        # PT-PT: Numa maquina que a tenha, o que tem de ser verdade e outra
+        # PT-PT: Numa máquina que a tenha, o que tem de ser verdade e outra
         #        coisa: a pasta existe mesmo.
         # EN-UK: On a machine that has it, what must hold is different.
         Assert-Verdadeiro (Test-Path -LiteralPath $r.Pasta)
@@ -938,9 +938,9 @@ Teste 'o Mint é um Ubuntu e o Kali é um Debian, para efeitos da VMware' {
 }
 
 Teste 'uma distribuição desconhecida ainda dá um tipo utilizável' {
-    # PT-PT: Este campo decide o controlador de disco e o relogio. Cair em
-    #        `other-64` quando se sabe que e Linux seria criar uma maquina com
-    #        metade das definicoes erradas.
+    # PT-PT: Este campo decide o controlador de disco e o relógio. Cair em
+    #        `other-64` quando se sabe que é Linux seria criar uma máquina com
+    #        metade das definições erradas.
     # EN-UK: This field decides the disk controller and the clock. Falling to
     #        `other-64` when Linux is known would create a machine with half its
     #        settings wrong.
@@ -962,8 +962,8 @@ Teste 'leva os números que se lhe deram' {
 
 Teste 'a memória vai em megabytes, e não em gigabytes' {
     # PT-PT: O campo chama-se `memsize` e e em MB. Meter la um 8 dava a uma
-    #        maquina oito megabytes de memoria, e o erro so aparece quando ela
-    #        nao arranca.
+    #        máquina oito megabytes de memória, e o erro só aparece quando ela
+    #        não arranca.
     # EN-UK: The field is `memsize`, in MB. Putting an 8 there would give the
     #        machine eight megabytes, and the mistake only shows when it will
     #        not boot.
@@ -978,8 +978,8 @@ Teste 'o caminho do disco vai relativo, para a pasta se poder mover' {
 }
 
 Teste 'um instalador leva CD, uma imagem de disco não leva' {
-    # PT-PT: E a distincao que decide se a maquina arranca ou fica num ecra a
-    #        dizer que nao ha nada para arrancar. Ver o cabecalho do ImagemLocal.
+    # PT-PT: E a distinção que decide se a máquina arranca ou fica num ecrã a
+    #        dizer que não há nada para arrancar. Ver o cabeçalho do ImagemLocal.
     # EN-UK: The distinction that decides whether the machine boots.
     $com = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 `
         -FicheiroDisco 'lab.vmdk' -FicheiroIso 'C:\imagens\ubuntu.iso'
@@ -998,7 +998,7 @@ Teste 'a rede fica em NAT' {
 
 Teste 'um convidado de Windows leva EFI, um de Linux não precisa' {
     # PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a
-    #        comecar por causa do arranque -- e a mensagem que da fala de outra
+    #        começar por causa do arranque -- e a mensagem que da fala de outra
     #        coisa qualquer.
     # EN-UK: Without `firmware = "efi"`, the Windows 11 installer refuses to
     #        start over boot mode, with a message about something else.
@@ -1011,8 +1011,8 @@ Teste 'um convidado de Windows leva EFI, um de Linux não precisa' {
 }
 
 Teste 'não pergunta se a máquina foi movida na primeira arrancada' {
-    # PT-PT: Uma maquina acabada de criar por um script nao foi movida nem
-    #        copiada, e a pergunta so confunde quem a abre.
+    # PT-PT: Uma máquina acabada de criar por um script não foi movida nem
+    #        copiada, e a pergunta só confunde quem a abre.
     # EN-UK: A machine a script just created was neither moved nor copied.
     $v = New-VmxConteudo -Nome 'lab' -TipoConvidado 'ubuntu-64' -Cpu 2 -RamGb 4 -FicheiroDisco 'lab.vmdk'
     Assert-Contem $v 'uuid.action = "create"'
@@ -1027,8 +1027,8 @@ Teste 'um caminho sem espaços serve ao instalador silencioso' {
 
 Teste 'um caminho com espaços não serve, e é preciso avisar antes' {
     # PT-PT: O `--msiparams INSTALLDIR=` da Oracle parte-se ao meio com um
-    #        espaco no caminho. A pasta por omissao tem espacos e funciona na
-    #        mesma, porque nesse caso nao se lhe passa INSTALLDIR nenhum.
+    #        espaço no caminho. A pasta por omissão tem espaços e funciona na
+    #        mesma, porque nesse caso não se lhe passa INSTALLDIR nenhum.
     # EN-UK: Oracle's `--msiparams INSTALLDIR=` breaks in half on a space. The
     #        default folder has spaces and works anyway, because in that case no
     #        INSTALLDIR is passed at all.
@@ -1048,8 +1048,8 @@ Teste 'a pasta por omissão é a do instalador da Oracle' {
 # PT-PT: O descarregamento e os saltos
 #
 #        Nenhum destes testes liga a rede. O que se verifica e a **forma** do
-#        codigo, e nao ha aqui nada de cerimonial: cada uma destas linhas ja
-#        esteve errada e cada erro custou um descarregamento que nao funcionava.
+#        código, e não há aqui nada de cerimonial: cada uma destas linhas já
+#        esteve errada e cada erro custou um descarregamento que não funcionava.
 #
 # EN-UK: Downloading and redirects. None of these tests opens a connection.
 #        What is checked is the **shape** of the code, and there is nothing
@@ -1059,11 +1059,11 @@ Teste 'a pasta por omissão é a do instalador da Oracle' {
 Grupo 'Como o descarregamento é feito'
 
 Teste 'os redireccionamentos não dependem de uma excepção para serem seguidos' {
-    # PT-PT: Com `-MaximumRedirection 0`, o `Invoke-WebRequest` do 5.1 lanca em
+    # PT-PT: Com `-MaximumRedirection 0`, o `Invoke-WebRequest` do 5.1 lança em
     #        alguns servidores um `InvalidOperationException` **sem objecto
-    #        Response** -- e sem Response nao ha `Location` para seguir. Foi
+    #        Response** -- e sem Response não há `Location` para seguir. Foi
     #        assim que o cdimage.ubuntu.com e o cdimage.kali.org deixaram de
-    #        funcionar, que sao servidores do proprio catalogo.
+    #        funcionar, que são servidores do próprio catálogo.
     # EN-UK: With `-MaximumRedirection 0`, 5.1's `Invoke-WebRequest` throws on
     #        some servers an `InvalidOperationException` **with no Response
     #        object** -- and with no response there is no `Location` to follow.
@@ -1073,9 +1073,9 @@ Teste 'os redireccionamentos não dependem de uma excepção para serem seguidos
 }
 
 Teste 'os saltos não são seguidos automaticamente' {
-    # PT-PT: Se fossem, a lista de dominios ficava sem efeito: o servidor
+    # PT-PT: Se fossem, a lista de domínios ficava sem efeito: o servidor
     #        redireccionava para onde quisesse e o ficheiro vinha de la sem
-    #        passar por verificacao nenhuma. E a razao de existir o ciclo.
+    #        passar por verificação nenhuma. E a razão de existir o ciclo.
     # EN-UK: Were they, the domain list would be void: the server could redirect
     #        anywhere and the file would come from there unchecked.
     $fonteSeg = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
@@ -1083,8 +1083,8 @@ Teste 'os saltos não são seguidos automaticamente' {
 }
 
 Teste 'o domínio é verificado dentro do ciclo, e não só à entrada' {
-    # PT-PT: A verificacao tem de estar **no cimo do ciclo**. Fora dele, um
-    #        servidor de confianca podia redireccionar para fora da lista e o
+    # PT-PT: A verificação tem de estar **no cimo do ciclo**. Fora dele, um
+    #        servidor de confiança podia redireccionar para fora da lista e o
     #        salto seguinte passava sem ser visto.
     # EN-UK: The check must be **at the top of the loop**. Outside it, a trusted
     #        server could redirect off the list and the next hop would pass
@@ -1096,8 +1096,8 @@ Teste 'o domínio é verificado dentro do ciclo, e não só à entrada' {
 }
 
 Teste 'o ficheiro é escrito em fluxo, e não guardado em memória' {
-    # PT-PT: Uma ISO de 5 GB nao cabe em memoria numa maquina de 8. Isto nao e
-    #        optimizacao: e a diferenca entre funcionar e nao funcionar.
+    # PT-PT: Uma ISO de 5 GB não cabe em memória numa máquina de 8. Isto não é
+    #        optimizacao: e a diferença entre funcionar e não funcionar.
     # EN-UK: A 5 GB ISO does not fit in memory on an 8 GB machine.
     $fonteSeg = Get-Content -LiteralPath (Join-Path $script:Fonte 'Seguranca.ps1') -Raw
     Assert-Contem $fonteSeg '$fluxo.CopyTo($ficheiro'
@@ -1107,12 +1107,12 @@ Teste 'o ficheiro é escrito em fluxo, e não guardado em memória' {
 # ---------------------------------------------------------------------------
 # PT-PT: A assinatura GPG
 #
-#        Este grupo **nao existia**, e e por isso que a verificacao de
-#        assinaturas nunca funcionou em Windows sem ninguem reparar. A versao de
-#        Linux tinha um teste equivalente desde a 1.2.0; esta nao.
+#        Este grupo **não existia**, e é por isso que a verificação de
+#        assinaturas nunca funcionou em Windows sem ninguém reparar. A versão de
+#        Linux tinha um teste equivalente desde a 1.2.0; esta não.
 #
-#        Corre o `gpg` a serio: gera uma chave, assina um ficheiro, verifica-o.
-#        Nao ha forma de apanhar os dois defeitos que aqui estavam -- os
+#        Corre o `gpg` a sério: gera uma chave, assina um ficheiro, verifica-o.
+#        Não há forma de apanhar os dois defeitos que aqui estavam -- os
 #        caminhos do MSYS e o stderr fatal -- sem chamar mesmo o programa.
 #
 # EN-UK: The GPG signature. This group **did not exist**, which is why signature
@@ -1130,8 +1130,8 @@ $gpgReal = Get-CaminhoGpg
 if ($gpgReal) {
 
     Teste 'o cygpath é encontrado quando o gpg é o do Git para Windows' {
-        # PT-PT: A presenca do cygpath ao lado do gpg e o que identifica uma
-        #        compilacao MSYS. Nas duas situacoes a resposta tem de ser
+        # PT-PT: A presença do cygpath ao lado do gpg e o que identifica uma
+        #        compilação MSYS. Nas duas situações a resposta tem de ser
         #        coerente com o que esta no disco.
         # EN-UK: A cygpath beside gpg is what identifies an MSYS build.
         $cyg = Get-CaminhoCygpath -Gpg $gpgReal
@@ -1142,7 +1142,7 @@ if ($gpgReal) {
 
     Teste 'sem cygpath, o caminho volta intacto' {
         # PT-PT: O gpg nativo, o do Gpg4win, aceita caminhos de Windows tal
-        #        como estao. Inventar uma traducao nesse caso partiria o que
+        #        como estão. Inventar uma tradução nesse caso partiria o que
         #        funcionava.
         # EN-UK: The native gpg, Gpg4win's, takes Windows paths as they are.
         Assert-Igual 'C:\pasta\x' (ConvertTo-CaminhoParaGpg -Caminho 'C:\pasta\x' -Cygpath '')
@@ -1151,10 +1151,10 @@ if ($gpgReal) {
     $cygReal = Get-CaminhoCygpath -Gpg $gpgReal
     if ($cygReal) {
         Teste 'com cygpath, um caminho de Windows vira POSIX' {
-            # PT-PT: Este e o defeito que fez tudo falhar. Um programa MSYS le
+            # PT-PT: Este e o defeito que fez tudo falhar. Um programa MSYS lê
             #        `C:\Users\...` como **um nome relativo** -- a barra
-            #        invertida e um caracter valido num nome POSIX -- e resolve-o
-            #        contra a pasta actual. Barras normais tambem nao chegam.
+            #        invertida e um caracter válido num nome POSIX -- e resolve-o
+            #        contra a pasta actual. Barras normais também não chegam.
             # EN-UK: This is the defect that broke everything. An MSYS program
             #        reads `C:\Users\...` as **one relative name** and resolves
             #        it against the current directory.
@@ -1168,7 +1168,7 @@ if ($gpgReal) {
 
     # -----------------------------------------------------------------------
     Teste 'uma assinatura verdadeira é aceite, e a impressão digital confere' {
-        # PT-PT: Corre o gpg de ponta a ponta. Antes desta versao, isto rebentava
+        # PT-PT: Corre o gpg de ponta a ponta. Antes desta versão, isto rebentava
         #        de duas maneiras diferentes antes de chegar ao fim.
         # EN-UK: Runs gpg end to end. Before this version it blew up in two
         #        different ways before reaching the end.
@@ -1212,9 +1212,9 @@ if ($gpgReal) {
     }
 
     Teste 'uma assinatura válida de outra chave é recusada' {
-        # PT-PT: A impressao fixada e uma **condicao** e nao um aviso: uma
-        #        assinatura valida da chave errada e exactamente o que um
-        #        atacante com um catalogo adulterado produziria.
+        # PT-PT: A impressão fixada e uma **condição** e não um aviso: uma
+        #        assinatura válida da chave errada e exactamente o que um
+        #        atacante com um catálogo adulterado produziria.
         # EN-UK: The pinned fingerprint is a **condition**, not a warning: a
         #        valid signature from the wrong key is exactly what an attacker
         #        with a tampered catalogue would produce.
@@ -1266,7 +1266,7 @@ Teste 'aceita uma etiqueta fixa no Docker Hub' {
 
 Teste 'recusa uma imagem sem etiqueta' {
     # PT-PT: Sem etiqueta o Docker assume «latest» -- o problema que queremos
-    #        evitar, so que escondido.
+    #        evitar, só que escondido.
     # EN-UK: With no tag Docker assumes «latest» -- the very problem, hidden.
     Assert-Contem (Test-ReferenciaImagem -Imagem 'nginx' -Registo 'docker.io') 'não tem etiqueta'
 }
@@ -1280,8 +1280,8 @@ Teste 'aceita uma imagem do quay com o registo declarado' {
 }
 
 Teste 'recusa uma imagem que traz outro registo no nome' {
-    # PT-PT: E o ataque que a validacao existe para apanhar: o campo 'registo'
-    #        diz docker.io e passa na lista, mas a imagem vinha de outro sitio.
+    # PT-PT: E o ataque que a validação existe para apanhar: o campo 'registo'
+    #        diz docker.io e passa na lista, mas a imagem vinha de outro sítio.
     # EN-UK: The attack the validation exists for: the declared registry passes
     #        the allowlist while the image comes from somewhere else.
     Assert-Contem (Test-ReferenciaImagem -Imagem 'exemplo.net/x:1.0' -Registo 'docker.io') 'registo no nome'
@@ -1292,7 +1292,7 @@ Teste 'recusa uma imagem que não começa pelo registo declarado' {
 }
 
 Teste 'não confunde a porta do registo com a etiqueta' {
-    # PT-PT: Em `registo.local:5000/coisa` os dois pontos sao da porta. Se fossem
+    # PT-PT: Em `registo.local:5000/coisa` os dois pontos são da porta. Se fossem
     #        lidos como etiqueta, «5000/coisa» passava por etiqueta fixa.
     # EN-UK: In `registry.local:5000/thing` the colon belongs to the port.
     Assert-Contem (Test-ReferenciaImagem -Imagem 'registo.local:5000/coisa' -Registo 'docker.io') 'não tem etiqueta'
@@ -1369,8 +1369,8 @@ $servicoExemplo = '{"id":"exemplo","nome":"Exemplo","categoria":"dados","registo
     "ambiente":{"SENHA":"@gerar@","TZ":"Europe/Lisbon"}}' | ConvertFrom-Json
 
 Teste 'publica sempre em 127.0.0.1' {
-    # PT-PT: Sem isto o Docker publica em todas as interfaces, e um servico de
-    #        laboratorio passa a responder a rede toda sem ninguem ter pedido.
+    # PT-PT: Sem isto o Docker pública em todas as interfaces, e um serviço de
+    #        laboratório passa a responder a rede toda sem ninguém ter pedido.
     # EN-UK: Without this Docker publishes on every interface.
     $linha = (New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{ SENHA = 'x' }) -join ' '
     Assert-Contem $linha '127.0.0.1:8080:80/tcp'
@@ -1397,8 +1397,8 @@ Teste 'o segredo gerado entra na linha' {
 }
 
 Teste 'uma variável por gerar sem segredo rebenta' {
-    # PT-PT: Melhor rebentar do que arrancar um servico com a senha literal
-    #        «@gerar@», que era o que acontecia se isto passasse em silencio.
+    # PT-PT: Melhor rebentar do que arrancar um serviço com a senha literal
+    #        «@gerar@», que era o que acontecia se isto passasse em silêncio.
     # EN-UK: Better to raise than start a service whose password is the literal
     #        «@gerar@».
     Assert-Lanca { New-ArgumentosDocker -Servico $servicoExemplo -PastaDados 'C:\Lab' -Segredos @{} }
@@ -1468,9 +1468,9 @@ Teste 'duas seguidas não são iguais' {
 }
 
 Teste 'não usa caracteres que uma linha de comandos interpreta' {
-    # PT-PT: Uma senha com aspas, cifrao ou barra parte a linha ou muda de
-    #        significado consoante a shell. Gera-se de um alfabeto que nao tem
-    #        nenhum deles, e assim nao ha que escapar coisa nenhuma.
+    # PT-PT: Uma senha com aspas, cifrão ou barra parte a linha ou muda de
+    #        significado consoante a shell. Gera-se de um alfabeto que não tem
+    #        nenhum deles, e assim não há que escapar coisa nenhuma.
     # EN-UK: A password with quotes, dollars or backslashes breaks the command
     #        line or changes meaning depending on the shell.
     $p = New-PalavraPasse -Comprimento 128
@@ -1478,8 +1478,8 @@ Teste 'não usa caracteres que uma linha de comandos interpreta' {
 }
 
 Teste 'não usa caracteres que se confundem ao ler' {
-    # PT-PT: Sem O/0, I/l/1. Uma senha mostrada uma vez no ecra tem de poder ser
-    #        copiada a mao sem ficar a duvida.
+    # PT-PT: Sem O/0, I/l/1. Uma senha mostrada uma vez no ecrã tem de poder ser
+    #        copiada a mão sem ficar a duvida.
     # EN-UK: No O/0 or I/l/1: a password shown once must be transcribable.
     $p = New-PalavraPasse -Comprimento 128
     Assert-Falso ($p -cmatch '[O0Il1]')

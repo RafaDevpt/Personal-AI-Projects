@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Servicos em contentores -- catalogo, estado do Docker e arranque.
+# PT-PT: Serviços em contentores -- catálogo, estado do Docker e arranque.
 #
-#        Um laboratorio nao e so maquinas virtuais. Uma base de dados, um
-#        servidor web ou um painel de monitorizacao nao precisam de um sistema
-#        operativo inteiro so para si, e por um contentor ficam de pe em
+#        Um laboratório não é só máquinas virtuais. Uma base de dados, um
+#        servidor web ou um painel de monitorizacao não precisam de um sistema
+#        operativo inteiro só para si, e por um contentor ficam de pé em
 #        segundos em vez de meia hora.
 #
-#        As regras sao as mesmas do resto do programa, aplicadas ao que muda:
+#        As regras são as mesmas do resto do programa, aplicadas ao que muda:
 #
 #        O registo tem de estar na lista. Nenhuma imagem vem de um registo fora
-#        de 'registos_confiaveis', tal como nenhuma ISO vem de um dominio fora
-#        do catalogo.
+#        de 'registos_confiaveis', tal como nenhuma ISO vem de um domínio fora
+#        do catálogo.
 #
-#        Nada de 'latest'. Uma etiqueta movel faz com que a mesma ordem, na
-#        mesma maquina, com uma semana de intervalo, traga software diferente.
-#        Isso tira ao laboratorio a unica coisa que ele tem de dar: repetir o
+#        Nada de 'latest'. Uma etiqueta móvel faz com que a mesma ordem, na
+#        mesma máquina, com uma semana de intervalo, traga software diferente.
+#        Isso tira ao laboratório a única coisa que ele tem de dar: repetir o
 #        resultado.
 #
-#        As portas ficam em 127.0.0.1. Publicar em 0.0.0.0 poe o servico a
-#        responder a toda a rede local -- que e raramente o que se quer e nunca
+#        As portas ficam em 127.0.0.1. Publicar em 0.0.0.0 põe o serviço a
+#        responder a toda a rede local -- que é raramente o que se quer e nunca
 #        o que se espera.
 #
-#        So se mexe no que e nosso. Todo o contentor criado aqui leva a etiqueta
-#        'laboratorio-virtual=1', e parar ou apagar so olha para contentores que
+#        Só se mexe no que é nosso. Todo o contentor criado aqui leva a etiqueta
+#        'laboratório-virtual=1', e parar ou apagar só olha para contentores que
 #        a tenham.
 #
-#        Usa-se o `jq`, pela mesma razao do catalogo das imagens: ler JSON com
-#        `grep` e `sed` funciona ate ao primeiro valor com uma chaveta dentro de
-#        uma string, e a partir dai erra em silencio.
+#        Usa-se o `jq`, pela mesma razão do catálogo das imagens: ler JSON com
+#        `grep` e `sed` funciona até ao primeiro valor com uma chaveta dentro de
+#        uma string, e a partir dai erra em silêncio.
 #
 # EN-UK: Containerised services -- catalogue, Docker state and launching.
 #
@@ -54,7 +54,7 @@ ETIQUETA_LABORATORIO='laboratorio-virtual'
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Verifica uma referencia de imagem: registo certo e etiqueta fixa.
+# PT-PT: Verifica uma referência de imagem: registo certo e etiqueta fixa.
 #        Escreve o problema, ou nada quando esta bem.
 # EN-UK: Checks an image reference: right registry and pinned tag. Prints the
 #        problem, or nothing when fine.
@@ -67,8 +67,8 @@ problema_referencia_imagem() {
         return 0
     fi
 
-    # PT-PT: A etiqueta e o que vem depois dos ultimos dois pontos -- mas so se
-    #        nao tiver uma barra. Sem esta condicao, um endereco com porta
+    # PT-PT: A etiqueta e o que vem depois dos últimos dois pontos -- mas só se
+    #        não tiver uma barra. Sem esta condição, um endereço com porta
     #        (registo.local:5000/coisa) era lido como se '5000/coisa' fosse a
     #        etiqueta.
     # EN-UK: The tag follows the last colon -- but only when it holds no slash,
@@ -94,8 +94,8 @@ problema_referencia_imagem() {
     fi
 
     if [ "$registo" = 'docker.io' ]; then
-        # PT-PT: No Docker Hub a referencia escreve-se sem o nome do registo. Se
-        #        alguem la meter outro, o campo 'registo' passa a mentir -- e e
+        # PT-PT: No Docker Hub a referência escreve-se sem o nome do registo. Se
+        #        alguém la meter outro, o campo 'registo' passa a mentir -- e e
         #        esse campo que foi validado contra a lista.
         # EN-UK: On Docker Hub the reference carries no registry name, so
         #        another one here would make the validated field lie.
@@ -114,7 +114,7 @@ problema_referencia_imagem() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Procura problemas no catalogo de servicos e escreve-os todos.
+# PT-PT: Procura problemas no catálogo de serviços e escreve-os todos.
 # EN-UK: Looks for problems in the services catalogue and prints them all.
 # ---------------------------------------------------------------------------
 validar_catalogo_servicos() {
@@ -133,7 +133,7 @@ validar_catalogo_servicos() {
     fi
 
     # PT-PT: Ids repetidos apanham-se de uma vez com sort/uniq, em vez de um
-    #        ciclo aninhado que percorre o catalogo ao quadrado.
+    #        ciclo aninhado que percorre o catálogo ao quadrado.
     # EN-UK: Duplicate ids are caught in one pass rather than a nested loop.
     local repetido
     while IFS= read -r repetido; do
@@ -190,8 +190,8 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Le o catalogo de servicos e valida-o. Um catalogo que nao passe nao e
-#        usado: nao ha modo degradado.
+# PT-PT: Lê o catálogo de serviços e valida-o. Um catálogo que não passe não é
+#        usado: não há modo degradado.
 # EN-UK: Reads and validates the services catalogue. No degraded mode.
 # ---------------------------------------------------------------------------
 carregar_catalogo_servicos() {
@@ -220,12 +220,12 @@ carregar_catalogo_servicos() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Diz o que ha de Docker nesta maquina. Escreve tres campos separados por
-#        tabulacao: instalado, responde, versao.
+# PT-PT: Diz o que há de Docker nesta máquina. Escreve três campos separados por
+#        tabulação: instalado, responde, versão.
 #
 #        Separa duas coisas que se confundem: estar instalado e estar a
-#        responder. O servico parado da um erro diferente de nao estar
-#        instalado, e a solucao tambem e outra.
+#        responder. O serviço parado da um erro diferente de não estar
+#        instalado, e a solução também e outra.
 # EN-UK: Reports Docker's state as three tab-separated fields. Installed and
 #        answering are different problems with different fixes.
 # ---------------------------------------------------------------------------
@@ -234,7 +234,7 @@ estado_docker() {
 
     if command -v docker >/dev/null 2>&1; then
         instalado=sim
-        # PT-PT: `docker version` fala com o servico; `docker --version` nao.
+        # PT-PT: `docker version` fala com o serviço; `docker --version` não.
         # EN-UK: `docker version` talks to the daemon; `--version` does not.
         if versao="$(docker version --format '{{.Server.Version}}' 2>/dev/null)" && [ -n "$versao" ]; then
             responde=sim
@@ -265,12 +265,12 @@ nome_contentor() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Gera uma palavra-passe aleatoria.
+# PT-PT: Gera uma palavra-passe aleatória.
 #
-#        Vem do /dev/urandom e nao do $RANDOM, que e previsivel a partir da
-#        semente. O alfabeto nao tem nada que uma shell interprete (aspas,
-#        cifrao, barra) nem nada que se confunda ao ler: sem I, l, 1, O, o, 0.
-#        Uma senha mostrada uma vez no ecra tem de poder ser copiada a mao.
+#        Vem do /dev/urandom e não do $RANDOM, que é previsível a partir da
+#        semente. O alfabeto não tem nada que uma shell interprete (aspas,
+#        cifrão, barra) nem nada que se confunda ao ler: sem I, l, 1, O, o, 0.
+#        Uma senha mostrada uma vez no ecrã tem de poder ser copiada a mão.
 # EN-UK: Random password from /dev/urandom, not $RANDOM. The alphabet holds
 #        nothing a shell interprets and nothing that misreads: no I, l, 1, O, o
 #        or 0.
@@ -283,16 +283,16 @@ gerar_palavra_passe() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Constroi a linha do `docker run`, um argumento por linha.
+# PT-PT: Constrói a linha do `docker run`, um argumento por linha.
 #
-#        Escreve os argumentos e nao corre nada, de proposito: assim testa-se o
-#        que vai ser feito sem precisar de Docker instalado -- que e o que
-#        permite a estes testes correrem na integracao continua.
+#        Escreve os argumentos e não corre nada, de propósito: assim testa-se o
+#        que vai ser feito sem precisar de Docker instalado -- que é o que
+#        permite a estes testes correrem na integração contínua.
 #
-#        Os segredos entram pelo ambiente desta funcao, com o nome da variavel
-#        do catalogo prefixado por SEGREDO_. Passa-los na linha de comandos
-#        punha-os na lista de processos, visivel a qualquer utilizador da
-#        maquina.
+#        Os segredos entram pelo ambiente desta função, com o nome da variável
+#        do catálogo prefixado por SEGREDO_. Passa-los na linha de comandos
+#        punha-os na lista de processos, visível a qualquer utilizador da
+#        máquina.
 # EN-UK: Builds the `docker run` line, one argument per line. It runs nothing,
 #        so the tests can check what would happen without Docker. Secrets come
 #        through this function's environment, not the command line, which any
@@ -358,7 +358,7 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Lista os contentores criados por este programa, e so esses.
+# PT-PT: Lista os contentores criados por este programa, e só esses.
 # EN-UK: Lists containers created by this program, and only those.
 # ---------------------------------------------------------------------------
 servicos_laboratorio() {
@@ -374,11 +374,11 @@ servicos_laboratorio() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Gera um segredo para cada variavel marcada com @gerar@.
+# PT-PT: Gera um segredo para cada variável marcada com @gerar@.
 #
-#        Exporta-os com o prefixo SEGREDO_, que e por onde o `argumentos_docker`
-#        os vai buscar, e deixa em SEGREDOS_MOSTRAR o que ha para dizer ao
-#        utilizador uma unica vez.
+#        Exporta-os com o prefixo SEGREDO_, que é por onde o `argumentos_docker`
+#        os vai buscar, e deixa em SEGREDOS_MOSTRAR o que há para dizer ao
+#        utilizador uma única vez.
 # EN-UK: Generates a secret per @gerar@ variable, exports them under the
 #        SEGREDO_ prefix and leaves in SEGREDOS_MOSTRAR what to show once.
 # ---------------------------------------------------------------------------
@@ -391,10 +391,10 @@ preparar_segredos() {
         [ -z "$chave" ] && continue
         valor="$(jq -r --argjson i "$indice" --arg k "$chave" '.servicos[$i].ambiente[$k]' "$ficheiro")"
         if [ "$valor" = '@gerar@' ]; then
-            # PT-PT: O comprimento vai explicito e nao pela omissao da funcao.
-            #        Dito aqui, le-se no sitio onde importa -- e o shellcheck
-            #        deixa de avisar que a funcao aceita um argumento que
-            #        ninguem lhe passa (SC2120), que e um aviso justo.
+            # PT-PT: O comprimento vai explicito e não pela omissão da função.
+            #        Dito aqui, lê-se no sítio onde importa -- e o shellcheck
+            #        deixa de avisar que a função aceita um argumento que
+            #        ninguém lhe passa (SC2120), que é um aviso justo.
             # EN-UK: The length is passed explicitly rather than left to the
             #        function's default: it reads where it matters, and it
             #        answers SC2120 instead of silencing it.
@@ -409,11 +409,11 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Arranca um servico do catalogo.
+# PT-PT: Arranca um serviço do catálogo.
 #
-#        A imagem e puxada num passo separado do arranque. Sao dois erros
-#        diferentes -- nao chegar a imagem, ou nao arrancar o contentor -- e
-#        quem le a mensagem precisa de saber qual deles foi.
+#        A imagem e puxada num passo separado do arranque. São dois erros
+#        diferentes -- não chegar a imagem, ou não arrancar o contentor -- e
+#        quem lê a mensagem precisa de saber qual deles foi.
 # EN-UK: Starts a service. The image is pulled in a step of its own: not
 #        reaching the image and not starting the container are different
 #        failures.
@@ -444,9 +444,9 @@ EOF
         return 1
     fi
 
-    # PT-PT: A saida e capturada antes de ser partida em linhas, e nao lida de
-    #        uma substituicao de processo. Com `done < <(...)`, o codigo de saida
-    #        que chega e o do ciclo e nao o do comando -- um `argumentos_docker`
+    # PT-PT: A saída e capturada antes de ser partida em linhas, e não lida de
+    #        uma substituicao de processo. Com `done < <(...)`, o código de saída
+    #        que chega e o do ciclo e não o do comando -- um `argumentos_docker`
     #        que falhasse a meio passava despercebido, e seguia-se com uma lista
     #        de argumentos truncada.
     # EN-UK: The output is captured before being split, not read from a process
@@ -476,10 +476,10 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Para um contentor deste programa, e so deste programa.
+# PT-PT: Para um contentor deste programa, e só deste programa.
 #
-#        Confirma a etiqueta antes de mexer. Um nome coincidente nao chega: o
-#        que autoriza parar e a etiqueta que so nos pomos.
+#        Confirma a etiqueta antes de mexer. Um nome coincidente não chega: o
+#        que autoriza parar e a etiqueta que só nos pomos.
 # EN-UK: Stops a container of ours. The label, not the name, is what authorises
 #        it.
 # ---------------------------------------------------------------------------

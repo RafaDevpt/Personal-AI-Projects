@@ -1,45 +1,45 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Imagens que o utilizador ja tem, e que nao estao no catalogo.
+# PT-PT: Imagens que o utilizador já tem, e que não estão no catálogo.
 #
-#        O catalogo cobre o que e comum. Isto cobre o resto: um Proxmox, um
+#        O catálogo cobre o que é comum. Isto cobre o resto: um Proxmox, um
 #        TrueNAS, uma imagem de appliance, uma ISO que a empresa fornece, ou
-#        simplesmente uma distribuicao que ja estava no disco.
+#        simplesmente uma distribuição que já estava no disco.
 #
-#        **Aqui nao ha garantias nenhumas, e o programa diz isso em vez de as
-#        fingir.** Uma imagem do catalogo vem de um dominio fixado, com um
+#        **Aqui não há garantias nenhumas, e o programa diz isso em vez de as
+#        fingir.** Uma imagem do catálogo vem de um domínio fixado, com um
 #        manifesto assinado e uma soma que se compara. Uma imagem do disco do
-#        utilizador nao tem nada disso -- e apresentar as duas com a mesma cara
-#        seria estragar a unica coisa que o resto deste programa constroi.
+#        utilizador não tem nada disso -- e apresentar as duas com a mesma cara
+#        seria estragar a única coisa que o resto deste programa constrói.
 #
 #        O que se pode fazer, e o que se faz:
 #
 #        **Perguntar de onde veio.** E aqui que o macOS ganha aos outros dois:
-#        o Gatekeeper poe uma quarentena em tudo o que e descarregado, e o
-#        Spotlight guarda ao lado o endereco de onde veio, no atributo
-#        `com.apple.metadata:kMDItemWhereFroms`. Nao e um texto -- e um plist
-#        binario, e por isso passa pelo `plutil` para se conseguir ler.
+#        o Gatekeeper põe uma quarentena em tudo o que é descarregado, e o
+#        Spotlight guarda ao lado o endereço de onde veio, no atributo
+#        `com.apple.metadata:kMDItemWhereFroms`. Não e um texto -- e um plist
+#        binário, e por isso passa pelo `plutil` para se conseguir ler.
 #
-#        Mostrar o endereco ao utilizador e a forma mais directa de ele reparar
-#        que nao e o sitio oficial. Quando nao esta la, diz-se que nao se sabe,
-#        que e diferente de dizer que esta tudo bem.
+#        Mostrar o endereço ao utilizador e a forma mais directa de ele reparar
+#        que não é o sítio oficial. Quando não esta la, diz-se que não se sabe,
+#        que é diferente de dizer que esta tudo bem.
 #
-#        **Oferecer a verificacao.** Se o utilizador tiver a soma publicada pelo
-#        fornecedor, compara-se. Se nao tiver, diz-se o que isso significa.
+#        **Oferecer a verificação.** Se o utilizador tiver a soma publicada pelo
+#        fornecedor, compara-se. Se não tiver, diz-se o que isso significa.
 #
-#        **Confirmar que o ficheiro e o que parece.** Uma ISO comeca por `CD001`
-#        no sector 16; um qcow2 comeca por `QFI\xfb`. Nao e uma medida de
-#        seguranca -- quem adultera um ficheiro tambem lhe poe a assinatura
-#        certa -- mas apanha o engano honesto: o `.zip` que ainda nao foi
-#        extraido, o descarregamento que ficou a meio, o ficheiro errado.
+#        **Confirmar que o ficheiro e o que parece.** Uma ISO começa por `CD001`
+#        no sector 16; um qcow2 começa por `QFI\xfb`. Não e uma medida de
+#        segurança -- quem adultera um ficheiro também lhe põe a assinatura
+#        certa -- mas apanha o engano honesto: o `.zip` que ainda não foi
+#        extraído, o descarregamento que ficou a meio, o ficheiro errado.
 #
-#        E ha uma distincao que decide se a maquina arranca ou fica num ecra
+#        E há uma distinção que decide se a máquina arranca ou fica num ecrã
 #        preto:
 #
-#        **Uma ISO e o instalador. Uma imagem de disco e a maquina.** Uma ISO
+#        **Uma ISO e o instalador. Uma imagem de disco e a máquina.** Uma ISO
 #        liga-se como leitor de CD e precisa de um disco vazio ao lado. Uma
-#        `.qcow2` **ja e** o disco: criar um disco vazio ao lado e arrancar do
-#        CD que nao existe da exactamente o "no bootable device" que ninguem
+#        `.qcow2` **já e** o disco: criar um disco vazio ao lado e arrancar do
+#        CD que não existe da exactamente o "no bootable device" que ninguém
 #        sabe explicar.
 #
 # EN-UK: Images the user already has, which are not in the catalogue.
@@ -57,12 +57,12 @@
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Como e que este ficheiro se liga a uma maquina virtual.
+# PT-PT: Como e que este ficheiro se liga a uma máquina virtual.
 #
-#        Decide pela extensao, e nao pelo conteudo. E deliberado: a extensao e o
+#        Decide pela extensão, e não pelo conteúdo. E deliberado: a extensão e o
 #        que o utilizador escolheu chamar ao ficheiro, e uma `.qcow2` com nome
-#        de `.iso` e um problema para resolver com ele e nao para adivinhar em
-#        silencio. A assinatura serve depois, para confirmar que as duas coisas
+#        de `.iso` e um problema para resolver com ele e não para adivinhar em
+#        silêncio. A assinatura serve depois, para confirmar que as duas coisas
 #        coincidem.
 #
 # EN-UK: How this file attaches to a virtual machine. It decides on the
@@ -96,19 +96,19 @@ extensao_de() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Se um hipervisor consegue ligar este formato sem conversao.
+# PT-PT: Se um hipervisor consegue ligar este formato sem conversão.
 #
-#        Recebe a extensao e o hipervisor como argumentos, e nao os vai buscar,
-#        para se poder testar as combinacoes todas sem instalar hipervisor
+#        Recebe a extensão e o hipervisor como argumentos, e não os vai buscar,
+#        para se poder testar as combinações todas sem instalar hipervisor
 #        nenhum.
 #
 #        O QEMU e o mais largo dos dois: fala praticamente todos os formatos de
 #        disco que existem, porque foi ele que inventou metade deles. O
-#        VirtualBox e mais estreito, e nao le `.qcow2` de forma fiavel.
+#        VirtualBox e mais estreito, e não lê `.qcow2` de forma fiável.
 #
-#        Devolve 0 quando serve. Quando nao serve, escreve o comando de
-#        conversao: uma mensagem que so diz "nao e suportado" deixa a pessoa no
-#        mesmo sitio.
+#        Devolve 0 quando serve. Quando não serve, escreve o comando de
+#        conversão: uma mensagem que só diz "não e suportado" deixa a pessoa no
+#        mesmo sítio.
 #
 # EN-UK: Whether a hypervisor can attach this format without conversion. QEMU is
 #        the wider of the two, having invented half these formats. When the
@@ -152,18 +152,18 @@ formato_suportado() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Confirma que o conteudo do ficheiro corresponde a extensao.
+# PT-PT: Confirma que o conteúdo do ficheiro corresponde a extensão.
 #
-#        **Isto nao e uma medida de seguranca.** Quem adultera um ficheiro
-#        tambem lhe poe a assinatura certa. O que isto apanha e o engano
-#        honesto, que e o caso comum: o `.zip` que ainda nao foi extraido, o
+#        **Isto não é uma medida de segurança.** Quem adultera um ficheiro
+#        também lhe põe a assinatura certa. O que isto apanha e o engano
+#        honesto, que é o caso comum: o `.zip` que ainda não foi extraído, o
 #        descarregamento que ficou a meio, o ficheiro errado escolhido.
 #
-#        Um formato sem assinatura conhecida -- o `.img`, que e so bytes em
-#        bruto -- devolve verdadeiro. Nao ha nada para verificar, e recusar por
-#        isso seria recusar um formato legitimo.
+#        Um formato sem assinatura conhecida -- o `.img`, que é só bytes em
+#        bruto -- devolve verdadeiro. Não há nada para verificar, e recusar por
+#        isso seria recusar um formato legítimo.
 #
-#        Devolve 0 se confere, 1 se nao confere. Escreve a explicacao.
+#        Devolve 0 se confere, 1 se não confere. Escreve a explicação.
 #
 # EN-UK: Confirms the file's content matches its extension. **Not a security
 #        control**: whoever tampers with a file also puts the right signature on
@@ -190,8 +190,8 @@ assinatura_ficheiro() {
     esac
 
     local bytes=$(( ${#esperado} / 2 ))
-    # PT-PT: `stat -f %z`, e nao `stat -c %s`: o `stat` de um Mac e o do BSD e
-    #        nao o do GNU, e as opcoes nao coincidem em nada. E das diferencas
+    # PT-PT: `stat -f %z`, e não `stat -c %s`: o `stat` de um Mac e o do BSD e
+    #        não o do GNU, e as opções não coincidem em nada. E das diferenças
     #        que mais depressa parte um script copiado de Linux.
     # EN-UK: `stat -f %z`, not `stat -c %s`: a Mac's `stat` is BSD's, not GNU's,
     #        and the options share nothing.
@@ -218,17 +218,17 @@ assinatura_ficheiro() {
 # ---------------------------------------------------------------------------
 # PT-PT: De onde e que este ficheiro veio, se o sistema souber.
 #
-#        Em Linux nao ha uma Marca da Web como em Windows. O que ha e uma
-#        convencao do freedesktop que o Firefox, o Chromium e o GNOME respeitam:
+#        Em Linux não há uma Marca da Web como em Windows. O que há e uma
+#        convenção do freedesktop que o Firefox, o Chromium e o GNOME respeitam:
 #        o atributo estendido `user.xdg.origin.url`.
 #
-#        Quando la esta, mostrar o endereco ao utilizador e a forma mais directa
-#        de ele reparar que nao e o sitio oficial -- um endereco que ninguem
-#        olha nao protege ninguem; um endereco a frente dos olhos, na hora de
+#        Quando la esta, mostrar o endereço ao utilizador e a forma mais directa
+#        de ele reparar que não é o sítio oficial -- um endereço que ninguém
+#        olha não protege ninguém; um endereço a frente dos olhos, na hora de
 #        decidir, protege.
 #
-#        Quando nao esta, nao quer dizer que o ficheiro seja de confianca: quer
-#        dizer que o sistema nao sabe. O atributo perde-se num `cp` sem `-a`,
+#        Quando não esta, não quer dizer que o ficheiro seja de confiança: quer
+#        dizer que o sistema não sabe. O atributo perde-se num `cp` sem `-a`,
 #        numa pen em FAT32, e num sistema de ficheiros montado sem `user_xattr`.
 #
 # EN-UK: Where this file came from, if the system knows. This is where macOS
@@ -247,11 +247,11 @@ origem_ficheiro() {
         return 1
     }
 
-    # PT-PT: O `kMDItemWhereFroms` e um plist binario com uma lista de enderecos
-    #        -- o do ficheiro e, muitas vezes, o da pagina que o ofereceu. O
+    # PT-PT: O `kMDItemWhereFroms` e um plist binário com uma lista de endereços
+    #        -- o do ficheiro e, muitas vezes, o da página que o ofereceu. O
     #        `xattr -p` da-o em hexadecimal, o `xxd -r -p` volta a por em bytes,
-    #        e o `plutil` traduz. Parece rebuscado, e e -- mas e a unica forma
-    #        de ler o campo mais util que o macOS guarda sobre um ficheiro.
+    #        e o `plutil` traduz. Parece rebuscado, e e -- mas e a única forma
+    #        de ler o campo mais útil que o macOS guarda sobre um ficheiro.
     # EN-UK: `kMDItemWhereFroms` is a binary plist holding a list of URLs. `xattr
     #        -p` gives it as hex, `xxd -r -p` turns it back into bytes and
     #        `plutil` translates it. Convoluted, and the only way to read the
@@ -291,10 +291,10 @@ origem_ficheiro() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Perfis para um convidado que o catalogo nao conhece.
+# PT-PT: Perfis para um convidado que o catálogo não conhece.
 #
-#        Sao deliberadamente conservadores: e melhor propor pouco e o utilizador
-#        aumentar do que propor de mais e ele so descobrir quando o anfitriao
+#        São deliberadamente conservadores: e melhor propor pouco e o utilizador
+#        aumentar do que propor de mais e ele só descobrir quando o anfitrião
 #        ficar a nadar.
 #
 #        Escreve "<cpu> <ram_mb> <disco_mb> <cpu_rec> <ram_rec_mb> <disco_rec_mb>".

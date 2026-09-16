@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Arranque de testes minimo, sem dependencias.
+# PT-PT: Arranque de testes mínimo, sem dependências.
 #
-#        Nao usa `bats`, e a razao e a mesma que levou a versao de Windows a nao
+#        Não usa `bats`, e a razão e a mesma que levou a versão de Windows a não
 #        usar Pester: um projecto que se descreve como "uma pasta e um lancador"
-#        nao pode comecar por pedir que se instale um arranque de testes. O
-#        `bats` e melhor do que isto em quase tudo -- so perde em nao estar ca.
+#        não pode começar por pedir que se instale um arranque de testes. O
+#        `bats` e melhor do que isto em quase tudo -- só perde em não estar ca.
 #
-#        O que se perde e o relatorio bonito e a paralelizacao. O que se ganha e
-#        que isto corre em qualquer maquina com bash, sem rede, sem instalar
-#        nada, e que o mesmo arranque existe -- com a mesma forma -- nas versoes
+#        O que se perde e o relatório bonito e a paralelizacao. O que se ganha e
+#        que isto corre em qualquer máquina com bash, sem rede, sem instalar
+#        nada, e que o mesmo arranque existe -- com a mesma forma -- nas versões
 #        de Windows e de macOS.
 #
 # EN-UK: Minimal test harness, no dependencies.
@@ -40,9 +40,9 @@ grupo() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Corre um teste. Uma falha nao interrompe os restantes: um arranque que
-#        para no primeiro erro obriga a corrigir um de cada vez, e a informacao
-#        mais util e a lista toda.
+# PT-PT: Corre um teste. Uma falha não interrompe os restantes: um arranque que
+#        para no primeiro erro obriga a corrigir um de cada vez, e a informação
+#        mais útil e a lista toda.
 # EN-UK: Runs one test. A failure does not stop the others.
 # ---------------------------------------------------------------------------
 teste() {
@@ -67,8 +67,8 @@ teste() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Salta um teste, dizendo porque. Um teste saltado em silencio e pior do
-#        que nenhum: da a impressao de cobertura que nao houve.
+# PT-PT: Salta um teste, dizendo porque. Um teste saltado em silêncio é pior do
+#        que nenhum: da a impressão de cobertura que não houve.
 # EN-UK: Skips a test, saying why. A silently skipped test is worse than none:
 #        it suggests coverage that was not there.
 # ---------------------------------------------------------------------------

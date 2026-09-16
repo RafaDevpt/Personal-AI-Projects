@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: A VMware Workstation que ja esteja instalada nesta maquina.
+# PT-PT: A VMware Workstation que já esteja instalada nesta máquina.
 #
-#        Muita gente que abre este programa ja tem uma VMware Workstation
-#        instalada, paga pela empresa, com as maquinas todas la dentro.
-#        Dizer-lhe "instale o KVM" e ignorar o que ela tem -- e pior, e pedir-lhe
-#        que ponha dois hipervisores na mesma maquina.
+#        Muita gente que abre este programa já tem uma VMware Workstation
+#        instalada, paga pela empresa, com as máquinas todas la dentro.
+#        Dizer-lhe "instale o KVM" e ignorar o que ela tem -- é pior, e pedir-lhe
+#        que ponha dois hipervisores na mesma máquina.
 #
-#        Em Linux isso e ainda mais verdade do que em Windows: a VMware
-#        Workstation e o KVM disputam as extensoes de virtualizacao do
-#        processador, e a VMware costuma perder essa disputa em silencio, com
-#        uma mensagem sobre o modulo `vmmon`.
+#        Em Linux isso é ainda mais verdade do que em Windows: a VMware
+#        Workstation e o KVM disputam as extensões de virtualização do
+#        processador, e a VMware costuma perder essa disputa em silêncio, com
+#        uma mensagem sobre o módulo `vmmon`.
 #
 #        Por isso este ficheiro faz duas coisas: **descobre** se a VMware esta
-#        ca, e **sabe criar uma maquina nela**. A segunda e a que faz a pergunta
-#        valer a pena -- oferecer "quer usar a que ja tem?" e depois nao saber
+#        ca, e **sabe criar uma máquina nela**. A segunda e a que faz a pergunta
+#        valer a pena -- oferecer "quer usar a que já tem?" e depois não saber
 #        usa-la seria uma pergunta a fingir.
 #
-#        **Como se cria uma maquina na VMware.** Nao ha um `virsh`. Ha um
-#        ficheiro de texto, o `.vmx`, que descreve a maquina inteira, e um
-#        programa a parte que cria o disco. O `vmrun` liga e desliga, mas nao
+#        **Como se cria uma máquina na VMware.** Não há um `virsh`. Há um
+#        ficheiro de texto, o `.vmx`, que descreve a máquina inteira, e um
+#        programa a parte que cria o disco. O `vmrun` liga e desliga, mas não
 #        cria.
 #
-#        Escrever um `.vmx` a mao parece fragil e nao e: o formato e estavel ha
+#        Escrever um `.vmx` a mão parece frágil e não é: o formato e estável há
 #        mais de vinte anos, e a alternativa -- automatizar a interface
-#        grafica -- e que seria fragil.
+#        gráfica -- e que seria frágil.
 #
 # EN-UK: VMware Workstation, when already installed on this machine.
 #
@@ -49,14 +49,14 @@
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A VMware esta instalada e da para criar maquinas?
-#        Devolve: 0 pronta · 1 nao esta · 2 esta mas falta o gestor de discos
+# PT-PT: A VMware esta instalada e da para criar máquinas?
+#        Devolve: 0 pronta · 1 não esta · 2 esta mas falta o gestor de discos
 #
-#        A distincao entre 1 e 2 interessa. O `vmware-vdiskmanager` e quem cria
-#        os discos, e sem ele nao se cria maquina nenhuma -- mas a VMware
-#        propriamente dita funciona na mesma, e quem a tem pode nao perceber
+#        A distinção entre 1 e 2 interessa. O `vmware-vdiskmanager` e quem cria
+#        os discos, e sem ele não se cria máquina nenhuma -- mas a VMware
+#        propriamente dita funciona na mesma, e quem a tem pode não perceber
 #        porque e que este programa a recusa. Dizer qual das duas coisas se
-#        passa e a diferenca entre uma mensagem util e uma inutil.
+#        passa e a diferença entre uma mensagem útil e uma inútil.
 #
 # EN-UK: Is VMware installed and able to create machines? 0 ready, 1 absent,
 #        2 present but the disk manager is missing. The distinction matters:
@@ -72,7 +72,7 @@ estado_vmware() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A versao da VMware, quando ela se deixa perguntar.
+# PT-PT: A versão da VMware, quando ela se deixa perguntar.
 # EN-UK: VMware's version, when it lets itself be asked.
 # ---------------------------------------------------------------------------
 versao_vmware() {
@@ -86,11 +86,11 @@ versao_vmware() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Traduz a familia do catalogo para o `guestOS` da VMware.
+# PT-PT: Traduz a família do catálogo para o `guestOS` da VMware.
 #
-#        Este campo nao e uma etiqueta: e ele que decide o controlador de disco,
-#        o relogio e a placa de rede que a VMware configura. Um Ubuntu criado
-#        como `other-64` arranca com metade das definicoes erradas, e a lentidao
+#        Este campo não é uma etiqueta: e ele que decide o controlador de disco,
+#        o relógio e a placa de rede que a VMware configura. Um Ubuntu criado
+#        como `other-64` arranca com metade das definições erradas, e a lentidão
 #        que daqui resulta nunca e associada a este campo.
 #
 # EN-UK: Maps the catalogue family to VMware's `guestOS`. Not a label: it
@@ -120,15 +120,15 @@ tipo_vmware() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Escreve o texto do `.vmx` para o stdout. Nao toca no disco.
+# PT-PT: Escreve o texto do `.vmx` para o stdout. Não toca no disco.
 #
-#        Separada da criacao de proposito, para se poder testar sem ter a VMware
-#        instalada -- que e a situacao de quem escreveu isto e da maquina onde a
-#        integracao continua corre.
+#        Separada da criação de propósito, para se poder testar sem ter a VMware
+#        instalada -- que é a situação de quem escreveu isto e da máquina onde a
+#        integração contínua corre.
 #
-#        Os nomes dos ficheiros do disco vao **relativos**. Uma pasta de maquina
-#        que se possa mover para outro disco sem partir e a diferenca entre uma
-#        maquina de laboratorio e uma armadilha.
+#        Os nomes dos ficheiros do disco vão **relativos**. Uma pasta de máquina
+#        que se possa mover para outro disco sem partir e a diferença entre uma
+#        máquina de laboratório e uma armadilha.
 #
 # EN-UK: Writes the `.vmx` text to stdout. Touches nothing on disk. Kept apart
 #        from creation so it can be tested without VMware installed. Disk
@@ -137,14 +137,14 @@ tipo_vmware() {
 #        and a trap.
 #
 # $1 nome   $2 tipo de convidado   $3 cpu   $4 ram em GB
-# $5 ficheiro do disco   $6 ficheiro da iso ("" se nao houver)   $7 uefi (sim|nao)
+# $5 ficheiro do disco   $6 ficheiro da iso ("" se não houver)   $7 uefi (sim|não)
 # ---------------------------------------------------------------------------
 conteudo_vmx() {
     local nome="$1" tipo="$2" cpu="$3" ram_gb="$4" disco="$5" iso="${6:-}" uefi="${7:-nao}"
 
     # PT-PT: O campo chama-se `memsize` e e em megabytes. Passar-lhe os GB
-    #        directamente dava a maquina oito megabytes de memoria, e o erro so
-    #        aparece quando ela nao arranca.
+    #        directamente dava a máquina oito megabytes de memória, e o erro só
+    #        aparece quando ela não arranca.
     # EN-UK: The field is `memsize`, in megabytes. Passing GB straight in would
     #        give the machine eight megabytes, and the mistake only shows when
     #        it will not boot.
@@ -153,7 +153,7 @@ conteudo_vmx() {
 
     printf '.encoding = "UTF-8"\n'
     printf 'config.version = "8"\n'
-    # PT-PT: A 19 corresponde a Workstation 16 e para a frente. Uma versao mais
+    # PT-PT: A 19 corresponde a Workstation 16 e para a frente. Uma versão mais
     #        recente seria recusada por uma VMware mais antiga; uma mais antiga
     #        perderia dispositivos sem dizer nada.
     # EN-UK: 19 matches Workstation 16 and later. Newer would be refused by an
@@ -166,7 +166,7 @@ conteudo_vmx() {
     printf 'memsize = "%s"\n' "$memoria_mb"
 
     # PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a
-    #        comecar por causa do modo de arranque, e a mensagem que da fala de
+    #        começar por causa do modo de arranque, e a mensagem que da fala de
     #        outra coisa qualquer.
     # EN-UK: Without `firmware = "efi"`, the Windows 11 installer refuses to
     #        start over boot mode, with a message about something else.
@@ -184,8 +184,8 @@ conteudo_vmx() {
         printf 'sata0:0.startConnected = "TRUE"\n'
     fi
 
-    # PT-PT: NAT, como em todo o resto deste programa: a maquina alcanca a
-    #        Internet e nao e alcancavel a partir da rede local.
+    # PT-PT: NAT, como em todo o resto deste programa: a máquina alcança a
+    #        Internet e não é alcançável a partir da rede local.
     # EN-UK: NAT, as everywhere else in this program.
     printf 'ethernet0.present = "TRUE"\n'
     printf 'ethernet0.connectionType = "nat"\n'
@@ -197,9 +197,9 @@ conteudo_vmx() {
     printf 'sound.present = "FALSE"\n'
     printf 'mks.enable3d = "FALSE"\n'
 
-    # PT-PT: Sem isto, a VMware pergunta na primeira arrancada se a maquina foi
-    #        movida ou copiada. Uma maquina acabada de criar por um script nao
-    #        foi nem uma coisa nem outra, e a pergunta so confunde.
+    # PT-PT: Sem isto, a VMware pergunta na primeira arrancada se a máquina foi
+    #        movida ou copiada. Uma máquina acabada de criar por um script não
+    #        foi nem uma coisa nem outra, e a pergunta só confunde.
     # EN-UK: Without this, VMware asks on first boot whether the machine was
     #        moved or copied. A machine a script just created was neither.
     printf 'msg.autoAnswer = "TRUE"\n'
@@ -208,11 +208,11 @@ conteudo_vmx() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Cria uma maquina virtual na VMware.
+# PT-PT: Cria uma máquina virtual na VMware.
 #
 #        Por ordem: a pasta, o disco, o `.vmx`. O disco primeiro, porque um
-#        `.vmx` que aponta para um disco que nao existe da um erro que a VMware
-#        reporta de uma forma que ninguem associa a causa.
+#        `.vmx` que aponta para um disco que não existe da um erro que a VMware
+#        reporta de uma forma que ninguém associa a causa.
 #
 # EN-UK: Creates a virtual machine in VMware. In order: folder, disk, `.vmx`.
 #        The disk first, because a `.vmx` pointing at a disk that is not there
@@ -247,18 +247,18 @@ criar_maquina_vmware() {
     local caminho_disco="${pasta_vm}/${nome_disco}"
 
     if [[ "$uso" == 'disco' ]]; then
-        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
+        # PT-PT: A imagem e **copiada** para a pasta da máquina, e não ligada
         #        onde esta. Ligar o original faria a primeira arrancada escrever
-        #        por cima da copia limpa que o utilizador descarregou.
+        #        por cima da cópia limpa que o utilizador descarregou.
         # EN-UK: The image is **copied** into the machine's folder rather than
         #        attached in place.
         printf '  A copiar a imagem para a pasta da máquina...\n'
         cp "$imagem" "$caminho_disco" || { erro 'Não foi possível copiar a imagem.'; return 1; }
     else
         printf '  A criar o disco de %s GB...\n' "$disco_gb"
-        # PT-PT: `-t 0` e um unico ficheiro que cresce conforme se usa. O `-t 1`
-        #        parte-o em pedacos de 2 GB, que so faz falta em sistemas de
-        #        ficheiros que nao aguentem ficheiros grandes.
+        # PT-PT: `-t 0` e um único ficheiro que cresce conforme se usa. O `-t 1`
+        #        parte-o em pedacos de 2 GB, que só faz falta em sistemas de
+        #        ficheiros que não aguentem ficheiros grandes.
         # EN-UK: `-t 0` is one file growing as used. `-t 1` splits it into 2 GB
         #        pieces, only needed on filesystems that cannot hold large files.
         if ! vmware-vdiskmanager -c -s "${disco_gb}GB" -a nvme -t 0 "$caminho_disco" 2>&1 \

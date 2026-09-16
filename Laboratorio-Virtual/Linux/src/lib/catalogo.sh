@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Leitura e validacao do catalogo de imagens.
+# PT-PT: Leitura e validação do catálogo de imagens.
 #
-#        O catalogo e um ficheiro de dados, e um ficheiro de dados edita-se. E
-#        exactamente por isso que ele e validado ao ser carregado, e nao usado
+#        O catálogo e um ficheiro de dados, e um ficheiro de dados edita-se. E
+#        exactamente por isso que ele e validado ao ser carregado, e não usado
 #        como vem.
 #
-#        A validacao que interessa e uma so: **nenhum endereco de
-#        descarregamento pode apontar para fora da lista curta de dominios.**
-#        Quem conseguir escrever no catalogo consegue mudar um endereco; o que
-#        nao consegue e fazer com que esse endereco passe por aqui. E uma
+#        A validação que interessa e uma só: **nenhum endereço de
+#        descarregamento pode apontar para fora da lista curta de domínios.**
+#        Quem conseguir escrever no catálogo consegue mudar um endereço; o que
+#        não consegue e fazer com que esse endereço passe por aqui. E uma
 #        segunda fechadura na mesma porta, e existe porque a primeira -- confiar
-#        no ficheiro -- nao chega.
+#        no ficheiro -- não chega.
 #
-#        Usa-se o `jq` e nao um leitor de JSON escrito a mao. Ler JSON com
-#        `grep` e `sed` funciona ate ao primeiro valor com uma chaveta dentro de
-#        uma string, e a partir dai da respostas erradas em silencio -- o que
-#        num ficheiro que decide de onde se descarrega e a ultima coisa que se
+#        Usa-se o `jq` e não um leitor de JSON escrito a mão. Ler JSON com
+#        `grep` e `sed` funciona até ao primeiro valor com uma chaveta dentro de
+#        uma string, e a partir dai da respostas erradas em silêncio -- o que
+#        num ficheiro que decide de onde se descarrega e a última coisa que se
 #        quer.
 #
 # EN-UK: Reading and validating the image catalogue.
@@ -34,7 +34,7 @@
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Confirma que o `jq` existe e diz como o instalar se nao existir.
+# PT-PT: Confirma que o `jq` existe e diz como o instalar se não existir.
 # EN-UK: Confirms `jq` is present and says how to install it if not.
 # ---------------------------------------------------------------------------
 exigir_jq() {
@@ -46,19 +46,19 @@ exigir_jq() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Procura problemas no catalogo e escreve-os todos, um por linha.
+# PT-PT: Procura problemas no catálogo e escreve-os todos, um por linha.
 #
 #        Escreve a lista inteira em vez de parar no primeiro. Quem esta a
-#        acrescentar entradas quer saber tudo o que falta de uma vez, e nao uma
-#        coisa de cada vez em cinco execucoes.
+#        acrescentar entradas quer saber tudo o que falta de uma vez, e não uma
+#        coisa de cada vez em cinco execuções.
 #
-#        Cada endereco vai contra a lista que lhe pertence: o `directorio` e a
-#        `chave_url` alimentam descarregamentos e vao contra a lista curta; a
-#        `pagina_oficial` so e mostrada ou aberta no navegador e vai contra a
-#        das paginas. Verificar as duas contra a mesma lista obrigaria a por
-#        treze dominios de fabricantes na lista de descarregamento, sem que
+#        Cada endereço vai contra a lista que lhe pertence: o `directorio` e a
+#        `chave_url` alimentam descarregamentos e vão contra a lista curta; a
+#        `pagina_oficial` só e mostrada ou aberta no navegador e vai contra a
+#        das páginas. Verificar as duas contra a mesma lista obrigaria a por
+#        treze domínios de fabricantes na lista de descarregamento, sem que
 #        nenhum deles sirva para descarregar seja o que for -- e uma lista que
-#        ninguem consegue rever deixa de proteger.
+#        ninguém consegue rever deixa de proteger.
 #
 # EN-UK: Looks for problems in the catalogue and prints them all, one per line.
 #        Each address goes against the list it belongs to: download addresses
@@ -136,9 +136,9 @@ validar_catalogo() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Le o catalogo e valida-o. Um catalogo que nao passe nao e usado: nao ha
-#        modo degradado, porque continuar com um catalogo suspeito seria abrir a
-#        porta que a validacao existe para fechar.
+# PT-PT: Lê o catálogo e valida-o. Um catálogo que não passe não é usado: não há
+#        modo degradado, porque continuar com um catálogo suspeito seria abrir a
+#        porta que a validação existe para fechar.
 # EN-UK: Reads and validates the catalogue. One that fails is not used: there is
 #        no degraded mode.
 # ---------------------------------------------------------------------------
@@ -161,7 +161,7 @@ carregar_catalogo() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Os dominios de descarregamento, um por linha.
+# PT-PT: Os domínios de descarregamento, um por linha.
 # EN-UK: The download domains, one per line.
 # ---------------------------------------------------------------------------
 dominios_do_catalogo() { jq -r '.dominios_confiaveis[]' "$1"; }
@@ -170,10 +170,10 @@ dominios_do_catalogo() { jq -r '.dominios_confiaveis[]' "$1"; }
 # ---------------------------------------------------------------------------
 # PT-PT: As imagens que servem para esta arquitectura, em TSV.
 #
-#        Filtrar por arquitectura nao e comodidade. Uma imagem de x86_64 num
-#        anfitriao ARM nao arranca mais devagar: nao arranca. Mostrar a lista
-#        toda a quem esta num anfitriao ARM e garantir que metade das escolhas
-#        leva a um ecra preto.
+#        Filtrar por arquitectura não é comodidade. Uma imagem de x86_64 num
+#        anfitrião ARM não arranca mais devagar: não arranca. Mostrar a lista
+#        toda a quem esta num anfitrião ARM e garantir que metade das escolhas
+#        leva a um ecrã preto.
 #
 # EN-UK: The images suiting this architecture, as TSV. Filtering by architecture
 #        is not a convenience: an x86_64 image on an ARM host does not boot.

@@ -1,43 +1,43 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Laboratorio Virtual — criacao assistida de maquinas virtuais em Windows.
+    PT-PT: Laboratório Virtual — criação assistida de máquinas virtuais em Windows.
     EN-UK: Virtual Lab — assisted virtual machine creation on Windows.
 
 .DESCRIPTION
     PT-PT
-    Esta e a versao para Windows. Ha outras duas, completas e independentes, nas
+    Esta e a versão para Windows. Há outras duas, completas e independentes, nas
     pastas `Linux/` e `macOS/` ao lado desta.
 
-    O programa faz quatro coisas, por esta ordem: olha para a maquina, deixa
-    escolher o hipervisor e o sistema convidado, recomenda as especificacoes com
-    base no que a maquina tem, e cria a maquina virtual com a imagem verificada.
+    O programa faz quatro coisas, por esta ordem: olha para a máquina, deixa
+    escolher o hipervisor e o sistema convidado, recomenda as especificações com
+    base no que a máquina tem, e cria a máquina virtual com a imagem verificada.
 
-    **A recomendacao e a parte que se explica.** Nao chega dizer "4 GB": quem
-    esta a criar a primeira maquina virtual precisa de saber de onde saiu o
-    numero, senao nao sabe quando o mudar. Por isso o programa mostra a conta.
+    **A recomendação e a parte que se explica.** Não chega dizer "4 GB": quem
+    esta a criar a primeira máquina virtual precisa de saber de onde saiu o
+    número, senão não sabe quando o mudar. Por isso o programa mostra a conta.
 
-    **A verificacao e a parte que nao se negoceia.** Ver `Seguranca.ps1`.
+    **A verificação e a parte que não se negoceia.** Ver `Seguranca.ps1`.
 
-.PARAMETER Diagnostico
-    PT-PT: Mostra o que esta maquina tem e o que consegue fazer, e sai.
+.PARAMETER Diagnóstico
+    PT-PT: Mostra o que esta máquina tem e o que consegue fazer, e sai.
     EN-UK: Shows what this machine has and can do, then exits.
 
 .PARAMETER VerificarCatalogo
-    PT-PT: Valida o catalogo e imprime as impressoes digitais fixadas, para
-           poderem ser comparadas com as dos sitios oficiais.
+    PT-PT: Valida o catálogo e imprime as impressões digitais fixadas, para
+           poderem ser comparadas com as dos sítios oficiais.
     EN-UK: Validates the catalogue and prints the pinned fingerprints.
 
 .PARAMETER VerificarFicheiro
-    PT-PT: Caminho de uma imagem que ja tem, para confirmar contra uma soma.
+    PT-PT: Caminho de uma imagem que já tem, para confirmar contra uma soma.
     EN-UK: Path of an image you already have, to check against a checksum.
 
 .PARAMETER Soma
-    PT-PT: A soma SHA-256 esperada, tal como o sitio oficial a publica.
+    PT-PT: A soma SHA-256 esperada, tal como o sítio oficial a pública.
     EN-UK: The expected SHA-256, as the official site publishes it.
 
 .PARAMETER Pasta
-    PT-PT: Onde guardar imagens e maquinas. Por omissao, o volume com mais espaco.
+    PT-PT: Onde guardar imagens e máquinas. Por omissão, o volume com mais espaço.
     EN-UK: Where to keep images and machines. Defaults to the roomiest volume.
 
 .EXAMPLE
@@ -147,8 +147,8 @@ function Show-Hipervisores {
         Write-Host '                 Este programa instala-o — a opção 5 do menu.' -ForegroundColor DarkGray
     }
 
-    # PT-PT: A VMware vem primeiro na lista quando esta ca. Quem ja a tem quase
-    #        sempre a tem por motivo de trabalho, com maquinas la dentro -- e a
+    # PT-PT: A VMware vem primeiro na lista quando esta ca. Quem já a tem quase
+    #        sempre a tem por motivo de trabalho, com máquinas la dentro -- e a
     #        primeira coisa que quer saber e se este programa a reconhece.
     # EN-UK: VMware comes first in the list when present. Whoever has it almost
     #        always has it for work, with machines inside -- and the first thing
@@ -183,7 +183,7 @@ function Show-Hipervisores {
 function Read-Escolha {
     <#
     .SYNOPSIS
-        PT-PT: Le um numero entre 1 e um maximo, insistindo ate ser valido.
+        PT-PT: Lê um número entre 1 e um máximo, insistindo até ser válido.
         EN-UK: Reads a number between 1 and a maximum, insisting until valid.
     #>
     param(
@@ -207,7 +207,7 @@ function Read-Escolha {
 function Read-Texto {
     <#
     .SYNOPSIS
-        PT-PT: Le texto com um valor por omissao que o Enter aceita.
+        PT-PT: Lê texto com um valor por omissão que o Enter aceita.
         EN-UK: Reads text with a default that Enter accepts.
     #>
     param(
@@ -223,13 +223,13 @@ function Read-Texto {
 function Read-Numero {
     <#
     .SYNOPSIS
-        PT-PT: Le um numero dentro de limites, insistindo ate ser aceitavel.
+        PT-PT: Lê um número dentro de limites, insistindo até ser aceitável.
         EN-UK: Reads a number within limits, insisting until acceptable.
 
     .DESCRIPTION
-        PT-PT: Os limites nao sao decorativos e a mensagem di-los. Deixar alguem
-               escrever 64 GB numa maquina com 16 nao e liberdade: e deixa-lo
-               criar uma maquina que nao arranca, e depois descobrir porque
+        PT-PT: Os limites não são decorativos e a mensagem di-los. Deixar alguém
+               escrever 64 GB numa máquina com 16 não é liberdade: e deixa-lo
+               criar uma máquina que não arranca, e depois descobrir porque
                sozinho.
         EN-UK: The limits are not decorative and the message states them.
                Letting somebody type 64 GB on a 16 GB machine is not freedom: it
@@ -344,7 +344,7 @@ function Show-Recomendacao {
 function Get-ImagemGuiada {
     <#
     .SYNOPSIS
-        PT-PT: Trata das imagens que nao se conseguem descarregar sozinhas.
+        PT-PT: Trata das imagens que não se conseguem descarregar sozinhas.
         EN-UK: Handles images that cannot be fetched automatically.
     #>
     param([Parameter(Mandatory)]$Imagem)
@@ -389,16 +389,16 @@ function Get-ImagemGuiada {
 function Get-ImagemDoUtilizador {
     <#
     .SYNOPSIS
-        PT-PT: Conduz a escolha de uma imagem que o utilizador ja tem.
+        PT-PT: Conduz a escolha de uma imagem que o utilizador já tem.
         EN-UK: Walks the user through choosing an image they already have.
 
     .DESCRIPTION
-        PT-PT: Esta e a porta que fica fora da cadeia de verificacao, e por isso
-               e a que tem de ser mais clara sobre o que nao garante. O programa
+        PT-PT: Esta e a porta que fica fora da cadeia de verificação, e por isso
+               e a que tem de ser mais clara sobre o que não garante. O programa
                mostra tudo o que consegue descobrir -- de onde o ficheiro veio,
-               se o conteudo corresponde a extensao, se a soma confere -- e
-               depois pergunta. A decisao e do utilizador; o trabalho do programa
-               e nao a deixar tomar as escuras.
+               se o conteúdo corresponde a extensão, se a soma confere -- e
+               depois pergunta. A decisão e do utilizador; o trabalho do programa
+               e não a deixar tomar as escuras.
 
         EN-UK: This is the door outside the verification chain, and so the one
                that must be clearest about what it does not guarantee. The
@@ -473,8 +473,8 @@ function Get-ImagemDoUtilizador {
         }
     }
 
-    # PT-PT: A origem, quando o Windows a sabe. E a informacao mais util desta
-    #        janela toda: um endereco a frente dos olhos, na hora de decidir.
+    # PT-PT: A origem, quando o Windows a sabe. E a informação mais útil desta
+    #        janela toda: um endereço a frente dos olhos, na hora de decidir.
     # EN-UK: The origin, when Windows knows it. The most useful thing on this
     #        whole screen: a URL in front of the eyes at decision time.
     if ($imagem.Origem.Endereco) {
@@ -509,7 +509,7 @@ function Get-ImagemDoUtilizador {
         if (-not $somaVerificada) { return $null }
     }
 
-    # --- o relatorio, com a verdade toda -----------------------------------
+    # --- o relatório, com a verdade toda -----------------------------------
     $camadas = [ordered]@{
         'Domínio na lista de confiança' = $false
         'Ligação HTTPS com certificado válido' = $false
@@ -526,8 +526,8 @@ function Get-ImagemDoUtilizador {
     if (-not (Confirm-Accao 'Continuar com esta imagem?')) { return $null }
 
     # --- a familia, que decide o arranque ----------------------------------
-    # PT-PT: Nao e cosmetica. Em Hyper-V, decide o modelo de Arranque Seguro --
-    #        e uma imagem de Linux com o modelo da Microsoft nao arranca, sem
+    # PT-PT: Não e cosmética. Em Hyper-V, decide o modelo de Arranque Seguro --
+    #        e uma imagem de Linux com o modelo da Microsoft não arranca, sem
     #        dizer porque.
     # EN-UK: Not cosmetic. On Hyper-V it decides the Secure Boot template, and a
     #        Linux image under the Microsoft template will not boot.
@@ -542,7 +542,7 @@ function Get-ImagemDoUtilizador {
     # --- as especificacoes -------------------------------------------------
     $perfil = $null
     if ($imagem.Tipo -eq 'apliancia') {
-        # PT-PT: Uma appliance traz as suas. Nao ha nada a recomendar.
+        # PT-PT: Uma appliance traz as suas. Não há nada a recomendar.
         # EN-UK: An appliance brings its own. There is nothing to recommend.
         $perfil = Get-PerfilGenerico -Chave 'outro'
     }
@@ -581,19 +581,19 @@ function Confirm-Especificacoes {
         EN-UK: Shows what will be created and allows changing it first.
 
     .DESCRIPTION
-        PT-PT: Um ecra so, com tudo o que decide a maquina: o nome, os nucleos,
-               a memoria e o disco. A alternativa -- perguntar quatro coisas
-               seguidas e so depois mostrar o resultado -- obriga a decidir cada
+        PT-PT: Um ecrã só, com tudo o que decide a máquina: o nome, os núcleos,
+               a memória e o disco. A alternativa -- perguntar quatro coisas
+               seguidas e só depois mostrar o resultado -- obriga a decidir cada
                uma sem ver as outras.
 
-               Os limites de cada campo vem de dois sitios ao mesmo tempo: do
-               que o convidado precisa (o minimo do catalogo) e do que o
-               anfitriao tem. Nenhum dos dois sozinho chega -- o primeiro deixa
-               criar uma maquina que nao cabe, e o segundo deixa criar uma que
-               cabe e nao arranca.
+               Os limites de cada campo vem de dois sítios ao mesmo tempo: do
+               que o convidado precisa (o mínimo do catálogo) e do que o
+               anfitrião tem. Nenhum dos dois sozinho chega -- o primeiro deixa
+               criar uma máquina que não cabe, e o segundo deixa criar uma que
+               cabe e não arranca.
 
-               Depois deste ecra nao ha mais perguntas. Foi o que se pediu, e
-               faz sentido: a decisao ja foi toda tomada aqui.
+               Depois deste ecrã não há mais perguntas. Foi o que se pediu, e
+               faz sentido: a decisão já foi toda tomada aqui.
 
         EN-UK: One screen with everything that decides the machine: name, cores,
                memory, disk. The alternative -- asking four things in a row and
@@ -670,10 +670,10 @@ function Confirm-Especificacoes {
                     Write-Host '  Esse nome tem caracteres que o hipervisor não aceita.' -ForegroundColor DarkYellow
                 }
 
-                # PT-PT: Nunca mais nucleos virtuais do que fisicos. E a confusao
-                #        mais comum de quem cria a primeira maquina virtual, e o
-                #        resultado e o contrario do esperado: os nucleos passam
-                #        a disputar-se e a maquina fica mais lenta.
+                # PT-PT: Nunca mais núcleos virtuais do que físicos. E a confusão
+                #        mais comum de quem cria a primeira máquina virtual, e o
+                #        resultado e o contrário do esperado: os núcleos passam
+                #        a disputar-se e a máquina fica mais lenta.
                 # EN-UK: Never more virtual cores than physical. The commonest
                 #        confusion of a first virtual machine, and the result is
                 #        the opposite of what is expected.
@@ -700,21 +700,21 @@ function Confirm-Especificacoes {
 function Invoke-PreparacaoHipervisor {
     <#
     .SYNOPSIS
-        PT-PT: Poe um hipervisor a funcionar, a pedido de quem esta a usar.
+        PT-PT: Põe um hipervisor a funcionar, a pedido de quem esta a usar.
         EN-UK: Gets a hypervisor working, at the user's request.
 
     .DESCRIPTION
-        PT-PT: As duas opcoes fazem coisas muito diferentes, e a pergunta e
-               feita com essa diferenca a vista.
+        PT-PT: As duas opções fazem coisas muito diferentes, e a pergunta e
+               feita com essa diferença a vista.
 
-               O Hyper-V nao se instala: ja la esta, desligado. Activa-lo e
+               O Hyper-V não se instala: já la esta, desligado. Activa-lo e
                mexer no arranque do Windows e obriga a reiniciar -- e, a partir
-               do reinicio, o Windows passa a correr por cima de um hipervisor,
-               o que abranda o VirtualBox para sempre. Nao ha meio caminho.
+               do reinício, o Windows passa a correr por cima de um hipervisor,
+               o que abranda o VirtualBox para sempre. Não há meio caminho.
 
                O VirtualBox instala-se como qualquer programa e desinstala-se da
-               mesma maneira. E a escolha reversivel das duas, e e por isso que
-               aparece primeiro quando as duas estao disponiveis.
+               mesma maneira. E a escolha reversível das duas, e é por isso que
+               aparece primeiro quando as duas estão disponíveis.
 
         EN-UK: The two options do very different things, and the question is put
                with that difference in view. Hyper-V is not installed but
@@ -736,7 +736,7 @@ function Invoke-PreparacaoHipervisor {
 
     Write-Titulo 'Preparar um hipervisor'
 
-    # PT-PT: Se ja ha uma VMware utilizavel, diz-se antes de propor instalar
+    # PT-PT: Se já há uma VMware utilizável, diz-se antes de propor instalar
     #        seja o que for. Por em cima de uma VMware Workstation um segundo
     #        hipervisor e o caminho conhecido para os dois ficarem lentos, e
     #        quem tem uma quase sempre a tem por motivo de trabalho.
@@ -808,10 +808,10 @@ function Invoke-PreparacaoHipervisor {
         }
 
         Write-Host ''
-        # PT-PT: Nao ha segunda pergunta. Escolher "activar o Hyper-V" num menu
-        #        que diz "activar o Hyper-V" ja e a resposta -- perguntar outra
-        #        vez nao acrescenta decisao nenhuma, so ruido. O que se faz e
-        #        dizer o que vai acontecer, que e diferente de pedir licenca.
+        # PT-PT: Não há segunda pergunta. Escolher "activar o Hyper-V" num menu
+        #        que diz "activar o Hyper-V" já e a resposta -- perguntar outra
+        #        vez não acrescenta decisão nenhuma, só ruído. O que se faz e
+        #        dizer o que vai acontecer, que é diferente de pedir licença.
         # EN-UK: There is no second question. Choosing "enable Hyper-V" from a
         #        menu that says "enable Hyper-V" is the answer -- asking again
         #        adds no decision, only noise. What is done is saying what will
@@ -849,9 +849,9 @@ function Invoke-PreparacaoHipervisor {
     Write-Host '  essa não se aplica aqui, e o relatório vai dizê-lo.' -ForegroundColor DarkYellow
     Write-Host ''
 
-    # PT-PT: A unica pergunta desta operacao. E aqui e mesmo uma pergunta, e nao
-    #        uma confirmacao a fingir: o sitio importa em maquinas onde o disco
-    #        do sistema esta cheio, que sao muitas.
+    # PT-PT: A única pergunta desta operação. E aqui e mesmo uma pergunta, e não
+    #        uma confirmação a fingir: o sítio importa em máquinas onde o disco
+    #        do sistema esta cheio, que são muitas.
     # EN-UK: The only question in this operation. And here it is a real one, not
     #        a pretend confirmation: the location matters on machines whose
     #        system disk is full, which are many.
@@ -862,10 +862,10 @@ function Invoke-PreparacaoHipervisor {
     $pastaInstalacao = Read-Texto -Pergunta 'Pasta' -Omissao $predefinida
 
     if ($pastaInstalacao -ne $predefinida -and -not (Test-PastaInstalacaoSimples -Caminho $pastaInstalacao)) {
-        # PT-PT: Ver `Test-PastaInstalacaoSimples`. Isto nao e uma limitacao
+        # PT-PT: Ver `Test-PastaInstalacaoSimples`. Isto não é uma limitação
         #        deste programa: e do instalador silencioso da Oracle, e a
-        #        alternativa a avisar era deixar a instalacao ir para outro
-        #        sitio sem ninguem perceber porque.
+        #        alternativa a avisar era deixar a instalação ir para outro
+        #        sítio sem ninguém perceber porque.
         # EN-UK: See `Test-PastaInstalacaoSimples`. Not this program's
         #        limitation but Oracle's silent installer's, and the alternative
         #        to warning was letting the install land elsewhere unexplained.
@@ -905,10 +905,10 @@ function Invoke-CriacaoMaquina {
 
     # --- 1. O hipervisor ---------------------------------------------------
     # PT-PT: A VMware entra na lista como qualquer outro, e entra em primeiro
-    #        quando esta ca. Quem ja a tem quase sempre a tem por motivo de
-    #        trabalho, com maquinas la dentro -- propor-lhe instalar um segundo
+    #        quando esta ca. Quem já a tem quase sempre a tem por motivo de
+    #        trabalho, com máquinas la dentro -- propor-lhe instalar um segundo
     #        hipervisor antes de lhe perguntar se quer usar o que tem seria
-    #        ignorar metade do que esta na maquina.
+    #        ignorar metade do que esta na máquina.
     # EN-UK: VMware joins the list like any other, and comes first when present.
     #        Whoever has it almost always has it for work, with machines inside;
     #        proposing a second hypervisor before asking whether they want the
@@ -937,10 +937,10 @@ function Invoke-CriacaoMaquina {
         })
     }
 
-    # PT-PT: Sem hipervisor nenhum, o programa nao se limita a dizer que falta
+    # PT-PT: Sem hipervisor nenhum, o programa não se limita a dizer que falta
     #        um: pergunta qual e trata dele. Depois de instalar, volta-se ao
-    #        menu de proposito -- o estado tem de ser relido, e no caso do
-    #        Hyper-V ainda falta um reinicio pelo meio.
+    #        menu de propósito -- o estado tem de ser relido, e no caso do
+    #        Hyper-V ainda falta um reinício pelo meio.
     # EN-UK: With no hypervisor at all, the program does not merely say one is
     #        missing: it asks which and sets it up. Afterwards it deliberately
     #        returns to the menu -- the state has to be re-read, and in Hyper-V's
@@ -958,9 +958,9 @@ function Invoke-CriacaoMaquina {
         return
     }
 
-    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando ja ha
-    #        um a funcionar. Quem tem so a VMware pode preferir o Hyper-V para
-    #        uma maquina em concreto, e nao ha razao para o obrigar a sair daqui
+    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando já há
+    #        um a funcionar. Quem tem só a VMware pode preferir o Hyper-V para
+    #        uma máquina em concreto, e não há razão para o obrigar a sair daqui
     #        e voltar a entrar pelo menu principal.
     # EN-UK: The option to install another appears **always**, even when one
     #        already works. Somebody with only VMware may prefer Hyper-V for one
@@ -1026,9 +1026,9 @@ function Invoke-CriacaoMaquina {
     }
 
     # --- 3. Onde fica a imagem ---------------------------------------------
-    # PT-PT: Perguntado agora, e nao no fim: uma imagem de sistema operativo
-    #        anda pelos tres a cinco gigabytes, e o disco onde o Windows esta
-    #        instalado e, em muitas maquinas, o unico que nao tem espaco. Dizer
+    # PT-PT: Perguntado agora, e não no fim: uma imagem de sistema operativo
+    #        anda pelos três a cinco gigabytes, e o disco onde o Windows esta
+    #        instalado e, em muitas máquinas, o único que não tem espaço. Dizer
     #        isto depois de descarregar seria dizer tarde.
     # EN-UK: Asked now, not at the end: an operating-system image runs to three
     #        or five gigabytes, and the disk Windows is installed on is, on many
@@ -1065,9 +1065,9 @@ function Invoke-CriacaoMaquina {
     $plano = $null
 
     if ($escolha.Uso -eq 'apliancia') {
-        # PT-PT: Uma appliance traz as suas: memoria, nucleos, discos e placas de
-        #        rede vem todos decididos por quem a exportou. Nao ha nada a
-        #        recomendar, e propor numeros que nao vao ser usados so confunde.
+        # PT-PT: Uma appliance traz as suas: memória, núcleos, discos e placas de
+        #        rede vem todos decididos por quem a exportou. Não há nada a
+        #        recomendar, e propor números que não vão ser usados só confunde.
         # EN-UK: An appliance brings its own. There is nothing to recommend, and
         #        proposing numbers that will not be used only confuses.
         Write-Titulo 'A máquina que vai ser importada'
@@ -1101,10 +1101,10 @@ function Invoke-CriacaoMaquina {
         }
     }
 
-    # --- 5. Daqui para baixo nao ha mais perguntas -------------------------
-    # PT-PT: Foi o que se pediu, e faz sentido: as decisoes ja foram todas
-    #        tomadas nos ecras acima. O que falta e trabalho, e o trabalho
-    #        mostra-se enquanto acontece em vez de se pedir licenca para ele.
+    # --- 5. Daqui para baixo não há mais perguntas -------------------------
+    # PT-PT: Foi o que se pediu, e faz sentido: as decisões já foram todas
+    #        tomadas nos ecrãs acima. O que falta e trabalho, e o trabalho
+    #        mostra-se enquanto acontece em vez de se pedir licença para ele.
     # EN-UK: As asked, and it makes sense: every decision was taken on the
     #        screens above. What is left is work, and work is shown as it
     #        happens rather than asked permission for.
@@ -1240,7 +1240,7 @@ function Show-Catalogo {
 function Show-EstadoDocker {
     <#
     .SYNOPSIS
-        PT-PT: Mostra o que ha de Docker e devolve o estado.
+        PT-PT: Mostra o que há de Docker e devolve o estado.
         EN-UK: Shows what Docker is here and returns the state.
     #>
     [CmdletBinding()]
@@ -1267,7 +1267,7 @@ function Show-EstadoDocker {
 function Show-CatalogoServicos {
     <#
     .SYNOPSIS
-        PT-PT: Escreve o catalogo de servicos por categoria.
+        PT-PT: Escreve o catálogo de serviços por categoria.
         EN-UK: Prints the services catalogue by category.
     #>
     [CmdletBinding()]
@@ -1293,7 +1293,7 @@ function Show-CatalogoServicos {
 function Select-Servico {
     <#
     .SYNOPSIS
-        PT-PT: Deixa escolher um servico do catalogo. Devolve nada se desistir.
+        PT-PT: Deixa escolher um serviço do catálogo. Devolve nada se desistir.
         EN-UK: Lets the user pick a service. Returns nothing on cancel.
     #>
     [CmdletBinding()]
@@ -1321,12 +1321,12 @@ function Select-Servico {
 function Invoke-ArranqueServico {
     <#
     .SYNOPSIS
-        PT-PT: Pergunta, avisa e arranca um servico.
+        PT-PT: Pergunta, avisa e arranca um serviço.
         EN-UK: Asks, warns and starts a service.
 
     .DESCRIPTION
-        PT-PT: O aviso aparece antes da pergunta e nao depois. Um aviso que so
-               aparece depois de a pessoa dizer que sim nao e um aviso, e uma
+        PT-PT: O aviso aparece antes da pergunta e não depois. Um aviso que só
+               aparece depois de a pessoa dizer que sim não é um aviso, e uma
                desculpa.
         EN-UK: The warning comes before the question, not after.
     #>
@@ -1374,8 +1374,8 @@ function Invoke-ArranqueServico {
     }
 
     if ($segredos.Count -gt 0) {
-        # PT-PT: Mostra-se uma vez e nao se guarda em lado nenhum. Escrever a
-        #        senha num ficheiro ao lado do servico poupava este incomodo e
+        # PT-PT: Mostra-se uma vez e não se guarda em lado nenhum. Escrever a
+        #        senha num ficheiro ao lado do serviço poupava este incomodo e
         #        tirava-lhe o sentido.
         # EN-UK: Shown once and stored nowhere. Writing it to a file beside the
         #        service would save the bother and defeat the point.
@@ -1391,7 +1391,7 @@ function Invoke-ArranqueServico {
 function Invoke-Servicos {
     <#
     .SYNOPSIS
-        PT-PT: O menu dos servicos em contentores.
+        PT-PT: O menu dos serviços em contentores.
         EN-UK: The containerised-services menu.
     #>
     [CmdletBinding()]
@@ -1522,17 +1522,17 @@ function Show-Menu {
 # PT-PT: O registo.
 #
 #        Um erro que aparece numa janela que se fecha a seguir e um erro que
-#        ninguem consegue comunicar -- e foi exactamente isso que aconteceu.
+#        ninguém consegue comunicar -- e foi exactamente isso que aconteceu.
 #        A partir daqui fica tudo escrito num ficheiro, e o caminho do ficheiro
-#        e dito no principio e repetido em caso de erro.
+#        e dito no princípio e repetido em caso de erro.
 #
 #        O `Start-Transcript` apanha o `Write-Host` desde o PowerShell 5, o que
 #        quer dizer que o que fica no ficheiro e exactamente o que apareceu no
-#        ecra, e nao uma versao resumida.
+#        ecrã, e não uma versão resumida.
 #
-#        Vai para o `LOCALAPPDATA` e nao para a pasta das maquinas, por duas
-#        razoes: a pasta das maquinas so e escolhida mais a frente, e um erro
-#        pode acontecer antes disso -- que e precisamente quando o registo faz
+#        Vai para o `LOCALAPPDATA` e não para a pasta das máquinas, por duas
+#        razões: a pasta das máquinas só e escolhida mais a frente, e um erro
+#        pode acontecer antes disso -- que é precisamente quando o registo faz
 #        mais falta.
 #
 # EN-UK: The log. An error shown in a window that then closes is an error
@@ -1554,10 +1554,10 @@ try {
     if (-not (Test-Path -LiteralPath $script:PastaRegisto)) {
         New-Item -ItemType Directory -Path $script:PastaRegisto -Force -ErrorAction Stop | Out-Null
     }
-    # PT-PT: Guarda-se os ultimos vinte e apagam-se os outros. Um registo por
+    # PT-PT: Guarda-se os últimos vinte e apagam-se os outros. Um registo por
     #        arranque, sem limite nenhum, enche a pasta de quem usa isto todos
-    #        os dias -- e um programa que deixa lixo para tras nao tem o direito
-    #        de se queixar de que ninguem o encontra.
+    #        os dias -- e um programa que deixa lixo para trás não tem o direito
+    #        de se queixar de que ninguém o encontra.
     # EN-UK: The last twenty are kept and the rest removed. One log per launch,
     #        unbounded, fills the folder of anybody using this daily.
     Get-ChildItem -LiteralPath $script:PastaRegisto -Filter 'registo-*.txt' -ErrorAction SilentlyContinue |
@@ -1568,9 +1568,9 @@ try {
     Start-Transcript -LiteralPath $script:CaminhoRegisto -Force -ErrorAction Stop | Out-Null
 }
 catch {
-    # PT-PT: Sem registo o programa corre na mesma. Nao ha nada aqui que
-    #        justifique recusar arrancar -- mas diz-se, para ninguem contar com
-    #        um ficheiro que nao existe.
+    # PT-PT: Sem registo o programa corre na mesma. Não há nada aqui que
+    #        justifique recusar arrancar -- mas diz-se, para ninguém contar com
+    #        um ficheiro que não existe.
     # EN-UK: Without a log the program still runs. Nothing here justifies
     #        refusing to start -- but it is said, so nobody counts on a file
     #        that is not there.
@@ -1636,12 +1636,12 @@ try {
     exit 0
 }
 catch {
-    # PT-PT: O que se escreve aqui e o que alguem vai precisar de copiar para
+    # PT-PT: O que se escreve aqui e o que alguém vai precisar de copiar para
     #        pedir ajuda -- por isso escreve-se tudo: a mensagem, o tipo da
-    #        excepcao, a linha onde rebentou e a pilha de chamadas.
+    #        excepção, a linha onde rebentou e a pilha de chamadas.
     #
-    #        Antes daqui so saia a mensagem. Uma mensagem sozinha diz o que
-    #        correu mal e nao diz onde, que e metade do que faz falta.
+    #        Antes daqui só saia a mensagem. Uma mensagem sozinha diz o que
+    #        correu mal e não diz onde, que é metade do que faz falta.
     # EN-UK: What is printed here is what somebody will need to copy in order to
     #        ask for help, so all of it is printed: the message, the exception
     #        type, the line it broke on, and the call stack. Before, only the

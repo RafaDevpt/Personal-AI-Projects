@@ -1,46 +1,46 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Descarregamento verificado. E a fronteira de seguranca deste programa.
+# PT-PT: Descarregamento verificado. E a fronteira de segurança deste programa.
 #
-#        Este ficheiro existe para responder a uma pergunta so: **este ficheiro
+#        Este ficheiro existe para responder a uma pergunta só: **este ficheiro
 #        veio mesmo de quem diz vir?**
 #
-#        Ha quatro camadas, por ordem de forca. O programa aplica as que
+#        Há quatro camadas, por ordem de força. O programa aplica as que
 #        consegue e diz sempre quais aplicou -- nunca afirma mais do que fez.
 #
-#        **1. O dominio.** Cada endereco e comparado com uma lista fechada, e a
-#        verificacao repete-se a cada redireccionamento. E por isso que o `curl`
-#        e chamado com `--max-redirs 0` e os saltos sao seguidos a mao: com o
-#        `-L`, um redireccionamento para outro sitio passava sem ninguem dar por
-#        ele, e a lista de dominios ficava a decorar.
+#        **1. O domínio.** Cada endereço e comparado com uma lista fechada, e a
+#        verificação repete-se a cada redireccionamento. É por isso que o `curl`
+#        e chamado com `--max-redirs 0` e os saltos são seguidos a mão: com o
+#        `-L`, um redireccionamento para outro sítio passava sem ninguém dar por
+#        ele, e a lista de domínios ficava a decorar.
 #
 #        **2. O TLS.** O `--proto '=https'` recusa qualquer outro protocolo,
-#        mesmo que apareca num redireccionamento. Nunca ha `-k`, nunca ha
+#        mesmo que apareça num redireccionamento. Nunca há `-k`, nunca há
 #        `--insecure`. Um `curl` sem `--proto` aceita `http://` num
-#        redireccionamento e ninguem repara.
+#        redireccionamento e ninguém repara.
 #
-#        **3. A soma de verificacao.** Obrigatoria, sem opcao de a desligar.
+#        **3. A soma de verificação.** Obrigatória, sem opção de a desligar.
 #
 #        **4. A assinatura.** Quando o projecto assina o manifesto, e a
-#        assinatura que prova a origem -- e nao o nome do servidor. E o que
-#        permite usar um espelho sem perder garantias, e e por isso que a
-#        imagem do Linux Mint, que so existe em espelhos, e tao verificavel
+#        assinatura que prova a origem -- e não o nome do servidor. E o que
+#        permite usar um espelho sem perder garantias, e é por isso que a
+#        imagem do Linux Mint, que só existe em espelhos, e tão verificável
 #        como a do Ubuntu.
 #
-#        **O nome do ficheiro nunca e inventado.** Sai do manifesto, que e o
+#        **O nome do ficheiro nunca e inventado.** Sai do manifesto, que é o
 #        documento assinado.
 #
-#        Duas diferencas em relacao a versao de Linux, e nenhuma delas e de
+#        Duas diferenças em relação a versão de Linux, e nenhuma delas e de
 #        estilo.
 #
-#        **Nao ha `sha256sum` num Mac.** O equivalente e o `shasum -a 256`, que
-#        ja vem no sistema. E a diferenca mais silenciosa que ha entre os dois
-#        ficheiros: um script de Linux corre num Mac ate a linha em que verifica
-#        a soma, e falha exactamente no passo que nao pode falhar.
+#        **Não há `sha256sum` num Mac.** O equivalente e o `shasum -a 256`, que
+#        já vem no sistema. E a diferença mais silenciosa que há entre os dois
+#        ficheiros: um script de Linux corre num Mac até a linha em que verifica
+#        a soma, e falha exactamente no passo que não pode falhar.
 #
-#        **O `bash` do sistema e o 3.2.** Nao ha `mapfile` nem arrays
-#        associativos aqui. E por isso que a lista de dominios e passada como
-#        argumentos e lida com um ciclo, e nao carregada de uma vez.
+#        **O `bash` do sistema e o 3.2.** Não há `mapfile` nem arrays
+#        associativos aqui. É por isso que a lista de domínios e passada como
+#        argumentos e lida com um ciclo, e não carregada de uma vez.
 #
 # EN-UK: Verified downloading. This program's security boundary.
 #
@@ -57,8 +57,8 @@
 # Created by Redfox using Claude
 # ===========================================================================
 
-# PT-PT: Identifica a ferramenta. Ha projectos que bloqueiam clientes sem
-#        identificacao, e um administrador de espelho que veja trafego estranho
+# PT-PT: Identifica a ferramenta. Há projectos que bloqueiam clientes sem
+#        identificação, e um administrador de espelho que veja tráfego estranho
 #        consegue perceber o que o gerou.
 # EN-UK: Identifies the tool. Some projects block unidentified clients.
 readonly AGENTE='Laboratorio-Virtual/1.0 (+https://github.com/RafaDevpt/Personal-AI-Projects)'
@@ -66,17 +66,17 @@ readonly MAXIMO_SALTOS=10
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Confirma que um endereco e HTTPS e que o dominio esta na lista.
+# PT-PT: Confirma que um endereço e HTTPS e que o domínio esta na lista.
 #
-#        A comparacao e sobre o anfitriao inteiro e nao sobre um sufixo. Aceitar
+#        A comparação e sobre o anfitrião inteiro e não sobre um sufixo. Aceitar
 #        sufixos permitiria que `releases.ubuntu.com.exemplo.net` passasse por
-#        `releases.ubuntu.com`, que e exactamente o truque que esta lista existe
+#        `releases.ubuntu.com`, que é exactamente o truque que esta lista existe
 #        para travar.
 #
-#        O anfitriao e extraido depois de se cortar tudo o que vem antes de um
+#        O anfitrião e extraído depois de se cortar tudo o que vem antes de um
 #        `@`, se houver: `https://releases.ubuntu.com@mau.net/` vai para o
-#        mau.net, e um leitor humano distraido le o principio da linha e assume
-#        o contrario.
+#        mau.net, e um leitor humano distraído lê o princípio da linha e assume
+#        o contrário.
 #
 # EN-UK: Confirms an address is HTTPS and its domain is on the list. The
 #        comparison is on the whole host, not on a suffix -- and the userinfo
@@ -93,7 +93,7 @@ dominio_confiavel() {
     [[ "$endereco" == https://* ]] || return 1
 
     local resto="${endereco#https://}"
-    resto="${resto%%/*}"          # PT-PT: fica so a autoridade
+    resto="${resto%%/*}"          # PT-PT: fica só a autoridade
     resto="${resto##*@}"          # PT-PT: corta o utilizador, se houver
     local anfitriao="${resto%%:*}"  # PT-PT: corta a porta
     anfitriao="$(printf '%s' "$anfitriao" | tr '[:upper:]' '[:lower:]')"
@@ -109,9 +109,9 @@ dominio_confiavel() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Descarrega um endereco, validando o dominio a cada salto.
+# PT-PT: Descarrega um endereço, validando o domínio a cada salto.
 #
-#        Os redireccionamentos sao seguidos a mao, de proposito. Ver o cabecalho.
+#        Os redireccionamentos são seguidos a mão, de propósito. Ver o cabeçalho.
 #
 # EN-UK: Downloads an address, validating the domain at every hop.
 #
@@ -143,7 +143,7 @@ descarregar_seguro() {
             local seguinte
             seguinte="$(printf '%s' "$cabecalhos" | grep -i '^location:' | tail -n 1 | cut -d' ' -f2- | tr -d '\r')"
             [[ -z "$seguinte" ]] && { erro "Redireccionamento sem destino a partir de $endereco."; return 1; }
-            # PT-PT: Um `Location` relativo resolve-se contra o endereco actual.
+            # PT-PT: Um `Location` relativo resolve-se contra o endereço actual.
             # EN-UK: A relative `Location` resolves against the current address.
             if [[ "$seguinte" != http* ]]; then
                 local base="${endereco%/*}"
@@ -155,8 +155,8 @@ descarregar_seguro() {
         fi
 
         # PT-PT: Sem redireccionamento — descarrega. O `--fail` faz o curl
-        #        devolver erro num 404 em vez de gravar a pagina de erro como
-        #        se fosse a imagem, que e um dos enganos mais irritantes que ha.
+        #        devolver erro num 404 em vez de gravar a página de erro como
+        #        se fosse a imagem, que é um dos enganos mais irritantes que há.
         # EN-UK: No redirect -- download. `--fail` makes curl error on a 404
         #        rather than saving the error page as if it were the image.
         if [[ "$destino" == "-" ]]; then
@@ -177,14 +177,14 @@ descarregar_seguro() {
 # ---------------------------------------------------------------------------
 # PT-PT: Interpreta um manifesto de somas e escreve "<soma> <ficheiro>".
 #
-#        Ha dois formatos em uso, e um programa que so conheca um falha em
-#        metade das distribuicoes:
+#        Há dois formatos em uso, e um programa que só conheca um falha em
+#        metade das distribuições:
 #
 #            9ffe...  ubuntu-24.04.3-desktop-amd64.iso        (GNU sha256sum)
 #            SHA256 (Fedora-...iso) = 9ffe...                 (BSD)
 #
 #        Um manifesto assinado em claro traz as marcas do PGP a volta. As linhas
-#        que nao correspondem a nenhum dos dois formatos sao ignoradas, e e isso
+#        que não correspondem a nenhum dos dois formatos são ignoradas, e e isso
 #        que faz este leitor funcionar tanto no ficheiro assinado como no
 #        simples.
 #
@@ -211,7 +211,7 @@ ler_manifesto() {
             continue
         fi
 
-        # PT-PT: Alguns manifestos trazem o caminho e nao so o nome.
+        # PT-PT: Alguns manifestos trazem o caminho e não só o nome.
         # EN-UK: Some manifests carry the path rather than just the name.
         nome="${ficheiro##*/}"
         nome="${nome%"${nome##*[![:space:]]}"}"
@@ -229,9 +229,9 @@ ler_manifesto() {
 # ---------------------------------------------------------------------------
 # PT-PT: Compara a soma SHA-256 de um ficheiro com a esperada.
 #
-#        Nao aceita uma soma vazia: uma comparacao contra vazio devolveria
-#        verdadeiro em algumas implementacoes distraidas, e este e o passo que
-#        nao pode falhar.
+#        Não aceita uma soma vazia: uma comparação contra vazio devolveria
+#        verdadeiro em algumas implementações distraidas, e este e o passo que
+#        não pode falhar.
 #
 # EN-UK: Compares a file's SHA-256 against the expected one. It rejects an empty
 #        checksum: comparing against nothing returns true in some careless
@@ -250,22 +250,22 @@ soma_confere() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Verifica a assinatura de um manifesto e, se pedido, a impressao digital
+# PT-PT: Verifica a assinatura de um manifesto e, se pedido, a impressão digital
 #        de quem o assinou.
 #
-#        Corre num porta-chaves proprio e temporario, e nao no do utilizador.
-#        Nao e arrumacao: importar chaves de projectos para o porta-chaves
-#        pessoal de alguem muda a confianca dele para coisas que nada tem a ver
-#        com este programa, e e um efeito secundario que uma ferramenta nao deve
+#        Corre num porta-chaves próprio e temporário, e não no do utilizador.
+#        Não e arrumação: importar chaves de projectos para o porta-chaves
+#        pessoal de alguém muda a confiança dele para coisas que nada tem a ver
+#        com este programa, e e um efeito secundário que uma ferramenta não deve
 #        ter.
 #
-#        A impressao digital fixada, quando existe, e uma condicao e nao um
-#        aviso. Uma assinatura valida de uma chave errada e exactamente o que um
-#        atacante com um catalogo adulterado produziria.
+#        A impressão digital fixada, quando existe, e uma condição e não um
+#        aviso. Uma assinatura válida de uma chave errada e exactamente o que um
+#        atacante com um catálogo adulterado produziria.
 #
-#        A decisao e tomada sobre o `--status-fd`, que da linhas estaveis feitas
-#        para serem lidas por programas. O texto para humanos muda com a versao
-#        e com o idioma, e nunca deve ser a base de uma decisao de seguranca.
+#        A decisão e tomada sobre o `--status-fd`, que da linhas estáveis feitas
+#        para serem lidas por programas. O texto para humanos muda com a versão
+#        e com o idioma, e nunca deve ser a base de uma decisão de segurança.
 #
 # EN-UK: Verifies a manifest's signature and, when asked, the signer's
 #        fingerprint. It runs on its own temporary keyring rather than the
@@ -274,7 +274,7 @@ soma_confere() {
 #        be read by programs.
 #
 # $1 manifesto   $2 assinatura ("" se for assinado em claro)
-# $3 ficheiro da chave   $4 impressao esperada ("" se nao houver)
+# $3 ficheiro da chave   $4 impressão esperada ("" se não houver)
 #
 # Escreve a impressao digital obtida no stdout.
 # ---------------------------------------------------------------------------
@@ -286,7 +286,7 @@ assinatura_valida() {
 
     local porta
     porta="$(mktemp -d)"
-    # PT-PT: O `gpg` recusa-se a usar um porta-chaves com permissoes largas.
+    # PT-PT: O `gpg` recusa-se a usar um porta-chaves com permissões largas.
     # EN-UK: `gpg` refuses a keyring with loose permissions.
     chmod 700 "$porta"
 

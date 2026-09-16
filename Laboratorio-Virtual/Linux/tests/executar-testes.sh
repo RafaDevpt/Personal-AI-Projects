@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Testes do Laboratorio Virtual, versao de Linux.
+# PT-PT: Testes do Laboratório Virtual, versão de Linux.
 #
-#        Nenhum teste toca na rede, cria uma maquina virtual ou instala seja o
-#        que for. Nao e limitacao: e o desenho. O que interessa provar aqui e o
-#        que decide -- se um dominio passa, se um manifesto e lido como deve, se
-#        a recomendacao faz a conta certa -- e nada disso precisa de um
+#        Nenhum teste toca na rede, cria uma máquina virtual ou instala seja o
+#        que for. Não e limitação: e o desenho. O que interessa provar aqui e o
+#        que decide -- se um domínio passa, se um manifesto e lido como deve, se
+#        a recomendação faz a conta certa -- e nada disso precisa de um
 #        hipervisor a responder.
 #
-#        O que fica de fora, e fica assumidamente, e a criacao da maquina em si.
-#        Essa so se testa contra um hipervisor a serio, e um teste que precise
-#        de um hipervisor nao corre na integracao continua e por isso nao corre
+#        O que fica de fora, e fica assumidamente, e a criação da máquina em si.
+#        Essa só se testa contra um hipervisor a sério, e um teste que precise
+#        de um hipervisor não corre na integração contínua e por isso não corre
 #        nunca.
 #
 # EN-UK: Virtual Lab tests, Linux version. No test touches the network, creates
@@ -27,9 +27,9 @@ set -uo pipefail
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FONTE="$(cd "${RAIZ}/../src" && pwd)"
 
-# PT-PT: As funcoes de aviso que as bibliotecas usam. Nos testes vao para o
+# PT-PT: As funções de aviso que as bibliotecas usam. Nos testes vão para o
 #        nada: uma biblioteca que escreve no stderr durante um teste enche o
-#        relatorio de ruido que nao e falha nenhuma.
+#        relatório de ruído que não é falha nenhuma.
 # EN-UK: The reporting functions the libraries use. In tests they go nowhere.
 erro()  { printf '%s\n' "$1" >&2; }
 aviso() { printf '%s\n' "$1" >&2; }
@@ -71,11 +71,11 @@ grupo 'Lista de domínios'
 
 t_aceita_https()      { dominio_confiavel 'https://releases.ubuntu.com/24.04/' "${DOMINIOS[@]}"; }
 t_recusa_http()       { ! dominio_confiavel 'http://releases.ubuntu.com/24.04/' "${DOMINIOS[@]}"; }
-# PT-PT: O truque classico. Se a comparacao fosse por prefixo, isto passava.
+# PT-PT: O truque clássico. Se a comparação fosse por prefixo, isto passava.
 t_recusa_prefixo()    { ! dominio_confiavel 'https://releases.ubuntu.com.exemplo.net/x' "${DOMINIOS[@]}"; }
 t_recusa_sufixo()     { ! dominio_confiavel 'https://mau-releases.ubuntu.com.br/x' "${DOMINIOS[@]}"; }
 # PT-PT: `https://bom.com@mau.net/` vai para o mau.net, e um leitor humano
-#        distraido le o principio da linha e assume o contrario.
+#        distraído lê o princípio da linha e assume o contrário.
 t_recusa_userinfo()   { ! dominio_confiavel 'https://releases.ubuntu.com@exemplo.net/x' "${DOMINIOS[@]}"; }
 t_recusa_vazio()      { ! dominio_confiavel '' "${DOMINIOS[@]}"; }
 t_recusa_lixo()       { ! dominio_confiavel 'nem por sombras' "${DOMINIOS[@]}"; }
@@ -128,8 +128,8 @@ t_bsd() {
     afirmar_igual "${SOMA_EXEMPLO} Fedora-Workstation-Live-41-1.4.x86_64.iso" \
         "$(ler_manifesto "${TMP}/bsd" 'Fedora-Workstation-Live-.*x86_64.*\.iso$')"
 }
-# PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP nao sao linhas
-#        de soma, e um leitor que rebentasse nelas nao servia.
+# PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP não são linhas
+#        de soma, e um leitor que rebentasse nelas não servia.
 t_assinado() {
     afirmar_contem "$(ler_manifesto "${TMP}/assinado" 'Fedora-Workstation-Live-.*\.iso$')" "$SOMA_EXEMPLO"
 }
@@ -141,7 +141,7 @@ t_caminho() {
     afirmar_contem "$(ler_manifesto "${TMP}/caminho" 'debian-.*-netinst\.iso$')" 'debian-13.0.0-amd64-netinst.iso'
 }
 t_sem_correspondencia() { ! ler_manifesto "${TMP}/gnu" 'coisa-nenhuma\.iso$' >/dev/null; }
-# PT-PT: Um manifesto de SHA-1 nao deve passar por um de SHA-256.
+# PT-PT: Um manifesto de SHA-1 não deve passar por um de SHA-256.
 t_sha1_recusado()       { ! ler_manifesto "${TMP}/sha1" 'ubuntu\.iso$' >/dev/null; }
 t_vazio()               { ! ler_manifesto "${TMP}/vazio" '.*' >/dev/null; }
 
@@ -165,7 +165,7 @@ SOMA_REAL="$(sha256sum "${TMP}/ficheiro" | cut -d' ' -f1)"
 t_soma_certa()      { soma_confere "${TMP}/ficheiro" "$SOMA_REAL"; }
 t_soma_maiusculas() { soma_confere "${TMP}/ficheiro" "$(printf '%s' "$SOMA_REAL" | tr '[:lower:]' '[:upper:]')"; }
 t_soma_errada()     { ! soma_confere "${TMP}/ficheiro" "$SOMA_EXEMPLO"; }
-# PT-PT: O caso que uma comparacao distraida deixava passar.
+# PT-PT: O caso que uma comparação distraida deixava passar.
 t_soma_vazia()      { ! soma_confere "${TMP}/ficheiro" ''; }
 t_sem_ficheiro()    { ! soma_confere "${TMP}/nao-existe" "$SOMA_REAL"; }
 
@@ -196,7 +196,7 @@ t_deixa_um_nucleo() {
     local s; s="$(recomendar 4 16384 204800 1 2048 10240 8 4096 20480)"
     afirmar_igual '3' "$(valor_de cpu "$s")"
 }
-# PT-PT: 64 GB no anfitriao nao fazem um Ubuntu correr melhor com 24.
+# PT-PT: 64 GB no anfitrião não fazem um Ubuntu correr melhor com 24.
 t_tecto_memoria() {
     local s; s="$(rec_ubuntu 16 65536 921600)"
     afirmar_igual '8192' "$(valor_de ram_mb "$s")"
@@ -213,8 +213,8 @@ t_baixa_e_avisa() {
     (( ram < 8192 )) || { printf 'não baixou: %s\n' "$ram"; return 1; }
     printf '%s\n' "$s" | grep -q '^aviso=' || { printf 'baixou sem avisar\n'; return 1; }
 }
-# PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitriao de 4 GB
-#        ficava sem nada e o programa recusava ate um Alpine de 1 GB.
+# PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitrião de 4 GB
+#        ficava sem nada e o programa recusava até um Alpine de 1 GB.
 t_maquina_pequena() {
     local s; s="$(rec_alpine 2 4096 61440)"
     [[ "$(valor_de viavel "$s")" == 'sim' ]] || { printf 'recusou um Alpine num anfitrião de 4 GB\n'; return 1; }
@@ -234,14 +234,14 @@ t_encolhe_disco() {
     local disco; disco="$(valor_de disco_mb "$s")"
     (( disco < 40960 )) || { printf 'manteve %s MB com só 50 GB livres\n' "$disco"; return 1; }
 }
-# PT-PT: Um numero sem explicacao nao ensina ninguem a mexer nele depois.
+# PT-PT: Um número sem explicação não ensina ninguém a mexer nele depois.
 t_explica() {
     local s; s="$(rec_ubuntu 8 16384 307200)"
     local quantos; quantos="$(printf '%s\n' "$s" | grep -c '^motivo=')"
     (( quantos >= 3 )) || { printf 'só explicou %s passos\n' "$quantos"; return 1; }
 }
 t_ram_multiplo() {
-    # PT-PT: Um valor redondo e mais facil de reconhecer um mes depois.
+    # PT-PT: Um valor redondo e mais fácil de reconhecer um mês depois.
     local s; s="$(rec_ubuntu 4 8192 204800)"
     local ram; ram="$(valor_de ram_mb "$s")"
     (( ram % 256 == 0 )) || { printf 'ram=%s não é múltiplo de 256\n' "$ram"; return 1; }
@@ -304,9 +304,9 @@ else
     t_catalogo_imagens()  { local n; n="$(jq '.imagens | length' "$CATALOGO")"; (( n > 0 )); }
 
     t_iso_verificavel() {
-        # PT-PT: Sem manifesto nao ha verificacao, e este programa nao descarrega
-        #        o que nao consegue verificar. O teste existe para essa regra nao
-        #        se perder na proxima entrada que alguem acrescentar com pressa.
+        # PT-PT: Sem manifesto não há verificação, e este programa não descarrega
+        #        o que não consegue verificar. O teste existe para essa regra não
+        #        se perder na próxima entrada que alguém acrescentar com pressa.
         local em_falta
         em_falta="$(jq -r '.imagens[] | select(.tipo == "iso") | select((.manifesto // "") == "" or (.padrao_ficheiro // "") == "") | .id' "$CATALOGO")"
         afirmar_vazio "$em_falta"
@@ -319,8 +319,8 @@ else
         afirmar_vazio "$fora"
     }
 
-    # PT-PT: O ataque que esta validacao existe para travar: alguem edita o
-    #        catalogo e troca um endereco por outro parecido.
+    # PT-PT: O ataque que esta validação existe para travar: alguém edita o
+    #        catálogo e troca um endereço por outro parecido.
     t_recusa_dominio_fora() {
         local falso="${TMP}/falso.json"
         cat > "$falso" <<'JSON'
@@ -357,8 +357,8 @@ JSON
         afirmar_diferente '' "$(validar_catalogo "$falso")"
     }
 
-    # PT-PT: Uma imagem de x86_64 num anfitriao ARM nao arranca devagar: nao
-    #        arranca. Mostra-la seria oferecer um ecra preto.
+    # PT-PT: Uma imagem de x86_64 num anfitrião ARM não arranca devagar: não
+    #        arranca. Mostra-la seria oferecer um ecrã preto.
     t_filtra_arquitectura() {
         local erradas
         erradas="$(imagens_compativeis "$CATALOGO" 'arm64' | cut -f1 | while IFS= read -r id; do
@@ -384,8 +384,8 @@ grupo 'Imagens que o utilizador já tem'
 # ===========================================================================
 
 t_iso_instalador()  { afirmar_igual 'instalador' "$(tipo_de_imagem 'ubuntu.iso')"; }
-# PT-PT: E a distincao que decide entre uma maquina que arranca e um ecra a
-#        dizer que nao ha nada para arrancar. Uma .qcow2 **e** a maquina.
+# PT-PT: E a distinção que decide entre uma máquina que arranca e um ecrã a
+#        dizer que não há nada para arrancar. Uma .qcow2 **e** a máquina.
 t_disco_nao_e_iso() {
     local f
     for f in a.qcow2 a.vdi a.vmdk a.vhd a.vhdx a.img a.raw; do
@@ -412,8 +412,8 @@ t_vbox_vdi()        { formato_suportado '.vdi' 'virtualbox' >/dev/null; }
 t_vbox_ova()        { formato_suportado '.ova' 'virtualbox' >/dev/null; }
 t_vbox_sem_qcow()   { ! formato_suportado '.qcow2' 'virtualbox' >/dev/null; }
 
-# PT-PT: Uma mensagem que so diz "nao e suportado" deixa a pessoa no mesmo
-#        sitio. Uma que diz o comando resolve-lhe o problema.
+# PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+#        sítio. Uma que diz o comando resolve-lhe o problema.
 t_diz_como_converter() {
     local s; s="$(formato_suportado '.qcow2' 'virtualbox' || true)"
     afirmar_contem "$s" 'qemu-img convert' || return 1
@@ -463,13 +463,13 @@ teste 'um perfil que não existe cai no genérico' t_perfil_desconhecido
 grupo 'Assinatura do conteúdo de um ficheiro'
 # ===========================================================================
 
-# PT-PT: Uma ISO de mentira, com o CD001 no sitio certo — o sector 16.
+# PT-PT: Uma ISO de mentira, com o CD001 no sítio certo — o sector 16.
 # EN-UK: A fake ISO with CD001 in the right place — sector 16.
 ISO_BOA="${TMP}/boa.iso"
 dd if=/dev/zero of="$ISO_BOA" bs=1 count=33024 2>/dev/null
 printf 'CD001' | dd of="$ISO_BOA" bs=1 seek=32769 conv=notrunc 2>/dev/null
 
-# PT-PT: E um .zip com nome de ISO, que e o engano honesto mais comum.
+# PT-PT: E um .zip com nome de ISO, que é o engano honesto mais comum.
 # EN-UK: And a .zip named as an ISO, the commonest honest mistake.
 ISO_MA="${TMP}/ma.iso"
 dd if=/dev/zero of="$ISO_MA" bs=1 count=33024 2>/dev/null
@@ -494,17 +494,17 @@ t_truncado()        {
     afirmar_contem "$s" 'pequeno'
 }
 t_qcow_verdadeiro() { assinatura_ficheiro "$QCOW" >/dev/null; }
-# PT-PT: Sao bytes em bruto. Nao ha nada para verificar, e recusar por isso
-#        seria recusar um formato legitimo.
+# PT-PT: São bytes em bruto. Não há nada para verificar, e recusar por isso
+#        seria recusar um formato legítimo.
 t_img_sem_assinatura() {
     local s; s="$(assinatura_ficheiro "$IMG")"
     afirmar_contem "$s" 'não tem assinatura'
 }
 t_sem_ficheiro_assinatura() { ! assinatura_ficheiro "${TMP}/nada.iso" >/dev/null; }
 
-# PT-PT: Nao encontrar a marca de origem nao quer dizer que o ficheiro seja de
-#        confianca; quer dizer que o sistema nao sabe. E a mesma diferenca que o
-#        resto do programa faz entre "nao encontrei" e "nao consegui olhar".
+# PT-PT: Não encontrar a marca de origem não quer dizer que o ficheiro seja de
+#        confiança; quer dizer que o sistema não sabe. E a mesma diferença que o
+#        resto do programa faz entre "não encontrei" e "não consegui olhar".
 t_origem_desconhecida() {
     local s; s="$(origem_ficheiro "$ISO_BOA" || true)"
     afirmar_contem "$s" 'não sabe'
@@ -520,11 +520,11 @@ teste 'sem marca de origem, diz que não se sabe' t_origem_desconhecida
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Instalacao de um hipervisor
+# PT-PT: Instalação de um hipervisor
 #
 #        Nada aqui instala coisa nenhuma, e nada aqui liga a rede. O que se
-#        testa sao as decisoes que se tomam **antes** de instalar: que versao,
-#        que ramo do repositorio, com que chave, de que dominio. Sao essas que
+#        testa são as decisões que se tomam **antes** de instalar: que versão,
+#        que ramo do repositório, com que chave, de que domínio. São essas que
 #        decidem se o que se instala e o da Oracle ou o de outra pessoa.
 #
 # EN-UK: Installing a hypervisor. Nothing here installs anything and nothing
@@ -541,7 +541,7 @@ t_versao_vazia()    { ! versao_valida '' >/dev/null 2>&1; }
 
 # PT-PT: Este e o teste que interessa deste grupo. O texto vem do servidor da
 #        Oracle e vai ser colado dentro de um URL; se passasse uma barra ou um
-#        `..`, o endereco deixava de apontar para onde o programa julga.
+#        `..`, o endereço deixava de apontar para onde o programa julga.
 # EN-UK: The test that matters here. The text comes from Oracle's server and
 #        goes into a URL; a slash or a `..` would make it point elsewhere.
 t_versao_com_barra() {
@@ -561,10 +561,10 @@ teste 'a série sai da versão, e não está escrita no programa' t_serie
 
 grupo 'Comandos que acrescentam o repositório da Oracle'
 
-# PT-PT: O nome do pacote sai da serie, que sai da versao que a Oracle publica.
+# PT-PT: O nome do pacote sai da série, que sai da versão que a Oracle pública.
 #        Fixar `virtualbox-7.1` aqui era garantir que isto deixava de funcionar
-#        na serie seguinte -- e a propria documentacao da Oracle ainda diz 7.1
-#        numa pagina onde ja se descarrega a 7.2.
+#        na série seguinte -- e a própria documentação da Oracle ainda diz 7.1
+#        numa página onde já se descarrega a 7.2.
 # EN-UK: The package name comes from the series, which comes from the version
 #        Oracle publishes. Pinning `virtualbox-7.1` would break this on the next
 #        series -- and Oracle's own documentation still says 7.1 on a page that
@@ -580,8 +580,8 @@ t_apt_ramo() {
 }
 
 # PT-PT: O `signed-by` e o que impede a chave da Oracle de passar a poder
-#        assinar pacotes de **qualquer** repositorio configurado na maquina. E
-#        exactamente o problema que o `apt-key` tinha, e a razao por que foi
+#        assinar pacotes de **qualquer** repositório configurado na máquina. E
+#        exactamente o problema que o `apt-key` tinha, e a razão por que foi
 #        retirado -- e um script que ainda o use reintroduz o problema.
 # EN-UK: `signed-by` is what stops Oracle's key from being able to sign packages
 #        from **any** repository on the machine. That was `apt-key`'s problem and
@@ -637,8 +637,8 @@ t_dom_http() {
     ! dominio_confiavel 'http://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
 }
 
-# PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
-#        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+# PT-PT: As duas listas são separadas de propósito. Se fossem uma só, um
+#        catálogo adulterado podia mandar buscar uma "imagem" ao servidor da
 #        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor da
 #        Ubuntu. Nenhuma das duas coisas faz sentido.
 # EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
@@ -662,9 +662,9 @@ teste 'a lista da instalação não entrou no catálogo' t_catalogo_sem_virtualb
 
 grupo 'A chave de assinatura da Oracle'
 
-# PT-PT: A impressao esta fixada no programa, e e uma condicao e nao um aviso.
+# PT-PT: A impressão esta fixada no programa, e e uma condição e não um aviso.
 #        Descarregar uma chave e acrescenta-la ao sistema sem a comparar com
-#        nada e uma cerimonia sem conteudo: se o canal estivesse comprometido, a
+#        nada e uma cerimonia sem conteúdo: se o canal estivesse comprometido, a
 #        chave que chegava era a do atacante e passava a assinar o que ele
 #        quisesse, para sempre.
 # EN-UK: The fingerprint is pinned, and is a condition rather than a warning.
@@ -687,9 +687,9 @@ teste 'um ficheiro de chave que não existe não passa' t_chave_inexistente
 teste 'um ficheiro que não é uma chave não passa' t_chave_que_nao_e_chave
 
 if command -v gpg >/dev/null 2>&1; then
-    # PT-PT: A chave verdadeira nao esta no repositorio de proposito -- seria
-    #        uma copia a envelhecer ao lado da original. O que se pode provar
-    #        sem rede e que a comparacao **e** feita: uma chave legitima de
+    # PT-PT: A chave verdadeira não esta no repositório de propósito -- seria
+    #        uma cópia a envelhecer ao lado da original. O que se pode provar
+    #        sem rede e que a comparação **e** feita: uma chave legítima de
     #        outra entidade tem de ser recusada.
     # EN-UK: The real key is deliberately not in the repository -- it would be a
     #        stale copy beside the original. What can be proved offline is that
@@ -713,12 +713,12 @@ fi
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A VMware que ja esteja instalada
+# PT-PT: A VMware que já esteja instalada
 #
-#        Nada aqui precisa da VMware instalada, e isso e deliberado: quem
-#        escreveu isto nao a tem, e o runner tambem nao. O que se testa e o
-#        `.vmx` -- que e texto, e portanto verificavel sem hipervisor nenhum --
-#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#        Nada aqui precisa da VMware instalada, e isso é deliberado: quem
+#        escreveu isto não a tem, e o runner também não. O que se testa e o
+#        `.vmx` -- que é texto, e portanto verificável sem hipervisor nenhum --
+#        e a detecção, que tem de saber dizer "não esta ca" sem rebentar.
 #
 # EN-UK: VMware, when already installed. Nothing here needs it installed,
 #        deliberately: neither the author nor the runner has it. What is tested
@@ -730,8 +730,8 @@ grupo 'Detecção da VMware'
 t_vmware_deteccao() {
     local e=0
     estado_vmware || e=$?
-    # PT-PT: Qualquer um dos tres e uma resposta valida. O que nao pode e a
-    #        funcao rebentar ou devolver uma coisa que ninguem sabe interpretar.
+    # PT-PT: Qualquer um dos três e uma resposta válida. O que não pode e a
+    #        função rebentar ou devolver uma coisa que ninguém sabe interpretar.
     # EN-UK: Any of the three is a valid answer. What it must not do is blow up
     #        or return something nobody can interpret.
     case $e in
@@ -751,9 +751,9 @@ t_tipo_alma()   { afirmar_igual 'rhel9-64'    "$(tipo_vmware 'almalinux-9' 'linu
 t_tipo_mint()   { afirmar_igual 'ubuntu-64'   "$(tipo_vmware 'linuxmint-22' 'linux')"; }
 t_tipo_kali()   { afirmar_igual 'debian12-64' "$(tipo_vmware 'kali-2024' 'linux')"; }
 
-# PT-PT: Este campo decide o controlador de disco e o relogio. Cair em
-#        `other-64` quando se sabe que e Linux seria criar uma maquina com
-#        metade das definicoes erradas -- e a lentidao que daqui resulta nunca e
+# PT-PT: Este campo decide o controlador de disco e o relógio. Cair em
+#        `other-64` quando se sabe que é Linux seria criar uma máquina com
+#        metade das definições erradas -- e a lentidão que daqui resulta nunca e
 #        associada a este campo.
 # EN-UK: This field decides the disk controller and the clock. Falling to
 #        `other-64` when Linux is known would create a machine with half its
@@ -782,8 +782,8 @@ t_vmx_numeros() {
 }
 
 # PT-PT: O campo chama-se `memsize` e e em megabytes. Passar-lhe os GB
-#        directamente dava a maquina oito megabytes de memoria, e o erro so
-#        aparece quando ela nao arranca.
+#        directamente dava a máquina oito megabytes de memória, e o erro só
+#        aparece quando ela não arranca.
 # EN-UK: The field is `memsize`, in megabytes. Passing GB straight in would give
 #        the machine eight megabytes, and the mistake only shows when it will
 #        not boot.
@@ -797,7 +797,7 @@ t_vmx_memoria_fraccao() {
     afirmar_contem "$v" 'memsize = "1536"'
 }
 
-# PT-PT: O caminho do disco vai relativo para a pasta da maquina se poder mover
+# PT-PT: O caminho do disco vai relativo para a pasta da máquina se poder mover
 #        para outro disco sem partir.
 # EN-UK: The disk path goes in relative so the machine folder can be moved.
 t_vmx_disco_relativo() {
@@ -806,8 +806,8 @@ t_vmx_disco_relativo() {
         && ! printf '%s' "$v" | grep -q 'nvme0:0.fileName = "/'
 }
 
-# PT-PT: E a distincao que decide se a maquina arranca ou fica num ecra a dizer
-#        que nao ha nada para arrancar.
+# PT-PT: E a distinção que decide se a máquina arranca ou fica num ecrã a dizer
+#        que não há nada para arrancar.
 # EN-UK: The distinction that decides whether the machine boots.
 t_vmx_com_cd() {
     local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk /imagens/ubuntu.iso nao)"
@@ -824,7 +824,7 @@ t_vmx_nat() {
     afirmar_contem "$v" 'ethernet0.connectionType = "nat"'
 }
 
-# PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a comecar
+# PT-PT: Sem `firmware = "efi"`, o instalador do Windows 11 recusa-se a começar
 #        por causa do modo de arranque -- e a mensagem que da fala de outra coisa.
 # EN-UK: Without `firmware = "efi"`, the Windows 11 installer refuses to start
 #        over boot mode, with a message about something else.
@@ -838,8 +838,8 @@ t_vmx_sem_efi() {
     ! printf '%s' "$v" | grep -q 'firmware'
 }
 
-# PT-PT: Uma maquina acabada de criar por um script nao foi movida nem copiada,
-#        e a pergunta da VMware na primeira arrancada so confunde quem a abre.
+# PT-PT: Uma máquina acabada de criar por um script não foi movida nem copiada,
+#        e a pergunta da VMware na primeira arrancada só confunde quem a abre.
 # EN-UK: A machine a script just created was neither moved nor copied.
 t_vmx_sem_pergunta() {
     local v; v="$(conteudo_vmx lab ubuntu-64 2 4 lab.vmdk '' nao)"
@@ -867,14 +867,14 @@ t_img_sem_etiq()  { afirmar_contem "$(problema_referencia_imagem 'nginx' 'docker
 t_img_latest()    { afirmar_contem "$(problema_referencia_imagem 'nginx:latest' 'docker.io')" 'latest'; }
 t_img_quay()      { afirmar_vazio "$(problema_referencia_imagem 'quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z' 'quay.io')"; }
 
-# PT-PT: O ataque que a validacao existe para apanhar: o campo 'registo' diz
-#        docker.io e passa na lista, mas a imagem vinha de outro sitio.
+# PT-PT: O ataque que a validação existe para apanhar: o campo 'registo' diz
+#        docker.io e passa na lista, mas a imagem vinha de outro sítio.
 # EN-UK: The attack this exists for: the declared registry passes the allowlist
 #        while the image comes from somewhere else.
 t_img_outro_reg() { afirmar_contem "$(problema_referencia_imagem 'exemplo.net/x:1.0' 'docker.io')" 'registo no nome'; }
 t_img_prefixo()   { afirmar_contem "$(problema_referencia_imagem 'ghcr.io/alguem/x:1.0' 'quay.io')" 'não começa por'; }
 
-# PT-PT: Em `registo.local:5000/coisa` os dois pontos sao da porta. Se fossem
+# PT-PT: Em `registo.local:5000/coisa` os dois pontos são da porta. Se fossem
 #        lidos como etiqueta, «5000/coisa» passava por etiqueta fixa.
 # EN-UK: In `registry.local:5000/thing` the colon belongs to the port.
 t_img_porta()     { afirmar_contem "$(problema_referencia_imagem 'registo.local:5000/coisa' 'docker.io')" 'não tem etiqueta'; }
@@ -912,13 +912,13 @@ grupo 'Palavra-passe gerada'
 t_senha_tam()   { local p; p="$(gerar_palavra_passe 32)"; afirmar_igual 32 "${#p}"; }
 t_senha_dif()   { afirmar_diferente "$(gerar_palavra_passe)" "$(gerar_palavra_passe)"; }
 
-# PT-PT: Uma senha com aspas, cifrao ou barra parte a linha ou muda de
-#        significado consoante a shell. O alfabeto nao tem nenhum deles.
+# PT-PT: Uma senha com aspas, cifrão ou barra parte a linha ou muda de
+#        significado consoante a shell. O alfabeto não tem nenhum deles.
 # EN-UK: A password with quotes, dollars or backslashes breaks the command line.
 t_senha_shell() { local p; p="$(gerar_palavra_passe 128)"; [[ "$p" =~ ^[A-Za-z0-9]+$ ]]; }
 
-# PT-PT: Sem I, l, 1, O, o, 0. Uma senha mostrada uma vez no ecra tem de poder
-#        ser copiada a mao sem ficar a duvida.
+# PT-PT: Sem I, l, 1, O, o, 0. Uma senha mostrada uma vez no ecrã tem de poder
+#        ser copiada a mão sem ficar a duvida.
 # EN-UK: No I, l, 1, O, o or 0: a password shown once must be transcribable.
 t_senha_legivel() { local p; p="$(gerar_palavra_passe 128)"; ! [[ "$p" =~ [IlO1o0] ]]; }
 
@@ -938,9 +938,9 @@ else
     t_serv_valido()  { afirmar_vazio "$(validar_catalogo_servicos "$CATALOGO_SERVICOS")"; }
     t_serv_alguns()  { local n; n="$(jq '.servicos | length' "$CATALOGO_SERVICOS")"; (( n > 0 )); }
 
-    # PT-PT: Nenhuma imagem do catalogo pode escapar a regra da etiqueta fixa.
-    #        O teste existe para ela nao se perder na proxima entrada que
-    #        alguem acrescentar com pressa.
+    # PT-PT: Nenhuma imagem do catálogo pode escapar a regra da etiqueta fixa.
+    #        O teste existe para ela não se perder na próxima entrada que
+    #        alguém acrescentar com pressa.
     # EN-UK: No catalogue image may escape the pinned-tag rule.
     t_serv_etiquetas() {
         local i total mau=''
@@ -1040,8 +1040,8 @@ JSON
     t_doc_com_sock() { afirmar_contem "$(linha_exemplo 1)" 'docker.sock'; }
     t_doc_comando()  { afirmar_contem "$(linha_exemplo 2)" 'c:1.0 server /data'; }
 
-    # PT-PT: Melhor rebentar do que arrancar um servico com a senha literal
-    #        «@gerar@», que era o que acontecia se isto passasse em silencio.
+    # PT-PT: Melhor rebentar do que arrancar um serviço com a senha literal
+    #        «@gerar@», que era o que acontecia se isto passasse em silêncio.
     # EN-UK: Better to fail than start a service whose password is «@gerar@».
     t_doc_sem_segredo() {
         local f; f="$(exemplo_servicos)"

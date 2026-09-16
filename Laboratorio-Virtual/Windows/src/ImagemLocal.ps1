@@ -1,46 +1,46 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Imagens que o utilizador ja tem, e que nao estao no catalogo.
+    PT-PT: Imagens que o utilizador já tem, e que não estão no catálogo.
     EN-UK: Images the user already has, which are not in the catalogue.
 
 .DESCRIPTION
     PT-PT
-    O catalogo cobre o que e comum. Isto cobre o resto: um Proxmox, um TrueNAS,
+    O catálogo cobre o que é comum. Isto cobre o resto: um Proxmox, um TrueNAS,
     uma imagem de uma appliance, uma ISO de Windows que a empresa fornece, ou
-    simplesmente uma distribuicao que ja estava no disco.
+    simplesmente uma distribuição que já estava no disco.
 
-    **Aqui nao ha garantias nenhumas, e o programa diz isso em vez de as
-    fingir.** Uma imagem do catalogo vem de um dominio fixado, com um manifesto
-    assinado e uma soma que se compara. Uma imagem do disco do utilizador nao
+    **Aqui não há garantias nenhumas, e o programa diz isso em vez de as
+    fingir.** Uma imagem do catálogo vem de um domínio fixado, com um manifesto
+    assinado e uma soma que se compara. Uma imagem do disco do utilizador não
     tem nada disso -- e apresentar as duas com a mesma cara seria estragar a
-    unica coisa que o resto deste programa constroi.
+    única coisa que o resto deste programa constrói.
 
     O que se pode fazer, e o que se faz:
 
     **Perguntar de onde veio.** Em Windows, um ficheiro descarregado traz um
-    fluxo alternativo com a zona de origem e, muitas vezes, com o endereco de
+    fluxo alternativo com a zona de origem e, muitas vezes, com o endereço de
     onde veio. Mostra-lo ao utilizador -- "este ficheiro veio de X" -- e a
-    forma mais directa de ele reparar que o X nao e o sitio oficial. E das
-    poucas coisas em que o Windows da mais informacao do que os outros dois.
+    forma mais directa de ele reparar que o X não é o sítio oficial. E das
+    poucas coisas em que o Windows da mais informação do que os outros dois.
 
-    **Oferecer a verificacao.** Se o utilizador tiver a soma publicada pelo
-    fornecedor, compara-se. Se nao tiver, diz-se o que isso significa em vez de
-    passar a frente em silencio.
+    **Oferecer a verificação.** Se o utilizador tiver a soma publicada pelo
+    fornecedor, compara-se. Se não tiver, diz-se o que isso significa em vez de
+    passar a frente em silêncio.
 
-    **Confirmar que o ficheiro e o que parece.** Uma ISO comeca por `CD001` no
-    sector 16; um qcow2 comeca por `QFI\xfb`. Nao e uma medida de seguranca --
-    quem adultera um ficheiro tambem lhe poe a assinatura certa -- mas apanha o
-    engano honesto, que e o caso comum: o `.zip` que ainda nao foi extraido, o
+    **Confirmar que o ficheiro e o que parece.** Uma ISO começa por `CD001` no
+    sector 16; um qcow2 começa por `QFI\xfb`. Não e uma medida de segurança --
+    quem adultera um ficheiro também lhe põe a assinatura certa -- mas apanha o
+    engano honesto, que é o caso comum: o `.zip` que ainda não foi extraído, o
     descarregamento que ficou a meio, o ficheiro errado.
 
-    E ha uma distincao que decide se a maquina arranca ou fica num ecra preto:
+    E há uma distinção que decide se a máquina arranca ou fica num ecrã preto:
 
-    **Uma ISO e o instalador. Uma imagem de disco e a maquina.** Uma ISO
+    **Uma ISO e o instalador. Uma imagem de disco e a máquina.** Uma ISO
     liga-se como leitor de CD e precisa de um disco vazio ao lado, para onde o
-    sistema se vai instalar. Uma `.vhdx` ou uma `.qcow2` **ja e** o disco: criar
-    um disco vazio ao lado e arrancar do CD que nao existe da exactamente o
-    "no bootable medium" que ninguem sabe explicar.
+    sistema se vai instalar. Uma `.vhdx` ou uma `.qcow2` **já e** o disco: criar
+    um disco vazio ao lado e arrancar do CD que não existe da exactamente o
+    "no bootable medium" que ninguém sabe explicar.
 
     EN-UK
     The catalogue covers what is common. This covers the rest: a Proxmox, a
@@ -63,10 +63,10 @@
 Set-StrictMode -Version Latest
 
 
-# PT-PT: Como cada tipo de ficheiro se liga a uma maquina virtual.
+# PT-PT: Como cada tipo de ficheiro se liga a uma máquina virtual.
 #        `instalador` — liga-se como CD, e cria-se um disco vazio ao lado.
-#        `disco`      — **e** o disco. Nao se cria nada e nao ha CD.
-#        `apliancia`  — nao se liga: importa-se, e traz a maquina toda feita.
+#        `disco`      — **e** o disco. Não se cria nada e não há CD.
+#        `apliancia`  — não se liga: importa-se, e traz a máquina toda feita.
 # EN-UK: How each file type attaches to a virtual machine. `instalador` mounts
 #        as a CD with a blank disk alongside; `disco` **is** the disk; and
 #        `apliancia` is not attached at all but imported.
@@ -85,8 +85,8 @@ $script:TiposDeImagem = @{
 }
 
 # PT-PT: A assinatura de cada formato, e onde ela esta. O engano honesto que
-#        isto apanha e sempre o mesmo: o ficheiro que o utilizador julga que e
-#        uma ISO e afinal um `.zip` que ninguem extraiu.
+#        isto apanha e sempre o mesmo: o ficheiro que o utilizador julga que é
+#        uma ISO e afinal um `.zip` que ninguém extraiu.
 # EN-UK: Each format's signature and where it lives. The honest mistake this
 #        catches is always the same: the supposed ISO is a `.zip` nobody
 #        extracted.
@@ -101,10 +101,10 @@ $script:Assinaturas = @{
     '.vhdx'  = @{ Deslocamento = 0;      Bytes = [byte[]](0x76, 0x68, 0x64, 0x78, 0x66, 0x69, 0x6C, 0x65) }
 }
 
-# PT-PT: Que formatos cada hipervisor consegue ligar sem conversao. O Hyper-V e
-#        o mais estreito de todos: so fala VHD e VHDX. Uma `.qcow2` de uma
-#        appliance tem de ser convertida antes, e dizer isso a cabeca poupa a
-#        alguem criar uma maquina que nunca vai arrancar.
+# PT-PT: Que formatos cada hipervisor consegue ligar sem conversão. O Hyper-V e
+#        o mais estreito de todos: só fala VHD e VHDX. Uma `.qcow2` de uma
+#        appliance tem de ser convertida antes, e dizer isso a cabeça poupa a
+#        alguém criar uma máquina que nunca vai arrancar.
 # EN-UK: Which formats each hypervisor can attach without conversion. Hyper-V is
 #        the narrowest: VHD and VHDX only.
 $script:FormatosPorHipervisor = @{
@@ -112,9 +112,9 @@ $script:FormatosPorHipervisor = @{
     'virtualbox' = @('.iso', '.vdi', '.vmdk', '.vhd', '.ova', '.ovf')
 }
 
-# PT-PT: Perfis para um convidado que o catalogo nao conhece. Sao deliberadamente
+# PT-PT: Perfis para um convidado que o catálogo não conhece. São deliberadamente
 #        conservadores: e melhor propor pouco e o utilizador aumentar do que
-#        propor de mais e ele so descobrir quando o anfitriao ficar a nadar.
+#        propor de mais e ele só descobrir quando o anfitrião ficar a nadar.
 # EN-UK: Profiles for a guest the catalogue does not know. Deliberately
 #        conservative: better to propose little and have the user raise it.
 $script:Perfis = [ordered]@{
@@ -149,14 +149,14 @@ $script:Perfis = [ordered]@{
 function Get-TipoDeImagem {
     <#
     .SYNOPSIS
-        PT-PT: Como e que este ficheiro se liga a uma maquina virtual.
+        PT-PT: Como e que este ficheiro se liga a uma máquina virtual.
         EN-UK: How this file attaches to a virtual machine.
 
     .DESCRIPTION
-        PT-PT: Decide pela extensao, e nao pelo conteudo. E deliberado: a
-               extensao e o que o utilizador escolheu chamar ao ficheiro, e uma
+        PT-PT: Decide pela extensão, e não pelo conteúdo. E deliberado: a
+               extensão e o que o utilizador escolheu chamar ao ficheiro, e uma
                `.qcow2` com nome de `.iso` e um problema para resolver com ele e
-               nao para adivinhar em silencio. A assinatura serve depois, para
+               não para adivinhar em silêncio. A assinatura serve depois, para
                confirmar que as duas coisas coincidem.
         EN-UK: It decides on the extension rather than the content, deliberately:
                the extension is what the user chose to call the file, and a
@@ -182,16 +182,16 @@ function Get-TipoDeImagem {
 function Test-FormatoSuportado {
     <#
     .SYNOPSIS
-        PT-PT: Se um hipervisor consegue ligar este formato sem conversao.
+        PT-PT: Se um hipervisor consegue ligar este formato sem conversão.
         EN-UK: Whether a hypervisor can attach this format without conversion.
 
     .DESCRIPTION
-        PT-PT: Recebe a extensao e o hipervisor como argumentos, e nao os vai
-               buscar, para se poder testar as combinacoes todas sem instalar
+        PT-PT: Recebe a extensão e o hipervisor como argumentos, e não os vai
+               buscar, para se poder testar as combinações todas sem instalar
                hipervisor nenhum.
 
-               Quando nao serve, devolve o comando de conversao. Uma mensagem que
-               so diz "nao e suportado" deixa a pessoa no mesmo sitio; uma que
+               Quando não serve, devolve o comando de conversão. Uma mensagem que
+               só diz "não e suportado" deixa a pessoa no mesmo sítio; uma que
                diz `qemu-img convert -O vhdx` resolve-lhe o problema.
         EN-UK: It takes the extension and hypervisor as arguments so every
                combination can be tested with no hypervisor installed. When the
@@ -232,19 +232,19 @@ function Test-FormatoSuportado {
 function Test-AssinaturaFicheiro {
     <#
     .SYNOPSIS
-        PT-PT: Confirma que o conteudo do ficheiro corresponde a extensao.
+        PT-PT: Confirma que o conteúdo do ficheiro corresponde a extensão.
         EN-UK: Confirms the file's content matches its extension.
 
     .DESCRIPTION
-        PT-PT: **Isto nao e uma medida de seguranca.** Quem adultera um ficheiro
-               tambem lhe poe a assinatura certa. O que isto apanha e o engano
-               honesto, que e o caso comum: o `.zip` que ainda nao foi extraido,
+        PT-PT: **Isto não é uma medida de segurança.** Quem adultera um ficheiro
+               também lhe põe a assinatura certa. O que isto apanha e o engano
+               honesto, que é o caso comum: o `.zip` que ainda não foi extraído,
                o descarregamento que ficou a meio, o ficheiro errado escolhido na
-               caixa de dialogo.
+               caixa de diálogo.
 
-               Um formato sem assinatura conhecida -- o `.img`, que e so bytes em
-               bruto -- devolve verdadeiro. Nao ha nada para verificar, e recusar
-               por isso seria recusar um formato legitimo.
+               Um formato sem assinatura conhecida -- o `.img`, que é só bytes em
+               bruto -- devolve verdadeiro. Não há nada para verificar, e recusar
+               por isso seria recusar um formato legítimo.
         EN-UK: **This is not a security control.** Whoever tampers with a file
                also puts the right signature on it. What this catches is the
                honest mistake, which is the common case.
@@ -315,19 +315,19 @@ function Get-OrigemFicheiro {
     .DESCRIPTION
         PT-PT: Quando o Windows descarrega um ficheiro, escreve-lhe ao lado um
                fluxo alternativo chamado `Zone.Identifier` -- a Marca da Web --
-               com a zona de origem e, muitas vezes, com o endereco de onde veio.
+               com a zona de origem e, muitas vezes, com o endereço de onde veio.
 
-               **E das poucas coisas em que o Windows da mais informacao do que
+               **E das poucas coisas em que o Windows da mais informação do que
                os outros dois sistemas**, e vale a pena usa-la: mostrar ao
                utilizador "este ficheiro veio de X" e a forma mais directa de ele
-               reparar que o X nao e o sitio oficial. Um endereco que ninguem
-               olha nao protege ninguem; um endereco a frente dos olhos, na hora
+               reparar que o X não é o sítio oficial. Um endereço que ninguém
+               olha não protege ninguém; um endereço a frente dos olhos, na hora
                de decidir, protege.
 
-               O fluxo perde-se quando o ficheiro passa por um sistema que nao e
-               NTFS -- uma pen em FAT32, por exemplo. Nao encontrar a marca nao
-               quer dizer que o ficheiro seja de confianca; quer dizer que o
-               Windows nao sabe.
+               O fluxo perde-se quando o ficheiro passa por um sistema que não é
+               NTFS -- uma pen em FAT32, por exemplo. Não encontrar a marca não
+               quer dizer que o ficheiro seja de confiança; quer dizer que o
+               Windows não sabe.
         EN-UK: When Windows downloads a file it writes an alternate data stream
                beside it -- the Mark of the Web -- carrying the origin zone and,
                often, the URL it came from.
@@ -358,7 +358,7 @@ function Get-OrigemFicheiro {
         $conteudo = Get-Content -LiteralPath $Caminho -Stream 'Zone.Identifier' -ErrorAction Stop
     }
     catch {
-        # PT-PT: Nao ha fluxo. E o caso normal de um ficheiro criado localmente
+        # PT-PT: Não há fluxo. E o caso normal de um ficheiro criado localmente
         #        ou que passou por uma pen em FAT32.
         # EN-UK: No stream. The normal case for a locally created file.
         return $resultado
@@ -368,7 +368,7 @@ function Get-OrigemFicheiro {
 
     foreach ($linha in $conteudo) {
         if ($linha -match '^\s*ZoneId\s*=\s*(\d+)') {
-            # PT-PT: 3 e a Internet, 4 e um sitio marcado como nao confiavel.
+            # PT-PT: 3 e a Internet, 4 e um sítio marcado como não confiável.
             # EN-UK: 3 is the Internet, 4 is a site marked untrusted.
             $zona = [int]$Matches[1]
             $resultado.DaInternet = ($zona -ge 3)
@@ -395,7 +395,7 @@ function Get-OrigemFicheiro {
 function Get-PerfilGenerico {
     <#
     .SYNOPSIS
-        PT-PT: Os requisitos a assumir para um convidado que nao se conhece.
+        PT-PT: Os requisitos a assumir para um convidado que não se conhece.
         EN-UK: The requirements to assume for an unknown guest.
     #>
     [CmdletBinding()]
@@ -430,14 +430,14 @@ function Get-NomePerfil {
 function Test-ImagemLocal {
     <#
     .SYNOPSIS
-        PT-PT: Percorre todas as verificacoes possiveis sobre um ficheiro local.
+        PT-PT: Percorre todas as verificações possíveis sobre um ficheiro local.
         EN-UK: Runs every possible check over a local file.
 
     .DESCRIPTION
-        PT-PT: Devolve um objecto com o que se sabe, e nao um sim ou nao. Quem
-               chama decide o que fazer com cada peca -- e o menu apresenta-as
-               todas ao utilizador, porque a decisao de usar uma imagem sem
-               proveniencia e dele e nao do programa.
+        PT-PT: Devolve um objecto com o que se sabe, e não um sim ou não. Quem
+               chama decide o que fazer com cada peça -- e o menu apresenta-as
+               todas ao utilizador, porque a decisão de usar uma imagem sem
+               proveniência e dele e não do programa.
         EN-UK: It returns an object with what is known rather than a yes or no.
                The caller decides what to do with each piece, and the menu shows
                them all: the decision to use an image with no provenance is the

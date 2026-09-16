@@ -1,29 +1,29 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Leitura das caracteristicas da maquina anfitria.
+    PT-PT: Leitura das características da máquina anfitria.
     EN-UK: Reading the host machine's characteristics.
 
 .DESCRIPTION
     PT-PT
-    Tudo o que este ficheiro le serve para responder a duas perguntas: **esta
-    maquina consegue virtualizar?** e **quanto pode dar sem se prejudicar?**
+    Tudo o que este ficheiro lê serve para responder a duas perguntas: **esta
+    máquina consegue virtualizar?** e **quanto pode dar sem se prejudicar?**
 
-    Ha aqui uma armadilha que merece o aviso, porque apanha toda a gente uma vez.
-    O campo `VirtualizationFirmwareEnabled` do WMI devolve **falso** numa maquina
-    com o Hyper-V ligado. Nao e um erro: com o Hyper-V activo, o Windows que o
-    utilizador ve ja e ele proprio um convidado, e um convidado nao ve as
-    extensoes de virtualizacao do processador. Um programa que leia so aquele
-    campo conclui "esta maquina nao suporta virtualizacao" precisamente na
-    maquina onde a virtualizacao ja esta a correr.
+    Há aqui uma armadilha que merece o aviso, porque apanha toda a gente uma vez.
+    O campo `VirtualizationFirmwareEnabled` do WMI devolve **falso** numa máquina
+    com o Hyper-V ligado. Não e um erro: com o Hyper-V activo, o Windows que o
+    utilizador vê já e ele próprio um convidado, e um convidado não vê as
+    extensões de virtualização do processador. Um programa que leia só aquele
+    campo conclui "esta máquina não suporta virtualização" precisamente na
+    máquina onde a virtualização já esta a correr.
 
-    A saida e olhar tambem para o `HypervisorPresent`: se ja ha um hipervisor,
+    A saída e olhar também para o `HypervisorPresent`: se já há um hipervisor,
     a pergunta esta respondida, e a resposta e sim.
 
-    A segunda coisa que se le aqui, e que nao e obvia, e a **edicao do Windows**.
-    O Hyper-V nao existe na edicao Home -- nao esta desligado, nao existe --, e
-    dizer isso a cabeca poupa a alguem meia hora a procurar uma funcionalidade
-    que a maquina dele nao tem.
+    A segunda coisa que se lê aqui, e que não é óbvia, e a **edição do Windows**.
+    O Hyper-V não existe na edição Home -- não esta desligado, não existe --, e
+    dizer isso a cabeça poupa a alguém meia hora a procurar uma funcionalidade
+    que a máquina dele não tem.
 
     EN-UK
     Everything read here answers two questions: **can this machine virtualise?**
@@ -50,14 +50,14 @@ Set-StrictMode -Version Latest
 function Get-PerfilAnfitriao {
     <#
     .SYNOPSIS
-        PT-PT: Recolhe o retrato da maquina onde isto esta a correr.
+        PT-PT: Recolhe o retrato da máquina onde isto esta a correr.
         EN-UK: Gathers a portrait of the machine this is running on.
 
     .DESCRIPTION
-        PT-PT: Cada leitura esta protegida. Numa maquina com o WMI meio partido
+        PT-PT: Cada leitura esta protegida. Numa máquina com o WMI meio partido
                -- que acontece, e mais do que se gostaria -- o que falha fica a
                zero e o resto continua a valer: um perfil incompleto ainda
-               permite recomendar alguma coisa, um erro nao permite nada.
+               permite recomendar alguma coisa, um erro não permite nada.
         EN-UK: Every read is guarded. On a machine with half-broken WMI -- which
                happens, more often than one would like -- what fails reads zero
                and the rest still counts.
@@ -95,7 +95,7 @@ function Get-PerfilAnfitriao {
         $sistema = Get-CimInstance -ClassName Win32_ComputerSystem -ErrorAction Stop
         $perfil.MemoriaGb = [Math]::Round($sistema.TotalPhysicalMemory / 1GB, 1)
         $perfil.NucleosLogicos = [int]$sistema.NumberOfLogicalProcessors
-        # PT-PT: A chave para nao concluir mal. Ver o cabecalho do ficheiro.
+        # PT-PT: A chave para não concluir mal. Ver o cabeçalho do ficheiro.
         # EN-UK: The key to not concluding wrongly. See the file header.
         $perfil.HipervisorPresente = [bool]$sistema.HypervisorPresent
     }
@@ -110,10 +110,10 @@ function Get-PerfilAnfitriao {
     }
     catch { Write-Verbose "Win32_Processor indisponível: $($_.Exception.Message)" }
 
-    # PT-PT: Sem nucleos fisicos legiveis, os logicos servem de aproximacao. E
-    #        uma sobrestimativa quando ha hyper-threading, e por isso o
-    #        recomendador tira sempre um nucleo -- mas e melhor do que zero, que
-    #        bloquearia o calculo todo.
+    # PT-PT: Sem núcleos físicos legíveis, os lógicos servem de aproximação. E
+    #        uma sobrestimativa quando há hyper-threading, e por isso o
+    #        recomendador tira sempre um núcleo -- mas e melhor do que zero, que
+    #        bloquearia o cálculo todo.
     # EN-UK: With no readable physical cores, the logical ones approximate. An
     #        overestimate where hyper-threading exists, hence the recommender
     #        always removing one core -- but better than zero, which would block
@@ -150,14 +150,14 @@ function Get-PerfilAnfitriao {
 function Test-VirtualizacaoDisponivel {
     <#
     .SYNOPSIS
-        PT-PT: Se esta maquina consegue correr um hipervisor.
+        PT-PT: Se esta máquina consegue correr um hipervisor.
         EN-UK: Whether this machine can run a hypervisor.
 
     .DESCRIPTION
-        PT-PT: Recebe o perfil como argumento, e nao o vai buscar, para se poder
+        PT-PT: Recebe o perfil como argumento, e não o vai buscar, para se poder
                testar com os casos que interessam -- e o mais interessante deles
-               e o da maquina que **ja tem** um hipervisor a correr e por isso
-               reporta as extensoes do processador como desligadas.
+               e o da máquina que **já tem** um hipervisor a correr e por isso
+               reporta as extensões do processador como desligadas.
         EN-UK: It takes the profile as an argument rather than fetching it, so it
                can be tested against the cases that matter -- the most
                interesting being the machine that **already has** a hypervisor
@@ -198,17 +198,17 @@ function Test-VirtualizacaoDisponivel {
 function Test-EdicaoSuportaHyperV {
     <#
     .SYNOPSIS
-        PT-PT: Se a edicao do Windows inclui o Hyper-V.
+        PT-PT: Se a edição do Windows inclui o Hyper-V.
         EN-UK: Whether the Windows edition includes Hyper-V.
 
     .DESCRIPTION
-        PT-PT: O Hyper-V nao existe na edicao Home. Nao esta desligado: nao esta
+        PT-PT: O Hyper-V não existe na edição Home. Não esta desligado: não esta
                la. Quem tiver Home e quiser virtualizar usa o VirtualBox, e este
                programa encaminha-o para la em vez de o mandar procurar uma
-               funcionalidade que a maquina dele nunca vai ter.
+               funcionalidade que a máquina dele nunca vai ter.
 
-               Recebe o texto da edicao como argumento para se poder testar as
-               varias formas como ela aparece.
+               Recebe o texto da edição como argumento para se poder testar as
+               várias formas como ela aparece.
 
         EN-UK: Hyper-V does not exist on Home. It is not switched off: it is not
                there. Anyone on Home who wants to virtualise uses VirtualBox, and
@@ -229,14 +229,14 @@ function Test-EdicaoSuportaHyperV {
 function Get-VolumeParaMaquinas {
     <#
     .SYNOPSIS
-        PT-PT: Escolhe o volume com mais espaco livre.
+        PT-PT: Escolhe o volume com mais espaço livre.
         EN-UK: Picks the volume with the most free space.
 
     .DESCRIPTION
-        PT-PT: Por omissao propoe-se o volume mais folgado, e nao o do sistema.
-               Uma maquina virtual de 60 GB no mesmo disco onde o Windows tem 15
+        PT-PT: Por omissão propõe-se o volume mais folgado, e não o do sistema.
+               Uma máquina virtual de 60 GB no mesmo disco onde o Windows tem 15
                GB livres e um problema a espera de acontecer, e o utilizador que
-               esta a criar a primeira maquina virtual nao tem razao nenhuma
+               esta a criar a primeira máquina virtual não tem razão nenhuma
                para saber disso de antemao.
         EN-UK: The roomiest volume is proposed by default rather than the system
                one. A 60 GB virtual machine on the same disk where Windows has 15

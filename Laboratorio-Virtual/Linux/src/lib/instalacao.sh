@@ -1,32 +1,32 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Preparar um hipervisor que ainda nao esta instalado.
+# PT-PT: Preparar um hipervisor que ainda não esta instalado.
 #
-#        Ate aqui, sem hipervisor nenhum, o programa dizia o comando e ficava-se
-#        por ai. Isto trata do assunto -- e em Linux trata-o de uma maneira que
-#        as outras duas versoes nao podem copiar.
+#        Até aqui, sem hipervisor nenhum, o programa dizia o comando e ficava-se
+#        por aí. Isto trata do assunto -- e em Linux trata-o de uma maneira que
+#        as outras duas versões não podem copiar.
 #
-#        **Em Linux nao se descarrega um binario.** A versao de Windows tem de
-#        ir buscar um `.exe` a Oracle porque nao ha outra forma; aqui ha, e e
-#        melhor sob todos os pontos de vista: acrescenta-se o repositorio da
+#        **Em Linux não se descarrega um binário.** A versão de Windows tem de
+#        ir buscar um `.exe` a Oracle porque não há outra forma; aqui há, e e
+#        melhor sob todos os pontos de vista: acrescenta-se o repositório da
 #        Oracle e deixa-se o `apt` ou o `dnf` fazer o trabalho.
 #
-#        A diferenca nao e de conveniencia, e de seguranca. Um ficheiro
-#        descarregado a mao verifica-se uma vez, no dia em que se instala. Um
-#        pacote que vem de um repositorio assinado verifica-se **em todas as
-#        actualizacoes**, para sempre, pelo gestor de pacotes -- que sabe fazer
+#        A diferença não é de conveniência, e de segurança. Um ficheiro
+#        descarregado a mão verifica-se uma vez, no dia em que se instala. Um
+#        pacote que vem de um repositório assinado verifica-se **em todas as
+#        actualizações**, para sempre, pelo gestor de pacotes -- que sabe fazer
 #        isso melhor do que qualquer script.
 #
-#        **A chave e fixada, e nao apenas descarregada.** Acrescentar ao sistema
-#        uma chave que se acabou de ir buscar e uma cerimonia sem conteudo: se o
+#        **A chave e fixada, e não apenas descarregada.** Acrescentar ao sistema
+#        uma chave que se acabou de ir buscar e uma cerimonia sem conteúdo: se o
 #        canal estivesse comprometido, a chave que chegava era a do atacante e
 #        passava a assinar tudo o que ele quisesse, para sempre. Por isso a
-#        impressao digital esta escrita aqui e e uma **condicao**: nao confere,
-#        nao se instala nada.
+#        impressão digital esta escrita aqui e e uma **condição**: não confere,
+#        não se instala nada.
 #
-#        A impressao esta publicada pela Oracle na propria pagina
-#        `virtualbox.org/wiki/Linux_Downloads`. Nao foi copiada de um artigo nem
-#        de um forum, que e como estas coisas costumam entrar erradas nos
+#        A impressão esta publicada pela Oracle na própria página
+#        `virtualbox.org/wiki/Linux_Downloads`. Não foi copiada de um artigo nem
+#        de um forum, que é como estas coisas costumam entrar erradas nos
 #        scripts.
 #
 # EN-UK: Preparing a hypervisor that is not installed yet.
@@ -53,9 +53,9 @@
 # Created by Redfox using Claude
 # ===========================================================================
 
-# PT-PT: Lista de dominios propria, separada da do catalogo de proposito: a
-#        lista por onde se descarregam imagens de sistemas operativos nao deve
-#        crescer para incluir um sitio que nao serve nenhuma.
+# PT-PT: Lista de domínios própria, separada da do catálogo de propósito: a
+#        lista por onde se descarregam imagens de sistemas operativos não deve
+#        crescer para incluir um sítio que não serve nenhuma.
 # EN-UK: A separate domain list, deliberately not the catalogue's: the list used
 #        for operating-system images should not grow to include a site serving
 #        none.
@@ -73,7 +73,7 @@ BASE_VIRTUALBOX='https://download.virtualbox.org/virtualbox'
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Os dominios aceites por este ficheiro, um por linha.
+# PT-PT: Os domínios aceites por este ficheiro, um por linha.
 # EN-UK: The domains this file accepts, one per line.
 # ---------------------------------------------------------------------------
 dominios_virtualbox() {
@@ -83,14 +83,14 @@ dominios_virtualbox() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Valida o conteudo do `LATEST.TXT` e devolve a versao.
+# PT-PT: Valida o conteúdo do `LATEST.TXT` e devolve a versão.
 #
-#        Este texto vem de fora e vai ser **colado num endereco**. Se trouxesse
-#        uma barra ou um `..`, o endereco resultante deixava de apontar para
+#        Este texto vem de fora e vai ser **colado num endereço**. Se trouxesse
+#        uma barra ou um `..`, o endereço resultante deixava de apontar para
 #        onde este programa julga que aponta. Por isso a linha inteira tem de
-#        ser tres numeros separados por pontos, e nada mais.
+#        ser três números separados por pontos, e nada mais.
 #
-#        A funcao nao escreve nada: valida e devolve. Quem chama e que sabe
+#        A função não escreve nada: valida e devolve. Quem chama e que sabe
 #        como se fala com quem esta a usar -- e assim isto testa-se sem
 #        arrastar o ponto de entrada inteiro para dentro da suite.
 #
@@ -112,12 +112,12 @@ versao_valida() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A serie da versao -- `7.2` a partir de `7.2.16`.
+# PT-PT: A série da versão -- `7.2` a partir de `7.2.16`.
 #
 #        E dela que sai o nome do pacote (`virtualbox-7.2`), que muda a cada
-#        versao menor. Escrever `virtualbox-7.1` aqui era garantir que este
-#        programa deixava de funcionar no dia em que a Oracle mudasse de serie
-#        -- e a propria documentacao da Oracle ainda diz 7.1 num sitio onde ja
+#        versão menor. Escrever `virtualbox-7.1` aqui era garantir que este
+#        programa deixava de funcionar no dia em que a Oracle mudasse de série
+#        -- e a própria documentação da Oracle ainda diz 7.1 num sítio onde já
 #        vai na 7.2.
 #
 # EN-UK: The series -- `7.2` out of `7.2.16`. The package name comes from it,
@@ -131,7 +131,7 @@ serie_versao() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: O nome de codigo da distribuicao (`noble`, `bookworm`, ...).
+# PT-PT: O nome de código da distribuição (`noble`, `bookworm`, ...).
 # EN-UK: The distribution's codename.
 # ---------------------------------------------------------------------------
 codinome_distribuicao() {
@@ -143,11 +143,11 @@ codinome_distribuicao() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A impressao digital da chave primaria de um ficheiro de chave.
+# PT-PT: A impressão digital da chave primária de um ficheiro de chave.
 #
-#        Corre num porta-chaves temporario e nao no do utilizador. Importar uma
-#        chave por verificar para o porta-chaves de alguem so para lhe ler a
-#        impressao seria deixar la o que se estava a tentar avaliar.
+#        Corre num porta-chaves temporário e não no do utilizador. Importar uma
+#        chave por verificar para o porta-chaves de alguém só para lhe ler a
+#        impressão seria deixar la o que se estava a tentar avaliar.
 #
 # EN-UK: The primary key's fingerprint from a key file. Runs in a throwaway
 #        keyring, not the user's: importing an unverified key into somebody's
@@ -187,13 +187,13 @@ chave_oracle_confere() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Os comandos que instalam o KVM com o libvirt nesta distribuicao,
+# PT-PT: Os comandos que instalam o KVM com o libvirt nesta distribuição,
 #        um por linha.
 #
-#        Sao tres coisas e nao uma, e e por isso que nao cabem no
-#        `comando_instalar`: instalar os pacotes, por o servico a arrancar, e
+#        São três coisas e não uma, e é por isso que não cabem no
+#        `comando_instalar`: instalar os pacotes, por o serviço a arrancar, e
 #        meter o utilizador nos grupos. Faltar qualquer uma delas da um sistema
-#        onde o `virt-install` existe e nao funciona -- que e a situacao mais
+#        onde o `virt-install` existe e não funciona -- que é a situação mais
 #        confusa de todas, porque tudo parece instalado.
 #
 # EN-UK: The commands installing KVM with libvirt on this distribution, one per
@@ -229,8 +229,8 @@ passos_libvirt() {
     esac
 
     # PT-PT: O `enable --now` faz as duas coisas: arranca agora e volta a
-    #        arrancar no proximo reinicio. So `start` daria um libvirt que
-    #        desaparecia ao desligar a maquina.
+    #        arrancar no próximo reinício. Só `start` daria um libvirt que
+    #        desaparecia ao desligar a máquina.
     # EN-UK: `enable --now` does both: start now and start again on the next
     #        boot. A bare `start` would give a libvirt that vanished on reboot.
     if [[ "$gestor" != 'apk' ]]; then
@@ -248,13 +248,13 @@ passos_libvirt() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Os comandos que acrescentam o repositorio da Oracle e instalam o
+# PT-PT: Os comandos que acrescentam o repositório da Oracle e instalam o
 #        VirtualBox por ele, um por linha.
 #
-#        A chave ja vem verificada de fora desta funcao: aqui so se converte o
+#        A chave já vem verificada de fora desta função: aqui só se converte o
 #        ficheiro que passou na fixacao. Repare-se no `signed-by` na linha do
-#        repositorio -- sem ele, a chave da Oracle passava a poder assinar
-#        pacotes de **qualquer** repositorio configurado nesta maquina, que e
+#        repositório -- sem ele, a chave da Oracle passava a poder assinar
+#        pacotes de **qualquer** repositório configurado nesta máquina, que é
 #        exactamente o problema que o `apt-key` tinha e por que foi retirado.
 #
 # EN-UK: The commands adding Oracle's repository and installing VirtualBox from
@@ -264,7 +264,7 @@ passos_libvirt() {
 #        on this machine, which is precisely the problem `apt-key` had and was
 #        removed for.
 #
-# $1 caminho do ficheiro da chave ja verificada
+# $1 caminho do ficheiro da chave já verificada
 # $2 nome de codigo da distribuicao
 # $3 serie do VirtualBox (por exemplo 7.2)
 # ---------------------------------------------------------------------------
@@ -301,7 +301,7 @@ passos_virtualbox_rpm() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A variante do repositorio RPM que serve esta distribuicao.
+# PT-PT: A variante do repositório RPM que serve esta distribuição.
 # EN-UK: The RPM repository variant serving this distribution.
 # ---------------------------------------------------------------------------
 variante_rpm() {
@@ -323,21 +323,21 @@ variante_rpm() {
 # ---------------------------------------------------------------------------
 # PT-PT: Mostra os comandos, pergunta uma vez, e corre-os por ordem.
 #
-#        Os comandos sao mostrados **antes** de correrem, todos, e nao um a um
+#        Os comandos são mostrados **antes** de correrem, todos, e não um a um
 #        pelo caminho. Quem esta a olhar tem de poder ver o que vai acontecer --
-#        mas mostrar nao e o mesmo que pedir licenca, e aqui nao se pede.
+#        mas mostrar não é o mesmo que pedir licença, e aqui não se pede.
 #
-#        **Nao ha confirmacao.** Escolher "instalar o VirtualBox" num menu que
-#        diz "instalar o VirtualBox" ja e a resposta; perguntar outra vez nao
-#        acrescenta decisao nenhuma, so ruido. E o `sudo`, que vem a seguir, ja
-#        e uma paragem a serio -- ao contrario de um [s/N], pede uma coisa que
-#        so quem tem a maquina sabe.
+#        **Não há confirmação.** Escolher "instalar o VirtualBox" num menu que
+#        diz "instalar o VirtualBox" já e a resposta; perguntar outra vez não
+#        acrescenta decisão nenhuma, só ruído. E o `sudo`, que vem a seguir, já
+#        e uma paragem a sério -- ao contrário de um [s/N], pede uma coisa que
+#        só quem tem a máquina sabe.
 #
 #        O `sudo` pede a palavra-passe no terminal, a quem esta a usar. Este
-#        programa nunca a ve, nunca a guarda e nunca a passa a lado nenhum.
+#        programa nunca a vê, nunca a guarda e nunca a passa a lado nenhum.
 #
 #        Ao primeiro comando que falhe, para. Continuar depois de um `apt-get
-#        update` falhado dava um `install` que instalava a versao errada, ou
+#        update` falhado dava um `install` que instalava a versão errada, ou
 #        nenhuma, com uma mensagem sobre outra coisa qualquer.
 #
 # EN-UK: Shows the commands and runs them in order. They are shown **before**
@@ -404,11 +404,11 @@ instalar_libvirt() {
     printf '  ferramentas que falam com ele, o serviço do libvirt, e a permissão\n'
     printf '  para este utilizador lhes chegar.\n'
     printf '\n'
-    # PT-PT: Em Windows pergunta-se onde instalar. Aqui nao se pergunta, e nao e
-    #        por esquecimento: quem decide onde um pacote fica e a distribuicao,
-    #        e inventar uma pergunta cuja resposta nao muda nada seria pior do
-    #        que nao a fazer. O que **se** escolhe -- onde ficam as imagens e as
-    #        maquinas -- e perguntado na altura de as criar.
+    # PT-PT: Em Windows pergunta-se onde instalar. Aqui não se pergunta, e não é
+    #        por esquecimento: quem decide onde um pacote fica e a distribuição,
+    #        e inventar uma pergunta cuja resposta não muda nada seria pior do
+    #        que não a fazer. O que **se** escolhe -- onde ficam as imagens e as
+    #        máquinas -- e perguntado na altura de as criar.
     # EN-UK: On Windows the install location is asked. Here it is not, and not
     #        by oversight: the distribution decides where a package lands, and
     #        inventing a question whose answer changes nothing would be worse
@@ -433,7 +433,7 @@ instalar_libvirt() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Instala o VirtualBox pelo repositorio da Oracle.
+# PT-PT: Instala o VirtualBox pelo repositório da Oracle.
 # EN-UK: Installs VirtualBox from Oracle's repository.
 # ---------------------------------------------------------------------------
 instalar_virtualbox() {
@@ -444,7 +444,7 @@ instalar_virtualbox() {
     local d
     while IFS= read -r d; do dominios+=("$d"); done < <(dominios_virtualbox)
 
-    # --- a versao, para saber o nome do pacote ------------------------------
+    # --- a versão, para saber o nome do pacote ------------------------------
     printf '  A perguntar à Oracle qual é a versão actual...\n'
     local temporaria; temporaria="$(mktemp -d)"
     # shellcheck disable=SC2064
@@ -476,9 +476,9 @@ instalar_virtualbox() {
                 return 1
             fi
 
-            # PT-PT: A Oracle nao serve todas as versoes de todas as
-            #        distribuicoes. Perguntar antes evita escrever um ficheiro
-            #        de repositorio que so vai dar erro no `apt update`
+            # PT-PT: A Oracle não serve todas as versões de todas as
+            #        distribuições. Perguntar antes evita escrever um ficheiro
+            #        de repositório que só vai dar erro no `apt update`
             #        seguinte -- e que fica la a dar erro para sempre, mesmo
             #        depois de a pessoa desistir e instalar de outra maneira.
             # EN-UK: Oracle does not serve every release of every distribution.
@@ -513,8 +513,8 @@ instalar_virtualbox() {
             fi
             ok "Chave confirmada: $IMPRESSAO_ORACLE"
 
-            # PT-PT: A chave verificada e copiada para um sitio estavel: o
-            #        `trap` acima apaga a pasta temporaria ao sair desta funcao,
+            # PT-PT: A chave verificada e copiada para um sítio estável: o
+            #        `trap` acima apaga a pasta temporária ao sair desta função,
             #        e o comando do `dearmor` corre antes disso mas o ficheiro
             #        tem de sobreviver a leitura pelo sudo.
             # EN-UK: The verified key is copied somewhere stable.
@@ -539,8 +539,8 @@ instalar_virtualbox() {
             ;;
 
         *)
-            # PT-PT: A Oracle nao tem repositorio para a Arch nem para a Alpine.
-            #        O pacote da distribuicao e a resposta certa, e nao um
+            # PT-PT: A Oracle não tem repositório para a Arch nem para a Alpine.
+            #        O pacote da distribuição e a resposta certa, e não um
             #        remendo -- e mantido, assinado e actualizado com o resto.
             # EN-UK: Oracle has no repository for Arch or Alpine. The
             #        distribution's own package is the right answer, not a

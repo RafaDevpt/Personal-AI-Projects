@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Deteccao e utilizacao dos dois hipervisores de Linux.
+# PT-PT: Detecção e utilização dos dois hipervisores de Linux.
 #
-#        **KVM** faz parte do kernel. Nao se instala nem se activa: ou o
-#        processador tem as extensoes e o modulo esta carregado, ou nao. O que
+#        **KVM** faz parte do kernel. Não se instala nem se activa: ou o
+#        processador tem as extensões e o módulo esta carregado, ou não. O que
 #        se instala e o que esta a volta -- o QEMU, que emula o resto da
-#        maquina, e o libvirt, que gere as maquinas e as redes. E a opcao mais
-#        rapida em Linux, por larga margem, e a que qualquer servidor usa.
+#        máquina, e o libvirt, que gere as máquinas e as redes. E a opção mais
+#        rápida em Linux, por larga margem, e a que qualquer servidor usa.
 #
 #        **VirtualBox** e da Oracle, instala-se como um programa e tem
-#        interface grafica propria. Em Linux perde para o KVM em desempenho,
-#        mas ganha em comodidade para quem so quer clicar.
+#        interface gráfica própria. Em Linux perde para o KVM em desempenho,
+#        mas ganha em comodidade para quem só quer clicar.
 #
-#        **Duas permissoes, e nao uma.** E aqui que a maioria das pessoas se
-#        atrapalha na primeira vez. Ter o KVM disponivel nao chega: o
+#        **Duas permissões, e não uma.** E aqui que a maioria das pessoas se
+#        atrapalha na primeira vez. Ter o KVM disponível não chega: o
 #        `/dev/kvm` pertence ao grupo `kvm`, e o socket do libvirt ao grupo
-#        `libvirt`. Um utilizador que nao pertenca a eles ve o `virt-install`
-#        falhar com um erro de permissao a meio, depois de ja ter descarregado
-#        a imagem toda. O programa pergunta antes, e diz qual e o comando.
+#        `libvirt`. Um utilizador que não pertenca a eles vê o `virt-install`
+#        falhar com um erro de permissão a meio, depois de já ter descarregado
+#        a imagem toda. O programa pergunta antes, e diz qual é o comando.
 #
-#        E ha um pormenor que so aparece depois: **entrar num grupo nao tem
-#        efeito na sessao que ja esta aberta.** A pessoa corre o `usermod`, ve
+#        E há um pormenor que só aparece depois: **entrar num grupo não tem
+#        efeito na sessão que já esta aberta.** A pessoa corre o `usermod`, vê
 #        o comando terminar bem, tenta outra vez e falha igual. Tem de voltar a
-#        iniciar sessao. Dizer isto na mesma linha do comando poupa a chamada
+#        iniciar sessão. Dizer isto na mesma linha do comando poupa a chamada
 #        seguinte ao helpdesk.
 #
 # EN-UK: Detecting and driving the two Linux hypervisors.
@@ -48,8 +48,8 @@
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Se o conjunto QEMU + libvirt esta utilizavel.
-#        Devolve: 0 pronto · 1 falta software · 2 falta permissao
+# PT-PT: Se o conjunto QEMU + libvirt esta utilizável.
+#        Devolve: 0 pronto · 1 falta software · 2 falta permissão
 # EN-UK: Whether QEMU + libvirt is usable. 0 ready, 1 software missing,
 #        2 permission missing.
 # ---------------------------------------------------------------------------
@@ -58,7 +58,7 @@ estado_libvirt() {
     command -v virsh >/dev/null 2>&1 || return 1
 
     # PT-PT: Ver a nota em `mostrar_hipervisores`: com `set -e`, ler o `$?` na
-    #        linha a seguir nao chega -- o programa ja morreu.
+    #        linha a seguir não chega -- o programa já morreu.
     # EN-UK: See the note in `mostrar_hipervisores`: under `set -e`, reading
     #        `$?` on the next line is too late.
     local kvm=0
@@ -67,7 +67,7 @@ estado_libvirt() {
     (( kvm == 2 )) && return 2
 
     # PT-PT: Falar com o libvirt e a prova que interessa. O socket pode existir
-    #        e o utilizador nao o conseguir abrir, e so a tentativa o revela.
+    #        e o utilizador não o conseguir abrir, e só a tentativa o revela.
     # EN-UK: Talking to libvirt is the proof that counts. The socket may exist
     #        and be unopenable, and only the attempt reveals it.
     virsh --connect qemu:///system list --all >/dev/null 2>&1 || return 2
@@ -83,7 +83,7 @@ estado_virtualbox() {
 # ---------------------------------------------------------------------------
 # PT-PT: Os grupos a que falta pertencer, um por linha.
 #
-#        Recebe a lista de grupos como argumento, e nao a vai buscar, para se
+#        Recebe a lista de grupos como argumento, e não a vai buscar, para se
 #        poder testar sem depender dos grupos de quem corre os testes.
 #
 # EN-UK: The groups membership is missing from, one per line. It takes the group
@@ -102,17 +102,17 @@ grupos_em_falta() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Traduz a familia do catalogo para o identificador do osinfo.
+# PT-PT: Traduz a família do catálogo para o identificador do osinfo.
 #
 #        O `--os-variant` decide o chipset emulado, o controlador de disco e os
 #        controladores que o libvirt sugere. Um Ubuntu criado como `generic`
-#        arranca, mas com metade das definicoes erradas -- e a lentidao que
+#        arranca, mas com metade das definições erradas -- e a lentidão que
 #        daqui resulta nunca e associada a este campo.
 #
 #        A base de dados do osinfo envelhece mais depressa do que as
-#        distribuicoes saem, e um identificador que ela nao conheca faz o
+#        distribuições saem, e um identificador que ela não conheca faz o
 #        `virt-install` recusar-se a arrancar. Por isso a chamada leva
-#        `detect=on,require=off`: tenta reconhecer a imagem, e se nao conseguir
+#        `detect=on,require=off`: tenta reconhecer a imagem, e se não conseguir
 #        continua na mesma em vez de parar.
 #
 # EN-UK: Maps the catalogue family to an osinfo identifier. `--os-variant`
@@ -163,24 +163,24 @@ tipo_virtualbox() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Cria uma maquina virtual com o libvirt.
+# PT-PT: Cria uma máquina virtual com o libvirt.
 #
 #        O `--noautoconsole` e deliberado: sem ele, o `virt-install` abre uma
-#        consola e fica la agarrado ate a instalacao acabar, e o programa que o
-#        chamou parece bloqueado. Assim cria a maquina, devolve o controlo, e
+#        consola e fica la agarrado até a instalação acabar, e o programa que o
+#        chamou parece bloqueado. Assim cria a máquina, devolve o controlo, e
 #        quem quiser ver liga-se com o `virt-viewer`.
 #
-#        O disco e `qcow2` e nao `raw`: cresce a medida do uso, aceita
-#        instantaneos, e a diferenca de desempenho num laboratorio nao se nota.
+#        O disco e `qcow2` e não `raw`: cresce a medida do uso, aceita
+#        instantâneos, e a diferença de desempenho num laboratório não se nota.
 #
 # EN-UK: Creates a virtual machine with libvirt. `--noautoconsole` is
 #        deliberate: without it `virt-install` attaches a console and stays
 #        there until the install finishes, and the calling program looks hung.
 #
-#        E o `--import` e o que trata de uma imagem que ja e um disco: diz ao
-#        virt-install para saltar a instalacao e arrancar o que la esta. Sem
-#        ele, o libvirt cria a maquina a espera de um instalador que nao existe
-#        e o utilizador ve um "no bootable device" sem perceber porque.
+#        E o `--import` e o que trata de uma imagem que já e um disco: diz ao
+#        virt-install para saltar a instalação e arrancar o que la esta. Sem
+#        ele, o libvirt cria a máquina a espera de um instalador que não existe
+#        e o utilizador vê um "no bootable device" sem perceber porque.
 #
 # EN-UK: And `--import` is what handles an image that is already a disk: it
 #        tells virt-install to skip the install and boot what is there.
@@ -207,12 +207,12 @@ criar_maquina_libvirt() {
         --memory "$ram"
         --vcpus "$cpu"
         --cpu host-passthrough
-        # PT-PT: As aspas nao sao decorativas. Um elemento de array com virgulas
-        #        e indistinguivel, para quem le, de alguem que tentou separar
-        #        elementos por virgulas em vez de espacos -- e o shellcheck
+        # PT-PT: As aspas não são decorativas. Um elemento de array com vírgulas
+        #        e indistinguível, para quem lê, de alguém que tentou separar
+        #        elementos por vírgulas em vez de espaços -- e o shellcheck
         #        assinala-o (SC2054) precisamente porque esse engano existe e da
-        #        um array com um elemento onde se queriam tres. Cita-se, e passa
-        #        a ler-se como o que e: um so argumento com virgulas la dentro.
+        #        um array com um elemento onde se queriam três. Cita-se, e passa
+        #        a ler-se como o que é: um só argumento com vírgulas la dentro.
         # EN-UK: The quotes are not decorative. An array element with commas is
         #        indistinguishable, to a reader, from somebody who tried to
         #        separate elements with commas instead of spaces -- and
@@ -225,11 +225,11 @@ criar_maquina_libvirt() {
     )
 
     if [[ "$uso" == 'disco' ]]; then
-        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
-        #        onde esta. Ligar o original faria a maquina escrever por cima
+        # PT-PT: A imagem e **copiada** para a pasta da máquina, e não ligada
+        #        onde esta. Ligar o original faria a máquina escrever por cima
         #        dele: a primeira arrancada estragava a copia limpa que o
-        #        utilizador descarregou, e a segunda maquina feita a partir da
-        #        mesma imagem ja nascia com o sistema da primeira la dentro.
+        #        utilizador descarregou, e a segunda máquina feita a partir da
+        #        mesma imagem já nascia com o sistema da primeira la dentro.
         # EN-UK: The image is **copied** into the machine's folder rather than
         #        attached in place. Attaching the original would have the machine
         #        write over it: the first boot would spoil the pristine copy.
@@ -258,17 +258,17 @@ criar_maquina_libvirt() {
 # ---------------------------------------------------------------------------
 # PT-PT: Importa uma appliance `.ova` ou `.ovf` para o VirtualBox.
 #
-#        Uma appliance nao se cria: importa-se. O ficheiro ja traz a maquina
-#        toda -- discos, memoria, placas de rede, tudo o que quem a exportou
-#        decidiu. Criar uma maquina a volta dela seria criar uma segunda
-#        maquina, vazia, ao lado da que ja la esta.
+#        Uma appliance não se cria: importa-se. O ficheiro já traz a máquina
+#        toda -- discos, memória, placas de rede, tudo o que quem a exportou
+#        decidiu. Criar uma máquina a volta dela seria criar uma segunda
+#        máquina, vazia, ao lado da que já la esta.
 #
-#        E por isso que esta funcao ignora as especificacoes recomendadas: nao
-#        ha nada a recomendar quando o ficheiro ja decidiu.
+#        É por isso que esta função ignora as especificações recomendadas: não
+#        há nada a recomendar quando o ficheiro já decidiu.
 #
-#        **Uma appliance e a maquina de outra pessoa a correr na sua.** O `.ova`
-#        traz o disco com o sistema ja instalado e configurado, por quem o
-#        exportou. Vale o que valer a confianca em quem o fez.
+#        **Uma appliance e a máquina de outra pessoa a correr na sua.** O `.ova`
+#        traz o disco com o sistema já instalado e configurado, por quem o
+#        exportou. Vale o que valer a confiança em quem o fez.
 #
 # EN-UK: Imports an `.ova` or `.ovf` appliance into VirtualBox. An appliance is
 #        not created but imported: the file already carries the whole machine.
@@ -297,16 +297,16 @@ importar_apliancia_virtualbox() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Cria uma maquina virtual no VirtualBox.
+# PT-PT: Cria uma máquina virtual no VirtualBox.
 #
-#        O `--ioapic on` nao e opcional para um convidado de 64 bits com mais do
-#        que um nucleo: sem ele o VirtualBox recusa arrancar a maquina, com uma
-#        mensagem que nao explica nada.
+#        O `--ioapic on` não é opcional para um convidado de 64 bits com mais do
+#        que um núcleo: sem ele o VirtualBox recusa arrancar a máquina, com uma
+#        mensagem que não explica nada.
 #
-#        A rede fica em NAT, que e o modo em que a maquina alcanca a Internet e
-#        nao e alcancavel a partir da rede local. Para um laboratorio e o que se
-#        quer: uma maquina de testes com um servico mal configurado nao deve
-#        estar exposta ao resto do escritorio.
+#        A rede fica em NAT, que é o modo em que a máquina alcança a Internet e
+#        não é alcançável a partir da rede local. Para um laboratório e o que se
+#        quer: uma máquina de testes com um serviço mal configurado não deve
+#        estar exposta ao resto do escritório.
 #
 # EN-UK: Creates a virtual machine on VirtualBox. `--ioapic on` is not optional
 #        for a 64-bit guest with more than one core. Networking stays on NAT.
@@ -336,9 +336,9 @@ criar_maquina_virtualbox() {
     VBoxManage storagectl "$nome" --name 'SATA' --add sata --controller IntelAhci --portcount 2 || return 1
 
     if [[ "$uso" == 'disco' ]]; then
-        # PT-PT: A imagem e copiada para a pasta da maquina. Ver a nota igual na
-        #        funcao do libvirt: ligar o original faz a maquina escrever por
-        #        cima da copia limpa que o utilizador descarregou.
+        # PT-PT: A imagem e copiada para a pasta da máquina. Ver a nota igual na
+        #        função do libvirt: ligar o original faz a máquina escrever por
+        #        cima da cópia limpa que o utilizador descarregou.
         # EN-UK: The image is copied into the machine's folder. See the matching
         #        note in the libvirt function.
         local extensao="${iso##*.}"
@@ -351,7 +351,7 @@ criar_maquina_virtualbox() {
         VBoxManage storageattach "$nome" --storagectl 'SATA' --port 0 --device 0 --type hdd --medium "$caminho_disco" || return 1
         VBoxManage modifyvm "$nome" --boot1 disk --boot2 none --boot3 none --boot4 none || return 1
     else
-        # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria tudo agora.
+        # PT-PT: `Standard` e crescimento dinâmico; `Fixed` reservaria tudo agora.
         # EN-UK: `Standard` grows dynamically; `Fixed` would reserve it all now.
         VBoxManage createmedium disk --filename "$caminho_disco" --size "$disco" \
             --format VDI --variant Standard || return 1

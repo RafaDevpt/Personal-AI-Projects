@@ -1,44 +1,44 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: A VMware que ja esteja instalada nesta maquina.
+    PT-PT: A VMware que já esteja instalada nesta máquina.
     EN-UK: VMware, when it is already installed on this machine.
 
 .DESCRIPTION
     PT-PT
-    Muita gente que abre este programa ja tem uma VMware Workstation instalada,
-    paga pela empresa, com as maquinas todas la dentro. Dizer-lhe "instale o
-    VirtualBox" e ignorar o que ela tem -- e pior, e pedir-lhe que ponha dois
-    hipervisores na mesma maquina, que e a receita conhecida para os dois
+    Muita gente que abre este programa já tem uma VMware Workstation instalada,
+    paga pela empresa, com as máquinas todas la dentro. Dizer-lhe "instale o
+    VirtualBox" e ignorar o que ela tem -- é pior, e pedir-lhe que ponha dois
+    hipervisores na mesma máquina, que é a receita conhecida para os dois
     ficarem lentos.
 
     Por isso este ficheiro faz duas coisas: **descobre** se a VMware esta ca, e
-    **sabe criar uma maquina nela**. A segunda e a que faz a pergunta valer a
-    pena: oferecer "quer usar a que ja tem?" e depois nao saber usa-la seria uma
+    **sabe criar uma máquina nela**. A segunda e a que faz a pergunta valer a
+    pena: oferecer "quer usar a que já tem?" e depois não saber usa-la seria uma
     pergunta a fingir.
 
-    **Como se cria uma maquina na VMware.** Nao ha um `VBoxManage`. O que ha e
-    um ficheiro de texto -- o `.vmx` -- que descreve a maquina inteira, e um
-    programa a parte que cria o disco. O `vmrun` liga e desliga, mas nao cria.
+    **Como se cria uma máquina na VMware.** Não há um `VBoxManage`. O que há e
+    um ficheiro de texto -- o `.vmx` -- que descreve a máquina inteira, e um
+    programa a parte que cria o disco. O `vmrun` liga e desliga, mas não cria.
 
-    Escrever um `.vmx` a mao parece fragil e nao e: o formato e estavel ha mais
-    de vinte anos, e a alternativa -- automatizar a interface grafica -- e que
-    seria fragil.
+    Escrever um `.vmx` a mão parece frágil e não é: o formato e estável há mais
+    de vinte anos, e a alternativa -- automatizar a interface gráfica -- e que
+    seria frágil.
 
-    **O que corre mal, e as tres coisas que o evitam.**
+    **O que corre mal, e as três coisas que o evitam.**
 
-    O `guestOS` nao e cosmetico. E ele que decide o controlador de disco, o
-    relogio e a placa de rede que a VMware sugere. Um Ubuntu criado como
-    `other-64` arranca com metade das definicoes erradas, e ninguem liga a
-    lentidao a este campo.
+    O `guestOS` não é cosmético. E ele que decide o controlador de disco, o
+    relógio e a placa de rede que a VMware sugere. Um Ubuntu criado como
+    `other-64` arranca com metade das definições erradas, e ninguém liga a
+    lentidão a este campo.
 
-    O disco tem de existir antes de a maquina arrancar. A VMware nao o cria
-    sozinha a partir do `.vmx`: e preciso o `vmware-vdiskmanager`, e a versao
+    O disco tem de existir antes de a máquina arrancar. A VMware não o cria
+    sozinha a partir do `.vmx`: e preciso o `vmware-vdiskmanager`, e a versão
     gratuita do Player nem sempre o traz. Quando falta, diz-se -- em vez de
-    escrever um `.vmx` que aponta para um disco que nao existe.
+    escrever um `.vmx` que aponta para um disco que não existe.
 
     E o `firmware = "efi"` faz falta a um convidado moderno de Windows. Sem ele,
-    o instalador do Windows 11 recusa-se a comecar por causa do arranque, e a
+    o instalador do Windows 11 recusa-se a começar por causa do arranque, e a
     mensagem que da fala de outra coisa.
 
     EN-UK
@@ -80,17 +80,17 @@ Set-StrictMode -Version Latest
 function Get-EstadoVMware {
     <#
     .SYNOPSIS
-        PT-PT: Estado da VMware nesta maquina.
+        PT-PT: Estado da VMware nesta máquina.
         EN-UK: VMware's state on this machine.
 
     .DESCRIPTION
-        PT-PT: O registo e a fonte, e nao o PATH: a VMware nao se acrescenta ao
-               PATH na instalacao normal, e procurar so la dava "nao instalado"
-               numa maquina onde esta.
+        PT-PT: O registo e a fonte, e não o PATH: a VMware não se acrescenta ao
+               PATH na instalação normal, e procurar só la dava "não instalado"
+               numa máquina onde esta.
 
-               A Workstation e o Player sao produtos diferentes com chaves
-               diferentes, e a distincao interessa: o Player gratuito nem sempre
-               traz o `vmware-vdiskmanager`, sem o qual nao se consegue criar um
+               A Workstation e o Player são produtos diferentes com chaves
+               diferentes, e a distinção interessa: o Player gratuito nem sempre
+               traz o `vmware-vdiskmanager`, sem o qual não se consegue criar um
                disco -- e mais vale saber isso agora do que a meio.
 
         EN-UK: The registry is the source, not the PATH: VMware does not add
@@ -134,8 +134,8 @@ function Get-EstadoVMware {
         break
     }
 
-    # PT-PT: Se o registo nao disse nada, ainda pode estar no PATH -- ha quem o
-    #        acrescente a mao, e ha instalacoes portateis.
+    # PT-PT: Se o registo não disse nada, ainda pode estar no PATH -- há quem o
+    #        acrescente a mão, e há instalações portáteis.
     # EN-UK: If the registry said nothing, it may still be on the PATH.
     if (-not $estado.Pasta) {
         $comando = Get-Command -Name vmrun -CommandType Application -ErrorAction SilentlyContinue |
@@ -167,10 +167,10 @@ function Get-EstadoVMware {
         $estado.Detalhe = 'Instalada e utilizável.'
     }
     else {
-        # PT-PT: Sem o gestor de discos nao se cria maquina nenhuma, e vale mais
+        # PT-PT: Sem o gestor de discos não se cria máquina nenhuma, e vale mais
         #        dize-lo aqui do que escrever um `.vmx` que aponta para um disco
-        #        que nao existe -- que e um erro que a VMware reporta de uma
-        #        forma que ninguem associa a causa.
+        #        que não existe -- que é um erro que a VMware reporta de uma
+        #        forma que ninguém associa a causa.
         # EN-UK: Without the disk manager no machine can be created, and saying
         #        so here beats writing a `.vmx` pointing at a disk that is not
         #        there -- an error VMware reports in a way nobody connects to
@@ -186,12 +186,12 @@ function Get-EstadoVMware {
 function Get-TipoVMware {
     <#
     .SYNOPSIS
-        PT-PT: Traduz a familia do catalogo para o `guestOS` da VMware.
+        PT-PT: Traduz a família do catálogo para o `guestOS` da VMware.
         EN-UK: Maps the catalogue family to VMware's `guestOS`.
 
     .DESCRIPTION
-        PT-PT: Ver o cabecalho: este campo decide o controlador de disco, o
-               relogio e a placa de rede sugerida. Nao e uma etiqueta.
+        PT-PT: Ver o cabeçalho: este campo decide o controlador de disco, o
+               relógio e a placa de rede sugerida. Não e uma etiqueta.
         EN-UK: See the header: this field decides the disk controller, the clock
                and the suggested network card. It is not a label.
     #>
@@ -231,17 +231,17 @@ function Get-TipoVMware {
 function New-VmxConteudo {
     <#
     .SYNOPSIS
-        PT-PT: Escreve o texto do `.vmx`. Nao toca no disco.
+        PT-PT: Escreve o texto do `.vmx`. Não toca no disco.
         EN-UK: Builds the `.vmx` text. Touches nothing on disk.
 
     .DESCRIPTION
-        PT-PT: Separada da criacao de proposito, para se poder testar sem ter a
-               VMware instalada -- que e a situacao de quem escreveu isto e da
-               maquina onde a integracao continua corre.
+        PT-PT: Separada da criação de propósito, para se poder testar sem ter a
+               VMware instalada -- que é a situação de quem escreveu isto é da
+               máquina onde a integração contínua corre.
 
-               Os nomes dos ficheiros vao **relativos**, e nao absolutos: uma
-               pasta de maquina que se possa mover para outro disco sem partir e
-               a diferenca entre uma maquina de laboratorio e uma armadilha.
+               Os nomes dos ficheiros vão **relativos**, e não absolutos: uma
+               pasta de máquina que se possa mover para outro disco sem partir e
+               a diferença entre uma máquina de laboratório e uma armadilha.
 
         EN-UK: Kept apart from creation on purpose, so it can be tested without
                VMware installed -- which is the situation of whoever wrote this
@@ -265,9 +265,9 @@ function New-VmxConteudo {
 
     $linhas = New-Object System.Collections.ArrayList
 
-    # PT-PT: A `virtualHW.version` fixa o conjunto de dispositivos que a maquina
+    # PT-PT: A `virtualHW.version` fixa o conjunto de dispositivos que a máquina
     #        vai ter. A 19 corresponde a Workstation 16 e para a frente: uma
-    #        versao mais recente seria recusada por uma VMware mais antiga, e
+    #        versão mais recente seria recusada por uma VMware mais antiga, e
     #        uma mais antiga perderia dispositivos sem dizer.
     # EN-UK: `virtualHW.version` pins the device set. 19 matches Workstation 16
     #        and later: a newer value would be refused by an older VMware, and
@@ -285,9 +285,9 @@ function New-VmxConteudo {
         [void]$linhas.Add('firmware = "efi"')
     }
 
-    # PT-PT: `nvme` e mais rapido do que o `lsilogic` e e o que a VMware usa por
-    #        omissao num convidado moderno. Um convidado antigo que nao o
-    #        conheca nao ve o disco -- mas nenhum dos sistemas deste catalogo
+    # PT-PT: `nvme` e mais rápido do que o `lsilogic` e e o que a VMware usa por
+    #        omissão num convidado moderno. Um convidado antigo que não o
+    #        conheca não vê o disco -- mas nenhum dos sistemas deste catálogo
     #        esta nesse caso.
     # EN-UK: `nvme` is faster than `lsilogic` and is what VMware defaults to for
     #        a modern guest.
@@ -303,10 +303,10 @@ function New-VmxConteudo {
         [void]$linhas.Add('sata0:0.startConnected = "TRUE"')
     }
 
-    # PT-PT: NAT, como em todo o resto deste programa. A maquina alcanca a
-    #        Internet e nao e alcancavel a partir da rede local -- uma maquina
-    #        de laboratorio com um servico mal configurado nao deve estar
-    #        exposta ao resto do escritorio.
+    # PT-PT: NAT, como em todo o resto deste programa. A máquina alcança a
+    #        Internet e não é alcançável a partir da rede local -- uma máquina
+    #        de laboratório com um serviço mal configurado não deve estar
+    #        exposta ao resto do escritório.
     # EN-UK: NAT, as everywhere else in this program.
     [void]$linhas.Add('ethernet0.present = "TRUE"')
     [void]$linhas.Add('ethernet0.connectionType = "nat"')
@@ -318,9 +318,9 @@ function New-VmxConteudo {
     [void]$linhas.Add('sound.present = "FALSE"')
     [void]$linhas.Add('mks.enable3d = "FALSE"')
 
-    # PT-PT: Sem isto, a VMware pergunta na primeira arrancada se a maquina foi
-    #        movida ou copiada -- e uma maquina acabada de criar por um script
-    #        nao foi nem uma coisa nem outra. A pergunta so confunde.
+    # PT-PT: Sem isto, a VMware pergunta na primeira arrancada se a máquina foi
+    #        movida ou copiada -- e uma máquina acabada de criar por um script
+    #        não foi nem uma coisa nem outra. A pergunta só confunde.
     # EN-UK: Without this, VMware asks on first boot whether the machine was
     #        moved or copied. A machine a script just created was neither.
     [void]$linhas.Add('msg.autoAnswer = "TRUE"')
@@ -333,13 +333,13 @@ function New-VmxConteudo {
 function New-MaquinaVMware {
     <#
     .SYNOPSIS
-        PT-PT: Cria uma maquina virtual na VMware.
+        PT-PT: Cria uma máquina virtual na VMware.
         EN-UK: Creates a virtual machine in VMware.
 
     .DESCRIPTION
         PT-PT: Por ordem: a pasta, o disco, o `.vmx`. O disco primeiro, porque
-               um `.vmx` que aponta para um disco que nao existe da um erro que
-               a VMware reporta de uma forma que ninguem associa a causa.
+               um `.vmx` que aponta para um disco que não existe da um erro que
+               a VMware reporta de uma forma que ninguém associa a causa.
         EN-UK: In order: the folder, the disk, the `.vmx`. The disk first,
                because a `.vmx` pointing at a disk that is not there gives an
                error VMware reports in a way nobody connects to the cause.
@@ -376,9 +376,9 @@ function New-MaquinaVMware {
     $caminhoDisco = Join-Path $pastaVm $nomeDisco
 
     if ($Uso -eq 'disco') {
-        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
+        # PT-PT: A imagem e **copiada** para a pasta da máquina, e não ligada
         #        onde esta. Ligar o original faria a primeira arrancada escrever
-        #        por cima da copia limpa que o utilizador descarregou.
+        #        por cima da cópia limpa que o utilizador descarregou.
         # EN-UK: The image is **copied** into the machine's folder rather than
         #        attached in place.
         Write-Host '  A copiar a imagem para a pasta da máquina...' -ForegroundColor DarkGray
@@ -386,9 +386,9 @@ function New-MaquinaVMware {
     }
     else {
         Write-Host "  A criar o disco de $DiscoGb GB..." -ForegroundColor DarkGray
-        # PT-PT: `-t 0` e um unico ficheiro que cresce conforme se usa. O `-t 1`
-        #        parte-o em pedacos de 2 GB, que so faz falta em sistemas de
-        #        ficheiros que nao aguentem ficheiros grandes -- e nenhum dos
+        # PT-PT: `-t 0` e um único ficheiro que cresce conforme se usa. O `-t 1`
+        #        parte-o em pedacos de 2 GB, que só faz falta em sistemas de
+        #        ficheiros que não aguentem ficheiros grandes -- e nenhum dos
         #        que o Windows usa hoje esta nesse caso.
         # EN-UK: `-t 0` is one file growing as it is used. `-t 1` splits it into
         #        2 GB pieces, only needed on filesystems that cannot hold large
@@ -407,7 +407,7 @@ function New-MaquinaVMware {
         -Uefi:$Uefi
 
     $caminhoVmx = Join-Path $pastaVm "$Nome.vmx"
-    # PT-PT: Sem BOM. A VMware le o `.vmx` como texto simples e um BOM na
+    # PT-PT: Sem BOM. A VMware lê o `.vmx` como texto simples e um BOM na
     #        primeira linha faz a primeira chave deixar de ser reconhecida.
     # EN-UK: No BOM. VMware reads the `.vmx` as plain text, and a BOM on the
     #        first line makes the first key unrecognised.

@@ -1,34 +1,34 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Deteccao, activacao e utilizacao dos dois hipervisores do Windows.
+    PT-PT: Detecção, activação e utilização dos dois hipervisores do Windows.
     EN-UK: Detecting, enabling and driving the two Windows hypervisors.
 
 .DESCRIPTION
     PT-PT
-    Ha duas escolhas em Windows, e a decisao entre elas nao e de gosto.
+    Há duas escolhas em Windows, e a decisão entre elas não é de gosto.
 
-    **Hyper-V** faz parte do Windows e nao se instala: activa-se. Corre por baixo
-    do sistema em vez de por cima, o que o torna mais rapido e melhor integrado
-    -- e tambem menos amigavel para quem so quer uma maquina virtual de
-    experiencia. Nao existe na edicao Home.
+    **Hyper-V** faz parte do Windows e não se instala: activa-se. Corre por baixo
+    do sistema em vez de por cima, o que o torna mais rápido e melhor integrado
+    -- e também menos amigável para quem só quer uma máquina virtual de
+    experiência. Não existe na edição Home.
 
     **VirtualBox** e da Oracle, instala-se como qualquer programa, corre em
-    qualquer edicao e e mais simples de usar. Tem melhor suporte de USB, de
-    pastas partilhadas e de instantaneos com interface.
+    qualquer edição e e mais simples de usar. Tem melhor suporte de USB, de
+    pastas partilhadas e de instantâneos com interface.
 
-    **E aqui esta o que ninguem avisa a tempo: os dois nao convivem bem.** Com o
+    **E aqui esta o que ninguém avisa a tempo: os dois não convivem bem.** Com o
     Hyper-V activo, o Windows inteiro passa a correr como convidado, e o
     VirtualBox deixa de conseguir falar directamente com o processador -- passa a
-    usar a interface do Hyper-V e fica visivelmente mais lento. A versao 7 do
-    VirtualBox melhorou isto, mas nao o resolveu.
+    usar a interface do Hyper-V e fica visivelmente mais lento. A versão 7 do
+    VirtualBox melhorou isto, mas não o resolveu.
 
-    Pior: o Hyper-V nao se activa so pelo painel de funcionalidades. O WSL 2, o
-    Docker Desktop, a Sandbox do Windows e a Integridade de Memoria activam-no
-    todos por baixo, sem o dizer. Uma maquina com o Docker Desktop instalado ja
+    Pior: o Hyper-V não se activa só pelo painel de funcionalidades. O WSL 2, o
+    Docker Desktop, a Sandbox do Windows e a Integridade de Memória activam-no
+    todos por baixo, sem o dizer. Uma máquina com o Docker Desktop instalado já
     tem o hipervisor a correr, e o utilizador que instalar o VirtualBox nessa
-    maquina vai achar que o VirtualBox e lento -- quando o que se passa e outra
-    coisa. Este programa deteta essa situacao e di-la.
+    máquina vai achar que o VirtualBox e lento -- quando o que se passa e outra
+    coisa. Este programa deteta essa situação e di-la.
 
     EN-UK
     Two choices on Windows, and the decision is not a matter of taste.
@@ -60,15 +60,15 @@ Set-StrictMode -Version Latest
 function Get-EstadoHyperV {
     <#
     .SYNOPSIS
-        PT-PT: Estado do Hyper-V nesta maquina.
+        PT-PT: Estado do Hyper-V nesta máquina.
         EN-UK: Hyper-V's state on this machine.
 
     .DESCRIPTION
-        PT-PT: A leitura e feita pelo `Win32_OptionalFeature` e nao pelo
-               `Get-WindowsOptionalFeature`, por uma razao pratica: o segundo
-               exige elevacao e este programa tem de conseguir dizer o que se
-               passa antes de a pedir. Perguntar primeiro e elevar depois, e nao
-               ao contrario.
+        PT-PT: A leitura e feita pelo `Win32_OptionalFeature` e não pelo
+               `Get-WindowsOptionalFeature`, por uma razão prática: o segundo
+               exige elevação e este programa tem de conseguir dizer o que se
+               passa antes de a pedir. Perguntar primeiro e elevar depois, e não
+               ao contrário.
         EN-UK: The reading uses `Win32_OptionalFeature` rather than
                `Get-WindowsOptionalFeature`, for a practical reason: the latter
                needs elevation, and this program has to be able to say what is
@@ -87,8 +87,8 @@ function Get-EstadoHyperV {
     try {
         $funcionalidade = Get-CimInstance -ClassName Win32_OptionalFeature `
             -Filter "Name = 'Microsoft-Hyper-V-All'" -ErrorAction Stop | Select-Object -First 1
-        # PT-PT: InstallState 1 = activado, 2 = disponivel mas desligado,
-        #        3 = ausente desta edicao.
+        # PT-PT: InstallState 1 = activado, 2 = disponível mas desligado,
+        #        3 = ausente desta edição.
         # EN-UK: InstallState 1 = enabled, 2 = available but off, 3 = absent.
         if ($funcionalidade) {
             $estado.Instalado = ($funcionalidade.InstallState -eq 1)
@@ -122,13 +122,13 @@ function Get-EstadoHyperV {
 function Get-EstadoVirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Estado do VirtualBox nesta maquina.
+        PT-PT: Estado do VirtualBox nesta máquina.
         EN-UK: VirtualBox's state on this machine.
 
     .DESCRIPTION
-        PT-PT: O registo e a fonte fiavel: o `VBoxManage` pode nao estar no
-               PATH, porque o instalador nao o acrescenta por omissao em todas
-               as versoes. Procurar so no PATH dava "nao instalado" numa maquina
+        PT-PT: O registo e a fonte fiável: o `VBoxManage` pode não estar no
+               PATH, porque o instalador não o acrescenta por omissão em todas
+               as versões. Procurar só no PATH dava "não instalado" numa máquina
                onde esta.
         EN-UK: The registry is the reliable source: `VBoxManage` may not be on
                the PATH, because the installer does not add it in every version.
@@ -169,18 +169,18 @@ function Get-EstadoVirtualBox {
 function Get-AvisoCoexistencia {
     <#
     .SYNOPSIS
-        PT-PT: O aviso sobre Hyper-V e VirtualBox na mesma maquina.
+        PT-PT: O aviso sobre Hyper-V e VirtualBox na mesma máquina.
         EN-UK: The warning about Hyper-V and VirtualBox on the same machine.
 
     .DESCRIPTION
-        PT-PT: Ver o cabecalho do ficheiro. Recebe os dois estados como
-               argumentos para se poder testar as quatro combinacoes sem ter de
+        PT-PT: Ver o cabeçalho do ficheiro. Recebe os dois estados como
+               argumentos para se poder testar as quatro combinações sem ter de
                instalar nada.
         EN-UK: See the file header. It takes both states as arguments so the four
                combinations can be tested without installing anything.
 
     .OUTPUTS
-        PT-PT: O texto do aviso, ou "" quando nao ha nada a avisar.
+        PT-PT: O texto do aviso, ou "" quando não há nada a avisar.
         EN-UK: The warning text, or "" when there is nothing to warn about.
     #>
     [CmdletBinding()]
@@ -206,15 +206,15 @@ function Get-AvisoCoexistencia {
 function Enable-HyperV {
     <#
     .SYNOPSIS
-        PT-PT: Activa a funcionalidade Hyper-V. Exige elevacao e reinicio.
+        PT-PT: Activa a funcionalidade Hyper-V. Exige elevação e reinício.
         EN-UK: Enables the Hyper-V feature. Needs elevation and a restart.
 
     .DESCRIPTION
         PT-PT: Isto altera o sistema, e por isso nunca corre sozinho: quem chama
-               tem de ter pedido confirmacao antes. O `-NoRestart` e deliberado —
-               reiniciar a maquina de alguem sem lhe perguntar, no meio de um
-               programa, nao se faz. O programa diz que e preciso reiniciar e
-               deixa a decisao a quem esta a usar.
+               tem de ter pedido confirmação antes. O `-NoRestart` e deliberado —
+               reiniciar a máquina de alguém sem lhe perguntar, no meio de um
+               programa, não se faz. O programa diz que é preciso reiniciar e
+               deixa a decisão a quem esta a usar.
         EN-UK: This changes the system and never runs on its own: the caller must
                have asked for confirmation first. `-NoRestart` is deliberate --
                restarting somebody's machine without asking, in the middle of a
@@ -243,27 +243,27 @@ function Enable-HyperV {
 function New-MaquinaHyperV {
     <#
     .SYNOPSIS
-        PT-PT: Cria uma maquina virtual no Hyper-V.
+        PT-PT: Cria uma máquina virtual no Hyper-V.
         EN-UK: Creates a virtual machine on Hyper-V.
 
     .DESCRIPTION
-        PT-PT: Tres detalhes decidem se o convidado arranca ou fica num ecra
-               preto, e nenhum deles e obvio.
+        PT-PT: Três detalhes decidem se o convidado arranca ou fica num ecrã
+               preto, e nenhum deles e óbvio.
 
-               **O modelo de Arranque Seguro.** Uma maquina de Geracao 2 tem
+               **O modelo de Arranque Seguro.** Uma máquina de Geração 2 tem
                Arranque Seguro ligado, com o certificado da Microsoft. A maioria
-               das distribuicoes de Linux e assinada por outra autoridade -- a
+               das distribuições de Linux e assinada por outra autoridade -- a
                `MicrosoftUEFICertificateAuthority` -- e sem trocar o modelo a
-               imagem nao arranca, sem dizer porque.
+               imagem não arranca, sem dizer porque.
 
-               **O TPM.** O Windows 11 recusa-se a instalar sem Modulo de
-               Plataforma Fidedigna. Na Hyper-V isso e um protector de chaves
+               **O TPM.** O Windows 11 recusa-se a instalar sem Módulo de
+               Plataforma Fidedigna. Na Hyper-V isso é um protector de chaves
                mais o `Enable-VMTPM`, por esta ordem: sem o protector, o
                `Enable-VMTPM` falha.
 
-               **O comutador.** Por omissao usa-se o Comutador Predefinido, que
-               faz NAT: a maquina virtual chega a Internet e nao aparece na rede
-               local. Um comutador externo poria a maquina de laboratorio
+               **O comutador.** Por omissão usa-se o Comutador Predefinido, que
+               faz NAT: a máquina virtual chega a Internet e não aparece na rede
+               local. Um comutador externo poria a máquina de laboratório
                directamente na rede da empresa, o que raramente e o que se quer
                e nunca e o que se espera.
 
@@ -285,9 +285,9 @@ function New-MaquinaHyperV {
         [ValidateSet('windows', 'linux', 'outro')][string]$Familia = 'linux',
         [string]$Comutador = '',
         # PT-PT: `instalador` liga o ficheiro como CD e cria um disco vazio ao
-        #        lado; `disco` trata o ficheiro **como** o disco da maquina. Ver
-        #        o cabecalho de `ImagemLocal.ps1`: e esta distincao que decide
-        #        entre uma maquina que arranca e um "no bootable medium".
+        #        lado; `disco` trata o ficheiro **como** o disco da máquina. Ver
+        #        o cabeçalho de `ImagemLocal.ps1`: e esta distinção que decide
+        #        entre uma máquina que arranca e um "no bootable medium".
         # EN-UK: `instalador` mounts the file as a CD with a blank disk
         #        alongside; `disco` treats the file **as** the machine's disk.
         [ValidateSet('instalador', 'disco')][string]$Uso = 'instalador'
@@ -322,11 +322,11 @@ function New-MaquinaHyperV {
     if ($Comutador) { $parametros['SwitchName'] = $Comutador }
 
     if ($Uso -eq 'disco') {
-        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
-        #        onde esta. Ligar o original faria a maquina escrever por cima
+        # PT-PT: A imagem e **copiada** para a pasta da máquina, e não ligada
+        #        onde esta. Ligar o original faria a máquina escrever por cima
         #        dele: a primeira arrancada estragava a copia limpa que o
-        #        utilizador descarregou, e a segunda maquina feita a partir da
-        #        mesma imagem ja nascia com o sistema da primeira lá dentro.
+        #        utilizador descarregou, e a segunda máquina feita a partir da
+        #        mesma imagem já nascia com o sistema da primeira lá dentro.
         # EN-UK: The image is **copied** into the machine's folder rather than
         #        attached in place. Attaching the original would have the machine
         #        write over it: the first boot would spoil the pristine copy.
@@ -341,9 +341,9 @@ function New-MaquinaHyperV {
     $vm = New-VM @parametros
     Set-VMProcessor -VM $vm -Count $Cpu -ErrorAction Stop
 
-    # PT-PT: Memoria dinamica com um chao de metade. O convidado devolve ao
-    #        anfitriao o que nao esta a usar, que e o que permite ter duas
-    #        maquinas de laboratorio abertas sem somar a memoria das duas.
+    # PT-PT: Memória dinâmica com um chao de metade. O convidado devolve ao
+    #        anfitrião o que não esta a usar, que é o que permite ter duas
+    #        máquinas de laboratório abertas sem somar a memória das duas.
     # EN-UK: Dynamic memory with a floor of half. The guest hands back what it is
     #        not using, which is what allows two lab machines open at once
     #        without adding up both allocations.
@@ -352,10 +352,10 @@ function New-MaquinaHyperV {
         -StartupBytes ([int64]($RamGb * 1GB)) `
         -MaximumBytes ([int64]($RamGb * 1GB)) -ErrorAction Stop
 
-    # PT-PT: So se liga um CD quando ha um instalador. Uma maquina feita a
+    # PT-PT: Só se liga um CD quando há um instalador. Uma máquina feita a
     #        partir de uma imagem de disco arranca do disco, e um leitor de CD
-    #        vazio a frente dele na ordem de arranque da um ecra a dizer que nao
-    #        ha nada para arrancar.
+    #        vazio a frente dele na ordem de arranque da um ecrã a dizer que não
+    #        há nada para arrancar.
     # EN-UK: A CD is only attached when there is an installer. A machine built
     #        from a disk image boots from the disk, and an empty CD drive ahead
     #        of it in the boot order gives a "nothing to boot" screen.
@@ -379,8 +379,8 @@ function New-MaquinaHyperV {
             -FirstBootDevice $primeiro -ErrorAction Stop
     }
 
-    # PT-PT: Sem isto, a maquina liga-se sozinha quando o anfitriao arranca. Uma
-    #        maquina de laboratorio nao deve fazer isso: quem a quer, abre-a.
+    # PT-PT: Sem isto, a máquina liga-se sozinha quando o anfitrião arranca. Uma
+    #        máquina de laboratório não deve fazer isso: quem a quer, abre-a.
     # EN-UK: Without this the machine starts itself when the host boots. A lab
     #        machine should not: whoever wants it, opens it.
     Set-VM -VM $vm -AutomaticStartAction Nothing -AutomaticStopAction ShutDown -ErrorAction Stop
@@ -392,14 +392,14 @@ function New-MaquinaHyperV {
 function Get-TipoVirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Traduz a familia do catalogo para o tipo de sistema do VirtualBox.
+        PT-PT: Traduz a família do catálogo para o tipo de sistema do VirtualBox.
         EN-UK: Maps the catalogue family to VirtualBox's OS type.
 
     .DESCRIPTION
-        PT-PT: O tipo nao e cosmetico: e ele que decide o `chipset`, o
-               controlador de disco por omissao e o modo do relogio. Um Ubuntu
-               criado como `Other` arranca, mas com metade das definicoes
-               erradas -- e o utilizador nunca associa a lentidao a este campo.
+        PT-PT: O tipo não é cosmético: e ele que decide o `chipset`, o
+               controlador de disco por omissão e o modo do relógio. Um Ubuntu
+               criado como `Other` arranca, mas com metade das definições
+               erradas -- e o utilizador nunca associa a lentidão a este campo.
         EN-UK: The type is not cosmetic: it decides the chipset, the default disk
                controller and the clock mode. An Ubuntu created as `Other` boots
                with half its settings wrong.
@@ -444,18 +444,18 @@ function Import-ApliancaVirtualBox {
         EN-UK: Imports an `.ova` or `.ovf` appliance into VirtualBox.
 
     .DESCRIPTION
-        PT-PT: Uma appliance nao se cria: importa-se. O ficheiro ja traz a
-               maquina toda -- discos, memoria, placas de rede, tudo o que quem
-               a exportou decidiu. Criar uma maquina a volta dela seria criar
-               uma segunda maquina, vazia, ao lado da que ja la esta.
+        PT-PT: Uma appliance não se cria: importa-se. O ficheiro já traz a
+               máquina toda -- discos, memória, placas de rede, tudo o que quem
+               a exportou decidiu. Criar uma máquina a volta dela seria criar
+               uma segunda máquina, vazia, ao lado da que já la esta.
 
-               E por isso que esta funcao ignora as especificacoes recomendadas:
-               nao ha nada a recomendar quando o ficheiro ja decidiu. Depois de
+               É por isso que esta função ignora as especificações recomendadas:
+               não há nada a recomendar quando o ficheiro já decidiu. Depois de
                importar, o utilizador ajusta o que quiser no VirtualBox.
 
-               **Uma appliance e codigo de outra pessoa a correr na sua maquina.**
-               O `.ova` traz o disco com o sistema ja instalado e configurado,
-               por quem o exportou. Vale o que valer a confianca em quem o fez.
+               **Uma appliance e código de outra pessoa a correr na sua máquina.**
+               O `.ova` traz o disco com o sistema já instalado e configurado,
+               por quem o exportou. Vale o que valer a confiança em quem o fez.
 
         EN-UK: An appliance is not created but imported. The file already carries
                the whole machine -- disks, memory, network cards, everything
@@ -497,18 +497,18 @@ function Import-ApliancaVirtualBox {
 function New-MaquinaVirtualBox {
     <#
     .SYNOPSIS
-        PT-PT: Cria uma maquina virtual no VirtualBox.
+        PT-PT: Cria uma máquina virtual no VirtualBox.
         EN-UK: Creates a virtual machine on VirtualBox.
 
     .DESCRIPTION
-        PT-PT: O `--ioapic on` nao e opcional para um convidado de 64 bits com
-               mais do que um nucleo: sem ele o VirtualBox recusa arrancar a
-               maquina, com uma mensagem que nao explica nada.
+        PT-PT: O `--ioapic on` não é opcional para um convidado de 64 bits com
+               mais do que um núcleo: sem ele o VirtualBox recusa arrancar a
+               máquina, com uma mensagem que não explica nada.
 
-               A rede fica em NAT, que e o modo em que a maquina virtual alcanca
-               a Internet e nao e alcancavel a partir da rede local. Para um
-               laboratorio e o que se quer: uma maquina de testes com um servico
-               mal configurado nao deve estar exposta ao resto do escritorio.
+               A rede fica em NAT, que é o modo em que a máquina virtual alcança
+               a Internet e não é alcançável a partir da rede local. Para um
+               laboratório e o que se quer: uma máquina de testes com um serviço
+               mal configurado não deve estar exposta ao resto do escritório.
         EN-UK: `--ioapic on` is not optional for a 64-bit guest with more than
                one core: without it VirtualBox refuses to start the machine, with
                a message explaining nothing.
@@ -562,9 +562,9 @@ function New-MaquinaVirtualBox {
     if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu criar o controlador da máquina '$Nome'." }
 
     if ($Uso -eq 'disco') {
-        # PT-PT: A imagem e copiada para a pasta da maquina. Ver a nota igual na
-        #        funcao do Hyper-V: ligar o original faz a maquina escrever por
-        #        cima da copia limpa que o utilizador descarregou.
+        # PT-PT: A imagem e copiada para a pasta da máquina. Ver a nota igual na
+        #        função do Hyper-V: ligar o original faz a máquina escrever por
+        #        cima da cópia limpa que o utilizador descarregou.
         # EN-UK: The image is copied into the machine's folder. See the matching
         #        note in the Hyper-V function.
         $extensao = [IO.Path]::GetExtension($CaminhoIso)
@@ -578,8 +578,8 @@ function New-MaquinaVirtualBox {
         & $VBoxManage modifyvm $Nome --boot1 disk --boot2 none --boot3 none --boot4 none
     }
     else {
-        # PT-PT: `Standard` e crescimento dinamico; `Fixed` reservaria os GB
-        #        todos agora. Para um laboratorio, dinamico e quase sempre o certo.
+        # PT-PT: `Standard` e crescimento dinâmico; `Fixed` reservaria os GB
+        #        todos agora. Para um laboratório, dinâmico e quase sempre o certo.
         # EN-UK: `Standard` grows dynamically; `Fixed` would reserve every GB now.
         & $VBoxManage createmedium disk --filename $disco --size ([int]($DiscoGb * 1024)) --format VDI --variant Standard
         if ($LASTEXITCODE -ne 0) { throw "O VBoxManage não conseguiu criar o disco em $disco." }

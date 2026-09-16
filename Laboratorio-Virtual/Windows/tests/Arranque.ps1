@@ -1,19 +1,19 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Arranque de testes minimo, sem dependencias.
+    PT-PT: Arranque de testes mínimo, sem dependências.
     EN-UK: Minimal test harness, no dependencies.
 
 .DESCRIPTION
     PT-PT
-    Nao usa Pester, e a razao e pratica. O Windows traz o Pester 3, que tem uma
-    sintaxe diferente do Pester 5; instalar o 5 muda a maquina de quem so queria
+    Não usa Pester, e a razão e prática. O Windows traz o Pester 3, que tem uma
+    sintaxe diferente do Pester 5; instalar o 5 muda a máquina de quem só queria
     correr os testes, e um projecto que se descreve como "uma pasta e um
-    lancador" nao pode comecar por pedir um modulo.
+    lancador" não pode começar por pedir um módulo.
 
-    O que se perde e o relatorio bonito e a paralelizacao. O que se ganha e que
+    O que se perde e o relatório bonito e a paralelizacao. O que se ganha e que
     isto corre em qualquer Windows desde 2016, sem rede, sem instalar nada, e
-    que o mesmo arranque existe -- com a mesma forma -- nas versoes de Linux e
+    que o mesmo arranque existe -- com a mesma forma -- nas versões de Linux e
     de macOS.
 
     EN-UK
@@ -53,9 +53,9 @@ function Teste {
         EN-UK: Runs one test and records the outcome.
 
     .DESCRIPTION
-        PT-PT: Uma excepcao dentro do teste conta como falha e nao interrompe os
+        PT-PT: Uma excepção dentro do teste conta como falha e não interrompe os
                restantes. Um arranque que para no primeiro erro obriga a corrigir
-               um de cada vez, e a informacao mais util e a lista toda.
+               um de cada vez, e a informação mais útil e a lista toda.
         EN-UK: An exception inside the test counts as a failure and does not stop
                the others. A harness that stops at the first error forces fixing
                one at a time, and the whole list is the more useful information.
@@ -81,17 +81,17 @@ function Teste {
 function Saltar {
     <#
     .SYNOPSIS
-        PT-PT: Regista um teste que nao correu, e porque.
+        PT-PT: Regista um teste que não correu, e porque.
         EN-UK: Records a test that did not run, and why.
 
     .DESCRIPTION
-        PT-PT: Um teste que nao pode correr nesta maquina nao deve desaparecer
-               em silencio nem ficar vermelho. As duas coisas mentem: a primeira
-               faz o relatorio parecer mais completo do que e, a segunda faz
-               parecer que ha um defeito.
+        PT-PT: Um teste que não pode correr nesta máquina não deve desaparecer
+               em silêncio nem ficar vermelho. As duas coisas mentem: a primeira
+               faz o relatório parecer mais completo do que é, a segunda faz
+               parecer que há um defeito.
 
-               A razao aparece sempre. "Saltado" sem explicacao e uma linha que
-               ninguem consegue avaliar.
+               A razão aparece sempre. "Saltado" sem explicação e uma linha que
+               ninguém consegue avaliar.
 
         EN-UK: A test that cannot run on this machine should neither vanish
                silently nor go red. Both lie: the first makes the report look
@@ -128,16 +128,16 @@ function Assert-Falso {
 function Assert-Contem {
     <#
     .DESCRIPTION
-        PT-PT: A comparacao e literal, com `Contains`, e nao com `-like`. O
+        PT-PT: A comparação e literal, com `Contains`, e não com `-like`. O
                `-like` interpreta `[`, `]`, `*` e `?` como curingas, e um
-               fragmento com parentesis rectos -- um nome de tipo do .NET, por
+               fragmento com parêntesis rectos -- um nome de tipo do .NET, por
                exemplo -- nunca corresponderia. Foi assim que um teste desta
-               suite falhou por uma razao que nao tinha nada a ver com o que
+               suite falhou por uma razão que não tinha nada a ver com o que
                estava a testar.
 
                E o texto e cortado na mensagem. Sem o corte, comparar contra o
-               conteudo de um ficheiro despeja o ficheiro inteiro no ecra, e a
-               falha fica ilegivel no meio dele.
+               conteúdo de um ficheiro despeja o ficheiro inteiro no ecrã, e a
+               falha fica ilegível no meio dele.
         EN-UK: The comparison is literal, via `Contains`, not `-like`: `-like`
                reads `[`, `]`, `*` and `?` as wildcards, so a fragment holding
                square brackets -- a .NET type name, say -- would never match.
@@ -155,12 +155,12 @@ function Assert-Contem {
 function Assert-Lanca {
     <#
     .SYNOPSIS
-        PT-PT: Confirma que o bloco levanta excepcao.
+        PT-PT: Confirma que o bloco levanta excepção.
         EN-UK: Confirms the block raises.
 
     .DESCRIPTION
-        PT-PT: Metade dos testes de seguranca deste projecto sao deste tipo: o
-               que interessa provar nao e que uma coisa funciona, e que a coisa
+        PT-PT: Metade dos testes de segurança deste projecto são deste tipo: o
+               que interessa provar não é que uma coisa funciona, e que a coisa
                errada e recusada.
         EN-UK: Half this project's security tests are of this kind: what matters
                is not that something works, but that the wrong thing is refused.

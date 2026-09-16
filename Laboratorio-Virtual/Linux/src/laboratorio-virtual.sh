@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Laboratorio Virtual — criacao assistida de maquinas virtuais em Linux.
+# PT-PT: Laboratório Virtual — criação assistida de máquinas virtuais em Linux.
 #
-#        Esta e a versao para Linux. Ha outras duas, completas e independentes,
+#        Esta e a versão para Linux. Há outras duas, completas e independentes,
 #        nas pastas `Windows/` e `macOS/` ao lado desta.
 #
-#        O programa faz quatro coisas, por esta ordem: olha para a maquina,
+#        O programa faz quatro coisas, por esta ordem: olha para a máquina,
 #        deixa escolher o hipervisor e o sistema convidado, recomenda as
-#        especificacoes com base no que a maquina tem, e cria a maquina virtual
+#        especificações com base no que a máquina tem, e cria a máquina virtual
 #        com a imagem verificada.
 #
-#        **A recomendacao e a parte que se explica.** Nao chega dizer "4 GB":
-#        quem esta a criar a primeira maquina virtual precisa de saber de onde
-#        saiu o numero, senao nao sabe quando o mudar.
+#        **A recomendação e a parte que se explica.** Não chega dizer "4 GB":
+#        quem esta a criar a primeira máquina virtual precisa de saber de onde
+#        saiu o número, senão não sabe quando o mudar.
 #
-#        **A verificacao e a parte que nao se negoceia.** Ver `lib/seguranca.sh`.
+#        **A verificação e a parte que não se negoceia.** Ver `lib/seguranca.sh`.
 #
 # EN-UK: Virtual Lab — assisted virtual machine creation on Linux. This is the
 #        Linux version; two others, complete and independent, live in the
@@ -89,11 +89,11 @@ mostrar_perfil() {
 mostrar_hipervisores() {
     titulo 'Hipervisores'
 
-    # PT-PT: O `|| libvirt=$?` nao e estilo. Com `set -e`, uma funcao que
-    #        devolve diferente de zero numa linha propria mata o programa --
+    # PT-PT: O `|| libvirt=$?` não é estilo. Com `set -e`, uma função que
+    #        devolve diferente de zero numa linha própria mata o programa --
     #        mesmo que a linha seguinte va ler o `$?`. E foi exactamente isso
-    #        que aconteceu: num runner sem virtualizacao, o `--diagnostico`
-    #        morria em silencio antes de escrever o que quer que fosse.
+    #        que aconteceu: num runner sem virtualização, o `--diagnostico`
+    #        morria em silêncio antes de escrever o que quer que fosse.
     # EN-UK: The `|| libvirt=$?` is not style. Under `set -e`, a function
     #        returning non-zero on a line of its own kills the program -- even
     #        though the next line reads `$?`. Which is exactly what happened: on
@@ -122,10 +122,10 @@ mostrar_hipervisores() {
         passo 'Este programa instala-o — a opção 5 do menu.'
     fi
 
-    # PT-PT: A VMware so aparece quando esta ca -- nao ha uma linha "VMware nao
-    #        instalada", porque este programa nao a instala e listar o que nao
-    #        se faz e ruido. Mas quando esta, reconhece-se: quem a tem quase
-    #        sempre a tem por motivo de trabalho, com maquinas la dentro.
+    # PT-PT: A VMware só aparece quando esta ca -- não há uma linha "VMware não
+    #        instalada", porque este programa não a instala e listar o que não
+    #        se faz e ruído. Mas quando esta, reconhece-se: quem a tem quase
+    #        sempre a tem por motivo de trabalho, com máquinas la dentro.
     # EN-UK: VMware only appears when present -- there is no "VMware not
     #        installed" line, because this program does not install it and
     #        listing what it will not do is noise. But when it is there, it is
@@ -163,9 +163,9 @@ confirmar() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Le texto com um valor por omissao que o Enter aceita.
+# PT-PT: Lê texto com um valor por omissão que o Enter aceita.
 # EN-UK: Reads text with a default that Enter accepts.
-# $1 pergunta   $2 valor por omissao
+# $1 pergunta   $2 valor por omissão
 # ---------------------------------------------------------------------------
 ler_texto() {
     local pergunta="$1" omissao="$2" resposta
@@ -176,11 +176,11 @@ ler_texto() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Le um numero inteiro dentro de limites, insistindo ate ser aceitavel.
+# PT-PT: Lê um número inteiro dentro de limites, insistindo até ser aceitável.
 #
-#        Os limites nao sao decorativos e a mensagem di-los. Deixar alguem
-#        escrever 64 GB numa maquina com 16 nao e liberdade: e deixa-lo criar
-#        uma maquina que nao arranca, e depois descobrir porque sozinho.
+#        Os limites não são decorativos e a mensagem di-los. Deixar alguém
+#        escrever 64 GB numa máquina com 16 não é liberdade: e deixa-lo criar
+#        uma máquina que não arranca, e depois descobrir porque sozinho.
 #
 # EN-UK: Reads an integer within limits, insisting until acceptable. The limits
 #        are not decorative and the message states them: letting somebody type
@@ -316,11 +316,11 @@ verificar_ficheiro_local() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: A ordem dos passos aqui nao e arbitraria. O manifesto e verificado
+# PT-PT: A ordem dos passos aqui não é arbitraria. O manifesto e verificado
 #        **antes** de dele se tirar o nome do ficheiro: se o nome saisse de um
 #        manifesto por verificar, um manifesto adulterado podia mandar
 #        descarregar outra coisa qualquer -- e a soma no fim confirmaria
-#        alegremente que essa outra coisa correspondia ao que o atacante la pos.
+#        alegremente que essa outra coisa correspondia ao que o atacante lá pôs.
 # EN-UK: The order is not arbitrary. The manifest is verified **before** the
 #        filename is read out of it.
 # ---------------------------------------------------------------------------
@@ -412,9 +412,9 @@ obter_imagem_oficial() {
 
         nota 'A verificar a soma SHA-256…'
         if ! soma_confere "$destino" "$soma_esperada"; then
-            # PT-PT: O ficheiro sai do disco. Deixar la um que nao passou na
-            #        verificacao e deixar uma armadilha para quem o encontrar
-            #        mais tarde e nao souber de onde veio.
+            # PT-PT: O ficheiro sai do disco. Deixar la um que não passou na
+            #        verificação e deixar uma armadilha para quem o encontrar
+            #        mais tarde e não souber de onde veio.
             # EN-UK: The file goes. Leaving one that failed verification leaves a
             #        trap for whoever finds it later.
             rm -f "$destino"
@@ -449,13 +449,13 @@ mostrar_camada() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Conduz a escolha de uma imagem que o utilizador ja tem.
+# PT-PT: Conduz a escolha de uma imagem que o utilizador já tem.
 #
-#        Esta e a porta que fica fora da cadeia de verificacao, e por isso e a
-#        que tem de ser mais clara sobre o que nao garante. O programa mostra
-#        tudo o que consegue descobrir -- de onde o ficheiro veio, se o conteudo
-#        corresponde a extensao, se a soma confere -- e depois pergunta. A
-#        decisao e do utilizador; o trabalho do programa e nao a deixar tomar as
+#        Esta e a porta que fica fora da cadeia de verificação, e por isso é a
+#        que tem de ser mais clara sobre o que não garante. O programa mostra
+#        tudo o que consegue descobrir -- de onde o ficheiro veio, se o conteúdo
+#        corresponde a extensão, se a soma confere -- e depois pergunta. A
+#        decisão e do utilizador; o trabalho do programa e não a deixar tomar as
 #        escuras.
 #
 #        Escreve no stdout, em linhas `chave=valor`, o que quem chama precisa.
@@ -478,7 +478,7 @@ escolher_imagem_local() {
     [[ -z "$caminho" ]] && return 1
 
     # PT-PT: O `eval` sobre um caminho seria uma porta aberta. O que se quer e
-    #        so o `~`, e para isso basta trocá-lo.
+    #        só o `~`, e para isso basta trocá-lo.
     # EN-UK: An `eval` over a path would be an open door. All that is wanted is
     #        `~`, and a substitution is enough.
     caminho="${caminho/#\~/$HOME}"
@@ -523,9 +523,9 @@ escolher_imagem_local() {
         confirmar 'O conteúdo não corresponde à extensão. Continuar mesmo assim?' || return 1
     fi
 
-    # PT-PT: A origem. Ver a nota em `imagem_local.sh`: um endereco a frente dos
-    #        olhos, na hora de decidir, e o que faz o utilizador reparar que nao
-    #        e o sitio oficial.
+    # PT-PT: A origem. Ver a nota em `imagem_local.sh`: um endereço a frente dos
+    #        olhos, na hora de decidir, e o que faz o utilizador reparar que não
+    #        e o sítio oficial.
     # EN-UK: The origin. A URL in front of the eyes at decision time.
     printf '\n' >&2
     local origem
@@ -549,7 +549,7 @@ escolher_imagem_local() {
         soma_ok='sim'
     fi
 
-    # --- o relatorio, com a verdade toda -----------------------------------
+    # --- o relatório, com a verdade toda -----------------------------------
     printf '\n  Verificação:\n' >&2
     mostrar_camada 'Domínio na lista de confiança' 'nao'
     mostrar_camada 'Ligação HTTPS com certificado válido' 'nao'
@@ -564,7 +564,7 @@ escolher_imagem_local() {
     confirmar 'Continuar com esta imagem?' || return 1
 
     # --- a familia ---------------------------------------------------------
-    # PT-PT: Decide o tipo de maquina e, no VirtualBox, se leva UEFI.
+    # PT-PT: Decide o tipo de máquina e, no VirtualBox, se leva UEFI.
     # EN-UK: It decides the machine type and, on VirtualBox, whether it gets UEFI.
     titulo 'Que sistema traz esta imagem?' >&2
     printf '    1. Linux ou outro sistema livre\n' >&2
@@ -607,21 +607,21 @@ escolher_imagem_local() {
 # ---------------------------------------------------------------------------
 # PT-PT: Mostra o que se vai criar e deixa mudar antes de criar.
 #
-#        Um ecra so, com tudo o que decide a maquina: o nome, os nucleos, a
-#        memoria e o disco. A alternativa -- perguntar quatro coisas seguidas e
-#        so depois mostrar o resultado -- obriga a decidir cada uma sem ver as
+#        Um ecrã só, com tudo o que decide a máquina: o nome, os núcleos, a
+#        memória e o disco. A alternativa -- perguntar quatro coisas seguidas e
+#        só depois mostrar o resultado -- obriga a decidir cada uma sem ver as
 #        outras.
 #
-#        Os limites de cada campo vem de dois sitios ao mesmo tempo: do que o
-#        convidado precisa (o minimo do catalogo) e do que o anfitriao tem.
-#        Nenhum dos dois sozinho chega -- o primeiro deixa criar uma maquina que
-#        nao cabe, e o segundo deixa criar uma que cabe e nao arranca.
+#        Os limites de cada campo vem de dois sítios ao mesmo tempo: do que o
+#        convidado precisa (o mínimo do catálogo) e do que o anfitrião tem.
+#        Nenhum dos dois sozinho chega -- o primeiro deixa criar uma máquina que
+#        não cabe, e o segundo deixa criar uma que cabe e não arranca.
 #
-#        **Depois deste ecra nao ha mais perguntas.**
+#        **Depois deste ecrã não há mais perguntas.**
 #
-#        A interface vai toda para o stderr e so o resultado sai pelo stdout, que
-#        e a convencao do resto deste ficheiro para uma funcao que devolve
-#        valores. Sem isso, o texto do menu vinha dentro da variavel.
+#        A interface vai toda para o stderr e só o resultado sai pelo stdout, que
+#        e a convenção do resto deste ficheiro para uma função que devolve
+#        valores. Sem isso, o texto do menu vinha dentro da variável.
 #
 # EN-UK: Shows what will be created and allows changing it first. One screen
 #        with everything that decides the machine. Each field's limits come from
@@ -692,19 +692,19 @@ confirmar_especificacoes() {
                     aviso 'Esse nome tem caracteres que o hipervisor não aceita.'
                 done
 
-                # PT-PT: Nunca mais nucleos virtuais do que fisicos. E a confusao
-                #        mais comum de quem cria a primeira maquina virtual, e o
-                #        resultado e o contrario do esperado: os nucleos passam a
-                #        disputar-se e a maquina fica mais lenta.
+                # PT-PT: Nunca mais núcleos virtuais do que físicos. E a confusão
+                #        mais comum de quem cria a primeira máquina virtual, e o
+                #        resultado e o contrário do esperado: os núcleos passam a
+                #        disputar-se e a máquina fica mais lenta.
                 # EN-UK: Never more virtual cores than physical. The commonest
                 #        confusion of a first virtual machine, and the result is
                 #        the opposite of what is expected.
                 cpu="$(ler_numero 'Núcleos' "$cpu" "$min_cpu" "$nucleos")" || return 1
 
-                # PT-PT: O tecto deixa 2 GB para o anfitriao. Sem tecto nenhum,
-                #        dar toda a memoria ao convidado deixa o anfitriao a
-                #        trocar para o disco -- e a culpa parece ser da maquina
-                #        virtual, quando e de quem lhe deu a memoria toda.
+                # PT-PT: O tecto deixa 2 GB para o anfitrião. Sem tecto nenhum,
+                #        dar toda a memória ao convidado deixa o anfitrião a
+                #        trocar para o disco -- e a culpa parece ser da máquina
+                #        virtual, quando e de quem lhe deu a memória toda.
                 # EN-UK: The ceiling leaves 2 GB for the host. Without one,
                 #        giving the guest all the memory leaves the host
                 #        swapping, and the virtual machine gets the blame.
@@ -728,10 +728,10 @@ criar_maquina() {
     estado_libvirt || libvirt=$?
     local tem_vbox='nao'; estado_virtualbox && tem_vbox='sim'
 
-    # PT-PT: Sem hipervisor nenhum, o programa nao se limita a dizer o que
+    # PT-PT: Sem hipervisor nenhum, o programa não se limita a dizer o que
     #        falta: pergunta qual quer e instala-o. Depois volta-se ao menu de
-    #        proposito, porque o estado tem de ser relido -- e no caso do
-    #        libvirt pode ainda faltar reabrir a sessao.
+    #        propósito, porque o estado tem de ser relido -- e no caso do
+    #        libvirt pode ainda faltar reabrir a sessão.
     # EN-UK: With no hypervisor at all, the program does not merely say what is
     #        missing: it asks which one and installs it. It then returns to the
     #        menu deliberately, because the state must be re-read -- and with
@@ -749,8 +749,8 @@ criar_maquina() {
 
     # PT-PT: A VMware entra na lista como qualquer outro, e entra em primeiro
     #        quando esta ca. Em Linux isso conta mais do que em Windows: a
-    #        VMware Workstation e o KVM disputam as extensoes do processador, e
-    #        a VMware costuma perder essa disputa em silencio. Propor a alguem
+    #        VMware Workstation e o KVM disputam as extensões do processador, e
+    #        a VMware costuma perder essa disputa em silêncio. Propor a alguém
     #        que instale o KVM sem lhe perguntar se quer usar a VMware que tem
     #        seria empurra-lo para esse conflito.
     # EN-UK: VMware joins the list like any other, and comes first when present.
@@ -777,9 +777,9 @@ criar_maquina() {
         notas+=('Melhor suporte de USB e de pastas partilhadas.')
     fi
 
-    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando ja ha
-    #        um a funcionar: quem tem so a VMware pode preferir o KVM para uma
-    #        maquina em concreto, e nao ha razao para o obrigar a sair daqui.
+    # PT-PT: A hipotese de instalar outro aparece **sempre**, mesmo quando já há
+    #        um a funcionar: quem tem só a VMware pode preferir o KVM para uma
+    #        máquina em concreto, e não há razão para o obrigar a sair daqui.
     # EN-UK: The option to install another appears **always**, even when one
     #        already works.
     titulo 'Em que hipervisor?'
@@ -841,16 +841,16 @@ criar_maquina() {
         nome_imagem="$(valor_de nome "$escolhida")"
         id="$(valor_de id "$escolhida")"
 
-        # PT-PT: O perfil generico faz as vezes do que o catalogo saberia.
+        # PT-PT: O perfil genérico faz as vezes do que o catálogo saberia.
         # EN-UK: The generic profile stands in for what the catalogue would know.
         local perfil; perfil="$(valor_de perfil "$escolhida")"
         read -r min_cpu min_ram min_disco rec_cpu rec_ram rec_disco <<< "$(perfil_generico "$perfil")"
     fi
 
     # --- onde fica a imagem --------------------------------------------------
-    # PT-PT: Perguntado agora, e nao no fim: uma imagem de sistema operativo
-    #        anda pelos tres a cinco gigabytes, e a particao onde a pasta pessoal
-    #        esta e, em muitas maquinas, a que nao tem espaco. Dizer isto depois
+    # PT-PT: Perguntado agora, e não no fim: uma imagem de sistema operativo
+    #        anda pelos três a cinco gigabytes, e a partição onde a pasta pessoal
+    #        esta e, em muitas máquinas, a que não tem espaço. Dizer isto depois
     #        de descarregar seria dizer tarde.
     # EN-UK: Asked now, not at the end: an operating-system image runs to three
     #        or five gigabytes, and the partition holding the home directory is,
@@ -885,9 +885,9 @@ criar_maquina() {
     local cpu=0 ram=0 disco=0 nome=''
 
     if [[ "$uso" == 'apliancia' ]]; then
-        # PT-PT: Uma appliance traz as suas: memoria, nucleos, discos e placas
-        #        de rede vem todos decididos por quem a exportou. Nao ha nada a
-        #        recomendar, e propor numeros que nao vao ser usados so confunde.
+        # PT-PT: Uma appliance traz as suas: memória, núcleos, discos e placas
+        #        de rede vem todos decididos por quem a exportou. Não há nada a
+        #        recomendar, e propor números que não vão ser usados só confunde.
         # EN-UK: An appliance brings its own. Nothing to recommend, and
         #        proposing numbers that will not be used only confuses.
         titulo 'A máquina que vai ser importada'
@@ -932,10 +932,10 @@ criar_maquina() {
         disco="$(valor_de disco_mb "$plano")"
     fi
 
-    # --- daqui para baixo nao ha mais perguntas ------------------------------
-    # PT-PT: Foi o que se pediu, e faz sentido: as decisoes ja foram todas
-    #        tomadas nos ecras acima. O que falta e trabalho, e o trabalho
-    #        mostra-se enquanto acontece em vez de se pedir licenca para ele.
+    # --- daqui para baixo não há mais perguntas ------------------------------
+    # PT-PT: Foi o que se pediu, e faz sentido: as decisões já foram todas
+    #        tomadas nos ecrãs acima. O que falta e trabalho, e o trabalho
+    #        mostra-se enquanto acontece em vez de se pedir licença para ele.
     # EN-UK: As asked, and it makes sense: every decision was taken on the
     #        screens above. What is left is work, and work is shown as it
     #        happens rather than asked permission for.
@@ -978,9 +978,9 @@ criar_maquina() {
             printf '\n'; ok "Criada. Abra com: virt-viewer --connect qemu:///system $nome"
             ;;
         vmware)
-            # PT-PT: A VMware trabalha em GB e nao em MB, ao contrario de tudo o
-            #        resto desta versao. A conversao e feita aqui e nao dentro do
-            #        modulo, para o modulo continuar a falar a lingua da VMware.
+            # PT-PT: A VMware trabalha em GB e não em MB, ao contrário de tudo o
+            #        resto desta versão. A conversão e feita aqui e não dentro do
+            #        módulo, para o módulo continuar a falar a lingua da VMware.
             # EN-UK: VMware works in GB rather than MB, unlike everything else in
             #        this version. The conversion happens here, not inside the
             #        module, so the module keeps speaking VMware's language.
@@ -1052,11 +1052,11 @@ mostrar_diagnostico() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Mostra o que ha de Docker. Devolve 0 quando responde.
+# PT-PT: Mostra o que há de Docker. Devolve 0 quando responde.
 #
 #        Separa duas coisas que se confundem: estar instalado e estar a
-#        responder. O servico parado da um erro diferente de nao estar
-#        instalado, e a solucao tambem e outra.
+#        responder. O serviço parado da um erro diferente de não estar
+#        instalado, e a solução também e outra.
 # EN-UK: Shows what Docker is here; returns 0 when it answers. Installed and
 #        answering are different problems with different fixes.
 # ---------------------------------------------------------------------------
@@ -1090,7 +1090,7 @@ mostrar_estado_docker() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Escreve o catalogo de servicos por categoria.
+# PT-PT: Escreve o catálogo de serviços por categoria.
 # EN-UK: Prints the services catalogue by category.
 # ---------------------------------------------------------------------------
 mostrar_catalogo_servicos() {
@@ -1120,7 +1120,7 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Deixa escolher um servico. Escreve o indice, ou nada se desistir.
+# PT-PT: Deixa escolher um serviço. Escreve o índice, ou nada se desistir.
 # EN-UK: Lets the user pick a service. Prints the index, or nothing on cancel.
 # ---------------------------------------------------------------------------
 escolher_servico() {
@@ -1150,8 +1150,8 @@ escolher_servico() {
 # ---------------------------------------------------------------------------
 # PT-PT: Pergunta, avisa e arranca.
 #
-#        O aviso aparece antes da pergunta e nao depois. Um aviso que so aparece
-#        depois de a pessoa dizer que sim nao e um aviso, e uma desculpa.
+#        O aviso aparece antes da pergunta e não depois. Um aviso que só aparece
+#        depois de a pessoa dizer que sim não é um aviso, e uma desculpa.
 # EN-UK: Asks, warns and starts. The warning comes before the question.
 # ---------------------------------------------------------------------------
 arrancar_servico_interactivo() {
@@ -1201,8 +1201,8 @@ $(jq -r --argjson i "$indice" '.servicos[$i].portas // [] | .[] | .anfitriao' "$
 EOF
 
     if [ "${#SEGREDOS_MOSTRAR[@]}" -gt 0 ]; then
-        # PT-PT: Mostra-se uma vez e nao se guarda em lado nenhum. Escrever a
-        #        senha num ficheiro ao lado do servico poupava este incomodo e
+        # PT-PT: Mostra-se uma vez e não se guarda em lado nenhum. Escrever a
+        #        senha num ficheiro ao lado do serviço poupava este incomodo e
         #        tirava-lhe o sentido.
         # EN-UK: Shown once and stored nowhere.
         printf '\n'
@@ -1216,7 +1216,7 @@ EOF
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: O menu dos servicos em contentores.
+# PT-PT: O menu dos serviços em contentores.
 # EN-UK: The containerised-services menu.
 # ---------------------------------------------------------------------------
 servicos() {

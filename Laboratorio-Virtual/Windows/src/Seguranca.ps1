@@ -1,41 +1,41 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Descarregamento verificado. E a fronteira de seguranca deste programa.
+    PT-PT: Descarregamento verificado. E a fronteira de segurança deste programa.
     EN-UK: Verified downloading. This program's security boundary.
 
 .DESCRIPTION
     PT-PT
-    Este modulo existe para responder a uma pergunta so: **este ficheiro veio
+    Este módulo existe para responder a uma pergunta só: **este ficheiro veio
     mesmo de quem diz vir?** Tudo o resto no programa depende da resposta, e por
     isso vale a pena explicar como se chega la.
 
-    Ha quatro camadas, por ordem de forca. O programa aplica as que consegue e
+    Há quatro camadas, por ordem de força. O programa aplica as que consegue e
     diz sempre quais aplicou -- nunca afirma mais do que fez.
 
-    **1. O dominio.** Cada endereco e comparado com uma lista fechada, e a
-    verificacao repete-se a cada redireccionamento. E por isso que o
-    `Invoke-WebRequest` e chamado com `-MaximumRedirection 0` e os saltos sao
-    seguidos a mao: sem isso, um redireccionamento para outro sitio passava sem
-    ninguem dar por ele. Esta camada protege contra um catalogo adulterado.
+    **1. O domínio.** Cada endereço e comparado com uma lista fechada, e a
+    verificação repete-se a cada redireccionamento. É por isso que o
+    `Invoke-WebRequest` e chamado com `-MaximumRedirection 0` e os saltos são
+    seguidos a mão: sem isso, um redireccionamento para outro sítio passava sem
+    ninguém dar por ele. Esta camada protege contra um catálogo adulterado.
 
-    **2. O TLS.** Nunca ha excepcao de certificado, nunca ha HTTP. No Windows
-    PowerShell 5.1 e preciso forcar o TLS 1.2 a mao, porque a omissao dele e o
-    SSL 3.0 -- que ha muito deixou de ser aceitavel e que faz metade dos sitios
-    recusarem a ligacao de qualquer maneira.
+    **2. O TLS.** Nunca há excepção de certificado, nunca há HTTP. No Windows
+    PowerShell 5.1 e preciso forcar o TLS 1.2 a mão, porque a omissão dele e o
+    SSL 3.0 -- que há muito deixou de ser aceitável e que faz metade dos sítios
+    recusarem a ligação de qualquer maneira.
 
-    **3. A soma de verificacao.** Obrigatoria, sem opcao de a desligar. E o que
+    **3. A soma de verificação.** Obrigatória, sem opção de a desligar. E o que
     apanha um ficheiro trocado, um descarregamento truncado e um espelho
     comprometido.
 
     **4. A assinatura.** Quando o projecto assina o manifesto, e a assinatura
-    que prova a origem -- e nao o nome do servidor. E a diferenca entre "veio de
-    um sitio que parece o certo" e "foi assinado por quem produz a
-    distribuicao", e e o que permite usar um espelho sem perder garantias.
+    que prova a origem -- e não o nome do servidor. E a diferença entre "veio de
+    um sítio que parece o certo" e "foi assinado por quem produz a
+    distribuição", e e o que permite usar um espelho sem perder garantias.
 
-    **O nome do ficheiro nunca e inventado.** Sai do manifesto, que e o
-    documento assinado. Um nome fixado no catalogo ficaria desactualizado a
-    primeira versao menor -- e um nome errado e indistinguivel de um ataque.
+    **O nome do ficheiro nunca e inventado.** Sai do manifesto, que é o
+    documento assinado. Um nome fixado no catálogo ficaria desactualizado a
+    primeira versão menor -- e um nome errado e indistinguível de um ataque.
 
     EN-UK
     This module exists to answer one question: **did this file really come from
@@ -53,16 +53,16 @@
 
 Set-StrictMode -Version Latest
 
-# PT-PT: O agente de utilizador identifica a ferramenta. Nao e cosmetica: um
-#        administrador de espelho que veja trafego estranho consegue perceber o
-#        que o gerou, e ha projectos que bloqueiam clientes sem identificacao.
+# PT-PT: O agente de utilizador identifica a ferramenta. Não e cosmética: um
+#        administrador de espelho que veja tráfego estranho consegue perceber o
+#        que o gerou, e há projectos que bloqueiam clientes sem identificação.
 # EN-UK: The user agent identifies the tool. Not cosmetic: a mirror
 #        administrator seeing odd traffic can tell what produced it, and some
 #        projects block unidentified clients.
 $script:AgenteUtilizador = 'Laboratorio-Virtual/1.0 (+https://github.com/RafaDevpt/Personal-AI-Projects)'
 
-# PT-PT: Numero maximo de redireccionamentos seguidos a mao. Os espelhos das
-#        distribuicoes raramente passam de dois ou tres; dez e folga suficiente
+# PT-PT: Número máximo de redireccionamentos seguidos a mão. Os espelhos das
+#        distribuições raramente passam de dois ou três; dez e folga suficiente
 #        e trava um ciclo.
 # EN-UK: Maximum hand-followed redirects. Distribution mirrors rarely exceed two
 #        or three; ten is ample and stops a loop.
@@ -72,16 +72,16 @@ $script:MaximoSaltos = 10
 function Initialize-Tls {
     <#
     .SYNOPSIS
-        PT-PT: Forca TLS 1.2 e, se existir, 1.3.
+        PT-PT: Força TLS 1.2 e, se existir, 1.3.
         EN-UK: Forces TLS 1.2 and, where available, 1.3.
 
     .DESCRIPTION
-        PT-PT: No Windows PowerShell 5.1 o valor por omissao do
-               `SecurityProtocol` inclui protocolos que ja nao se devem usar, e
-               nao inclui o TLS 1.3. Sem esta chamada, metade dos servidores
-               modernos recusa a ligacao e a mensagem de erro que se ve --
-               "pedido abortado: nao foi possivel criar um canal seguro" -- nao
-               diz a ninguem o que se passa.
+        PT-PT: No Windows PowerShell 5.1 o valor por omissão do
+               `SecurityProtocol` inclui protocolos que já não se devem usar, e
+               não inclui o TLS 1.3. Sem esta chamada, metade dos servidores
+               modernos recusa a ligação e a mensagem de erro que se vê --
+               "pedido abortado: não foi possível criar um canal seguro" -- não
+               diz a ninguém o que se passa.
         EN-UK: On Windows PowerShell 5.1 the default `SecurityProtocol` includes
                protocols that should no longer be used and omits TLS 1.3.
     #>
@@ -89,8 +89,8 @@ function Initialize-Tls {
     param()
 
     $protocolos = [Net.SecurityProtocolType]::Tls12
-    # PT-PT: O TLS 1.3 so existe em versoes recentes do .NET Framework. Pedi-lo
-    #        onde nao existe levanta excepcao, e por isso pergunta-se primeiro.
+    # PT-PT: O TLS 1.3 só existe em versões recentes do .NET Framework. Pedi-lo
+    #        onde não existe levanta excepção, e por isso pergunta-se primeiro.
     # EN-UK: TLS 1.3 exists only in recent .NET Framework versions.
     if ([Enum]::GetNames([Net.SecurityProtocolType]) -contains 'Tls13') {
         $protocolos = $protocolos -bor [Net.SecurityProtocolType]::Tls13
@@ -102,13 +102,13 @@ function Initialize-Tls {
 function Test-DominioConfiavel {
     <#
     .SYNOPSIS
-        PT-PT: Confirma que um endereco e HTTPS e que o dominio esta na lista.
+        PT-PT: Confirma que um endereço e HTTPS e que o domínio esta na lista.
         EN-UK: Confirms an address is HTTPS and its domain is on the list.
 
     .DESCRIPTION
-        PT-PT: A comparacao e sobre o anfitriao inteiro e nao sobre um sufixo.
+        PT-PT: A comparação e sobre o anfitrião inteiro e não sobre um sufixo.
                Aceitar sufixos permitiria que `releases.ubuntu.com.exemplo.net`
-               passasse por `releases.ubuntu.com`, que e exactamente o truque
+               passasse por `releases.ubuntu.com`, que é exactamente o truque
                que esta lista existe para travar.
         EN-UK: The comparison is on the whole host, not on a suffix. Accepting
                suffixes would let `releases.ubuntu.com.example.net` pass as
@@ -116,14 +116,14 @@ function Test-DominioConfiavel {
                stop.
 
     .PARAMETER Endereco
-        PT-PT: O endereco a verificar. / EN-UK: The address to check.
+        PT-PT: O endereço a verificar. / EN-UK: The address to check.
 
     .PARAMETER Dominios
-        PT-PT: A lista de dominios aceites. / EN-UK: The accepted domain list.
+        PT-PT: A lista de domínios aceites. / EN-UK: The accepted domain list.
 
     .OUTPUTS
         PT-PT: $true se passar; $false em qualquer outro caso, incluindo um
-               endereco mal formado.
+               endereço mal formado.
         EN-UK: $true when it passes; $false otherwise, malformed addresses
                included.
     #>
@@ -141,7 +141,7 @@ function Test-DominioConfiavel {
 
     if ($uri.Scheme -ne 'https') { return $false }
 
-    # PT-PT: O `Host` do Uri ja vem normalizado em minusculas e sem porta.
+    # PT-PT: O `Host` do Uri já vem normalizado em minúsculas e sem porta.
     # EN-UK: The Uri's `Host` arrives lower-cased and without the port.
     return $Dominios -contains $uri.Host
 }
@@ -150,14 +150,14 @@ function Test-DominioConfiavel {
 function Invoke-DescarregamentoSeguro {
     <#
     .SYNOPSIS
-        PT-PT: Descarrega um endereco, validando o dominio a cada salto.
+        PT-PT: Descarrega um endereço, validando o domínio a cada salto.
         EN-UK: Downloads an address, validating the domain at every hop.
 
     .DESCRIPTION
-        PT-PT: Os redireccionamentos sao seguidos a mao, de proposito. Com o
+        PT-PT: Os redireccionamentos são seguidos a mão, de propósito. Com o
                comportamento normal do `Invoke-WebRequest`, um servidor podia
                redireccionar para onde quisesse e o programa descarregava de la
-               sem verificar nada -- o que anulava a lista de dominios por
+               sem verificar nada -- o que anulava a lista de domínios por
                completo.
         EN-UK: Redirects are followed by hand, deliberately. With
                `Invoke-WebRequest`'s normal behaviour a server could redirect
@@ -165,16 +165,16 @@ function Invoke-DescarregamentoSeguro {
                voiding the domain list entirely.
 
     .PARAMETER Endereco
-        PT-PT: O endereco de partida. / EN-UK: The starting address.
+        PT-PT: O endereço de partida. / EN-UK: The starting address.
 
     .PARAMETER Destino
-        PT-PT: Caminho do ficheiro a escrever. Se for omitido, o conteudo e
+        PT-PT: Caminho do ficheiro a escrever. Se for omitido, o conteúdo e
                devolvido como texto.
         EN-UK: Path of the file to write. When omitted, content is returned as
                text.
 
     .PARAMETER Dominios
-        PT-PT: Lista de dominios aceites. / EN-UK: Accepted domain list.
+        PT-PT: Lista de domínios aceites. / EN-UK: Accepted domain list.
     #>
     [CmdletBinding()]
     param(
@@ -185,35 +185,35 @@ function Invoke-DescarregamentoSeguro {
 
     Initialize-Tls
 
-    # PT-PT: **Isto era `Invoke-WebRequest` e nao podia ser.**
+    # PT-PT: **Isto era `Invoke-WebRequest` e não podia ser.**
     #
-    #        A ideia estava certa: seguir os redireccionamentos a mao, para que
-    #        cada salto volte a passar pela lista de dominios. O que estava
+    #        A ideia estava certa: seguir os redireccionamentos a mão, para que
+    #        cada salto volte a passar pela lista de domínios. O que estava
     #        errado era a ferramenta.
     #
     #        Com `-MaximumRedirection 0`, o `Invoke-WebRequest` do Windows
-    #        PowerShell 5.1 lanca, em alguns servidores, um
+    #        PowerShell 5.1 lança, em alguns servidores, um
     #        `InvalidOperationException` **sem objecto `Response`**. Sem
-    #        `Response` nao ha cabecalho `Location`, e sem `Location` o ciclo
-    #        nao tem por onde seguir: o descarregamento morre com "a operacao
-    #        nao e valida devido ao estado actual do objecto", que nao diz nada
-    #        a ninguem.
+    #        `Response` não há cabeçalho `Location`, e sem `Location` o ciclo
+    #        não tem por onde seguir: o descarregamento morre com "a operação
+    #        não é valida devido ao estado actual do objecto", que não diz nada
+    #        a ninguém.
     #
     #        Aconteceu no `cdimage.ubuntu.com` e no `cdimage.kali.org` -- dois
-    #        dos servidores do proprio catalogo. Ou seja: a peca central da
-    #        verificacao estava a falhar em servidores que este programa lista.
+    #        dos servidores do próprio catálogo. Ou seja: a peça central da
+    #        verificação estava a falhar em servidores que este programa lista.
     #
     #        O `HttpWebRequest` com `AllowAutoRedirect = $false` devolve o 3xx
-    #        como uma resposta **normal**, com os cabecalhos acessiveis. Nao e
-    #        so um remendo: e mais explicito do que o que ca estava, porque cada
+    #        como uma resposta **normal**, com os cabeçalhos acessíveis. Não e
+    #        só um remendo: e mais explicito do que o que ca estava, porque cada
     #        salto passa a ser um objecto que se inspecciona em vez de uma
-    #        excepcao que se apanha.
+    #        excepção que se apanha.
     #
     #        E escreve-se para o ficheiro em fluxo, aos pedacos. O
     #        `Invoke-WebRequest` do 5.1 redesenhava a barra de progresso a cada
     #        bloco -- 1,8 MB/s medidos contra 88 MB/s sem ela -- e guardava a
-    #        resposta em memoria. Numa ISO de 5 GB, as duas coisas juntas sao a
-    #        diferenca entre falhar e funcionar. Aqui nao ha barra nenhuma para
+    #        resposta em memória. Numa ISO de 5 GB, as duas coisas juntas são a
+    #        diferença entre falhar e funcionar. Aqui não há barra nenhuma para
     #        desenhar nem resposta nenhuma para guardar.
     #
     # EN-UK: **This used to be `Invoke-WebRequest` and could not stay.**
@@ -245,10 +245,10 @@ function Invoke-DescarregamentoSeguro {
 
     for ($salto = 0; $salto -lt $script:MaximoSaltos; $salto++) {
 
-        # PT-PT: A lista de dominios e verificada **no cimo do ciclo**, e nao
-        #        so a entrada. E isto que faz o seguimento manual valer a pena:
-        #        um servidor de confianca que redireccione para fora da lista e
-        #        recusado no salto seguinte, antes de qualquer ligacao.
+        # PT-PT: A lista de domínios e verificada **no cimo do ciclo**, e não
+        #        só a entrada. E isto que faz o seguimento manual valer a pena:
+        #        um servidor de confiança que redireccione para fora da lista e
+        #        recusado no salto seguinte, antes de qualquer ligação.
         # EN-UK: The domain list is checked **at the top of the loop**, not only
         #        on entry. This is what makes manual following worth the
         #        trouble: a trusted server redirecting off the list is refused
@@ -265,10 +265,10 @@ function Invoke-DescarregamentoSeguro {
         $pedido.UserAgent = $script:AgenteUtilizador
         $pedido.Method = 'GET'
         # PT-PT: Dois tempos limite diferentes, e os dois fazem falta. O
-        #        `Timeout` conta ate a resposta comecar; o `ReadWriteTimeout`
-        #        conta entre pedacos. Um descarregamento de varios GB demora
-        #        legitimamente mais do que qualquer `Timeout` razoavel, e sem a
-        #        distincao ou se corta um descarregamento bom ou se espera para
+        #        `Timeout` conta até a resposta começar; o `ReadWriteTimeout`
+        #        conta entre pedacos. Um descarregamento de vários GB demora
+        #        legitimamente mais do que qualquer `Timeout` razoável, e sem a
+        #        distinção ou se corta um descarregamento bom ou se espera para
         #        sempre por um servidor morto.
         # EN-UK: Two different timeouts, both needed. `Timeout` counts until the
         #        response starts; `ReadWriteTimeout` counts between chunks. A
@@ -284,7 +284,7 @@ function Invoke-DescarregamentoSeguro {
         }
         catch [System.Net.WebException] {
             # PT-PT: Um 4xx ou 5xx chega aqui com a resposta anexada. Sem
-            #        resposta, foi a ligacao que falhou e nao ha nada a ler.
+            #        resposta, foi a ligação que falhou e não há nada a ler.
             # EN-UK: A 4xx or 5xx arrives here with the response attached. With
             #        no response the connection itself failed.
             if ($_.Exception.Response) {
@@ -305,7 +305,7 @@ function Invoke-DescarregamentoSeguro {
                 throw "Redireccionamento sem destino a partir de $actual."
             }
 
-            # PT-PT: Um `Location` relativo resolve-se contra o endereco actual.
+            # PT-PT: Um `Location` relativo resolve-se contra o endereço actual.
             # EN-UK: A relative `Location` resolves against the current address.
             $actual = ([Uri]::new([Uri]$actual, $seguinte)).AbsoluteUri
             Write-Verbose "Redireccionado para $actual"
@@ -322,7 +322,7 @@ function Invoke-DescarregamentoSeguro {
 
             if ($Destino) {
                 # PT-PT: Aos pedacos, direito ao disco. Nada disto passa pela
-                #        memoria, e por isso o tamanho da imagem deixa de ser um
+                #        memória, e por isso o tamanho da imagem deixa de ser um
                 #        problema.
                 # EN-UK: In chunks, straight to disk. None of it goes through
                 #        memory, so the image's size stops being a problem.
@@ -331,12 +331,12 @@ function Invoke-DescarregamentoSeguro {
                     $fluxo.CopyTo($ficheiro, 1048576)
                 }
                 catch {
-                    # PT-PT: Uma ligacao que se corta a meio deixa um ficheiro
+                    # PT-PT: Uma ligação que se corta a meio deixa um ficheiro
                     #        parcial. Ele nunca passaria na soma -- mas deixa-lo
                     #        no disco e deixar uma armadilha para quem o
-                    #        encontrar mais tarde e nao souber de onde veio, que
+                    #        encontrar mais tarde e não souber de onde veio, que
                     #        e a mesma regra que se aplica a um ficheiro que
-                    #        falha a verificacao. Sai.
+                    #        falha a verificação. Sai.
                     # EN-UK: A connection cut halfway leaves a partial file. It
                     #        would never pass the checksum -- but leaving it on
                     #        disk leaves a trap for whoever finds it later, the
@@ -371,8 +371,8 @@ function Read-Manifesto {
         EN-UK: Parses a checksum manifest and returns filename and checksum.
 
     .DESCRIPTION
-        PT-PT: Ha dois formatos em uso, e um programa que so conheca um falha
-               em metade das distribuicoes.
+        PT-PT: Há dois formatos em uso, e um programa que só conheca um falha
+               em metade das distribuições.
 
                O formato do `sha256sum` do GNU:
 
@@ -383,8 +383,8 @@ function Read-Manifesto {
                    SHA256 (Fedora-Workstation-Live.iso) = 9ffe...
 
                Um manifesto assinado em claro traz, por cima e por baixo, as
-               marcas do PGP. As linhas que nao correspondem a nenhum dos dois
-               formatos sao ignoradas, e e isso que faz este leitor funcionar
+               marcas do PGP. As linhas que não correspondem a nenhum dos dois
+               formatos são ignoradas, e e isso que faz este leitor funcionar
                tanto no ficheiro assinado como no ficheiro simples.
 
         EN-UK: Two formats are in use, and a program knowing only one fails on
@@ -397,7 +397,7 @@ function Read-Manifesto {
         PT-PT: O texto do manifesto. / EN-UK: The manifest's text.
 
     .PARAMETER Padrao
-        PT-PT: Expressao regular que identifica o ficheiro pretendido.
+        PT-PT: Expressão regular que identifica o ficheiro pretendido.
         EN-UK: Regular expression identifying the wanted file.
 
     .OUTPUTS
@@ -425,7 +425,7 @@ function Read-Manifesto {
             $ficheiro = $Matches['f']
             $soma = $Matches['h']
         }
-        # PT-PT: Formato GNU: soma [espaco][espaco ou *]ficheiro
+        # PT-PT: Formato GNU: soma [espaço][espaço ou *]ficheiro
         # EN-UK: GNU format: checksum [space][space or *]file
         elseif ($texto -match '^(?<h>[0-9a-fA-F]{64})\s+[\*\s]?(?<f>\S.*)$') {
             $ficheiro = $Matches['f'].Trim()
@@ -435,7 +435,7 @@ function Read-Manifesto {
             continue
         }
 
-        # PT-PT: Alguns manifestos trazem o caminho e nao so o nome.
+        # PT-PT: Alguns manifestos trazem o caminho e não só o nome.
         # EN-UK: Some manifests carry the path rather than just the name.
         $nome = Split-Path -Path $ficheiro -Leaf
 
@@ -458,10 +458,10 @@ function Test-SomaFicheiro {
         EN-UK: Compares a file's SHA-256 against the expected one.
 
     .DESCRIPTION
-        PT-PT: A comparacao ignora maiusculas, porque os manifestos nao sao
-               consistentes entre projectos, e nao aceita uma soma vazia: uma
-               comparacao contra vazio devolveria verdadeiro em algumas
-               implementacoes distraidas, e este e o passo que nao pode falhar.
+        PT-PT: A comparação ignora maiúsculas, porque os manifestos não são
+               consistentes entre projectos, e não aceita uma soma vazia: uma
+               comparação contra vazio devolveria verdadeiro em algumas
+               implementações distraidas, e este e o passo que não pode falhar.
         EN-UK: The comparison is case-insensitive, because manifests are not
                consistent between projects, and rejects an empty checksum: a
                comparison against nothing returns true in some careless
@@ -485,15 +485,15 @@ function Test-SomaFicheiro {
 function Get-CaminhoGpg {
     <#
     .SYNOPSIS
-        PT-PT: Encontra o `gpg` nesta maquina, se existir.
+        PT-PT: Encontra o `gpg` nesta máquina, se existir.
         EN-UK: Finds `gpg` on this machine, if present.
 
     .DESCRIPTION
-        PT-PT: Em Windows o GPG nao vem instalado, mas chega frequentemente pela
+        PT-PT: Em Windows o GPG não vem instalado, mas chega frequentemente pela
                boleia de outra coisa: o Git para Windows traz um, o Gpg4win
-               traz outro. Procura-se nos dois sitios habituais antes de
+               traz outro. Procura-se nos dois sítios habituais antes de
                desistir, porque desistir aqui significa perder a camada de
-               verificacao mais forte que ha.
+               verificação mais forte que há.
         EN-UK: GPG does not ship with Windows but often arrives with something
                else: Git for Windows carries one, Gpg4win another. Both usual
                places are searched before giving up, because giving up here
@@ -527,14 +527,14 @@ function Get-CaminhoCygpath {
         EN-UK: The `cygpath` living beside this `gpg`, if there is one.
 
     .DESCRIPTION
-        PT-PT: A presenca do `cygpath` na mesma pasta e o que identifica um
-               `gpg` compilado para MSYS -- que e o caso do que vem com o Git
-               para Windows, e portanto o caso na maioria das maquinas onde este
+        PT-PT: A presença do `cygpath` na mesma pasta e o que identifica um
+               `gpg` compilado para MSYS -- que é o caso do que vem com o Git
+               para Windows, e portanto o caso na maioria das máquinas onde este
                programa corre.
 
-               Nao se procura o `cygpath` no PATH: procura-se **ao lado**. Um
-               `cygpath` de outra instalacao pode traduzir para uma raiz
-               diferente, e um caminho traduzido pela regra errada e pior do que
+               Não se procura o `cygpath` no PATH: procura-se **ao lado**. Um
+               `cygpath` de outra instalação pode traduzir para uma raiz
+               diferente, e um caminho traduzido pela regra errada é pior do que
                um caminho por traduzir.
         EN-UK: A `cygpath` in the same folder is what identifies an MSYS-built
                `gpg` -- which is what Git for Windows ships, and therefore the
@@ -562,30 +562,30 @@ function Get-CaminhoCygpath {
 function ConvertTo-CaminhoParaGpg {
     <#
     .SYNOPSIS
-        PT-PT: Poe um caminho na forma que este `gpg` sabe ler.
+        PT-PT: Põe um caminho na forma que este `gpg` sabe ler.
         EN-UK: Puts a path into the form this `gpg` can read.
 
     .DESCRIPTION
-        PT-PT: **Esta funcao existe porque a verificacao de assinaturas nunca
-               funcionou em Windows, e ninguem tinha reparado.**
+        PT-PT: **Esta função existe porque a verificação de assinaturas nunca
+               funcionou em Windows, e ninguém tinha reparado.**
 
-               O `gpg` que vem com o Git para Windows e uma compilacao MSYS. Um
-               programa MSYS nao reconhece `C:\Users\...` como um caminho
-               absoluto -- a barra invertida e um caracter valido num nome de
+               O `gpg` que vem com o Git para Windows e uma compilação MSYS. Um
+               programa MSYS não reconhece `C:\Users\...` como um caminho
+               absoluto -- a barra invertida e um caracter válido num nome de
                ficheiro POSIX, por isso `C:\Users\rafae\...` e, para ele, **um
-               unico nome relativo**. E resolve-o contra a pasta actual:
+               único nome relativo**. E resolve-o contra a pasta actual:
 
                    gpg: keyblock resource
                    '/d/GitHub/.../Windows/C:\Users\rafae\AppData\...'
                    No such file or directory
 
-               Barras normais tambem nao chegam: testado, da o mesmo erro com
-               `C:/Users/...`. A unica forma que ele aceita e a POSIX,
-               `/c/Users/...`, e quem sabe fazer essa traducao correctamente e o
+               Barras normais também não chegam: testado, da o mesmo erro com
+               `C:/Users/...`. A única forma que ele aceita e a POSIX,
+               `/c/Users/...`, e quem sabe fazer essa tradução correctamente e o
                `cygpath` que vem na mesma pasta.
 
-               Quando nao ha `cygpath`, o `gpg` e nativo -- o do Gpg4win -- e
-               esse aceita caminhos de Windows tal como estao. Por isso o
+               Quando não há `cygpath`, o `gpg` e nativo -- o do Gpg4win -- e
+               esse aceita caminhos de Windows tal como estão. Por isso o
                caminho volta intacto em vez de ser adivinhado.
 
         EN-UK: **This function exists because signature verification never
@@ -616,8 +616,8 @@ function ConvertTo-CaminhoParaGpg {
     if (-not $Caminho -or -not $Cygpath) { return $Caminho }
 
     try {
-        # PT-PT: A preferencia baixa aqui pela mesma razao que baixa no `gpg`:
-        #        um programa nativo que escreva para o stderr nao deve fazer
+        # PT-PT: A preferência baixa aqui pela mesma razão que baixa no `gpg`:
+        #        um programa nativo que escreva para o stderr não deve fazer
         #        rebentar quem o chamou. Ver a nota em `Test-AssinaturaGpg`.
         # EN-UK: The preference drops here for the same reason it drops around
         #        `gpg`: a native program writing to stderr should not blow up
@@ -638,21 +638,21 @@ function ConvertTo-CaminhoParaGpg {
 function Test-AssinaturaGpg {
     <#
     .SYNOPSIS
-        PT-PT: Verifica a assinatura de um manifesto e, se pedido, a impressao
+        PT-PT: Verifica a assinatura de um manifesto e, se pedido, a impressão
                digital de quem o assinou.
         EN-UK: Verifies a manifest's signature and, when asked, the fingerprint
                of whoever signed it.
 
     .DESCRIPTION
-        PT-PT: Corre num porta-chaves proprio e temporario, e nao no do
-               utilizador. Nao e arrumacao: importar chaves de projectos para o
-               porta-chaves pessoal de alguem muda a confianca dele para coisas
-               que nada tem a ver com este programa, e e um efeito secundario
-               que uma ferramenta nao deve ter.
+        PT-PT: Corre num porta-chaves próprio e temporário, e não no do
+               utilizador. Não e arrumação: importar chaves de projectos para o
+               porta-chaves pessoal de alguém muda a confiança dele para coisas
+               que nada tem a ver com este programa, e e um efeito secundário
+               que uma ferramenta não deve ter.
 
-               A impressao digital fixada, quando existe, e uma condicao e nao
-               um aviso. Uma assinatura valida de uma chave errada e exactamente
-               o que um atacante com um catalogo adulterado produziria.
+               A impressão digital fixada, quando existe, e uma condição e não
+               um aviso. Uma assinatura válida de uma chave errada e exactamente
+               o que um atacante com um catálogo adulterado produziria.
 
         EN-UK: It runs on its own temporary keyring rather than the user's.
                Importing project keys into somebody's personal keyring changes
@@ -694,21 +694,21 @@ function Test-AssinaturaGpg {
     $porta = Join-Path ([IO.Path]::GetTempPath()) ("lv-gpg-" + [Guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $porta -Force | Out-Null
 
-    # PT-PT: **O stderr do gpg nao pode ser fatal, e era.**
+    # PT-PT: **O stderr do gpg não pode ser fatal, e era.**
     #
     #        O ponto de entrada corre com `$ErrorActionPreference = 'Stop'`, e
-    #        com essa preferencia um `2>&1` num programa nativo transforma cada
-    #        linha de stderr numa excepcao que termina tudo. O gpg escreve para
+    #        com essa preferência um `2>&1` num programa nativo transforma cada
+    #        linha de stderr numa excepção que termina tudo. O gpg escreve para
     #        o stderr **quando corre bem**: "keybox created", "trustdb created",
     #        "Total number processed: 1".
     #
-    #        Resultado: bastava a primeira linha de uma execucao com exito para
+    #        Resultado: bastava a primeira linha de uma execução com exito para
     #        rebentar. Junto com o problema dos caminhos, e por isto que a
-    #        verificacao de assinaturas nunca funcionou em Windows.
+    #        verificação de assinaturas nunca funcionou em Windows.
     #
-    #        A preferencia baixa so aqui dentro. Sendo uma variavel de funcao, o
-    #        original volta sozinho quando a funcao termina -- por qualquer
-    #        caminho, incluindo o das excepcoes.
+    #        A preferência baixa só aqui dentro. Sendo uma variável de função, o
+    #        original volta sozinho quando a função termina -- por qualquer
+    #        caminho, incluindo o das excepções.
     #
     # EN-UK: **gpg's stderr must not be fatal, and it was.**
     #
@@ -726,7 +726,7 @@ function Test-AssinaturaGpg {
     $ErrorActionPreference = 'Continue'
 
     try {
-        # PT-PT: Os tres caminhos passam pela conversao, e nao so o porta-chaves.
+        # PT-PT: Os três caminhos passam pela conversão, e não só o porta-chaves.
         #        O erro que se via falava do porta-chaves porque era o primeiro a
         #        ser aberto -- mas o ficheiro da chave e o do manifesto sofrem
         #        exactamente do mesmo.
@@ -758,9 +758,9 @@ function Test-AssinaturaGpg {
         $codigo = $LASTEXITCODE
         $texto = ($saida | Out-String)
 
-        # PT-PT: O `--status-fd` da linhas estaveis, feitas para serem lidas por
-        #        programas. O texto para humanos muda com a versao e com o
-        #        idioma, e nunca deve ser a base de uma decisao de seguranca.
+        # PT-PT: O `--status-fd` da linhas estáveis, feitas para serem lidas por
+        #        programas. O texto para humanos muda com a versão e com o
+        #        idioma, e nunca deve ser a base de uma decisão de segurança.
         # EN-UK: `--status-fd` gives stable lines meant to be read by programs.
         #        The human text changes with version and language and must never
         #        be the basis of a security decision.
@@ -788,7 +788,7 @@ function Test-AssinaturaGpg {
         return $resultado
     }
     finally {
-        # PT-PT: O porta-chaves temporario sai sempre, mesmo em caso de erro.
+        # PT-PT: O porta-chaves temporário sai sempre, mesmo em caso de erro.
         # EN-UK: The temporary keyring always goes, errors included.
         Remove-Item -LiteralPath $porta -Recurse -Force -ErrorAction SilentlyContinue
     }

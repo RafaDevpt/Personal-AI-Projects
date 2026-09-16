@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Arranque do Laboratorio Virtual em macOS.
+# PT-PT: Arranque do Laboratório Virtual em macOS.
 #
-#        A extensao .command e o que permite abrir isto com duplo clique no
+#        A extensão .command e o que permite abrir isto com duplo clique no
 #        Finder, tal como o .bat em Windows.
 #
-#        **O PATH do Homebrew.** Um script aberto pelo Finder nao herda o
-#        ambiente da shell, e o `brew` instala em sitios diferentes conforme o
+#        **O PATH do Homebrew.** Um script aberto pelo Finder não herda o
+#        ambiente da shell, e o `brew` instala em sítios diferentes conforme o
 #        processador: /opt/homebrew nos Apple Silicon e /usr/local nos Intel.
-#        Sem os acrescentar, o QEMU esta instalado e o programa jura que nao
-#        esta -- e ninguem associa isso ao facto de ter aberto por duplo clique
+#        Sem os acrescentar, o QEMU esta instalado e o programa jura que não
+#        esta -- e ninguém associa isso ao facto de ter aberto por duplo clique
 #        em vez de pelo Terminal.
 #
-#        **O bash e o 3.2.** Nao se pede um bash do Homebrew: toda esta versao
+#        **O bash e o 3.2.** Não se pede um bash do Homebrew: toda esta versão
 #        esta escrita para o que o Mac traz.
 #
 # EN-UK: Virtual Lab launcher for macOS. The .command extension is what makes

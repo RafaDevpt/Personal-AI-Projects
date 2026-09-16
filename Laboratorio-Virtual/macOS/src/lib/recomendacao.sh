@@ -1,35 +1,35 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Calculo das especificacoes recomendadas para a maquina virtual.
+# PT-PT: Cálculo das especificações recomendadas para a máquina virtual.
 #
-#        Este ficheiro nao toca na maquina. Recebe numeros e escreve numeros, e
-#        e por isso que o calculo todo -- incluindo os casos maus -- se consegue
+#        Este ficheiro não toca na máquina. Recebe números e escreve números, e
+#        é por isso que o cálculo todo -- incluindo os casos maus -- se consegue
 #        testar sem hipervisor nenhum e sem esperar por nada.
 #
-#        **A regra que orienta tudo: a maquina anfitria tem de continuar
-#        utilizavel.** Uma maquina virtual que arranca e deixa o portatil do
-#        utilizador a nadar nao resolveu problema nenhum -- criou dois.
+#        **A regra que orienta tudo: a máquina anfitria tem de continuar
+#        utilizável.** Uma máquina virtual que arranca e deixa o portátil do
+#        utilizador a nadar não resolveu problema nenhum -- criou dois.
 #
-#        Tres decisoes que valem a explicacao.
+#        Três decisões que valem a explicação.
 #
-#        **Nunca mais nucleos virtuais do que nucleos fisicos.** E a confusao
-#        mais comum de quem cria a primeira maquina virtual, e o resultado e o
-#        contrario do esperado: com mais nucleos virtuais do que fisicos, o
-#        hipervisor tem de esperar que haja nucleos livres suficientes para
-#        agendar a maquina toda de uma vez, e o convidado fica mais lento.
+#        **Nunca mais núcleos virtuais do que núcleos físicos.** E a confusão
+#        mais comum de quem cria a primeira máquina virtual, e o resultado e o
+#        contrário do esperado: com mais núcleos virtuais do que físicos, o
+#        hipervisor tem de esperar que haja núcleos livres suficientes para
+#        agendar a máquina toda de uma vez, e o convidado fica mais lento.
 #
-#        **A memoria tem um tecto, e o tecto e o recomendado.** Dar 12 GB a um
-#        convidado que recomenda 8 nao o torna mais rapido: torna-o num
-#        convidado com 4 GB de memoria parada que fazem falta ao anfitriao.
+#        **A memória tem um tecto, e o tecto e o recomendado.** Dar 12 GB a um
+#        convidado que recomenda 8 não o torna mais rápido: torna-o num
+#        convidado com 4 GB de memória parada que fazem falta ao anfitrião.
 #
-#        **O disco conta duas vezes.** Um disco de crescimento dinamico nao
-#        ocupa hoje o que promete, mas ocupa amanha -- e um anfitriao que fica
-#        sem espaco com uma maquina virtual a correr corrompe-a.
+#        **O disco conta duas vezes.** Um disco de crescimento dinâmico não
+#        ocupa hoje o que promete, mas ocupa amanha -- e um anfitrião que fica
+#        sem espaço com uma máquina virtual a correr corrompe-a.
 #
-#        Tudo aqui e em **megabytes inteiros**, de proposito. A shell nao tem
-#        virgula flutuante, e uma conta de GB com casas decimais em bash acaba
+#        Tudo aqui e em **megabytes inteiros**, de propósito. A shell não tem
+#        vírgula flutuante, e uma conta de GB com casas decimais em bash acaba
 #        sempre num `bc` ou num arredondamento errado. Em MB, e tudo aritmetica
-#        de inteiros e nao ha nada a arredondar.
+#        de inteiros e não há nada a arredondar.
 #
 # EN-UK: Working out the recommended specification for the virtual machine.
 #
@@ -51,12 +51,12 @@
 # Created by Redfox using Claude
 # ===========================================================================
 
-# PT-PT: Memoria que fica sempre para o anfitriao, e a fraccao minima do total.
+# PT-PT: Memória que fica sempre para o anfitrião, e a fracção mínima do total.
 #        O maior dos dois manda -- mas nunca mais do que metade. Esse limite de
-#        metade existe por causa das maquinas pequenas: num anfitriao de 4 GB,
-#        uma reserva fixa de 4 GB nao deixava nada e o programa recusava-se a
-#        criar ate um Alpine, que precisa de 1 GB. A reserva serve para proteger
-#        o anfitriao, nao para o impedir de fazer seja o que for.
+#        metade existe por causa das máquinas pequenas: num anfitrião de 4 GB,
+#        uma reserva fixa de 4 GB não deixava nada e o programa recusava-se a
+#        criar até um Alpine, que precisa de 1 GB. A reserva serve para proteger
+#        o anfitrião, não para o impedir de fazer seja o que for.
 # EN-UK: Memory always left for the host, and the minimum fraction of the total.
 #        The larger of the two wins -- but never more than half. That half-cap
 #        exists because of small machines.
@@ -64,18 +64,18 @@ readonly RESERVA_ANFITRIAO_MB=4096
 readonly RESERVA_ANFITRIAO_PERCENT=25
 readonly RESERVA_MAXIMA_PERCENT=50
 
-# PT-PT: Espaco que deve sobrar no volume depois de a maquina crescer.
+# PT-PT: Espaço que deve sobrar no volume depois de a máquina crescer.
 # EN-UK: Space that should remain on the volume once the machine has grown.
 readonly FOLGA_DISCO_MB=20480
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Calcula as especificacoes a propor, e explica como la chegou.
+# PT-PT: Calcula as especificações a propor, e explica como la chegou.
 #
-#        Escreve linhas `chave=valor` no stdout, que quem chama le com um ciclo.
-#        E a forma de uma funcao de shell devolver mais do que um valor sem
-#        recorrer a variaveis globais -- que, num ficheiro que outros sourceiam,
-#        sao uma forma de dar cabo do ambiente de quem nos chamou.
+#        Escreve linhas `chave=valor` no stdout, que quem chama lê com um ciclo.
+#        E a forma de uma função de shell devolver mais do que um valor sem
+#        recorrer a variáveis globais -- que, num ficheiro que outros sourceiam,
+#        são uma forma de dar cabo do ambiente de quem nos chamou.
 #
 #        Os motivos e os avisos saem como `motivo=` e `aviso=` repetidos. A
 #        ordem e a de leitura.
@@ -117,8 +117,8 @@ recomendar() {
     local ram=$rec_ram
     if (( disponivel < rec_ram )); then
         # PT-PT: Arredonda para baixo ao multiplo de 256 MB. Um hipervisor
-        #        aceita qualquer numero, mas um valor redondo e mais facil de
-        #        reconhecer quando se volta a olhar para a maquina daqui a um mes.
+        #        aceita qualquer número, mas um valor redondo e mais fácil de
+        #        reconhecer quando se volta a olhar para a máquina daqui a um mês.
         # EN-UK: Rounds down to a multiple of 256 MB. A hypervisor accepts any
         #        number, but a round one is easier to recognise a month later.
         ram=$(( (disponivel / 256) * 256 ))
@@ -129,7 +129,7 @@ recomendar() {
     fi
 
     # --- Processador / Processor -------------------------------------------
-    # PT-PT: Deixar um nucleo para o anfitriao e o que mantem a interface dele a
+    # PT-PT: Deixar um núcleo para o anfitrião e o que mantém a interface dele a
     #        responder enquanto o convidado trabalha.
     # EN-UK: Leaving one core for the host keeps its interface responsive.
     local maximo_cpu=$(( nucleos - 1 ))
@@ -179,9 +179,9 @@ recomendar() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Le uma chave da saida do `recomendar`. A ultima ocorrencia ganha, o que
-#        importa para o `viavel`: o calculo pode escrever `viavel=nao` a meio e
-#        so escreve `viavel=sim` no fim, se chegar la.
+# PT-PT: Lê uma chave da saída do `recomendar`. A última ocorrência ganha, o que
+#        importa para o `viavel`: o cálculo pode escrever `viavel=nao` a meio e
+#        só escreve `viavel=sim` no fim, se chegar la.
 # EN-UK: Reads one key from `recomendar`'s output. The last occurrence wins,
 #        which matters for `viavel`: the calculation may write `viavel=nao`
 #        partway and only writes `viavel=sim` at the end, if it gets there.

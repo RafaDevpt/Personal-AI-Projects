@@ -1,30 +1,30 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Obtencao de uma imagem oficial, com as verificacoes pela ordem certa.
+    PT-PT: Obtenção de uma imagem oficial, com as verificações pela ordem certa.
     EN-UK: Obtaining an official image, with the checks in the right order.
 
 .DESCRIPTION
     PT-PT
-    A ordem dos passos aqui nao e arbitraria, e trocar dois deles daria um
-    programa que parece funcionar e nao protege nada.
+    A ordem dos passos aqui não é arbitraria, e trocar dois deles daria um
+    programa que parece funcionar e não protege nada.
 
-        1. Vai buscar o manifesto ao directorio oficial.
+        1. Vai buscar o manifesto ao directório oficial.
         2. Verifica a assinatura do manifesto, se houver.
-        3. **So depois** procura no manifesto o nome do ficheiro.
+        3. **Só depois** procura no manifesto o nome do ficheiro.
         4. Descarrega esse ficheiro.
         5. Compara a soma com a que estava no manifesto.
 
-    O passo 2 vem antes do 3 de proposito. Se o nome do ficheiro saisse de um
+    O passo 2 vem antes do 3 de propósito. Se o nome do ficheiro saisse de um
     manifesto ainda por verificar, um manifesto adulterado podia mandar
     descarregar outra coisa qualquer -- e o passo 5 confirmaria alegremente que
-    essa outra coisa correspondia a soma que o atacante la pos.
+    essa outra coisa correspondia a soma que o atacante lá pôs.
 
-    **O relatorio no fim diz o que foi feito e o que nao foi.** Um programa que
-    diga "verificado" quando so comparou uma soma obtida pelo mesmo canal do
-    ficheiro esta a dizer uma verdade que induz em erro: se alguem controla o
+    **O relatório no fim diz o que foi feito e o que não foi.** Um programa que
+    diga "verificado" quando só comparou uma soma obtida pelo mesmo canal do
+    ficheiro esta a dizer uma verdade que induz em erro: se alguém controla o
     canal, controla as duas coisas. Por isso as camadas aparecem separadas, e a
-    ausencia de assinatura e dita e nao escondida.
+    ausência de assinatura e dita e não escondida.
 
     EN-UK
     The order of the steps is not arbitrary, and swapping two of them would give
@@ -49,13 +49,13 @@ Set-StrictMode -Version Latest
 function Join-Endereco {
     <#
     .SYNOPSIS
-        PT-PT: Junta um directorio a um nome de ficheiro.
+        PT-PT: Junta um directório a um nome de ficheiro.
         EN-UK: Joins a directory to a filename.
 
     .DESCRIPTION
         PT-PT: O `Uri` de .NET trata da barra a mais ou a menos e, mais
                importante, resolve `..` -- o que impede que um nome vindo de um
-               manifesto salte para fora do directorio de onde o manifesto veio.
+               manifesto salte para fora do directório de onde o manifesto veio.
         EN-UK: .NET's `Uri` handles the extra or missing slash and, more
                importantly, resolves `..` -- which stops a name coming out of a
                manifest from escaping the directory the manifest came from.
@@ -75,18 +75,18 @@ function Join-Endereco {
 function Get-ImagemOficial {
     <#
     .SYNOPSIS
-        PT-PT: Descarrega e verifica a imagem descrita por uma entrada do catalogo.
+        PT-PT: Descarrega e verifica a imagem descrita por uma entrada do catálogo.
         EN-UK: Downloads and verifies the image described by a catalogue entry.
 
     .DESCRIPTION
-        PT-PT: Ver o cabecalho do ficheiro para a ordem dos passos e o porque.
+        PT-PT: Ver o cabeçalho do ficheiro para a ordem dos passos e o porque.
         EN-UK: See the file header for the order of the steps and why.
 
     .PARAMETER Imagem
-        PT-PT: A entrada do catalogo. / EN-UK: The catalogue entry.
+        PT-PT: A entrada do catálogo. / EN-UK: The catalogue entry.
 
     .PARAMETER Dominios
-        PT-PT: Lista de dominios de confianca. / EN-UK: Trusted domain list.
+        PT-PT: Lista de domínios de confiança. / EN-UK: Trusted domain list.
 
     .PARAMETER PastaDestino
         PT-PT: Onde guardar a imagem. / EN-UK: Where to keep the image.
@@ -139,22 +139,22 @@ function Get-ImagemOficial {
             $ficheiroChave = Join-Path $temporaria 'chave.asc'
             $ficheiroAssinatura = $null
 
-            # PT-PT: **Duas coisas separadas, e a separacao e o que interessa.**
+            # PT-PT: **Duas coisas separadas, e a separação e o que interessa.**
             #
             #        Ir buscar a chave pode falhar por o servidor estar em baixo,
-            #        e isso nao deve matar o descarregamento: perde-se a camada
+            #        e isso não deve matar o descarregamento: perde-se a camada
             #        da assinatura, diz-se que se perdeu, e continua-se com a
             #        soma. E a degradacao graciosa que o resto do programa faz.
             #
-            #        A **verificacao** falhar e outra coisa completamente: uma
+            #        A **verificação** falhar e outra coisa completamente: uma
             #        assinatura invalida tem de interromper tudo. Por isso o
             #        `throw` dela esta de fora deste `try` -- se estivesse
             #        dentro, um `catch` largo engolia-o e o programa continuava
-            #        alegremente com uma imagem cuja assinatura nao conferia.
+            #        alegremente com uma imagem cuja assinatura não conferia.
             #
-            #        Ate a 1.3.1 isto era um `catch [System.Net.WebException]`, e
-            #        funcionava por acidente: o descarregamento antigo lancava
-            #        WebException. O novo lanca uma excepcao normal, e o catch
+            #        Até a 1.3.1 isto era um `catch [System.Net.WebException]`, e
+            #        funcionava por acidente: o descarregamento antigo lançava
+            #        WebException. O novo lança uma excepção normal, e o catch
             #        estreito deixaria de apanhar seja o que for.
             #
             # EN-UK: **Two separate things, and the separation is the point.**
@@ -228,9 +228,9 @@ function Get-ImagemOficial {
         }
         else {
             $enderecoImagem = Join-Endereco -Directorio $Imagem.directorio -Nome $entrada.Ficheiro
-            # PT-PT: Ja nao se promete que demora. Ate a 1.3.0 demorava mesmo,
+            # PT-PT: Já não se promete que demora. Até a 1.3.0 demorava mesmo,
             #        por causa da barra de progresso do Invoke-WebRequest -- e
-            #        essa ja nao esta ligada. Ver a nota em Invoke-DescarregamentoSeguro.
+            #        essa já não esta ligada. Ver a nota em Invoke-DescarregamentoSeguro.
             # EN-UK: It no longer promises to take long. Until 1.3.0 it did,
             #        because of Invoke-WebRequest's progress bar.
             Write-Host "  A descarregar $($entrada.Ficheiro)…" -ForegroundColor DarkGray
@@ -239,9 +239,9 @@ function Get-ImagemOficial {
             # --- 5. A soma ---------------------------------------------------
             Write-Host '  A verificar a soma SHA-256…' -ForegroundColor DarkGray
             if (-not (Test-SomaFicheiro -Caminho $destino -SomaEsperada $entrada.Soma)) {
-                # PT-PT: O ficheiro sai do disco. Deixar la um ficheiro que nao
-                #        passou na verificacao e deixar uma armadilha para quem
-                #        o encontrar mais tarde e nao souber de onde veio.
+                # PT-PT: O ficheiro sai do disco. Deixar la um ficheiro que não
+                #        passou na verificação e deixar uma armadilha para quem
+                #        o encontrar mais tarde e não souber de onde veio.
                 # EN-UK: The file goes. Leaving behind one that failed
                 #        verification leaves a trap for whoever finds it later.
                 Remove-Item -LiteralPath $destino -Force -ErrorAction SilentlyContinue
@@ -268,13 +268,13 @@ function Get-ImagemOficial {
 function Show-Camadas {
     <#
     .SYNOPSIS
-        PT-PT: Apresenta o que foi verificado e o que nao foi.
+        PT-PT: Apresenta o que foi verificado e o que não foi.
         EN-UK: Shows what was verified and what was not.
 
     .DESCRIPTION
-        PT-PT: As camadas que falharam aparecem, e nao ficam de fora da lista.
-               Uma lista so com o que correu bem daria a impressao de uma
-               verificacao completa que nao houve.
+        PT-PT: As camadas que falharam aparecem, e não ficam de fora da lista.
+               Uma lista só com o que correu bem daria a impressão de uma
+               verificação completa que não houve.
         EN-UK: The layers that failed appear, rather than being left off the
                list. A list of only what went well would suggest a completeness
                that was not there.
@@ -305,18 +305,18 @@ function Show-Camadas {
 function Test-FicheiroLocal {
     <#
     .SYNOPSIS
-        PT-PT: Verifica um ficheiro que o utilizador ja tem, contra uma soma dada.
+        PT-PT: Verifica um ficheiro que o utilizador já tem, contra uma soma dada.
         EN-UK: Verifies a file the user already has, against a given checksum.
 
     .DESCRIPTION
-        PT-PT: E o caminho para as imagens que nao se conseguem descarregar
+        PT-PT: E o caminho para as imagens que não se conseguem descarregar
                automaticamente -- as da Microsoft, por exemplo, que exigem um
-               formulario. O utilizador descarrega do sitio oficial, copia a
-               soma que a propria pagina mostra, e este passo confirma que o
+               formulário. O utilizador descarrega do sítio oficial, copia a
+               soma que a própria página mostra, e este passo confirma que o
                ficheiro que ficou no disco e mesmo aquele.
 
-               Nao e tao forte como a verificacao completa, e o programa nao
-               finge que e: a soma vem da mesma pagina de onde veio o ficheiro.
+               Não e tão forte como a verificação completa, e o programa não
+               finge que é: a soma vem da mesma página de onde veio o ficheiro.
                E, ainda assim, apanha um descarregamento truncado e um ficheiro
                trocado a meio do caminho.
         EN-UK: This is the path for images that cannot be fetched automatically

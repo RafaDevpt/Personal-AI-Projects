@@ -1,40 +1,40 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Calculo das especificacoes recomendadas para a maquina virtual.
+    PT-PT: Cálculo das especificações recomendadas para a máquina virtual.
     EN-UK: Working out the recommended specification for the virtual machine.
 
 .DESCRIPTION
     PT-PT
-    Este ficheiro nao toca na maquina. Recebe numeros e devolve numeros, e e
-    por isso que o calculo todo -- incluindo os casos maus -- se consegue testar
+    Este ficheiro não toca na máquina. Recebe números e devolve números, e e
+    por isso que o cálculo todo -- incluindo os casos maus -- se consegue testar
     sem hipervisor nenhum e sem esperar por nada.
 
-    **A regra que orienta tudo: a maquina anfitria tem de continuar utilizavel.**
-    Uma maquina virtual que arranca e deixa o portatil do utilizador a nadar nao
-    resolveu problema nenhum -- criou dois. Por isso o calculo comeca por
-    separar o que fica para o anfitriao e so depois distribui o resto.
+    **A regra que orienta tudo: a máquina anfitria tem de continuar utilizável.**
+    Uma máquina virtual que arranca e deixa o portátil do utilizador a nadar não
+    resolveu problema nenhum -- criou dois. Por isso o cálculo começa por
+    separar o que fica para o anfitrião e só depois distribui o resto.
 
-    Tres decisoes que valem a explicacao.
+    Três decisões que valem a explicação.
 
-    **Nunca mais nucleos virtuais do que nucleos fisicos.** E a confusao mais
-    comum de quem cria a primeira maquina virtual, e o resultado e o contrario
-    do esperado: com mais nucleos virtuais do que fisicos, o hipervisor tem de
-    esperar que haja nucleos livres suficientes para agendar a maquina toda de
+    **Nunca mais núcleos virtuais do que núcleos físicos.** E a confusão mais
+    comum de quem cria a primeira máquina virtual, e o resultado e o contrário
+    do esperado: com mais núcleos virtuais do que físicos, o hipervisor tem de
+    esperar que haja núcleos livres suficientes para agendar a máquina toda de
     uma vez, e o convidado fica mais lento do que ficaria com metade. Dar quatro
-    nucleos a uma maquina virtual num anfitriao de quatro nucleos e pior do que
+    núcleos a uma máquina virtual num anfitrião de quatro núcleos é pior do que
     dar dois.
 
-    **A memoria tem um tecto, e o tecto e o recomendado.** Dar 12 GB a um
-    convidado que recomenda 8 nao o torna mais rapido: torna-o num convidado com
-    4 GB de memoria parada que fazem falta ao anfitriao. Quando o anfitriao tem
-    de sobra, o programa propoe o recomendado e diz quanta folga ficou -- quem
-    quiser mais, sabe que a tem e porque nao lha deram.
+    **A memória tem um tecto, e o tecto e o recomendado.** Dar 12 GB a um
+    convidado que recomenda 8 não o torna mais rápido: torna-o num convidado com
+    4 GB de memória parada que fazem falta ao anfitrião. Quando o anfitrião tem
+    de sobra, o programa propõe o recomendado e diz quanta folga ficou -- quem
+    quiser mais, sabe que a tem e porque não lha deram.
 
-    **O disco conta duas vezes.** Um disco de crescimento dinamico nao ocupa
-    hoje o que promete, mas ocupa amanha -- e um anfitriao que fica sem espaco
-    com uma maquina virtual a correr corrompe-a. O calculo avisa quando a
-    promessa nao cabe, mesmo que nada se ocupe no momento.
+    **O disco conta duas vezes.** Um disco de crescimento dinâmico não ocupa
+    hoje o que promete, mas ocupa amanha -- e um anfitrião que fica sem espaço
+    com uma máquina virtual a correr corrompe-a. O cálculo avisa quando a
+    promessa não cabe, mesmo que nada se ocupe no momento.
 
     EN-UK
     This file touches no machine: it takes numbers and returns numbers, which is
@@ -56,14 +56,14 @@
 
 Set-StrictMode -Version Latest
 
-# PT-PT: Memoria que fica sempre para o anfitriao, em GB, e a fraccao minima do
-#        total. O maior dos dois manda -- num anfitriao de 8 GB reservam-se 4,
+# PT-PT: Memória que fica sempre para o anfitrião, em GB, e a fracção mínima do
+#        total. O maior dos dois manda -- num anfitrião de 8 GB reservam-se 4,
 #        num de 64 GB reservam-se 16 -- mas nunca mais do que metade do total.
 #
-#        Esse limite de metade existe por causa das maquinas pequenas: num
-#        anfitriao de 4 GB, uma reserva fixa de 4 GB nao deixava nada e o
-#        programa recusava-se a criar ate um Alpine, que precisa de 1 GB. A
-#        reserva serve para proteger o anfitriao, nao para o impedir de fazer
+#        Esse limite de metade existe por causa das máquinas pequenas: num
+#        anfitrião de 4 GB, uma reserva fixa de 4 GB não deixava nada e o
+#        programa recusava-se a criar até um Alpine, que precisa de 1 GB. A
+#        reserva serve para proteger o anfitrião, não para o impedir de fazer
 #        seja o que for.
 # EN-UK: Memory always left for the host, in GB, and the minimum fraction of the
 #        total. The larger of the two wins -- but never more than half the total.
@@ -76,8 +76,8 @@ $script:ReservaAnfitriaoGb = 4
 $script:ReservaAnfitriaoFraccao = 0.25
 $script:ReservaMaximaFraccao = 0.5
 
-# PT-PT: Espaco que deve sobrar no volume do anfitriao depois de a maquina
-#        virtual crescer ate ao tamanho prometido.
+# PT-PT: Espaço que deve sobrar no volume do anfitrião depois de a máquina
+#        virtual crescer até ao tamanho prometido.
 # EN-UK: Space that should remain on the host volume once the virtual machine
 #        has grown to its promised size.
 $script:FolgaDiscoGb = 20
@@ -86,31 +86,31 @@ $script:FolgaDiscoGb = 20
 function Get-EspecificacaoRecomendada {
     <#
     .SYNOPSIS
-        PT-PT: Calcula as especificacoes a propor, e explica como la chegou.
+        PT-PT: Calcula as especificações a propor, e explica como la chegou.
         EN-UK: Works out the specification to propose, and explains how.
 
     .DESCRIPTION
-        PT-PT: Devolve sempre um objecto, mesmo quando a resposta e "nao da".
+        PT-PT: Devolve sempre um objecto, mesmo quando a resposta e "não da".
                Um `$null` obrigaria quem chama a adivinhar o motivo, e o motivo
-               e a parte mais util: "faltam 2 GB de memoria" resolve-se, "nao
-               foi possivel" nao.
+               e a parte mais útil: "faltam 2 GB de memória" resolve-se, "não
+               foi possível" não.
         EN-UK: It always returns an object, even when the answer is "no". A
                `$null` would force the caller to guess the reason, and the reason
                is the useful part.
 
     .PARAMETER NucleosFisicos
-        PT-PT: Nucleos fisicos do anfitriao. / EN-UK: The host's physical cores.
+        PT-PT: Núcleos físicos do anfitrião. / EN-UK: The host's physical cores.
 
     .PARAMETER MemoriaAnfitriaoGb
-        PT-PT: Memoria total do anfitriao, em GB.
+        PT-PT: Memória total do anfitrião, em GB.
         EN-UK: The host's total memory, in GB.
 
     .PARAMETER DiscoLivreGb
-        PT-PT: Espaco livre no volume onde a maquina virtual vai ficar.
+        PT-PT: Espaço livre no volume onde a máquina virtual vai ficar.
         EN-UK: Free space on the volume where the virtual machine will live.
 
     .PARAMETER Minimo
-        PT-PT: Requisitos minimos do convidado, com `cpu`, `ram_gb` e `disco_gb`.
+        PT-PT: Requisitos mínimos do convidado, com `cpu`, `ram_gb` e `disco_gb`.
         EN-UK: The guest's minimum requirements.
 
     .PARAMETER Recomendado
@@ -135,7 +135,7 @@ function Get-EspecificacaoRecomendada {
     $motivos = New-Object System.Collections.ArrayList
     $avisos = New-Object System.Collections.ArrayList
 
-    # --- PT-PT: Memoria / EN-UK: Memory ------------------------------------
+    # --- PT-PT: Memória / EN-UK: Memory ------------------------------------
     $reserva = [Math]::Max($script:ReservaAnfitriaoGb,
                            [Math]::Ceiling($MemoriaAnfitriaoGb * $script:ReservaAnfitriaoFraccao))
     $reserva = [Math]::Min($reserva,
@@ -166,7 +166,7 @@ function Get-EspecificacaoRecomendada {
     }
 
     # --- PT-PT: Processador / EN-UK: Processor -----------------------------
-    # PT-PT: Deixar um nucleo para o anfitriao e o que mantem a interface dele a
+    # PT-PT: Deixar um núcleo para o anfitrião e o que mantém a interface dele a
     #        responder enquanto o convidado trabalha.
     # EN-UK: Leaving one core for the host is what keeps its interface
     #        responsive while the guest works.

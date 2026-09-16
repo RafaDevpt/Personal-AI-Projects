@@ -1,33 +1,33 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Deteccao e utilizacao dos hipervisores de macOS.
+# PT-PT: Detecção e utilização dos hipervisores de macOS.
 #
 #        Aqui a escolha e mais estreita do que nos outros dois sistemas, e vale
 #        a pena dizer porque.
 #
-#        **QEMU** e a opcao que funciona em todos os Macs. Instala-se pelo
+#        **QEMU** e a opção que funciona em todos os Macs. Instala-se pelo
 #        Homebrew, usa a Hypervisor.framework da Apple para acelerar por
 #        hardware, e e o mesmo QEMU que esta por baixo de quase tudo o resto. E
-#        tambem a opcao que este programa conduz, porque e a unica que se deixa
-#        conduzir: e uma linha de comandos, e nao uma aplicacao com janelas.
+#        também a opção que este programa conduz, porque e a única que se deixa
+#        conduzir: e uma linha de comandos, e não uma aplicação com janelas.
 #
-#        **VirtualBox** so serve em Macs Intel. A Oracle tem uma pre-visualizacao
-#        para Apple Silicon ha anos, e continua a ser uma pre-visualizacao. Num
+#        **VirtualBox** só serve em Macs Intel. A Oracle tem uma pré-visualização
+#        para Apple Silicon há anos, e continua a ser uma pré-visualização. Num
 #        Mac com chip da Apple, este programa nem sequer o oferece -- oferecer e
-#        deixar alguem perder uma tarde a perceber porque e que nao arranca.
+#        deixar alguém perder uma tarde a perceber porque e que não arranca.
 #
-#        **UTM** e a melhor opcao para quem quer janelas, e nao e conduzida
-#        daqui. E gratuita, e codigo aberto, e assenta no mesmo QEMU. O programa
-#        aponta para ela em vez de fingir que a controla: criar uma maquina de
-#        UTM a partir de um script exige montar um pacote `.utm` a mao, e um
-#        pacote mal montado da uma maquina que abre e nao arranca.
+#        **UTM** e a melhor opção para quem quer janelas, e não é conduzida
+#        daqui. E gratuita, e código aberto, e assenta no mesmo QEMU. O programa
+#        aponta para ela em vez de fingir que a controla: criar uma máquina de
+#        UTM a partir de um script exige montar um pacote `.utm` a mão, e um
+#        pacote mal montado da uma máquina que abre e não arranca.
 #
-#        **A arquitectura manda mais aqui do que em qualquer outro sitio.** Num
-#        Mac com chip da Apple, o QEMU acelerado so corre convidados ARM. Uma
+#        **A arquitectura manda mais aqui do que em qualquer outro sítio.** Num
+#        Mac com chip da Apple, o QEMU acelerado só corre convidados ARM. Uma
 #        imagem de x86_64 corre por emulacao pura -- dez a vinte vezes mais
-#        devagar, o suficiente para uma instalacao de Ubuntu passar de vinte
-#        minutos a uma tarde. Por isso o catalogo e filtrado pela arquitectura
-#        antes de aparecer no ecra, e nao depois.
+#        devagar, o suficiente para uma instalação de Ubuntu passar de vinte
+#        minutos a uma tarde. Por isso o catálogo e filtrado pela arquitectura
+#        antes de aparecer no ecrã, e não depois.
 #
 # EN-UK: Detecting and driving macOS hypervisors.
 #
@@ -53,11 +53,11 @@
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: O binario do QEMU para a arquitectura do convidado.
+# PT-PT: O binário do QEMU para a arquitectura do convidado.
 #
-#        Sao binarios diferentes, e nao opcoes do mesmo: o `qemu-system-x86_64`
-#        e o `qemu-system-aarch64` sao dois programas. Chamar o errado da um
-#        erro que nao diz qual foi o erro.
+#        São binarios diferentes, e não opções do mesmo: o `qemu-system-x86_64`
+#        e o `qemu-system-aarch64` são dois programas. Chamar o errado da um
+#        erro que não diz qual foi o erro.
 #
 # EN-UK: The QEMU binary for the guest's architecture. They are different
 #        binaries, not options of the same one.
@@ -80,11 +80,11 @@ estado_qemu() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Se o VirtualBox esta instalado **e** serve nesta maquina.
+# PT-PT: Se o VirtualBox esta instalado **e** serve nesta máquina.
 #
-#        Num Apple Silicon devolve sempre falso, mesmo que o binario esteja la.
-#        Ver o cabecalho: nao e teimosia, e que a pre-visualizacao nao corre
-#        convidados a serio.
+#        Num Apple Silicon devolve sempre falso, mesmo que o binário esteja la.
+#        Ver o cabeçalho: não é teimosia, e que a pré-visualização não corre
+#        convidados a sério.
 #
 # EN-UK: Whether VirtualBox is installed **and** serves on this machine. On
 #        Apple Silicon it always returns false, even with the binary present.
@@ -101,10 +101,10 @@ estado_utm() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Se a aceleracao por hardware serve para este convidado.
+# PT-PT: Se a aceleração por hardware serve para este convidado.
 #
-#        Recebe as duas arquitecturas como argumentos, e nao as vai buscar, para
-#        se poder testar as quatro combinacoes sem quatro Macs.
+#        Recebe as duas arquitecturas como argumentos, e não as vai buscar, para
+#        se poder testar as quatro combinações sem quatro Macs.
 #
 #        Devolve 0 quando acelera, 1 quando vai emular.
 #
@@ -127,24 +127,24 @@ aviso_emulacao() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Monta o comando do QEMU para criar e arrancar a maquina.
+# PT-PT: Monta o comando do QEMU para criar e arrancar a máquina.
 #
-#        Escreve o comando em vez de o correr, e isso e deliberado. Uma maquina
-#        de QEMU nao e um objecto registado em lado nenhum: e um comando. Quem
+#        Escreve o comando em vez de o correr, e isso é deliberado. Uma máquina
+#        de QEMU não é um objecto registado em lado nenhum: e um comando. Quem
 #        o quiser voltar a correr amanha precisa de o ter, e um programa que o
 #        execute e o deite fora deixa o utilizador sem nada. O programa grava-o
 #        num script ao lado do disco, e e esse script que se corre a seguir.
 #
-#        Sobre as opcoes que nao sao obvias:
+#        Sobre as opções que não são óbvias:
 #
-#        `-accel hvf` e a aceleracao da Apple. Sem ela o QEMU emula, e a
-#        diferenca e a que esta descrita no cabecalho.
+#        `-accel hvf` e a aceleração da Apple. Sem ela o QEMU emula, e a
+#        diferença e a que esta descrita no cabeçalho.
 #
 #        `-cpu host` passa as capacidades do processador real ao convidado. Num
-#        Apple Silicon e obrigatorio -- sem isso o convidado ARM nao arranca.
+#        Apple Silicon e obrigatório -- sem isso o convidado ARM não arranca.
 #
-#        O `-bios` com o firmware UEFI so aparece em ARM, onde nao ha BIOS
-#        nenhuma: um convidado ARM sem firmware fica num ecra preto e nao diz
+#        O `-bios` com o firmware UEFI só aparece em ARM, onde não há BIOS
+#        nenhuma: um convidado ARM sem firmware fica num ecrã preto e não diz
 #        porque.
 #
 # EN-UK: Assembles the QEMU command that creates and starts the machine.
@@ -168,11 +168,11 @@ criar_maquina_qemu() {
     local qemu; qemu="$(binario_qemu "$arq_convidado")"
 
     if [ "$uso" = 'disco' ]; then
-        # PT-PT: A imagem e **copiada** para a pasta da maquina, e nao ligada
-        #        onde esta. Ligar o original faria a maquina escrever por cima
+        # PT-PT: A imagem e **copiada** para a pasta da máquina, e não ligada
+        #        onde esta. Ligar o original faria a máquina escrever por cima
         #        dele: a primeira arrancada estragava a copia limpa que o
-        #        utilizador descarregou, e a segunda maquina feita a partir da
-        #        mesma imagem ja nascia com o sistema da primeira la dentro.
+        #        utilizador descarregou, e a segunda máquina feita a partir da
+        #        mesma imagem já nascia com o sistema da primeira la dentro.
         # EN-UK: The image is **copied** into the machine's folder rather than
         #        attached in place. Attaching the original would have the machine
         #        write over it: the first boot would spoil the pristine copy.
@@ -195,8 +195,8 @@ criar_maquina_qemu() {
     fi
 
     # PT-PT: O firmware. Num Mac com Homebrew, o `edk2-aarch64-code.fd` vem com
-    #        o pacote do QEMU. Se nao estiver la, o convidado ARM nao arranca --
-    #        e mais vale dize-lo agora do que deixar o ecra preto explicar.
+    #        o pacote do QEMU. Se não estiver la, o convidado ARM não arranca --
+    #        e mais vale dize-lo agora do que deixar o ecrã preto explicar.
     # EN-UK: The firmware. On a Homebrew Mac, `edk2-aarch64-code.fd` ships with
     #        the QEMU package. Without it an ARM guest will not boot.
     local firmware=''
@@ -234,7 +234,7 @@ criar_maquina_qemu() {
         printf '  -smp %s \\\n' "$cpu"
         printf '  -m %s \\\n' "$ram"
         [ -n "$firmware" ] && printf '  -bios %s \\\n' "$firmware"
-        # PT-PT: O `format=` sai do nome do ficheiro quando a imagem ja vinha
+        # PT-PT: O `format=` sai do nome do ficheiro quando a imagem já vinha
         #        feita. Deixar o QEMU adivinhar o formato e uma das coisas que
         #        ele faz mal e com aviso: "image format was not specified".
         # EN-UK: `format=` comes from the filename when the image came ready.
@@ -282,10 +282,10 @@ tipo_virtualbox() {
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Cria uma maquina virtual no VirtualBox. So em Macs Intel.
+# PT-PT: Cria uma máquina virtual no VirtualBox. Só em Macs Intel.
 #
-#        A rede fica em NAT, que e o modo em que a maquina alcanca a Internet e
-#        nao e alcancavel a partir da rede local.
+#        A rede fica em NAT, que é o modo em que a máquina alcança a Internet e
+#        não é alcançável a partir da rede local.
 #
 # EN-UK: Creates a virtual machine on VirtualBox. Intel Macs only.
 # ---------------------------------------------------------------------------
@@ -323,9 +323,9 @@ criar_maquina_virtualbox() {
 
     VBoxManage createvm --name "$nome" --ostype "$tipo" --basefolder "$pasta" --register || return 1
 
-    # PT-PT: O `--ioapic on` nao e opcional para um convidado de 64 bits com
-    #        mais do que um nucleo: sem ele o VirtualBox recusa arrancar a
-    #        maquina, com uma mensagem que nao explica nada.
+    # PT-PT: O `--ioapic on` não é opcional para um convidado de 64 bits com
+    #        mais do que um núcleo: sem ele o VirtualBox recusa arrancar a
+    #        máquina, com uma mensagem que não explica nada.
     # EN-UK: `--ioapic on` is not optional for a 64-bit guest with more than one
     #        core: without it VirtualBox refuses to start the machine.
     VBoxManage modifyvm "$nome" --memory "$ram" --cpus "$cpu" --ioapic on --nic1 nat \
@@ -335,7 +335,7 @@ criar_maquina_virtualbox() {
     VBoxManage storagectl "$nome" --name 'SATA' --add sata --controller IntelAhci --portcount 2 || return 1
 
     if [ "$uso" = 'disco' ]; then
-        # PT-PT: A imagem e copiada. Ver a nota igual na funcao do QEMU.
+        # PT-PT: A imagem e copiada. Ver a nota igual na função do QEMU.
         # EN-UK: The image is copied. See the matching note in the QEMU function.
         local extensao="${iso##*.}"
         caminho_disco="${pasta_vm}/${nome}.${extensao}"

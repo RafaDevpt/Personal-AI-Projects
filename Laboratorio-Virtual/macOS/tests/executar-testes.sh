@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# PT-PT: Testes do Laboratorio Virtual, versao de macOS.
+# PT-PT: Testes do Laboratório Virtual, versão de macOS.
 #
-#        Nenhum teste toca na rede, cria uma maquina virtual ou instala seja o
-#        que for. Nao e limitacao: e o desenho. O que interessa provar aqui e o
-#        que decide -- se um dominio passa, se um manifesto e lido como deve, se
-#        a recomendacao faz a conta certa -- e nada disso precisa de um
+#        Nenhum teste toca na rede, cria uma máquina virtual ou instala seja o
+#        que for. Não e limitação: e o desenho. O que interessa provar aqui e o
+#        que decide -- se um domínio passa, se um manifesto e lido como deve, se
+#        a recomendação faz a conta certa -- e nada disso precisa de um
 #        hipervisor a responder.
 #
-#        O que fica de fora, e fica assumidamente, e a criacao da maquina em si.
-#        Essa so se testa contra um hipervisor a serio, e um teste que precise
-#        de um hipervisor nao corre na integracao continua e por isso nao corre
+#        O que fica de fora, e fica assumidamente, e a criação da máquina em si.
+#        Essa só se testa contra um hipervisor a sério, e um teste que precise
+#        de um hipervisor não corre na integração contínua e por isso não corre
 #        nunca.
 #
 # EN-UK: Virtual Lab tests, macOS version. No test touches the network, creates
@@ -27,9 +27,9 @@ set -uo pipefail
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FONTE="$(cd "${RAIZ}/../src" && pwd)"
 
-# PT-PT: As funcoes de aviso que as bibliotecas usam. Nos testes vao para o
+# PT-PT: As funções de aviso que as bibliotecas usam. Nos testes vão para o
 #        nada: uma biblioteca que escreve no stderr durante um teste enche o
-#        relatorio de ruido que nao e falha nenhuma.
+#        relatório de ruído que não é falha nenhuma.
 # EN-UK: The reporting functions the libraries use. In tests they go nowhere.
 erro()  { printf '%s\n' "$1" >&2; }
 aviso() { printf '%s\n' "$1" >&2; }
@@ -72,11 +72,11 @@ grupo 'Lista de domínios'
 
 t_aceita_https()      { dominio_confiavel 'https://releases.ubuntu.com/24.04/' "${DOMINIOS[@]}"; }
 t_recusa_http()       { ! dominio_confiavel 'http://releases.ubuntu.com/24.04/' "${DOMINIOS[@]}"; }
-# PT-PT: O truque classico. Se a comparacao fosse por prefixo, isto passava.
+# PT-PT: O truque clássico. Se a comparação fosse por prefixo, isto passava.
 t_recusa_prefixo()    { ! dominio_confiavel 'https://releases.ubuntu.com.exemplo.net/x' "${DOMINIOS[@]}"; }
 t_recusa_sufixo()     { ! dominio_confiavel 'https://mau-releases.ubuntu.com.br/x' "${DOMINIOS[@]}"; }
 # PT-PT: `https://bom.com@mau.net/` vai para o mau.net, e um leitor humano
-#        distraido le o principio da linha e assume o contrario.
+#        distraído lê o princípio da linha e assume o contrário.
 t_recusa_userinfo()   { ! dominio_confiavel 'https://releases.ubuntu.com@exemplo.net/x' "${DOMINIOS[@]}"; }
 t_recusa_vazio()      { ! dominio_confiavel '' "${DOMINIOS[@]}"; }
 t_recusa_lixo()       { ! dominio_confiavel 'nem por sombras' "${DOMINIOS[@]}"; }
@@ -129,8 +129,8 @@ t_bsd() {
     afirmar_igual "${SOMA_EXEMPLO} Fedora-Workstation-Live-41-1.4.x86_64.iso" \
         "$(ler_manifesto "${TMP}/bsd" 'Fedora-Workstation-Live-.*x86_64.*\.iso$')"
 }
-# PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP nao sao linhas
-#        de soma, e um leitor que rebentasse nelas nao servia.
+# PT-PT: A Fedora assina o manifesto por dentro. As marcas do PGP não são linhas
+#        de soma, e um leitor que rebentasse nelas não servia.
 t_assinado() {
     afirmar_contem "$(ler_manifesto "${TMP}/assinado" 'Fedora-Workstation-Live-.*\.iso$')" "$SOMA_EXEMPLO"
 }
@@ -142,7 +142,7 @@ t_caminho() {
     afirmar_contem "$(ler_manifesto "${TMP}/caminho" 'debian-.*-netinst\.iso$')" 'debian-13.0.0-amd64-netinst.iso'
 }
 t_sem_correspondencia() { ! ler_manifesto "${TMP}/gnu" 'coisa-nenhuma\.iso$' >/dev/null; }
-# PT-PT: Um manifesto de SHA-1 nao deve passar por um de SHA-256.
+# PT-PT: Um manifesto de SHA-1 não deve passar por um de SHA-256.
 t_sha1_recusado()       { ! ler_manifesto "${TMP}/sha1" 'ubuntu\.iso$' >/dev/null; }
 t_vazio()               { ! ler_manifesto "${TMP}/vazio" '.*' >/dev/null; }
 
@@ -161,14 +161,14 @@ grupo 'Soma de um ficheiro'
 # ===========================================================================
 
 printf 'laboratorio virtual' > "${TMP}/ficheiro"
-# PT-PT: `shasum -a 256`, e nao `sha256sum`: num Mac o segundo nao existe.
+# PT-PT: `shasum -a 256`, e não `sha256sum`: num Mac o segundo não existe.
 # EN-UK: `shasum -a 256`, not `sha256sum`: a Mac does not have the latter.
 SOMA_REAL="$(shasum -a 256 "${TMP}/ficheiro" | cut -d' ' -f1)"
 
 t_soma_certa()      { soma_confere "${TMP}/ficheiro" "$SOMA_REAL"; }
 t_soma_maiusculas() { soma_confere "${TMP}/ficheiro" "$(printf '%s' "$SOMA_REAL" | tr '[:lower:]' '[:upper:]')"; }
 t_soma_errada()     { ! soma_confere "${TMP}/ficheiro" "$SOMA_EXEMPLO"; }
-# PT-PT: O caso que uma comparacao distraida deixava passar.
+# PT-PT: O caso que uma comparação distraida deixava passar.
 t_soma_vazia()      { ! soma_confere "${TMP}/ficheiro" ''; }
 t_sem_ficheiro()    { ! soma_confere "${TMP}/nao-existe" "$SOMA_REAL"; }
 
@@ -199,7 +199,7 @@ t_deixa_um_nucleo() {
     local s; s="$(recomendar 4 16384 204800 1 2048 10240 8 4096 20480)"
     afirmar_igual '3' "$(valor_de cpu "$s")"
 }
-# PT-PT: 64 GB no anfitriao nao fazem um Ubuntu correr melhor com 24.
+# PT-PT: 64 GB no anfitrião não fazem um Ubuntu correr melhor com 24.
 t_tecto_memoria() {
     local s; s="$(rec_ubuntu 16 65536 921600)"
     afirmar_igual '8192' "$(valor_de ram_mb "$s")"
@@ -216,8 +216,8 @@ t_baixa_e_avisa() {
     (( ram < 8192 )) || { printf 'não baixou: %s\n' "$ram"; return 1; }
     printf '%s\n' "$s" | grep -q '^aviso=' || { printf 'baixou sem avisar\n'; return 1; }
 }
-# PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitriao de 4 GB
-#        ficava sem nada e o programa recusava ate um Alpine de 1 GB.
+# PT-PT: O caso que a reserva fixa de 4 GB estragava: um anfitrião de 4 GB
+#        ficava sem nada e o programa recusava até um Alpine de 1 GB.
 t_maquina_pequena() {
     local s; s="$(rec_alpine 2 4096 61440)"
     [[ "$(valor_de viavel "$s")" == 'sim' ]] || { printf 'recusou um Alpine num anfitrião de 4 GB\n'; return 1; }
@@ -237,14 +237,14 @@ t_encolhe_disco() {
     local disco; disco="$(valor_de disco_mb "$s")"
     (( disco < 40960 )) || { printf 'manteve %s MB com só 50 GB livres\n' "$disco"; return 1; }
 }
-# PT-PT: Um numero sem explicacao nao ensina ninguem a mexer nele depois.
+# PT-PT: Um número sem explicação não ensina ninguém a mexer nele depois.
 t_explica() {
     local s; s="$(rec_ubuntu 8 16384 307200)"
     local quantos; quantos="$(printf '%s\n' "$s" | grep -c '^motivo=')"
     (( quantos >= 3 )) || { printf 'só explicou %s passos\n' "$quantos"; return 1; }
 }
 t_ram_multiplo() {
-    # PT-PT: Um valor redondo e mais facil de reconhecer um mes depois.
+    # PT-PT: Um valor redondo e mais fácil de reconhecer um mês depois.
     local s; s="$(rec_ubuntu 4 8192 204800)"
     local ram; ram="$(valor_de ram_mb "$s")"
     (( ram % 256 == 0 )) || { printf 'ram=%s não é múltiplo de 256\n' "$ram"; return 1; }
@@ -269,14 +269,14 @@ grupo 'QEMU e arquitectura'
 
 t_binario_arm()   { afirmar_igual 'qemu-system-aarch64' "$(binario_qemu 'arm64')"; }
 t_binario_intel() { afirmar_igual 'qemu-system-x86_64' "$(binario_qemu 'x86_64')"; }
-# PT-PT: Sao dois programas diferentes e nao duas opcoes do mesmo. Chamar o
-#        errado da um erro que nao diz qual foi o erro.
+# PT-PT: São dois programas diferentes e não duas opções do mesmo. Chamar o
+#        errado da um erro que não diz qual foi o erro.
 t_binario_novo()  { afirmar_igual 'qemu-system-x86_64' "$(binario_qemu 'coisa')"; }
 
-# PT-PT: Num Apple Silicon, o QEMU acelerado so corre convidados ARM. Uma imagem
+# PT-PT: Num Apple Silicon, o QEMU acelerado só corre convidados ARM. Uma imagem
 #        de x86_64 corre por emulacao pura -- dez a vinte vezes mais devagar.
-#        Este e o calculo que decide se o utilizador e avisado antes de
-#        descarregar tres gigabytes.
+#        Este e o cálculo que decide se o utilizador e avisado antes de
+#        descarregar três gigabytes.
 t_acelera_igual()    { acelera 'arm64' 'arm64'; }
 t_acelera_intel()    { acelera 'x86_64' 'x86_64'; }
 t_emula_cruzado()    { ! acelera 'arm64' 'x86_64'; }
@@ -317,9 +317,9 @@ else
     t_catalogo_imagens()  { local n; n="$(jq '.imagens | length' "$CATALOGO")"; (( n > 0 )); }
 
     t_iso_verificavel() {
-        # PT-PT: Sem manifesto nao ha verificacao, e este programa nao descarrega
-        #        o que nao consegue verificar. O teste existe para essa regra nao
-        #        se perder na proxima entrada que alguem acrescentar com pressa.
+        # PT-PT: Sem manifesto não há verificação, e este programa não descarrega
+        #        o que não consegue verificar. O teste existe para essa regra não
+        #        se perder na próxima entrada que alguém acrescentar com pressa.
         local em_falta
         em_falta="$(jq -r '.imagens[] | select(.tipo == "iso") | select((.manifesto // "") == "" or (.padrao_ficheiro // "") == "") | .id' "$CATALOGO")"
         afirmar_vazio "$em_falta"
@@ -332,8 +332,8 @@ else
         afirmar_vazio "$fora"
     }
 
-    # PT-PT: O ataque que esta validacao existe para travar: alguem edita o
-    #        catalogo e troca um endereco por outro parecido.
+    # PT-PT: O ataque que esta validação existe para travar: alguém edita o
+    #        catálogo e troca um endereço por outro parecido.
     t_recusa_dominio_fora() {
         local falso="${TMP}/falso.json"
         cat > "$falso" <<'JSON'
@@ -370,8 +370,8 @@ JSON
         afirmar_diferente '' "$(validar_catalogo "$falso")"
     }
 
-    # PT-PT: Uma imagem de x86_64 num anfitriao ARM nao arranca devagar: nao
-    #        arranca. Mostra-la seria oferecer um ecra preto.
+    # PT-PT: Uma imagem de x86_64 num anfitrião ARM não arranca devagar: não
+    #        arranca. Mostra-la seria oferecer um ecrã preto.
     t_filtra_arquitectura() {
         local erradas
         erradas="$(imagens_compativeis "$CATALOGO" 'arm64' | cut -f1 | while IFS= read -r id; do
@@ -397,8 +397,8 @@ grupo 'Imagens que o utilizador já tem'
 # ===========================================================================
 
 t_iso_instalador()  { afirmar_igual 'instalador' "$(tipo_de_imagem 'ubuntu.iso')"; }
-# PT-PT: E a distincao que decide entre uma maquina que arranca e um ecra a
-#        dizer que nao ha nada para arrancar. Uma .qcow2 **e** a maquina.
+# PT-PT: E a distinção que decide entre uma máquina que arranca e um ecrã a
+#        dizer que não há nada para arrancar. Uma .qcow2 **e** a máquina.
 t_disco_nao_e_iso() {
     local f
     for f in a.qcow2 a.vdi a.vmdk a.vhd a.vhdx a.img a.raw; do
@@ -425,8 +425,8 @@ t_vbox_vdi()        { formato_suportado '.vdi' 'virtualbox' >/dev/null; }
 t_vbox_ova()        { formato_suportado '.ova' 'virtualbox' >/dev/null; }
 t_vbox_sem_qcow()   { ! formato_suportado '.qcow2' 'virtualbox' >/dev/null; }
 
-# PT-PT: Uma mensagem que so diz "nao e suportado" deixa a pessoa no mesmo
-#        sitio. Uma que diz o comando resolve-lhe o problema.
+# PT-PT: Uma mensagem que só diz "não e suportado" deixa a pessoa no mesmo
+#        sítio. Uma que diz o comando resolve-lhe o problema.
 t_diz_como_converter() {
     local s; s="$(formato_suportado '.qcow2' 'virtualbox' || true)"
     afirmar_contem "$s" 'qemu-img convert' || return 1
@@ -476,11 +476,11 @@ teste 'um perfil que não existe cai no genérico' t_perfil_desconhecido
 grupo 'Assinatura do conteúdo de um ficheiro'
 # ===========================================================================
 
-# PT-PT: Este grupo precisa do `stat` do BSD e do `xattr`, que so existem num
-#        Mac. Numa maquina de desenvolvimento que nao seja um Mac, salta-se e
-#        diz-se porque -- um teste saltado em silencio e pior do que nenhum,
-#        porque da a impressao de cobertura que nao houve. Na integracao
-#        continua corre num Mac a serio, que e onde interessa.
+# PT-PT: Este grupo precisa do `stat` do BSD e do `xattr`, que só existem num
+#        Mac. Numa máquina de desenvolvimento que não seja um Mac, salta-se e
+#        diz-se porque -- um teste saltado em silêncio é pior do que nenhum,
+#        porque da a impressão de cobertura que não houve. Na integração
+#        continua corre num Mac a sério, que é onde interessa.
 # EN-UK: This group needs BSD `stat` and `xattr`, which only exist on a Mac. On
 #        a non-Mac development machine it is skipped, and said so. In CI it runs
 #        on a real Mac, which is where it matters.
@@ -488,13 +488,13 @@ if ! stat -f '%z' "$0" >/dev/null 2>&1 || ! command -v xattr >/dev/null 2>&1; th
     saltar 'assinatura e origem dos ficheiros'         'precisa do stat do BSD e do xattr, que só existem num Mac; na integração contínua corre'
 else
 
-# PT-PT: Uma ISO de mentira, com o CD001 no sitio certo — o sector 16.
+# PT-PT: Uma ISO de mentira, com o CD001 no sítio certo — o sector 16.
 # EN-UK: A fake ISO with CD001 in the right place — sector 16.
 ISO_BOA="${TMP}/boa.iso"
 dd if=/dev/zero of="$ISO_BOA" bs=1 count=33024 2>/dev/null
 printf 'CD001' | dd of="$ISO_BOA" bs=1 seek=32769 conv=notrunc 2>/dev/null
 
-# PT-PT: E um .zip com nome de ISO, que e o engano honesto mais comum.
+# PT-PT: E um .zip com nome de ISO, que é o engano honesto mais comum.
 # EN-UK: And a .zip named as an ISO, the commonest honest mistake.
 ISO_MA="${TMP}/ma.iso"
 dd if=/dev/zero of="$ISO_MA" bs=1 count=33024 2>/dev/null
@@ -519,17 +519,17 @@ t_truncado()        {
     afirmar_contem "$s" 'pequeno'
 }
 t_qcow_verdadeiro() { assinatura_ficheiro "$QCOW" >/dev/null; }
-# PT-PT: Sao bytes em bruto. Nao ha nada para verificar, e recusar por isso
-#        seria recusar um formato legitimo.
+# PT-PT: São bytes em bruto. Não há nada para verificar, e recusar por isso
+#        seria recusar um formato legítimo.
 t_img_sem_assinatura() {
     local s; s="$(assinatura_ficheiro "$IMG")"
     afirmar_contem "$s" 'não tem assinatura'
 }
 t_sem_ficheiro_assinatura() { ! assinatura_ficheiro "${TMP}/nada.iso" >/dev/null; }
 
-# PT-PT: Nao encontrar a marca de origem nao quer dizer que o ficheiro seja de
-#        confianca; quer dizer que o sistema nao sabe. E a mesma diferenca que o
-#        resto do programa faz entre "nao encontrei" e "nao consegui olhar".
+# PT-PT: Não encontrar a marca de origem não quer dizer que o ficheiro seja de
+#        confiança; quer dizer que o sistema não sabe. E a mesma diferença que o
+#        resto do programa faz entre "não encontrei" e "não consegui olhar".
 t_origem_desconhecida() {
     local s; s="$(origem_ficheiro "$ISO_BOA" || true)"
     afirmar_contem "$s" 'não sabe'
@@ -547,12 +547,12 @@ fi
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Instalacao de um hipervisor
+# PT-PT: Instalação de um hipervisor
 #
 #        Nada aqui instala coisa nenhuma, e nada aqui liga a rede. O que se
-#        testa sao as decisoes tomadas **antes** de instalar: que versao, que
-#        ficheiro dos que a Oracle publica, de que dominio, e o que se faz
-#        quando a assinatura nao confere.
+#        testa são as decisões tomadas **antes** de instalar: que versão, que
+#        ficheiro dos que a Oracle pública, de que domínio, e o que se faz
+#        quando a assinatura não confere.
 #
 # EN-UK: Installing a hypervisor. Nothing here installs anything and nothing
 #        touches the network. What is tested are the decisions taken **before**
@@ -566,7 +566,7 @@ t_versao_com_fim()  { afirmar_igual '7.2.16' "$(versao_valida '7.2.16
 t_versao_vazia()    { ! versao_valida '' >/dev/null 2>&1; }
 
 # PT-PT: O texto vem do servidor da Oracle e vai ser colado dentro de um URL; se
-#        passasse uma barra ou um `..`, o endereco deixava de apontar para onde
+#        passasse uma barra ou um `..`, o endereço deixava de apontar para onde
 #        o programa julga que aponta.
 # EN-UK: The text comes from Oracle's server and goes into a URL; a slash or a
 #        `..` would make it point elsewhere.
@@ -597,9 +597,9 @@ t_escolhe_intel() {
     afirmar_contem "$r" 'VirtualBox-7.2.16-174877-OSX.dmg'
 }
 
-# PT-PT: O ficheiro de Intel e o de Apple Silicon estao os dois no mesmo
-#        manifesto e so diferem no sufixo. Escolher o errado dava um instalador
-#        que abre e depois nao instala, sem dizer porque.
+# PT-PT: O ficheiro de Intel e o de Apple Silicon estão os dois no mesmo
+#        manifesto e só diferem no sufixo. Escolher o errado dava um instalador
+#        que abre e depois não instala, sem dizer porque.
 # EN-UK: The Intel and Apple Silicon files sit in the same manifest and differ
 #        only in the suffix. Picking the wrong one gives an installer that opens
 #        and then refuses, without saying why.
@@ -613,8 +613,8 @@ t_nao_apanha_windows() {
     [[ "$r" != *'Win.exe'* ]] || { printf 'escolheu o instalador de Windows\n'; return 1; }
 }
 
-# PT-PT: O numero de compilacao nao esta fixado no programa: se estivesse, isto
-#        deixava de funcionar na versao seguinte.
+# PT-PT: O número de compilação não esta fixado no programa: se estivesse, isto
+#        deixava de funcionar na versão seguinte.
 # EN-UK: The build number is not pinned: were it, this would break on the next
 #        release.
 t_compilacao_livre() {
@@ -654,8 +654,8 @@ t_dom_http() {
     ! dominio_confiavel 'http://download.virtualbox.org/virtualbox/LATEST.TXT' "${d[@]}"
 }
 
-# PT-PT: As duas listas sao separadas de proposito. Se fossem uma so, um
-#        catalogo adulterado podia mandar buscar uma "imagem" ao servidor da
+# PT-PT: As duas listas são separadas de propósito. Se fossem uma só, um
+#        catálogo adulterado podia mandar buscar uma "imagem" ao servidor da
 #        Oracle, e este ficheiro podia ir buscar um "instalador" ao servidor da
 #        Ubuntu. Nenhuma das duas coisas faz sentido.
 # EN-UK: The two lists are separate on purpose. Merged, a tampered catalogue
@@ -684,9 +684,9 @@ if command -v spctl >/dev/null 2>&1; then
         afirmar_igual '1' "$e"
     }
 
-    # PT-PT: Um ficheiro que ninguem assinou tem de ser recusado. Nao se pode
-    #        provar aqui o caso contrario -- fabricar um `.dmg` notarizado pela
-    #        Apple em nome da Oracle e, felizmente, exactamente o que nao se
+    # PT-PT: Um ficheiro que ninguém assinou tem de ser recusado. Não se pode
+    #        provar aqui o caso contrário -- fabricar um `.dmg` notarizado pela
+    #        Apple em nome da Oracle e, felizmente, exactamente o que não se
     #        consegue fazer.
     # EN-UK: A file nobody signed must be refused. The converse cannot be proved
     #        here: fabricating an Apple-notarised `.dmg` in Oracle's name is,
@@ -715,9 +715,9 @@ fi
 
 grupo 'Homebrew'
 
-# PT-PT: Este programa recusa-se a instalar o Homebrew, e a razao e a mesma que
+# PT-PT: Este programa recusa-se a instalar o Homebrew, e a razão e a mesma que
 #        o levou a existir: instala-se passando um script da Internet
-#        directamente a um interpretador. Nao seria coerente recusar esse padrao
+#        directamente a um interpretador. Não seria coerente recusar esse padrão
 #        com imagens e aceita-lo com o resto.
 # EN-UK: This program refuses to install Homebrew, for the same reason it
 #        exists: it is installed by piping a script from the Internet straight
@@ -738,10 +738,10 @@ teste 'a detecção do Homebrew corresponde à realidade desta máquina' t_detec
 # PT-PT: Os hipervisores de terceiros deste Mac
 #
 #        Nada aqui precisa da Parallels nem da Fusion instaladas, e isso e
-#        deliberado: sao produtos pagos, e nem quem escreveu isto nem o runner
-#        os tem. O que se testa e o `.vmx` -- que e texto, e portanto
-#        verificavel sem hipervisor nenhum -- as duas traducoes de vocabulario,
-#        e a deteccao, que tem de saber dizer "nao esta ca" sem rebentar.
+#        deliberado: são produtos pagos, e nem quem escreveu isto nem o runner
+#        os tem. O que se testa e o `.vmx` -- que é texto, e portanto
+#        verificável sem hipervisor nenhum -- as duas traducoes de vocabulário,
+#        e a detecção, que tem de saber dizer "não esta ca" sem rebentar.
 #
 # EN-UK: This Mac's third-party hypervisors. Nothing here needs Parallels or
 #        Fusion installed, deliberately: they are paid products, and neither the
@@ -759,9 +759,9 @@ t_fusion_deteccao() {
 }
 
 t_parallels_deteccao() {
-    # PT-PT: A pergunta e pelo `prlctl` e nao pela aplicacao: a aplicacao pode
+    # PT-PT: A pergunta e pelo `prlctl` e não pela aplicação: a aplicação pode
     #        estar instalada com as ferramentas de linha de comandos por
-    #        instalar, e nesse caso este programa nao lhe consegue tocar -- que
+    #        instalar, e nesse caso este programa não lhe consegue tocar -- que
     #        e a mesma coisa, do ponto de vista de quem esta a decidir.
     # EN-UK: The question is about `prlctl`, not the application: the
     #        application can be installed with its command-line tools missing.
@@ -774,11 +774,11 @@ teste 'a detecção da Parallels corresponde à realidade desta máquina' t_para
 
 grupo 'Vocabulário da Fusion e da Parallels'
 
-# PT-PT: Os dois produtos nao coincidem em nada, e nem sequer sao do mesmo
-#        genero: a Parallels quer o nome da distribuicao, a Fusion quer um
-#        identificador com a arquitectura la dentro. Traduzir mal nao rebenta --
-#        cria uma maquina com o controlador de disco errado, que arranca devagar
-#        sem ninguem perceber porque.
+# PT-PT: Os dois produtos não coincidem em nada, e nem sequer são do mesmo
+#        genero: a Parallels quer o nome da distribuição, a Fusion quer um
+#        identificador com a arquitectura la dentro. Traduzir mal não rebenta --
+#        cria uma máquina com o controlador de disco errado, que arranca devagar
+#        sem ninguém perceber porque.
 # EN-UK: The two share no vocabulary and are not even of the same kind:
 #        Parallels wants the distribution's name, Fusion an identifier with the
 #        architecture inside. Translating wrong does not crash -- it creates a
@@ -796,8 +796,8 @@ t_prl_fedora()  { afirmar_igual 'fedora-core' "$(distribuicao_parallels 'fedora-
 t_prl_windows() { afirmar_igual 'win-11'      "$(distribuicao_parallels 'windows-11' 'windows')"; }
 t_prl_outra()   { afirmar_igual 'linux'       "$(distribuicao_parallels 'nunca-visto' 'linux')"; }
 
-# PT-PT: Os dois vocabularios tem mesmo de ser diferentes. Se algum dia alguem
-#        os "simplificar" para um so, este teste falha -- que e o que se quer.
+# PT-PT: Os dois vocabulários tem mesmo de ser diferentes. Se algum dia alguém
+#        os "simplificar" para um só, este teste falha -- que é o que se quer.
 # EN-UK: The two vocabularies must differ. Should anybody ever "simplify" them
 #        into one, this test fails -- which is the point.
 t_vocabularios_diferentes() {
@@ -828,8 +828,8 @@ t_vmx_numeros() {
 }
 
 # PT-PT: O campo chama-se `memsize` e e em megabytes. Passar-lhe os GB
-#        directamente dava a maquina oito megabytes de memoria, e o erro so
-#        aparece quando ela nao arranca.
+#        directamente dava a máquina oito megabytes de memória, e o erro só
+#        aparece quando ela não arranca.
 # EN-UK: The field is `memsize`, in megabytes.
 t_vmx_memoria() {
     local v; v="$(conteudo_vmx lab ubuntu-64 2 8 lab.vmdk '' nao)"
@@ -886,14 +886,14 @@ t_img_sem_etiq()  { afirmar_contem "$(problema_referencia_imagem 'nginx' 'docker
 t_img_latest()    { afirmar_contem "$(problema_referencia_imagem 'nginx:latest' 'docker.io')" 'latest'; }
 t_img_quay()      { afirmar_vazio "$(problema_referencia_imagem 'quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z' 'quay.io')"; }
 
-# PT-PT: O ataque que a validacao existe para apanhar: o campo 'registo' diz
-#        docker.io e passa na lista, mas a imagem vinha de outro sitio.
+# PT-PT: O ataque que a validação existe para apanhar: o campo 'registo' diz
+#        docker.io e passa na lista, mas a imagem vinha de outro sítio.
 # EN-UK: The attack this exists for: the declared registry passes the allowlist
 #        while the image comes from somewhere else.
 t_img_outro_reg() { afirmar_contem "$(problema_referencia_imagem 'exemplo.net/x:1.0' 'docker.io')" 'registo no nome'; }
 t_img_prefixo()   { afirmar_contem "$(problema_referencia_imagem 'ghcr.io/alguem/x:1.0' 'quay.io')" 'não começa por'; }
 
-# PT-PT: Em `registo.local:5000/coisa` os dois pontos sao da porta. Se fossem
+# PT-PT: Em `registo.local:5000/coisa` os dois pontos são da porta. Se fossem
 #        lidos como etiqueta, «5000/coisa» passava por etiqueta fixa.
 # EN-UK: In `registry.local:5000/thing` the colon belongs to the port.
 t_img_porta()     { afirmar_contem "$(problema_referencia_imagem 'registo.local:5000/coisa' 'docker.io')" 'não tem etiqueta'; }
@@ -931,13 +931,13 @@ grupo 'Palavra-passe gerada'
 t_senha_tam()   { local p; p="$(gerar_palavra_passe 32)"; afirmar_igual 32 "${#p}"; }
 t_senha_dif()   { afirmar_diferente "$(gerar_palavra_passe)" "$(gerar_palavra_passe)"; }
 
-# PT-PT: Uma senha com aspas, cifrao ou barra parte a linha ou muda de
-#        significado consoante a shell. O alfabeto nao tem nenhum deles.
+# PT-PT: Uma senha com aspas, cifrão ou barra parte a linha ou muda de
+#        significado consoante a shell. O alfabeto não tem nenhum deles.
 # EN-UK: A password with quotes, dollars or backslashes breaks the command line.
 t_senha_shell() { local p; p="$(gerar_palavra_passe 128)"; [[ "$p" =~ ^[A-Za-z0-9]+$ ]]; }
 
-# PT-PT: Sem I, l, 1, O, o, 0. Uma senha mostrada uma vez no ecra tem de poder
-#        ser copiada a mao sem ficar a duvida.
+# PT-PT: Sem I, l, 1, O, o, 0. Uma senha mostrada uma vez no ecrã tem de poder
+#        ser copiada a mão sem ficar a duvida.
 # EN-UK: No I, l, 1, O, o or 0: a password shown once must be transcribable.
 t_senha_legivel() { local p; p="$(gerar_palavra_passe 128)"; ! [[ "$p" =~ [IlO1o0] ]]; }
 
@@ -957,9 +957,9 @@ else
     t_serv_valido()  { afirmar_vazio "$(validar_catalogo_servicos "$CATALOGO_SERVICOS")"; }
     t_serv_alguns()  { local n; n="$(jq '.servicos | length' "$CATALOGO_SERVICOS")"; (( n > 0 )); }
 
-    # PT-PT: Nenhuma imagem do catalogo pode escapar a regra da etiqueta fixa.
-    #        O teste existe para ela nao se perder na proxima entrada que
-    #        alguem acrescentar com pressa.
+    # PT-PT: Nenhuma imagem do catálogo pode escapar a regra da etiqueta fixa.
+    #        O teste existe para ela não se perder na próxima entrada que
+    #        alguém acrescentar com pressa.
     # EN-UK: No catalogue image may escape the pinned-tag rule.
     t_serv_etiquetas() {
         local i total mau=''
@@ -1059,8 +1059,8 @@ JSON
     t_doc_com_sock() { afirmar_contem "$(linha_exemplo 1)" 'docker.sock'; }
     t_doc_comando()  { afirmar_contem "$(linha_exemplo 2)" 'c:1.0 server /data'; }
 
-    # PT-PT: Melhor rebentar do que arrancar um servico com a senha literal
-    #        «@gerar@», que era o que acontecia se isto passasse em silencio.
+    # PT-PT: Melhor rebentar do que arrancar um serviço com a senha literal
+    #        «@gerar@», que era o que acontecia se isto passasse em silêncio.
     # EN-UK: Better to fail than start a service whose password is «@gerar@».
     t_doc_sem_segredo() {
         local f; f="$(exemplo_servicos)"

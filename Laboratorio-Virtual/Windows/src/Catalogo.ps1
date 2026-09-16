@@ -1,24 +1,24 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    PT-PT: Leitura e validacao do catalogo de imagens.
+    PT-PT: Leitura e validação do catálogo de imagens.
     EN-UK: Reading and validating the image catalogue.
 
 .DESCRIPTION
     PT-PT
-    O catalogo e um ficheiro de dados, e um ficheiro de dados edita-se. E
-    exactamente por isso que ele e validado ao ser carregado, e nao usado como
+    O catálogo e um ficheiro de dados, e um ficheiro de dados edita-se. E
+    exactamente por isso que ele e validado ao ser carregado, e não usado como
     vem.
 
-    A validacao que interessa e uma so: **nenhum endereco do catalogo pode
-    apontar para fora da lista de dominios de confianca.** Quem conseguir
-    escrever no catalogo consegue mudar um endereco; o que nao consegue e fazer
-    com que esse endereco passe por aqui. E uma segunda fechadura na mesma
-    porta, e existe porque a primeira -- confiar no ficheiro -- nao chega.
+    A validação que interessa e uma só: **nenhum endereço do catálogo pode
+    apontar para fora da lista de domínios de confiança.** Quem conseguir
+    escrever no catálogo consegue mudar um endereço; o que não consegue e fazer
+    com que esse endereço passe por aqui. E uma segunda fechadura na mesma
+    porta, e existe porque a primeira -- confiar no ficheiro -- não chega.
 
-    O resto da validacao e menos dramatica mas poupa tempo: uma entrada sem
-    minimos, com um padrao de ficheiro invalido ou sem pagina oficial rebenta
-    aqui, ao arrancar, e nao a meio de um descarregamento.
+    O resto da validação e menos dramatica mas poupa tempo: uma entrada sem
+    mínimos, com um padrão de ficheiro inválido ou sem página oficial rebenta
+    aqui, ao arrancar, e não a meio de um descarregamento.
 
     EN-UK
     The catalogue is a data file, and a data file gets edited. Which is exactly
@@ -40,13 +40,13 @@ Set-StrictMode -Version Latest
 function Import-Catalogo {
     <#
     .SYNOPSIS
-        PT-PT: Le o catalogo do disco e valida-o.
+        PT-PT: Lê o catálogo do disco e valida-o.
         EN-UK: Reads the catalogue from disk and validates it.
 
     .DESCRIPTION
-        PT-PT: Um catalogo que nao passe na validacao levanta excepcao. Nao ha
-               modo degradado: continuar com um catalogo suspeito seria abrir a
-               porta que a validacao existe para fechar.
+        PT-PT: Um catálogo que não passe na validação levanta excepção. Não há
+               modo degradado: continuar com um catálogo suspeito seria abrir a
+               porta que a validação existe para fechar.
         EN-UK: A catalogue failing validation raises. There is no degraded mode:
                carrying on with a suspect catalogue would open the door the
                validation exists to close.
@@ -67,10 +67,10 @@ function Import-Catalogo {
         throw "O catálogo em $Caminho não é JSON válido: $($_.Exception.Message)"
     }
 
-    # PT-PT: O `@()` nao e decorativo. O PowerShell desenrola um array vazio
+    # PT-PT: O `@()` não é decorativo. O PowerShell desenrola um array vazio
     #        para `$null`, e sob `Set-StrictMode` o `.Count` de um `$null`
-    #        levanta excepcao -- ou seja, o catalogo perfeito rebentava e o
-    #        catalogo com erros passava. E das armadilhas mais antigas da
+    #        levanta excepção -- ou seja, o catálogo perfeito rebentava e o
+    #        catálogo com erros passava. E das armadilhas mais antigas da
     #        linguagem, e apanha toda a gente uma vez.
     # EN-UK: The `@()` is not decorative. PowerShell unrolls an empty array to
     #        `$null`, and under `Set-StrictMode` calling `.Count` on `$null`
@@ -89,13 +89,13 @@ function Import-Catalogo {
 function Test-Catalogo {
     <#
     .SYNOPSIS
-        PT-PT: Procura problemas no catalogo e devolve-os todos.
+        PT-PT: Procura problemas no catálogo e devolve-os todos.
         EN-UK: Looks for problems in the catalogue and returns all of them.
 
     .DESCRIPTION
         PT-PT: Devolve a lista inteira em vez de parar no primeiro. Quem esta a
                acrescentar entradas quer saber tudo o que falta de uma vez, e
-               nao uma coisa de cada vez em cinco execucoes.
+               não uma coisa de cada vez em cinco execuções.
         EN-UK: It returns the whole list rather than stopping at the first.
                Whoever is adding entries wants to know everything at once.
 
@@ -144,12 +144,12 @@ function Test-Catalogo {
             }
         }
 
-        # PT-PT: A verificacao que importa. Todos os enderecos, sem excepcao —
+        # PT-PT: A verificação que importa. Todos os endereços, sem excepção —
         #        mas cada um contra a lista que lhe pertence. O `directorio` e a
-        #        `chave_url` alimentam descarregamentos e vao contra a lista
-        #        curta; a `pagina_oficial` so e mostrada ou aberta no navegador
-        #        e vai contra a das paginas. Verificar as duas contra a mesma
-        #        lista obrigaria a por treze dominios de fabricantes na lista de
+        #        `chave_url` alimentam descarregamentos e vão contra a lista
+        #        curta; a `pagina_oficial` só e mostrada ou aberta no navegador
+        #        e vai contra a das páginas. Verificar as duas contra a mesma
+        #        lista obrigaria a por treze domínios de fabricantes na lista de
         #        descarregamento, sem que nenhum deles sirva para descarregar
         #        seja o que for.
         # EN-UK: The check that matters. Every address, no exceptions — but each
@@ -182,15 +182,15 @@ function Test-Catalogo {
             }
         }
 
-        # PT-PT: Um padrao invalido so daria erro na hora de descarregar.
+        # PT-PT: Um padrão inválido só daria erro na hora de descarregar.
         # EN-UK: An invalid pattern would only fail at download time.
         if (($imagem.PSObject.Properties.Name -contains 'padrao_ficheiro') -and $imagem.padrao_ficheiro) {
             try { [void][regex]::new([string]$imagem.padrao_ficheiro) }
             catch { [void]$problemas.Add("[$id] o 'padrao_ficheiro' não é uma expressão regular válida.") }
         }
 
-        # PT-PT: Uma imagem descarregavel sem manifesto nao e verificavel, e
-        #        este programa nao descarrega o que nao consegue verificar.
+        # PT-PT: Uma imagem descarregável sem manifesto não é verificável, e
+        #        este programa não descarrega o que não consegue verificar.
         # EN-UK: A downloadable image with no manifest is unverifiable, and this
         #        program does not download what it cannot verify.
         if (($imagem.PSObject.Properties.Name -contains 'tipo') -and $imagem.tipo -eq 'iso') {
@@ -221,10 +221,10 @@ function Get-ImagensCompativeis {
         EN-UK: The images that suit this architecture.
 
     .DESCRIPTION
-        PT-PT: Filtrar por arquitectura nao e comodidade. Uma imagem de x86_64
-               num anfitriao ARM nao arranca mais devagar: nao arranca. Mostrar
+        PT-PT: Filtrar por arquitectura não é comodidade. Uma imagem de x86_64
+               num anfitrião ARM não arranca mais devagar: não arranca. Mostrar
                a lista toda a quem esta num Mac com chip da Apple e garantir que
-               metade das escolhas leva a um ecra preto.
+               metade das escolhas leva a um ecrã preto.
         EN-UK: Filtering by architecture is not a convenience. An x86_64 image on
                an ARM host does not boot slower: it does not boot.
     #>
