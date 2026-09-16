@@ -42,9 +42,9 @@ def app_data_dir() -> Path:
     PT-PT: Pasta de dados da aplicação, conforme o sistema.
     EN-UK: The application's data folder, per operating system.
     """
-    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
-    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
-    #        esta versao corre num sistema e sabe qual e.
+    # PT-PT: A convenção desta pasta e a do sistema desta versão, e vive num
+    #        sítio só — `platform_support`. Não há aqui ramificação nenhuma:
+    #        esta versão corre num sistema e sabe qual é.
     # EN-UK: This folder's convention is that of this version's system, and it
     #        lives in one place — `platform_support`. There is no branching
     #        here: this version runs on one system and knows which.

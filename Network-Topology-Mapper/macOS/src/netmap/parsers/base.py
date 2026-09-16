@@ -128,7 +128,7 @@ class CliParser(ABC):
         PT-PT: Lê tudo o que veio de uma sessão e monta os factos.
 
                Um comando em falta ou vazio não é erro: nem todos os switches
-               têm PoE, e nem todos respondem a `show arp`. O que houver é lido,
+               têm Põe, e nem todos respondem a `show arp`. O que houver é lido,
                o que faltar fica por preencher.
 
         EN-UK: Reads everything that came back from a session and assembles the
@@ -279,9 +279,9 @@ class CliParser(ABC):
 
     def merge_poe(self, facts: DeviceFacts, text: str) -> None:
         """
-        PT-PT: Junta o consumo de PoE às portas já lidas.
+        PT-PT: Junta o consumo de Põe às portas já lidas.
 
-               Cada fabricante apresenta o PoE numa tabela diferente, mas todas
+               Cada fabricante apresenta o Põe numa tabela diferente, mas todas
                têm o nome da porta e um número em watts na mesma linha. Procura-
                -se o maior número decimal plausível — a tensão (54 V) e a
                corrente (mA) também aparecem, mas a potência entregue anda entre
@@ -298,7 +298,7 @@ class CliParser(ABC):
         :param facts:
             PT-PT: Factos a completar. / EN-UK: Facts to complete.
         :param text:
-            PT-PT: Output do comando de PoE. / EN-UK: The PoE command's output.
+            PT-PT: Output do comando de Põe. / EN-UK: The PoE command's output.
         """
         por_porta = {p.name: p for p in facts.ports}
 

@@ -252,7 +252,7 @@ class TestLocalizacao:
         assert ponto.port == "1/1/8"
 
     def test_o_uplink_do_edgeswitch_nao_e_uma_tomada(self, mapa) -> None:
-        # PT-PT: O EdgeSwitch não publica capacidades no LLDP. Sem a inferência
+        # PT-PT: O EdgeSwitch não pública capacidades no LLDP. Sem a inferência
         #        "o vizinho é um equipamento que eu visitei", a porta 0/24 seria
         #        tratada como tomada e recebia meia rede.
         # EN-UK: EdgeSwitch publishes no LLDP capabilities. Without the "the

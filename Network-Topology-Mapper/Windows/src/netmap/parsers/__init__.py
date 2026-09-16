@@ -9,7 +9,7 @@ PT-PT: Registo dos leitores, e a adivinha da plataforma.
        derrota o propósito de haver um crawl.
 
        A ordem das pistas é a da fiabilidade: a descrição que o próprio
-       equipamento publica no LLDP é a melhor; o modelo é boa; o nome é o
+       equipamento pública no LLDP é a melhor; o modelo é boa; o nome é o
        último recurso, porque um switch chamado `SW-CISCO-01` pode ter sido
        substituído por um Aruba e ninguém mudou a etiqueta.
 

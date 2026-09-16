@@ -16,7 +16,7 @@ PT-PT: O crawl — caminhar a rede de vizinho em vizinho.
        equipamento marcado como falhado que na verdade está a funcionar.
 
        **Um vizinho sem endereço de gestão fica por visitar, e diz-se.** O LLDP
-       nem sempre publica o endereço. Sem ele não há como lá chegar — e isso é
+       nem sempre pública o endereço. Sem ele não há como lá chegar — e isso é
        uma lacuna concreta no mapa, que tem de aparecer no relatório em vez de
        desaparecer em silêncio.
 

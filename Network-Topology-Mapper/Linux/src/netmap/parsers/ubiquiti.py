@@ -144,7 +144,7 @@ class UbiquitiParser(CliParser):
 
                A leitura genérica não serve aqui, e a razão é instrutiva: o
                EdgeSwitch escreve tensão, corrente **e** potência na mesma
-               linha — `54.0  220  11.9` — e a tensão de PoE, 54 V, é um valor
+               linha — `54.0  220  11.9` — e a tensão de Põe, 54 V, é um valor
                perfeitamente plausível para potência num porto 802.3bt. Apanhar
                o primeiro decimal daria 54 W a um AP que consome 12.
 

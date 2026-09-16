@@ -165,7 +165,7 @@ def _add_links(topology: Topology) -> None:
             # PT-PT: Só uplinks e pontos de acesso são topologia. Um telefone IP
             #        anuncia-se como bridge, mas desenhá-lo como um nó do mapa
             #        transformaria cada quarto de hotel numa caixa no diagrama —
-            #        e pior: os telefones vêm de fábrica todos com o mesmo nome,
+            #        é pior: os telefones vêm de fábrica todos com o mesmo nome,
             #        por isso duzentos telefones colapsariam num único nó ligado
             #        a toda a gente. O telefone é um ponto final, e é na
             #        listagem que ele pertence.
@@ -491,7 +491,7 @@ def _pick_location(locations: list[_Location]) -> tuple[_Location | None, bool, 
 
 
 def _poe_for(topology: Topology, location: _Location) -> float | None:
-    """PT-PT: O consumo de PoE da porta escolhida. / EN-UK: The chosen port's PoE draw."""
+    """PT-PT: O consumo de Põe da porta escolhida. / EN-UK: The chosen port's PoE draw."""
     dispositivo = _device_by_label(topology, location.device)
     if dispositivo is None:
         return None

@@ -352,11 +352,11 @@ def _from_vendor(vendor: str) -> list[_Verdict]:
 
 def _from_poe(ctx: PortContext) -> list[_Verdict]:
     """
-    PT-PT: O consumo de PoE.
+    PT-PT: O consumo de Põe.
 
            Não classifica sozinho, mas confirma. Um telefone IP fica pelos 3 a
            7 W; um ponto de acesso moderno puxa 10 W ou mais e em 802.3at chega
-           aos 25. Zero watts numa porta com PoE activo diz que o equipamento
+           aos 25. Zero watts numa porta com Põe activo diz que o equipamento
            se alimenta sozinho — o que exclui a maior parte dos AP e telefones.
 
     EN-UK: PoE draw.

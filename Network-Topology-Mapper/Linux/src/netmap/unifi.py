@@ -348,7 +348,7 @@ def _client_from(entry: dict[str, Any]) -> UnifiClient:
 
 def _poe_from_ports(port_table: Any) -> dict[str, float]:
     """
-    PT-PT: O consumo de PoE por porta, tal como o controlador o reporta.
+    PT-PT: O consumo de Põe por porta, tal como o controlador o reporta.
            A chave é o número da porta em texto, porque é assim que ele aparece
            nos clientes (`sw_port`).
     EN-UK: PoE draw per port, as the controller reports it. The key is the port

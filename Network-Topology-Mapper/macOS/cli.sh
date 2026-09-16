@@ -4,9 +4,9 @@
 #
 #          ./cli.sh --help
 #
-#        Nao prepara o ambiente de proposito: se ele nao existir, diz o que
-#        executar. Um script agendado que decide instalar dependencias a meio
-#        da noite e um script que um dia enche o disco sem ninguem dar por isso.
+#        Não prepara o ambiente de propósito: se ele não existir, diz o que
+#        executar. Um script agendado que decide instalar dependências a meio
+#        da noite e um script que um dia enche o disco sem ninguém dar por isso.
 #
 # EN-UK: Network Topology Mapper headless mode on macOS. It does not prepare the
 #        environment on purpose: if it is missing, it says what to run.
@@ -19,7 +19,7 @@ set -euo pipefail
 PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
-# PT-PT: O launchd e o Finder arrancam com um PATH minimo que nao inclui o
+# PT-PT: O launchd e o Finder arrancam com um PATH mínimo que não inclui o
 #        Homebrew. O `brew` instala em /opt/homebrew nos Apple Silicon e em
 #        /usr/local nos Intel; acrescentar os dois e inofensivo.
 # EN-UK: launchd and Finder start with a minimal PATH that excludes Homebrew.

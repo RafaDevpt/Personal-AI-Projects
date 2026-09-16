@@ -242,7 +242,7 @@ def import_ieee_file(path: Path) -> int:
     """
     PT-PT: Carrega o ficheiro de registos do IEEE.
 
-           Aceita os dois formatos que o IEEE publica: o `oui.csv`
+           Aceita os dois formatos que o IEEE pública: o `oui.csv`
            (`Registry,Assignment,Organization Name,...`) e o `oui.txt` das
            linhas `AA-BB-CC   (hex)   Organização`. Não é preciso dizer qual é
            — decide-se pelo conteúdo, porque quem descarrega o ficheiro não tem

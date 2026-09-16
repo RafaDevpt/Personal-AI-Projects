@@ -9,10 +9,10 @@ PT-PT: Network Topology Mapper — pacote principal.
        O caminho é sempre o mesmo. Pergunta-se ao controlador UniFi o que ele
        conhece, para não começar do zero. A partir daí segue-se o LLDP e o CDP,
        switch a switch. Em cada um lê-se a tabela de endereços MAC, a tabela
-       ARP, o estado das portas e o consumo de PoE. No fim cruza-se tudo: um
+       ARP, o estado das portas e o consumo de Põe. No fim cruza-se tudo: um
        endereço MAC que aparece numa porta que não é uplink está ligado ali, e
        o que ele é deduz-se do que o próprio equipamento anunciou, do fabricante
-       do seu MAC, do que consome em PoE e do nome que tem.
+       do seu MAC, do que consome em Põe e do nome que tem.
 
        Nada é escrito em equipamento nenhum. Todos os comandos que este
        programa corre são de leitura.

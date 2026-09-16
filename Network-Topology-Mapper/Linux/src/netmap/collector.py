@@ -121,7 +121,7 @@ class CollectionResult:
     PT-PT: O que uma sessão produziu, incluindo os comandos que falharam.
 
            Guardar as falhas por comando importa: um switch que respondeu a
-           tudo menos ao PoE não é o mesmo que um switch que não respondeu a
+           tudo menos ao Põe não é o mesmo que um switch que não respondeu a
            nada, e o relatório tem de conseguir dizer a diferença.
 
     EN-UK: What one session produced, failed commands included.

@@ -130,7 +130,7 @@ class TestCiscoCdp:
 
 
 class TestCiscoTabelas:
-    """PT-PT: MAC, ARP, portas e PoE. / EN-UK: MAC, ARP, ports and PoE."""
+    """PT-PT: MAC, ARP, portas e Põe. / EN-UK: MAC, ARP, ports and PoE."""
 
     def test_mac_ignora_as_entradas_do_proprio_switch(self) -> None:
         # PT-PT: As linhas `CPU` não têm porta e não são equipamento ligado.

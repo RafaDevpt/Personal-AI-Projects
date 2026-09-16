@@ -204,9 +204,9 @@ class ArpEntry:
 @dataclass
 class PortStatus:
     """
-    PT-PT: O estado de uma porta física, incluindo o PoE.
+    PT-PT: O estado de uma porta física, incluindo o Põe.
 
-           O consumo PoE é dos sinais mais úteis para classificar: um AP moderno
+           O consumo Põe é dos sinais mais úteis para classificar: um AP moderno
            puxa 8 a 25 W, um telefone IP 3 a 7 W, e um posto de trabalho não
            puxa nada. Não chega para decidir sozinho, mas confirma ou desmente
            o que o OUI sugeriu.

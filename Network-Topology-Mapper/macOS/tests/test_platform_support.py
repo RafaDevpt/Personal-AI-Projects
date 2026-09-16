@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PT-PT: Testes das particularidades do macOS, na versao de macOS do
+PT-PT: Testes das particularidades do macOS, na versão de macOS do
        Network Topology Mapper.
 
-       As outras duas versoes tem os seus, nas pastas ao lado, e testam coisas
-       diferentes — porque as particularidades de cada sistema sao diferentes.
+       As outras duas versões tem os seus, nas pastas ao lado, e testam coisas
+       diferentes — porque as particularidades de cada sistema são diferentes.
 
 EN-UK: macOS specifics tests, in the macOS version of Network Topology Mapper.
 
@@ -29,7 +29,7 @@ class TestComandosDeInstalacao:
         assert ps.install_command("tkinter") == "brew install python-tk"
 
     def test_componente_desconhecido_continua_a_ser_brew(self) -> None:
-        # PT-PT: Em macOS o palpite razoavel e sempre o mesmo, ao contrario do
+        # PT-PT: Em macOS o palpite razoável e sempre o mesmo, ao contrário do
         #        Linux, onde adivinhar o gestor de pacotes seria errado.
         # EN-UK: On macOS the reasonable guess is always the same.
         assert ps.install_command("qualquer-coisa") == "brew install qualquer-coisa"
@@ -53,9 +53,9 @@ class TestProcessador:
         assert not ps.apple_silicon(arquitectura)
 
     def test_os_dois_prefixos_estao_previstos(self) -> None:
-        # PT-PT: `as_posix()` e nao `str()`: o `str()` de um Path muda de forma
+        # PT-PT: `as_posix()` e não `str()`: o `str()` de um Path muda de forma
         #        conforme o sistema onde o teste corre, e a suite corre
-        #        localmente antes de ir para a integracao continua.
+        #        localmente antes de ir para a integração contínua.
         # EN-UK: `as_posix()` rather than `str()`: a Path's `str()` changes
         #        shape with the system running the test.
         assert {p.as_posix() for p in ps.BREW_PREFIXES} == {"/opt/homebrew", "/usr/local"}
@@ -64,7 +64,7 @@ class TestProcessador:
 class TestPythonDoSistema:
     """
     PT-PT: O `/usr/bin/python3` funciona, mas traz um Tk antigo e vai ser
-           retirado pela Apple. Nao e um erro — e um aviso.
+           retirado pela Apple. Não e um erro — e um aviso.
     EN-UK: `/usr/bin/python3` works, but carries an old Tk and is on its way out.
     """
 
@@ -80,19 +80,19 @@ class TestPythonDoSistema:
 
 
 class TestPastaDeDados:
-    """PT-PT: `~/Library/Application Support`, que e a convencao do macOS."""
+    """PT-PT: `~/Library/Application Support`, que é a convenção do macOS."""
 
     def test_usa_application_support(self, tmp_path: Path) -> None:
-        # PT-PT: Uma pasta `.config` escondida na raiz da conta e habito de
-        #        Linux; num Mac ninguem a vai la procurar.
+        # PT-PT: Uma pasta `.config` escondida na raiz da conta e hábito de
+        #        Linux; num Mac ninguém a vai la procurar.
         # EN-UK: A hidden `.config` folder is a Linux habit; on a Mac nobody
         #        goes looking for it there.
         assert ps.app_data_dir("App", home=tmp_path) == (
             tmp_path / "Library" / "Application Support" / "App")
 
     def test_nao_usa_o_xdg(self, tmp_path: Path, monkeypatch) -> None:
-        # PT-PT: Verifica-se o caminho exacto, e nao a ausencia da palavra
-        #        "xdg": o `tmp_path` do pytest tem o nome do proprio teste la
+        # PT-PT: Verifica-se o caminho exacto, e não a ausência da palavra
+        #        "xdg": o `tmp_path` do pytest tem o nome do próprio teste la
         #        dentro, e este teste chama-se `test_nao_usa_o_xdg`.
         # EN-UK: The exact path is checked rather than the absence of "xdg":
         #        pytest's `tmp_path` carries the test's own name.
@@ -113,7 +113,7 @@ def test_o_relatorio_nomeia_o_sistema_e_o_homebrew() -> None:
 
 
 class TestRequisitos:
-    """PT-PT: O relatorio de diagnostico. / EN-UK: The diagnostic report."""
+    """PT-PT: O relatório de diagnóstico. / EN-UK: The diagnostic report."""
 
     def test_ha_requisitos_verificados(self) -> None:
         assert ps.check_requirements()
@@ -140,7 +140,7 @@ class TestRequisitos:
 
     def test_opcional_em_falta_nao_e_apresentado_como_grave(self) -> None:
         # PT-PT: Apresentar um opcional com a mesma gravidade de um essencial
-        #        levaria alguem a instalar coisas de que nao precisa.
+        #        levaria alguém a instalar coisas de que não precisa.
         # EN-UK: Presenting an optional with an essential's severity would have
         #        somebody installing things they do not need.
         requisito = ps.Requirement(
@@ -150,13 +150,13 @@ class TestRequisitos:
 
 
 class TestPastaDeConfiguracao:
-    """PT-PT: Onde a aplicacao guarda o que e dela."""
+    """PT-PT: Onde a aplicação guarda o que é dela."""
 
     def test_a_configuracao_vai_para_o_sitio_certo(self) -> None:
         assert APP_FOLDER_NAME in str(caminho_de_configuracao())
 
     def test_nunca_escreve_dentro_do_repositorio(self) -> None:
-        # PT-PT: Uma configuracao local no repositorio acaba num commit.
+        # PT-PT: Uma configuração local no repositório acaba num commit.
         # EN-UK: A local configuration inside the repository ends up in a commit.
         raiz = Path(__file__).resolve().parent.parent
         assert raiz not in caminho_de_configuracao().resolve().parents
@@ -164,10 +164,10 @@ class TestPastaDeConfiguracao:
 
 def test_o_modulo_nao_sabe_de_outros_sistemas() -> None:
     """
-    PT-PT: Esta versao e so de macOS, e isso e uma propriedade a
-           manter. Se alguem acrescentar aqui uma ramificacao por sistema
-           operativo, e porque copiou de outra versao em vez de a ler — e a
-           razao de haver tres pastas desaparece.
+    PT-PT: Esta versão e só de macOS, e isso é uma propriedade a
+           manter. Se alguém acrescentar aqui uma ramificação por sistema
+           operativo, e porque copiou de outra versão em vez de a ler — e a
+           razão de haver três pastas desaparece.
 
     EN-UK: This version is macOS-only, and that is a property worth
            keeping.

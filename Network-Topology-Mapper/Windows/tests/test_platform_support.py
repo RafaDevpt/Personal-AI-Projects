@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-PT-PT: Testes das particularidades do Windows, na versao de Windows do
+PT-PT: Testes das particularidades do Windows, na versão de Windows do
        Network Topology Mapper.
 
-       As outras duas versoes tem os seus, nas pastas ao lado, e testam coisas
-       diferentes — porque as particularidades de cada sistema sao diferentes.
+       As outras duas versões tem os seus, nas pastas ao lado, e testam coisas
+       diferentes — porque as particularidades de cada sistema são diferentes.
 
 EN-UK: Windows specifics tests, in the Windows version of Network Topology Mapper.
 
@@ -28,8 +28,8 @@ class TestComandosDeInstalacao:
             assert ps.install_command(componente).strip()
 
     def test_nunca_sugere_gestores_de_outro_sistema(self) -> None:
-        # PT-PT: Esta versao e de Windows. Um `apt` ou um `brew` aqui seria
-        #        codigo copiado sem ler.
+        # PT-PT: Esta versão e de Windows. Um `apt` ou um `brew` aqui seria
+        #        código copiado sem ler.
         # EN-UK: This is the Windows version. An `apt` or a `brew` here would be
         #        code copied without reading.
         for componente in ("tkinter",):
@@ -44,9 +44,9 @@ class TestComandosDeInstalacao:
 
 class TestAtalhoDaMicrosoftStore:
     """
-    PT-PT: O `python.exe` falso do Windows — um executavel de zero bytes em
-           `WindowsApps` que responde ao comando `python`, nao e um
-           interpretador, e abre a loja. Quem cai nisso ve uma janela da Store
+    PT-PT: O `python.exe` falso do Windows — um executável de zero bytes em
+           `WindowsApps` que responde ao comando `python`, não é um
+           interpretador, e abre a loja. Quem cai nisso vê uma janela da Store
            e nenhum erro que explique porque.
 
     EN-UK: Windows's fake `python.exe`.
@@ -68,7 +68,7 @@ class TestAtalhoDaMicrosoftStore:
 
 
 class TestPastaDeDados:
-    """PT-PT: `%APPDATA%`, que e a convencao do Windows."""
+    """PT-PT: `%APPDATA%`, que é a convenção do Windows."""
 
     def test_usa_appdata(self, tmp_path: Path, monkeypatch) -> None:
         monkeypatch.setenv("APPDATA", str(tmp_path / "Roaming"))
@@ -91,7 +91,7 @@ def test_o_relatorio_nomeia_o_sistema() -> None:
 
 
 class TestRequisitos:
-    """PT-PT: O relatorio de diagnostico. / EN-UK: The diagnostic report."""
+    """PT-PT: O relatório de diagnóstico. / EN-UK: The diagnostic report."""
 
     def test_ha_requisitos_verificados(self) -> None:
         assert ps.check_requirements()
@@ -118,7 +118,7 @@ class TestRequisitos:
 
     def test_opcional_em_falta_nao_e_apresentado_como_grave(self) -> None:
         # PT-PT: Apresentar um opcional com a mesma gravidade de um essencial
-        #        levaria alguem a instalar coisas de que nao precisa.
+        #        levaria alguém a instalar coisas de que não precisa.
         # EN-UK: Presenting an optional with an essential's severity would have
         #        somebody installing things they do not need.
         requisito = ps.Requirement(
@@ -128,13 +128,13 @@ class TestRequisitos:
 
 
 class TestPastaDeConfiguracao:
-    """PT-PT: Onde a aplicacao guarda o que e dela."""
+    """PT-PT: Onde a aplicação guarda o que é dela."""
 
     def test_a_configuracao_vai_para_o_sitio_certo(self) -> None:
         assert APP_FOLDER_NAME in str(caminho_de_configuracao())
 
     def test_nunca_escreve_dentro_do_repositorio(self) -> None:
-        # PT-PT: Uma configuracao local no repositorio acaba num commit.
+        # PT-PT: Uma configuração local no repositório acaba num commit.
         # EN-UK: A local configuration inside the repository ends up in a commit.
         raiz = Path(__file__).resolve().parent.parent
         assert raiz not in caminho_de_configuracao().resolve().parents
@@ -142,10 +142,10 @@ class TestPastaDeConfiguracao:
 
 def test_o_modulo_nao_sabe_de_outros_sistemas() -> None:
     """
-    PT-PT: Esta versao e so de Windows, e isso e uma propriedade a
-           manter. Se alguem acrescentar aqui uma ramificacao por sistema
-           operativo, e porque copiou de outra versao em vez de a ler — e a
-           razao de haver tres pastas desaparece.
+    PT-PT: Esta versão e só de Windows, e isso é uma propriedade a
+           manter. Se alguém acrescentar aqui uma ramificação por sistema
+           operativo, e porque copiou de outra versão em vez de a ler — e a
+           razão de haver três pastas desaparece.
 
     EN-UK: This version is Windows-only, and that is a property worth
            keeping.
