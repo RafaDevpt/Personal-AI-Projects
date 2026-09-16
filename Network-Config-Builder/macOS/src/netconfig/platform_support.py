@@ -2,7 +2,7 @@
 """
 PT-PT: Particularidades do macOS.
 
-       Esta e a versão para macOS do Network Config Builder. Não há aqui nenhuma
+       Esta é a versão para macOS do Network Config Builder. Não há aqui nenhuma
        ramificação por sistema operativo: o código sabe onde esta e diz apenas
        o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
@@ -110,7 +110,7 @@ def using_system_python(executable: str | None = None) -> bool:
     """
     PT-PT: Se esta a correr no Python do sistema.
 
-           Não e um erro — funciona — mas o `/usr/bin/python3` traz uma versão
+           Não é um erro — funciona — mas o `/usr/bin/python3` traz uma versão
            de Tk antiga que desenha janelas desfocadas em ecrãs Retina, e a
            Apple já anunciou que o vai retirar.
 
