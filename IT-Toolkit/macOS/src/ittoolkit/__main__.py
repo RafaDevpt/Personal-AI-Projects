@@ -118,9 +118,9 @@ def _recolher(config: AppConfig, com_eventos: bool):
 
     EN-UK: Runs every diagnostic module and returns (findings, analysis). Each
            module is wrapped deliberately: on a machine without Full Disk Access
-           the events module sees less than it should and can raise reading a
-           protected folder, and without this it took the network and disk
-           diagnostics down with it.
+           the events module sees less than it should and can raise an error
+           when reading a protected folder, and without this it took the
+           network and disk diagnostics down with it.
     """
     from . import disks, events, network, services, system
 
