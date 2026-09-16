@@ -1,19 +1,19 @@
 """
 PT-PT: Janela principal do IT Toolkit.
 
-       Estrutura: barra lateral com os modulos, area central com o conteudo de
+       Estrutura: barra lateral com os módulos, área central com o conteúdo de
        cada um, barra inferior com o estado.
 
-PT-PT: REGRA DE OURO DA CONCORRENCIA. O Tkinter nao e seguro em multiplos fios.
+PT-PT: REGRA DE OURO DA CONCORRÊNCIA. O Tkinter não é seguro em múltiplos fios.
        Tudo o que demora — ler event logs, contar pastas, correr o gpupdate —
-       corre num fio secundario e comunica com a interface exclusivamente
-       atraves de uma fila lida por `_pump()` no fio principal. Nenhuma funcao
-       que corra num fio secundario pode tocar num widget.
+       corre num fio secundário e comunica com a interface exclusivamente
+       através de uma fila lida por `_pump()` no fio principal. Nenhuma função
+       que corra num fio secundário pode tocar num widget.
 
-       A v1.0 chamava `self.tb.insert(...)` de dentro dos fios de trabalho. Nao
-       rebentava sempre, o que e a pior propriedade que um bug destes pode ter:
-       falhava de vez em quando, com uma excecao do Tcl sem relacao aparente com
-       o que estava a acontecer, e era impossivel de reproduzir a pedido.
+       A v1.0 chamava `self.tb.insert(...)` de dentro dos fios de trabalho. Não
+       rebentava sempre, o que é a pior propriedade que um bug destes pode ter:
+       falhava de vez em quando, com uma excepção do Tcl sem relação aparente com
+       o que estava a acontecer, e era impossível de reproduzir a pedido.
 
 EN-UK: Main window of the IT Toolkit.
 
@@ -49,7 +49,7 @@ from .dialogs import JanelaDefinicoes, JanelaTesteRede
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Modulos da barra lateral: (chave, etiqueta).
+# PT-PT: Módulos da barra lateral: (chave, etiqueta).
 # EN-UK: Sidebar modules: (key, label).
 MODULOS: tuple[tuple[str, str], ...] = (
     ("resumo", "Resumo"),
@@ -79,7 +79,7 @@ class ITToolkitApp(ctk.CTk):
         self._fila: queue.Queue[tuple[str, Any]] = queue.Queue()
         self._ocupado = False
 
-        # PT-PT: Resultados guardados, para os relatorios os poderem usar sem
+        # PT-PT: Resultados guardados, para os relatórios os poderem usar sem
         #        voltar a recolher tudo.
         # EN-UK: Stored results, so reports can use them without recollecting.
         self._analise = None
@@ -92,7 +92,7 @@ class ITToolkitApp(ctk.CTk):
         self.after(100, self._pump)
         if self.config_app.analisar_ao_arrancar:
             # PT-PT: O `after` deixa a janela desenhar-se primeiro. Arrancar a
-            #        analise directamente no __init__ mostrava uma janela cinzenta
+            #        análise directamente no __init__ mostrava uma janela cinzenta
             #        durante segundos antes de aparecer seja o que for.
             # EN-UK: The `after` lets the window draw first. Starting the
             #        analysis directly in __init__ showed a grey window for
@@ -100,7 +100,7 @@ class ITToolkitApp(ctk.CTk):
             self.after(250, self.analisar_tudo)
 
     # ------------------------------------------------------------------
-    # PT-PT: Construcao / EN-UK: Construction
+    # PT-PT: Construção / EN-UK: Construction
     # ------------------------------------------------------------------
 
     def _fontes(self) -> None:
@@ -126,7 +126,7 @@ class ITToolkitApp(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
     def _construir(self) -> None:
-        """PT-PT: Monta barra lateral, paginas e rodape. / EN-UK: Builds the layout."""
+        """PT-PT: Monta barra lateral, páginas e rodapé. / EN-UK: Builds the layout."""
         self._barra_lateral()
 
         self.area = ctk.CTkFrame(self, fg_color="transparent")
@@ -152,7 +152,7 @@ class ITToolkitApp(ctk.CTk):
             self.escrever("resumo", f"⚠  {limitacao}\n", limpar=False)
 
     def _barra_lateral(self) -> None:
-        """PT-PT: Barra de navegacao a esquerda. / EN-UK: Left navigation bar."""
+        """PT-PT: Barra de navegação a esquerda. / EN-UK: Left navigation bar."""
         barra = ctk.CTkFrame(
             self, width=theme.SIDEBAR_WIDTH, corner_radius=0, fg_color=theme.SIDEBAR
         )
@@ -232,11 +232,11 @@ class ITToolkitApp(ctk.CTk):
         ).grid(row=0, column=2, sticky="e", padx=theme.PAD_M)
 
     # ------------------------------------------------------------------
-    # PT-PT: Pecas reutilizaveis / EN-UK: Reusable pieces
+    # PT-PT: Peças reutilizáveis / EN-UK: Reusable pieces
     # ------------------------------------------------------------------
 
     def _titulo(self, pagina: ctk.CTkFrame, texto: str, subtitulo: str) -> None:
-        """PT-PT: Cabecalho de uma pagina. / EN-UK: Page heading."""
+        """PT-PT: Cabeçalho de uma página. / EN-UK: Page heading."""
         caixa = ctk.CTkFrame(pagina, fg_color="transparent")
         caixa.grid(row=0, column=0, sticky="ew", pady=(0, theme.PAD_S))
         ctk.CTkLabel(
@@ -248,7 +248,7 @@ class ITToolkitApp(ctk.CTk):
         ).pack(anchor="w")
 
     def _barra_botoes(self, pagina: ctk.CTkFrame) -> ctk.CTkFrame:
-        """PT-PT: Linha de botoes de uma pagina. / EN-UK: A page's button row."""
+        """PT-PT: Linha de botões de uma página. / EN-UK: A page's button row."""
         caixa = ctk.CTkFrame(pagina, fg_color="transparent")
         caixa.grid(row=1, column=0, sticky="ew", pady=(0, theme.PAD_S))
         return caixa
@@ -291,7 +291,7 @@ class ITToolkitApp(ctk.CTk):
         return caixa
 
     # ------------------------------------------------------------------
-    # PT-PT: Paginas / EN-UK: Pages
+    # PT-PT: Páginas / EN-UK: Pages
     # ------------------------------------------------------------------
 
     def _pagina_resumo(self, pagina: ctk.CTkFrame, etiqueta: str) -> None:
@@ -452,11 +452,11 @@ class ITToolkitApp(ctk.CTk):
         self.after(400, self.listar_relatorios)
 
     # ------------------------------------------------------------------
-    # PT-PT: Navegacao e escrita / EN-UK: Navigation and writing
+    # PT-PT: Navegação e escrita / EN-UK: Navigation and writing
     # ------------------------------------------------------------------
 
     def mostrar(self, chave: str) -> None:
-        """PT-PT: Passa para um modulo. / EN-UK: Switches to a module."""
+        """PT-PT: Passa para um módulo. / EN-UK: Switches to a module."""
         self.paginas[chave].tkraise()
         for nome, botao in self.botoes_nav.items():
             activo = nome == chave
@@ -467,7 +467,7 @@ class ITToolkitApp(ctk.CTk):
 
     def escrever(self, chave: str, texto: str, limpar: bool = True) -> None:
         """
-        PT-PT: Escreve numa caixa de saida. So do fio principal.
+        PT-PT: Escreve numa caixa de saída. Só do fio principal.
         EN-UK: Writes to an output box. Main thread only.
         """
         caixa = self.saidas[chave]
@@ -483,15 +483,15 @@ class ITToolkitApp(ctk.CTk):
         self.lbl_estado.configure(text=texto)
 
     # ------------------------------------------------------------------
-    # PT-PT: Concorrencia / EN-UK: Concurrency
+    # PT-PT: Concorrência / EN-UK: Concurrency
     # ------------------------------------------------------------------
 
     def _trabalhar(self, funcao: Callable[[], Any], destino: str, estado: str) -> None:
         """
         PT-PT: Corre `funcao` num fio e entrega o resultado a interface.
 
-               Recusa arrancar se ja houver trabalho em curso. A v1.0 permitia
-               carregar em «Analisar» dez vezes seguidas e lancava dez fios,
+               Recusa arrancar se já houver trabalho em curso. A v1.0 permitia
+               carregar em «Analisar» dez vezes seguidas e lançava dez fios,
                todos a escrever na mesma caixa de texto ao mesmo tempo.
 
         EN-UK: Runs `funcao` on a thread and hands the result to the interface.
@@ -520,7 +520,7 @@ class ITToolkitApp(ctk.CTk):
 
     def _pump(self) -> None:
         """
-        PT-PT: Le a fila e aplica na interface. So corre no fio principal.
+        PT-PT: Lê a fila e aplica na interface. Só corre no fio principal.
         EN-UK: Reads the queue and applies to the interface. Main thread only.
         """
         try:
@@ -554,7 +554,7 @@ class ITToolkitApp(ctk.CTk):
         self.estado("Pronto.")
 
     # ------------------------------------------------------------------
-    # PT-PT: Accoes / EN-UK: Actions
+    # PT-PT: Acções / EN-UK: Actions
     # ------------------------------------------------------------------
 
     def _etiqueta_periodo(self, horas: int) -> str:
@@ -570,7 +570,7 @@ class ITToolkitApp(ctk.CTk):
         }.get(escolha, 24)
 
     def analisar_tudo(self) -> None:
-        """PT-PT: Diagnostico completo. / EN-UK: Full diagnostic."""
+        """PT-PT: Diagnóstico completo. / EN-UK: Full diagnostic."""
         self.mostrar("resumo")
         config = self.config_app
 
@@ -661,7 +661,7 @@ class ITToolkitApp(ctk.CTk):
         self.escrever("eventos", self._texto_eventos(analise) if analise else "")
 
     def analisar_eventos(self) -> None:
-        """PT-PT: So os event logs. / EN-UK: Event logs only."""
+        """PT-PT: Só os event logs. / EN-UK: Event logs only."""
         config = self.config_app
 
         def trabalho():
@@ -675,7 +675,7 @@ class ITToolkitApp(ctk.CTk):
         self._trabalhar(trabalho, "eventos", "A ler os event logs…")
 
     def _texto_eventos(self, analise) -> str:
-        """PT-PT: Analise em texto para o ecra. / EN-UK: Analysis as screen text."""
+        """PT-PT: Análise em texto para o ecrã. / EN-UK: Analysis as screen text."""
         linhas = [
             f"Período: últimas {analise.horas}h · {analise.total} evento(s) lido(s)",
             analise.veredicto,
@@ -852,7 +852,7 @@ class ITToolkitApp(ctk.CTk):
         self._trabalhar(trabalho, "servicos", f"A arrancar {nome}…")
 
     def executar_ferramenta(self, accao) -> None:
-        """PT-PT: Corre uma ferramenta rapida. / EN-UK: Runs a quick tool."""
+        """PT-PT: Corre uma ferramenta rápida. / EN-UK: Runs a quick tool."""
         if accao.confirmar and not messagebox.askyesno(
             __app_name__, f"{accao.etiqueta}\n\n{accao.descricao}\n\nContinuar?"
         ):
@@ -921,7 +921,7 @@ class ITToolkitApp(ctk.CTk):
         self.escrever("inventario", "\n".join(linhas))
 
     # ------------------------------------------------------------------
-    # PT-PT: Relatorios / EN-UK: Reports
+    # PT-PT: Relatórios / EN-UK: Reports
     # ------------------------------------------------------------------
 
     def _gravar_relatorio(self, html: str, prefixo: str) -> None:

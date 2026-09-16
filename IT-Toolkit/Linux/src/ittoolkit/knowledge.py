@@ -1,31 +1,31 @@
 #!/usr/bin/env python3
 """
-PT-PT: Base de conhecimento do diario do systemd.
+PT-PT: Base de conhecimento do diário do systemd.
 
-       So dados. E o unico ficheiro do projecto que pode ser editado por quem
-       nao programa: acrescentar uma regra e acrescentar uma entrada a lista.
+       Só dados. E o único ficheiro do projecto que pode ser editado por quem
+       não programa: acrescentar uma regra e acrescentar uma entrada a lista.
 
-       **Porque e que a chave nao e um numero.** A versao de Windows desta
+       **Porque e que a chave não é um número.** A versão de Windows desta
        ferramenta indexa a base por Event ID, porque em Windows cada evento tem
-       um. Em Linux nao ha numero nenhum: o diario guarda texto livre, e o que
-       identifica um problema e um padrao no texto somado a quem o escreveu.
+       um. Em Linux não há número nenhum: o diário guarda texto livre, e o que
+       identifica um problema e um padrão no texto somado a quem o escreveu.
 
-       Sem a unidade, o padrao apanha o que nao deve. Um "I/O error" vindo do
-       kernel e um disco a falhar; o mesmo texto vindo de uma aplicacao
-       qualquer nao e nada, e marca-lo como falha de disco manda alguem
+       Sem a unidade, o padrão apanha o que não deve. Um "I/O error" vindo do
+       kernel e um disco a falhar; o mesmo texto vindo de uma aplicação
+       qualquer não é nada, e marca-lo como falha de disco manda alguém
        substituir um SSD que esta bom.
 
-       **Porque e que as expressoes sao curtas.** Cada padrao apanha a parte da
-       mensagem que nao muda entre kernels e entre distribuicoes. O texto que
-       vem a volta muda — os nomes dos dispositivos, os PID, as versoes — e uma
-       expressao que tente apanhar a linha inteira funciona numa maquina e
+       **Porque e que as expressões são curtas.** Cada padrão apanha a parte da
+       mensagem que não muda entre kernels e entre distribuições. O texto que
+       vem a volta muda — os nomes dos dispositivos, os PID, as versões — e uma
+       expressão que tente apanhar a linha inteira funciona numa máquina e
        falha na seguinte.
 
-       As entradas marcadas com `ruido=True` sao mensagens que aparecem em
-       maquinas perfeitamente saudaveis. Ficam na base para serem reconhecidas
-       e postas de lado, e nao contam para o veredicto: um relatorio que grita
-       por causa de um aviso de ACPI que todos os portateis dao ensina o
-       utilizador a ignorar o relatorio.
+       As entradas marcadas com `ruido=True` são mensagens que aparecem em
+       máquinas perfeitamente saudáveis. Ficam na base para serem reconhecidas
+       e postas de lado, e não contam para o veredicto: um relatório que grita
+       por causa de um aviso de ACPI que todos os portáteis dão ensina o
+       utilizador a ignorar o relatório.
 
 EN-UK: systemd journal knowledge base.
 
@@ -57,7 +57,7 @@ from .models import Gravidade, Regra
 
 REGRAS: tuple[Regra, ...] = (
     # ------------------------------------------------------------------
-    # PT-PT: Memoria / EN-UK: Memory
+    # PT-PT: Memória / EN-UK: Memory
     # ------------------------------------------------------------------
     Regra(
         padrao=r"Out of memory: Kill(ed)? process|oom-kill(er)?:",
@@ -205,7 +205,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.CRITICA,
     ),
     # ------------------------------------------------------------------
-    # PT-PT: Aplicacoes / EN-UK: Applications
+    # PT-PT: Aplicações / EN-UK: Applications
     # ------------------------------------------------------------------
     Regra(
         padrao=r"segfault at |general protection fault|traps: ",
@@ -330,11 +330,11 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.CRITICA,
     ),
     # ------------------------------------------------------------------
-    # PT-PT: Ruido conhecido / EN-UK: Known noise
+    # PT-PT: Ruído conhecido / EN-UK: Known noise
     #
-    # PT-PT: Estas aparecem em maquinas perfeitamente saudaveis. Ficam aqui para
-    #        serem reconhecidas e postas de lado — um relatorio que grita por
-    #        causa delas ensina o utilizador a ignorar o relatorio.
+    # PT-PT: Estas aparecem em máquinas perfeitamente saudáveis. Ficam aqui para
+    #        serem reconhecidas e postas de lado — um relatório que grita por
+    #        causa delas ensina o utilizador a ignorar o relatório.
     # EN-UK: These appear on perfectly healthy machines. They are here to be
     #        recognised and set aside.
     # ------------------------------------------------------------------

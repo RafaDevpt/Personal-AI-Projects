@@ -1,11 +1,11 @@
 """
-PT-PT: Testes da analise do diario, da geracao de relatorios e da configuracao.
+PT-PT: Testes da análise do diário, da geração de relatórios e da configuração.
 
-       Nenhum destes testes corre um comando, le o diario de uma maquina real ou
-       precisa de um Mac. Os registos sao construidos a mao, no formato que o
-       `log show --style ndjson` produz, e e por isso que esta suite corre em
-       qualquer sitio — incluindo numa maquina de desenvolvimento que nao seja
-       um Mac, e num runner de integracao continua.
+       Nenhum destes testes corre um comando, lê o diário de uma máquina real ou
+       precisa de um Mac. Os registos são construídos a mão, no formato que o
+       `log show --style ndjson` produz, e é por isso que esta suite corre em
+       qualquer sítio — incluindo numa máquina de desenvolvimento que não seja
+       um Mac, e num runner de integração contínua.
 
 EN-UK: Tests for log analysis, report generation and configuration.
 
@@ -29,11 +29,11 @@ from ittoolkit.models import Achado, Gravidade
 def registo(mensagem, processo="/usr/libexec/exemplod", tipo="Error",
             instante="2026-08-30 11:02:31.123456+0100"):
     """
-    PT-PT: Constroi um registo como o `log show --style ndjson` o devolve.
+    PT-PT: Constrói um registo como o `log show --style ndjson` o devolve.
 
-           O `processImagePath` e um caminho completo, e nao um nome — e assim
-           que o macOS o escreve, e um teste que passasse so o nome nao estaria
-           a testar o que a maquina entrega.
+           O `processImagePath` e um caminho completo, e não um nome — e assim
+           que o macOS o escreve, e um teste que passasse só o nome não estaria
+           a testar o que a máquina entrega.
 
     EN-UK: Builds a record as `log show --style ndjson` returns it.
 
@@ -52,9 +52,9 @@ def registo(mensagem, processo="/usr/libexec/exemplod", tipo="Error",
 
 class TestAssinatura:
     """
-    PT-PT: A assinatura e o centro do modulo: e o que decide o que conta como
+    PT-PT: A assinatura e o centro do módulo: e o que decide o que conta como
            «a mesma mensagem». Cada teste aqui corresponde a uma forma de o
-           diario escrever um valor diferente na mesma mensagem.
+           diário escrever um valor diferente na mesma mensagem.
     EN-UK: The signature is the module's centre: it decides what counts as "the
            same message".
     """
@@ -67,7 +67,7 @@ class TestAssinatura:
     def test_uuid_diferente_da_a_mesma_assinatura(self):
         """
         PT-PT: O macOS mete UUID em quase tudo. Sem os normalizar, cada
-               ocorrencia de um problema conta como um problema novo.
+               ocorrência de um problema conta como um problema novo.
         EN-UK: macOS puts UUIDs in nearly everything.
         """
         a = events.assinatura("session 3F2504E0-4F89-11D3-9A0C-0305E82C3301 failed")
@@ -81,8 +81,8 @@ class TestAssinatura:
 
     def test_pasta_pessoal_e_normalizada(self):
         """
-        PT-PT: O mesmo erro em dois Macs so difere no nome do utilizador. Num
-               relatorio de parque, contam como um.
+        PT-PT: O mesmo erro em dois Macs só difere no nome do utilizador. Num
+               relatório de parque, contam como um.
         EN-UK: The same error on two Macs differs only in the user's name.
         """
         a = events.assinatura("cannot open /Users/rafael/Documents/x")
@@ -107,9 +107,9 @@ class TestAnalise:
 
     def test_separa_a_mesma_mensagem_de_processos_diferentes(self):
         """
-        PT-PT: O mesmo texto vindo de dois processos sao dois problemas. Um
-               «connection refused» do Mail e um do Safari nao se resolvem no
-               mesmo sitio.
+        PT-PT: O mesmo texto vindo de dois processos são dois problemas. Um
+               «connection refused» do Mail e um do Safari não se resolvem no
+               mesmo sítio.
         EN-UK: The same text from two processes is two problems.
         """
         registos = [
@@ -122,7 +122,7 @@ class TestAnalise:
     def test_o_grupo_fica_com_o_tipo_mais_grave(self):
         """
         PT-PT: Um processo que regista noventa vezes e falha uma e um problema,
-               nao um registo. Ordenar pelo registo enterrava-o no fim da lista.
+               não um registo. Ordenar pelo registo enterrava-o no fim da lista.
         EN-UK: A process logging ninety times and faulting once is a problem.
         """
         registos = [
@@ -148,8 +148,8 @@ class TestAnalise:
 
     def test_ruido_conhecido_nao_conta_para_o_veredicto(self):
         """
-        PT-PT: As negacoes de sandbox sao centenas por dia num Mac saudavel.
-               Conta-las como problemas tornaria o veredicto inutil.
+        PT-PT: As negações de sandbox são centenas por dia num Mac saudável.
+               Conta-las como problemas tornaria o veredicto inútil.
         EN-UK: Sandbox denials number in the hundreds a day on a healthy Mac.
         """
         registos = [
@@ -201,7 +201,7 @@ class TestProcessoDe:
         """
         PT-PT: O `/usr/libexec/nehelper` interessa como `nehelper`. Guardar o
                caminho inteiro faz a mesma coisa parecer diferente conforme a
-               versao do macOS a tenha movido de sitio.
+               versão do macOS a tenha movido de sítio.
         EN-UK: `/usr/libexec/nehelper` matters as `nehelper`.
         """
         assert events.processo_de({"processImagePath": "/usr/libexec/nehelper"}) == "nehelper"
@@ -226,7 +226,7 @@ class TestComandoLeitura:
 
     def test_predicado_restringe_do_lado_do_sistema(self):
         """
-        PT-PT: Filtrar depois de receber e receber tudo — e num Mac isso sao
+        PT-PT: Filtrar depois de receber e receber tudo — e num Mac isso são
                dezenas de milhares de linhas por hora.
         EN-UK: Filtering after receiving means receiving everything.
         """
@@ -241,9 +241,9 @@ class TestComandoLeitura:
 
 class TestRelatoriosDeParagem:
     """
-    PT-PT: Os relatorios de paragem sao ficheiros e nao linhas de diario, e e
-           por isso que sobrevivem ao reinicio que levou o diario. Estes testes
-           usam uma pasta temporaria, e nao a do sistema.
+    PT-PT: Os relatórios de paragem são ficheiros e não linhas de diário, e e
+           por isso que sobrevivem ao reinício que levou o diário. Estes testes
+           usam uma pasta temporária, e não a do sistema.
     EN-UK: Crash reports are files rather than log lines, which is why they
            survive the reboot that took the log with it.
     """
@@ -279,9 +279,9 @@ class TestRelatorios:
 
     def test_html_escapa_o_conteudo_do_sistema(self):
         """
-        PT-PT: O teste que importa mais deste ficheiro. As negacoes de sandbox
+        PT-PT: O teste que importa mais deste ficheiro. As negações de sandbox
                trazem descritores entre parenteses angulares, e inseri-los em
-               bruto partia o relatorio ou, no pior caso, executava-os.
+               bruto partia o relatório ou, no pior caso, executava-os.
         EN-UK: The most important test here.
         """
         registos = [registo("<script>alert('x')</script> e <b>negrito</b>")]
@@ -421,8 +421,8 @@ class TestConfig:
 
     def test_o_diario_esta_sempre_na_lista(self):
         """
-        PT-PT: Num Mac ha um diario unico e nao ha nada para escolher dentro
-               dele. Desligar tudo deixaria a analise sem fonte nenhuma.
+        PT-PT: Num Mac há um diário único e não há nada para escolher dentro
+               dele. Desligar tudo deixaria a análise sem fonte nenhuma.
         EN-UK: On a Mac there is a single log and nothing to choose inside it.
         """
         assert "diário" in AppConfig(incluir_relatorios_paragem=False).fontes_escolhidas
@@ -456,7 +456,7 @@ class TestParticao:
 
 class TestVolumesRelevantes:
     """
-    PT-PT: A funcao que decide o que entra no relatorio de espaco. Cada caso
+    PT-PT: A função que decide o que entra no relatório de espaço. Cada caso
            aqui apareceu como falso alarme antes de existir esta filtragem.
     EN-UK: The function deciding what enters the space report.
     """
@@ -468,8 +468,8 @@ class TestVolumesRelevantes:
 
     def test_volumes_internos_do_apfs_nao_contam(self):
         """
-        PT-PT: O Preboot, o VM e o Recovery sao geridos pelo sistema e o
-               utilizador nao pode fazer nada sobre eles.
+        PT-PT: O Preboot, o VM e o Recovery são geridos pelo sistema e o
+               utilizador não pode fazer nada sobre eles.
         EN-UK: Preboot, VM and Recovery are system-managed.
         """
         assert disks.relevante("apfs", "/System/Volumes/Preboot") is False
@@ -523,8 +523,8 @@ class TestServicos:
 
     def test_traco_no_codigo_nao_e_zero(self):
         """
-        PT-PT: O traco significa «nao ha codigo», e nao «codigo zero». Um
-               servico a correr tem traco na coluna do codigo, e trata-lo como
+        PT-PT: O traço significa «não há código», e não «código zero». Um
+               serviço a correr tem traço na coluna do código, e trata-lo como
                zero e dizer que terminou bem quando nem sequer terminou.
         EN-UK: The dash means "no code", not "code zero".
         """
@@ -534,8 +534,8 @@ class TestServicos:
 
     def test_a_coluna_do_codigo_e_a_que_identifica_a_falha(self):
         """
-        PT-PT: E a unica forma de o launchd dizer que um servico falhou. Ler mal
-               esta coluna e nao ver falha nenhuma numa maquina cheia delas.
+        PT-PT: E a única forma de o launchd dizer que um serviço falhou. Ler mal
+               esta coluna e não ver falha nenhuma numa máquina cheia delas.
         EN-UK: It is launchd's only way of saying a service failed.
         """
         saida = (

@@ -1,6 +1,6 @@
 """
-PT-PT: Testes da analise de eventos, da geracao de relatorios e da configuracao.
-       Nenhum destes testes toca no Windows nem le event logs reais.
+PT-PT: Testes da análise de eventos, da geração de relatórios e da configuração.
+       Nenhum destes testes toca no Windows nem lê event logs reais.
 EN-UK: Tests for event analysis, report generation and configuration. None of
        these tests touch Windows or read real event logs.
 
@@ -21,7 +21,7 @@ from ittoolkit.shell import normalizar_json
 
 
 def registo(event_id, provider, nivel=2, quando="2026-08-27 10:00:00", mensagem="ok"):
-    """PT-PT: Constroi um registo como o PowerShell o devolve.
+    """PT-PT: Constrói um registo como o PowerShell o devolve.
     EN-UK: Builds a record as PowerShell returns it."""
     return {
         "Id": event_id,
@@ -34,7 +34,7 @@ def registo(event_id, provider, nivel=2, quando="2026-08-27 10:00:00", mensagem=
 
 class TestAnalise:
     def test_agrupa_ocorrencias_iguais(self):
-        """PT-PT: Cinquenta linhas iguais sao um problema, nao cinquenta.
+        """PT-PT: Cinquenta linhas iguais são um problema, não cinquenta.
         EN-UK: Fifty identical lines are one problem, not fifty."""
         registos = [registo(41, "Kernel-Power", nivel=1) for _ in range(50)]
         analise = events.analisar({"System": registos}, 24, 3000)
@@ -60,7 +60,7 @@ class TestAnalise:
 
     def test_evento_desconhecido_e_recorrente_sobe_a_problemas(self):
         """
-        PT-PT: Nao ter entrada na base nao torna um evento inofensivo.
+        PT-PT: Não ter entrada na base não torna um evento inofensivo.
         EN-UK: Having no knowledge-base entry does not make an event harmless.
         """
         registos = [registo(9999, "Fornecedor Qualquer", nivel=2) for _ in range(8)]
@@ -76,7 +76,7 @@ class TestAnalise:
 
     def test_primeiro_e_ultimo_por_comparacao_de_datas(self):
         """
-        PT-PT: A ordem em que os registos chegam nao pode determinar as colunas.
+        PT-PT: A ordem em que os registos chegam não pode determinar as colunas.
         EN-UK: The order records arrive in must not determine the columns.
         """
         registos = [
@@ -90,7 +90,7 @@ class TestAnalise:
 
     def test_id_invalido_e_ignorado_sem_rebentar(self):
         """
-        PT-PT: A v1.0 morria com TypeError a meio da analise.
+        PT-PT: A v1.0 morria com TypeError a meio da análise.
         EN-UK: v1.0 died with a TypeError halfway through.
         """
         registos = [registo(41, "Kernel-Power", nivel=1), {"Id": None}, {"Id": "abc"}]
@@ -103,7 +103,7 @@ class TestAnalise:
 
     def test_truncagem_e_declarada(self):
         """
-        PT-PT: Um relatorio incompleto tem de o dizer.
+        PT-PT: Um relatório incompleto tem de o dizer.
         EN-UK: An incomplete report has to say so.
         """
         registos = [registo(7000, "Service Control Manager") for _ in range(10)]
@@ -137,7 +137,7 @@ class TestComandoLeitura:
 
     def test_silencia_o_erro_de_log_vazio(self):
         """
-        PT-PT: Sem isto, «sem erros nas ultimas 24h» aparecia como falha.
+        PT-PT: Sem isto, «sem erros nas últimas 24h» aparecia como falha.
         EN-UK: Without this, "no errors in 24h" looked like a failure.
         """
         assert "-ErrorAction SilentlyContinue" in events._comando_leitura("System", 24, [2], 100)
@@ -153,8 +153,8 @@ class TestRelatorios:
     def test_html_escapa_o_conteudo_do_windows(self):
         """
         PT-PT: O teste que importa mais deste ficheiro. Mensagens de eventos com
-               sinais de menor e maior sao vulgares, e insere-las em bruto
-               partia o relatorio ou, no pior caso, executava-as.
+               sinais de menor e maior são vulgares, e insere-las em bruto
+               partia o relatório ou, no pior caso, executava-as.
         EN-UK: The most important test here. Event messages containing angle
                brackets are commonplace; inserting them raw broke the report or,
                at worst, executed them.
@@ -220,7 +220,7 @@ class TestRelatorios:
 
     def test_gravar_nunca_sobrepoe(self, tmp_path: Path):
         """
-        PT-PT: Duas analises seguidas nao podem perder a primeira.
+        PT-PT: Duas analises seguidas não podem perder a primeira.
         EN-UK: Two analyses in a row must not lose the first.
         """
         primeiro = reports.gravar("<html></html>", tmp_path, "saude")
@@ -251,7 +251,7 @@ class TestRelatorios:
 
 
 class TestNormalizarJson:
-    """PT-PT: Os tres formatos que o ConvertTo-Json produz.
+    """PT-PT: Os três formatos que o ConvertTo-Json produz.
     EN-UK: The three shapes ConvertTo-Json produces."""
 
     def test_lista_fica_como_esta(self):
@@ -326,8 +326,8 @@ class TestConfig:
 
     def test_config_nao_escreve_dentro_do_repositorio(self):
         """
-        PT-PT: Os relatorios contem nome da maquina, utilizador e numero de
-               serie. Se a pasta ficasse dentro do repositorio, um `git add .`
+        PT-PT: Os relatórios contém nome da máquina, utilizador e número de
+               série. Se a pasta ficasse dentro do repositório, um `git add .`
                levava-os para o GitHub.
         EN-UK: Reports carry machine name, user and serial. If the folder sat
                inside the repository, a `git add .` would push them to GitHub.
@@ -356,7 +356,7 @@ class TestParticao:
     def test_volume_so_de_leitura_nao_gera_alerta(self, monkeypatch=None):
         """
         PT-PT: Uma ISO montada esta sempre a 0% livre e nunca e um problema.
-               Sem esta excepcao, o relatorio abria com alertas críticos falsos
+               Sem esta excepção, o relatório abria com alertas críticos falsos
                e o operador aprendia a ignorar a secção dos discos.
         EN-UK: A mounted ISO always sits at 0% free and is never a problem.
         """
@@ -396,8 +396,8 @@ class TestServicos:
 
     def test_nome_de_servico_com_caracteres_estranhos_e_recusado(self):
         """
-        PT-PT: O nome entra numa string de comando. Sem validacao, um nome com
-               ponto e virgula executava outra coisa qualquer.
+        PT-PT: O nome entra numa string de comando. Sem validação, um nome com
+               ponto e vírgula executava outra coisa qualquer.
         EN-UK: The name goes into a command string. Without validation, a name
                with a semicolon would run something else entirely.
         """

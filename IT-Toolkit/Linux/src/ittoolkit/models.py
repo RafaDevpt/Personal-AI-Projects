@@ -1,6 +1,6 @@
 """
-PT-PT: Estruturas de dados partilhadas. Sem dependencias de GUI, de Linux ou
-       de rede — e o que torna a logica testavel numa maquina qualquer.
+PT-PT: Estruturas de dados partilhadas. Sem dependências de GUI, de Linux ou
+       de rede — e o que torna a lógica testável numa máquina qualquer.
 EN-UK: Shared data structures. No GUI, Linux or network dependencies — which
        is what makes the logic testable on any machine.
 
@@ -17,14 +17,14 @@ from enum import Enum
 
 class Gravidade(Enum):
     """
-    PT-PT: Gravidade de um achado. O valor numerico define a ordenacao: o que
-           importa mais aparece primeiro, no ecra e no relatorio.
+    PT-PT: Gravidade de um achado. O valor numérico define a ordenação: o que
+           importa mais aparece primeiro, no ecrã e no relatório.
 
            A v1.0 usava strings soltas ("critica", "alta"...) indexadas contra
-           um dicionario de cores. Um erro de escrita numa entrada da base de
-           conhecimento rebentava a geracao do relatorio com um KeyError, e so
-           quando essa entrada aparecesse numa maquina real. Com um Enum, o erro
-           aparece ao importar o modulo, e ha um teste que percorre a base toda.
+           um dicionário de cores. Um erro de escrita numa entrada da base de
+           conhecimento rebentava a geração do relatório com um KeyError, e só
+           quando essa entrada aparecesse numa máquina real. Com um Enum, o erro
+           aparece ao importar o módulo, e há um teste que percorre a base toda.
 
     EN-UK: Severity of a finding. The numeric value defines ordering. v1.0 used
            loose strings indexed against a colour dictionary; a typo in a
@@ -40,7 +40,7 @@ class Gravidade(Enum):
 
     @property
     def etiqueta(self) -> str:
-        """PT-PT: Nome em maiusculas para o relatorio.
+        """PT-PT: Nome em maiúsculas para o relatório.
         EN-UK: Upper-case name for the report."""
         return self.name
 
@@ -60,22 +60,22 @@ class Gravidade(Enum):
 @dataclass(slots=True)
 class Regra:
     """
-    PT-PT: Uma entrada da base de conhecimento do diario do systemd.
+    PT-PT: Uma entrada da base de conhecimento do diário do systemd.
 
-           A diferenca em relacao ao Windows e de fundo, e vale a pena
-           explica-la. Em Windows um evento tem um numero — o Event ID — e a
-           chave da base e o par (numero, provider). Em Linux nao ha numero
-           nenhum: o diario guarda texto livre, e o que identifica um problema e
-           **um padrao no texto** somado a **quem o escreveu**.
+           A diferença em relação ao Windows e de fundo, e vale a pena
+           explica-la. Em Windows um evento tem um número — o Event ID — e a
+           chave da base e o par (número, provider). Em Linux não há número
+           nenhum: o diário guarda texto livre, e o que identifica um problema e
+           **um padrão no texto** somado a **quem o escreveu**.
 
-           Por isso a chave aqui e o par (expressao regular, fragmento da
-           unidade). Sem a unidade, o mesmo padrao apanha coisas diferentes: um
+           Por isso a chave aqui e o par (expressão regular, fragmento da
+           unidade). Sem a unidade, o mesmo padrão apanha coisas diferentes: um
            "I/O error" do kernel e um disco a falhar, e o mesmo texto vindo de
-           uma aplicacao qualquer nao e nada.
+           uma aplicação qualquer não é nada.
 
-           A expressao e compilada uma vez, ao importar o modulo. Se alguem
-           escrever uma expressao invalida numa entrada nova, o erro aparece ao
-           arrancar e nao a meio de um diagnostico numa maquina real.
+           A expressão e compilada uma vez, ao importar o módulo. Se alguém
+           escrever uma expressão inválida numa entrada nova, o erro aparece ao
+           arrancar e não a meio de um diagnóstico numa máquina real.
 
     EN-UK: One knowledge-base entry for the systemd journal.
 
@@ -101,8 +101,8 @@ class Regra:
     causa: str
     solucao: str
     gravidade: Gravidade
-    #: PT-PT: Ruido conhecido que so interessa se coincidir com falhas reais.
-    #:        Nao conta para o veredicto do relatorio.
+    #: PT-PT: Ruído conhecido que só interessa se coincidir com falhas reais.
+    #:        Não conta para o veredicto do relatório.
     #: EN-UK: Known noise; excluded from the report verdict.
     ruido: bool = False
     _compilado: re.Pattern[str] | None = field(default=None, repr=False, compare=False)
@@ -112,12 +112,12 @@ class Regra:
 
     def corresponde(self, mensagem: str, unidade: str) -> bool:
         """
-        PT-PT: Confirma o padrao e a unidade.
+        PT-PT: Confirma o padrão e a unidade.
 
         EN-UK: Confirms the pattern and the unit.
 
         :param mensagem:
-            PT-PT: A linha do diario. / EN-UK: The journal line.
+            PT-PT: A linha do diário. / EN-UK: The journal line.
         :param unidade:
             PT-PT: O identificador de quem a escreveu — `_SYSTEMD_UNIT` ou
                    `SYSLOG_IDENTIFIER`.
@@ -134,12 +134,12 @@ class Regra:
 @dataclass(slots=True)
 class GrupoEventos:
     """
-    PT-PT: Ocorrencias da mesma mensagem agrupadas. Cinquenta linhas iguais no
-           diario sao um problema, nao cinquenta.
+    PT-PT: Ocorrências da mesma mensagem agrupadas. Cinquenta linhas iguais no
+           diário são um problema, não cinquenta.
 
-           O agrupamento e por (unidade, assinatura da mensagem) e nao pela
-           mensagem inteira: o diario escreve o PID, o endereco de memoria e o
-           timestamp dentro do texto, e sem os normalizar cinquenta ocorrencias
+           O agrupamento e por (unidade, assinatura da mensagem) e não pela
+           mensagem inteira: o diário escreve o PID, o endereço de memória e o
+           timestamp dentro do texto, e sem os normalizar cinquenta ocorrências
            do mesmo segfault contariam como cinquenta problemas distintos.
 
     EN-UK: Occurrences of the same message, grouped. Fifty identical lines in
@@ -161,7 +161,7 @@ class GrupoEventos:
     exemplo: str = ""
     regra: Regra | None = None
 
-    #: PT-PT: A partir de quantas ocorrencias se considera recorrente.
+    #: PT-PT: A partir de quantas ocorrências se considera recorrente.
     #: EN-UK: Occurrence count from which it counts as recurring.
     LIMITE_RECORRENCIA: int = field(default=5, repr=False)
 
@@ -174,9 +174,9 @@ class GrupoEventos:
     @property
     def gravidade(self) -> Gravidade:
         """
-        PT-PT: Gravidade da regra, se houver; caso contrario deriva da
-               prioridade syslog do proprio registo, para as mensagens sem
-               entrada na base tambem serem ordenadas de forma util.
+        PT-PT: Gravidade da regra, se houver; caso contrário deriva da
+               prioridade syslog do próprio registo, para as mensagens sem
+               entrada na base também serem ordenadas de forma útil.
         EN-UK: The rule's severity if there is one; otherwise derived from the
                record's own syslog priority.
         """
@@ -188,11 +188,11 @@ class GrupoEventos:
     @property
     def nivel_texto(self) -> str:
         """
-        PT-PT: Nome da prioridade syslog em portugues.
+        PT-PT: Nome da prioridade syslog em português.
 
-               Derivado do numero e nao lido de texto do sistema: o `journalctl`
-               nao traduz, mas as oito prioridades do syslog sao um standard com
-               nomes proprios, e um relatorio em portugues nao deve dizer
+               Derivado do número e não lido de texto do sistema: o `journalctl`
+               não traduz, mas as oito prioridades do syslog são um standard com
+               nomes próprios, e um relatório em português não deve dizer
                «emerg».
 
         EN-UK: The syslog priority's name in Portuguese, derived from the number
@@ -207,8 +207,8 @@ class GrupoEventos:
 @dataclass(slots=True)
 class Analise:
     """
-    PT-PT: Resultado completo de uma analise de eventos, pronto a mostrar ou a
-           escrever num relatorio.
+    PT-PT: Resultado completo de uma análise de eventos, pronto a mostrar ou a
+           escrever num relatório.
     EN-UK: The complete result of an event analysis, ready to display or write
            into a report.
     """
@@ -224,14 +224,14 @@ class Analise:
 
     @property
     def criticos(self) -> int:
-        """PT-PT: Quantos problemas criticos foram identificados.
+        """PT-PT: Quantos problemas críticos foram identificados.
         EN-UK: How many critical problems were identified."""
         return sum(1 for g in self.problemas if g.gravidade is Gravidade.CRITICA)
 
     @property
     def acionaveis(self) -> list[GrupoEventos]:
         """
-        PT-PT: Problemas que merecem accao, ou seja, tudo menos o ruido conhecido.
+        PT-PT: Problemas que merecem acção, ou seja, tudo menos o ruído conhecido.
         EN-UK: Problems worth acting on — everything but the known noise.
         """
         return [g for g in self.problemas if not (g.regra and g.regra.ruido)]
@@ -261,9 +261,9 @@ class Analise:
 @dataclass(slots=True)
 class Achado:
     """
-    PT-PT: Um problema detectado fora dos event logs — disco sem espaco, servico
-           parado, sem ligacao ao gateway. Usado pelo modo de linha de comandos
-           e pelo relatorio de saude.
+    PT-PT: Um problema detectado fora dos event logs — disco sem espaço, serviço
+           parado, sem ligação ao gateway. Usado pelo modo de linha de comandos
+           e pelo relatório de saude.
     EN-UK: A problem detected outside the event logs — a full disk, a stopped
            service, no gateway. Used by the command-line mode and the health
            report.

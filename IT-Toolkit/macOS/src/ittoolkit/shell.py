@@ -1,33 +1,33 @@
 #!/usr/bin/env python3
 """
-PT-PT: Execucao de comandos externos em macOS.
+PT-PT: Execução de comandos externos em macOS.
 
-       Quase todo o diagnostico depende de correr ferramentas do sistema e ler
+       Quase todo o diagnóstico depende de correr ferramentas do sistema e ler
        o que elas devolvem — e ler mal e a fonte mais comum de bugs silenciosos
        numa ferramenta destas.
 
-       Quatro decisoes que valem mais do que o codigo que as implementa.
+       Quatro decisões que valem mais do que o código que as implementa.
 
-       **Nunca `shell=True`.** Os comandos vao como lista de argumentos. Uma
-       ferramenta de diagnostico corre com privilegios e recebe nomes de
-       dispositivos e de servicos que vem do sistema; passa-los por uma shell
-       seria dar-lhes poder de execucao que nao precisam de ter.
+       **Nunca `shell=True`.** Os comandos vão como lista de argumentos. Uma
+       ferramenta de diagnóstico corre com privilegios e recebe nomes de
+       dispositivos e de serviços que vem do sistema; passa-los por uma shell
+       seria dar-lhes poder de execução que não precisam de ter.
 
        **O ambiente e forcado a C.** Um `LANG=pt_PT.UTF-8` faz o `diskutil` e o
-       `system_profiler` traduzirem os cabecalhos, e um parser que procura
+       `system_profiler` traduzirem os cabeçalhos, e um parser que procura
        "Verified" deixa de encontrar "Verificado".
 
-       **Meia dozena de ferramentas do macOS so falam plist** — o
-       `diskutil -plist`, o `defaults`, os `Info.plist` das aplicacoes. O plist
-       nao e JSON e nao se interpreta como tal: tentar faze-lo devolve None e o
-       modulo que chamou conclui, erradamente, que o comando nao respondeu. O
-       `plistlib` da biblioteca padrao le as duas formas — XML e binaria — e e
-       por ai que este modulo os le, sem pipes e sem ficheiros temporarios.
+       **Meia dozena de ferramentas do macOS só falam plist** — o
+       `diskutil -plist`, o `defaults`, os `Info.plist` das aplicações. O plist
+       não é JSON e não se interpreta como tal: tentar faze-lo devolve None e o
+       módulo que chamou conclui, erradamente, que o comando não respondeu. O
+       `plistlib` da biblioteca padrão lê as duas formas — XML e binária — e e
+       por aí que este módulo os lê, sem pipes e sem ficheiros temporários.
 
-       **Um comando lento nao e um comando parado.** O `log show` de um Mac com
-       um mes de historico demora minutos, e o `system_profiler
-       SPApplicationsDataType` demora ainda mais. Os timeouts aqui sao mais
-       generosos do que na versao de Linux de proposito, e o codigo que os usa
+       **Um comando lento não é um comando parado.** O `log show` de um Mac com
+       um mês de histórico demora minutos, e o `system_profiler
+       SPApplicationsDataType` demora ainda mais. Os timeouts aqui são mais
+       generosos do que na versão de Linux de propósito, e o código que os usa
        limita sempre a janela em vez de esperar mais.
 
 EN-UK: External command execution on macOS.
@@ -73,13 +73,13 @@ from xml.parsers.expat import ExpatError
 log = logging.getLogger(__name__)
 
 # PT-PT: O ambiente com que todos os comandos correm. O `LC_ALL=C` garante
-#        saidas em ingles e formatos numericos previsiveis.
+#        saídas em inglês e formatos numéricos previsiveis.
 # EN-UK: The environment every command runs with. `LC_ALL=C` guarantees English
 #        output and predictable number formats.
 AMBIENTE_NEUTRO = {"LC_ALL": "C", "LANG": "C", "LANGUAGE": "C"}
 
-#: PT-PT: Timeout por omissao. E maior do que o da versao de Linux porque as
-#:        ferramentas do macOS sao genuinamente mais lentas — o `diskutil list`
+#: PT-PT: Timeout por omissão. E maior do que o da versão de Linux porque as
+#:        ferramentas do macOS são genuinamente mais lentas — o `diskutil list`
 #:        acorda discos externos, o `log show` percorre um arquivo comprimido.
 #: EN-UK: Default timeout. Larger than the Linux version's because macOS tools
 #:        are genuinely slower — `diskutil list` spins up external disks and
@@ -93,17 +93,17 @@ class Resultado:
     PT-PT: O resultado de um comando.
 
            `ausente` e o campo que distingue os dois tipos de falha. Um
-           `smartctl` que devolve codigo 2 esta a dizer alguma coisa sobre o
-           disco; um `smartctl` que nao existe nao esta a dizer nada sobre disco
-           nenhum — esta a dizer que falta uma formula do Homebrew. Apresentar
-           os dois como «erro ao ler o disco» seria mandar alguem procurar uma
-           avaria que nao existe.
+           `smartctl` que devolve código 2 esta a dizer alguma coisa sobre o
+           disco; um `smartctl` que não existe não esta a dizer nada sobre disco
+           nenhum — esta a dizer que falta uma fórmula do Homebrew. Apresentar
+           os dois como «erro ao ler o disco» seria mandar alguém procurar uma
+           avaria que não existe.
 
-           `sem_permissao` e proprio do macOS e nao existe na versao de Linux.
+           `sem_permissao` e próprio do macOS e não existe na versão de Linux.
            O TCC bloqueia leituras com «Operation not permitted» mesmo ao root,
            e essa mensagem, apresentada em bruto, manda o operador procurar um
-           problema de permissoes de ficheiro que nao ha: o que falta e uma
-           autorizacao nas Definicoes do Sistema.
+           problema de permissões de ficheiro que não há: o que falta e uma
+           autorização nas Definições do Sistema.
 
     EN-UK: A command's result.
 
@@ -280,10 +280,10 @@ def executar(args: list[str], timeout: int = TIMEOUT_NORMAL) -> Resultado:
         codigo=processo.returncode,
         saida=processo.stdout or "",
         erro=erro,
-        # PT-PT: O TCC nao devolve um codigo de saida proprio; devolve esta
+        # PT-PT: O TCC não devolve um código de saída próprio; devolve esta
         #        frase. E feia de detectar assim, mas a alternativa e apresentar
         #        «operation not permitted» ao operador e deixa-lo procurar um
-        #        chmod que nao resolve nada.
+        #        chmod que não resolve nada.
         # EN-UK: TCC returns no exit code of its own; it returns this sentence.
         #        Detecting it this way is ugly, but the alternative is showing
         #        "operation not permitted" and letting the operator hunt for a

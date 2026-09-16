@@ -1,14 +1,14 @@
 """
 PT-PT: Base de conhecimento de Event IDs do Windows.
 
-       So dados. E o unico ficheiro do projecto que pode ser editado por quem
-       nao programa: acrescentar uma regra e acrescentar uma entrada a lista.
+       Só dados. E o único ficheiro do projecto que pode ser editado por quem
+       não programa: acrescentar uma regra e acrescentar uma entrada a lista.
 
-       Nota sobre o par (id, provider). Um Event ID sozinho nao identifica nada.
-       O ID 1000 e um crash de aplicacao quando vem do «Application Error», e
+       Nota sobre o par (id, provider). Um Event ID sozinho não identifica nada.
+       O ID 1000 e um crash de aplicação quando vem do «Application Error», e
        significa outra coisa completamente diferente noutros providers. A v1.0
-       indexava a base so pelo numero, e por isso marcava como «crash de
-       aplicacao» eventos que nao eram nada disso. Aqui a correspondencia exige
+       indexava a base só pelo número, e por isso marcava como «crash de
+       aplicação» eventos que não eram nada disso. Aqui a correspondência exige
        sempre o fragmento do nome do provider.
 
 EN-UK: Windows Event ID knowledge base.
@@ -29,9 +29,9 @@ from __future__ import annotations
 
 from .models import Gravidade, Regra
 
-# PT-PT: Cada regra e um facto sobre um evento, nao uma instrucao para agir.
-#        A coluna «solucao» descreve o que verificar; a decisao e sempre do
-#        operador. Esta ferramenta nao repara nada sozinha.
+# PT-PT: Cada regra e um facto sobre um evento, não uma instrução para agir.
+#        A coluna «solução» descreve o que verificar; a decisão e sempre do
+#        operador. Esta ferramenta não repara nada sozinha.
 # EN-UK: Each rule is a fact about an event, not an instruction to act. The
 #        «solucao» column describes what to check; the decision is always the
 #        operator's. This tool repairs nothing on its own.
@@ -215,7 +215,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.MEDIA,
     ),
     # ------------------------------------------------------------------
-    # PT-PT: Servicos e aplicacoes / EN-UK: Services and applications
+    # PT-PT: Serviços e aplicações / EN-UK: Services and applications
     # ------------------------------------------------------------------
     Regra(
         event_id=7000,
@@ -386,7 +386,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.MEDIA,
     ),
     # ------------------------------------------------------------------
-    # PT-PT: Actualizacoes e seguranca / EN-UK: Updates and security
+    # PT-PT: Actualizações e segurança / EN-UK: Updates and security
     # ------------------------------------------------------------------
     Regra(
         event_id=20,
@@ -455,7 +455,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.ALTA,
     ),
     # ------------------------------------------------------------------
-    # PT-PT: Impressao e sessoes remotas / EN-UK: Printing and remote sessions
+    # PT-PT: Impressão e sessões remotas / EN-UK: Printing and remote sessions
     # ------------------------------------------------------------------
     Regra(
         event_id=372,
@@ -511,5 +511,5 @@ def procurar(event_id: int, provider: str) -> Regra | None:
 
 
 def total_regras() -> int:
-    """PT-PT: Quantas regras estao carregadas. / EN-UK: How many rules are loaded."""
+    """PT-PT: Quantas regras estão carregadas. / EN-UK: How many rules are loaded."""
     return len(REGRAS)

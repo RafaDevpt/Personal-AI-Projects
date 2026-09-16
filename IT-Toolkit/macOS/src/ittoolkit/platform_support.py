@@ -79,8 +79,8 @@ BREW_PREFIXES = (Path("/opt/homebrew"), Path("/usr/local"))
 
 SYSTEM_PYTHON = "/usr/bin/python3"
 
-#: PT-PT: A pasta que so se le com Acesso Total ao Disco. E onde o macOS guarda
-#:        os relatorios de paragem do sistema, incluindo os kernel panics.
+#: PT-PT: A pasta que só se lê com Acesso Total ao Disco. E onde o macOS guarda
+#:        os relatórios de paragem do sistema, incluindo os kernel panics.
 #: EN-UK: The folder readable only with Full Disk Access. It is where macOS
 #:        keeps system diagnostic reports, kernel panics included.
 RELATORIOS_SISTEMA = Path("/Library/Logs/DiagnosticReports")
@@ -216,9 +216,9 @@ def full_disk_access(pasta: Path | None = None) -> bool:
     except PermissionError:
         return False
     except OSError:
-        # PT-PT: A pasta nao existir e outra coisa: nao e falta de permissao, e
-        #        uma maquina que nunca registou nada. Nao ha razao para pedir
-        #        ao utilizador que va as Definicoes.
+        # PT-PT: A pasta não existir e outra coisa: não é falta de permissão, e
+        #        uma máquina que nunca registou nada. Não há razão para pedir
+        #        ao utilizador que va as Definições.
         # EN-UK: The folder not existing is something else: not a missing
         #        permission, but a machine that never recorded anything.
         return True

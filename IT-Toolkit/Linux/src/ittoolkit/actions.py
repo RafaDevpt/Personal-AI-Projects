@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """
-PT-PT: Ferramentas rapidas — accoes pontuais de manutencao.
+PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
 
-       Regra do modulo: nada aqui apaga dados do utilizador, e tudo o que tem
-       impacto declara-o na sua descricao para a interface poder pedir
-       confirmacao.
+       Regra do módulo: nada aqui apaga dados do utilizador, e tudo o que tem
+       impacto declara-o na sua descrição para a interface poder pedir
+       confirmação.
 
-       Duas coisas sao especificas do Linux e moldaram este ficheiro:
+       Duas coisas são específicas do Linux e moldaram este ficheiro:
 
-       1. **Nao ha um `cmd /c start`.** Para abrir uma consola propria e preciso
-          um emulador de terminal, e nao ha nenhum que exista em todo o lado: uma
-          maquina com GNOME tem `gnome-terminal`, uma com KDE tem `konsole`, um
-          servidor sem ambiente grafico nao tem nenhum. A lista `TERMINAIS` e
-          percorrida por ordem e, se nao houver nenhum, a accao diz o comando
-          para o operador o correr onde quiser — que e melhor do que falhar em
-          silencio.
+       1. **Não há um `cmd /c start`.** Para abrir uma consola própria e preciso
+          um emulador de terminal, e não há nenhum que exista em todo o lado: uma
+          máquina com GNOME tem `gnome-terminal`, uma com KDE tem `konsole`, um
+          servidor sem ambiente gráfico não tem nenhum. A lista `TERMINAIS` e
+          percorrida por ordem e, se não houver nenhum, a acção diz o comando
+          para o operador o correr onde quiser — que é melhor do que falhar em
+          silêncio.
 
        2. **O `/tmp` e partilhado.** Em Windows, a pasta TEMP e do utilizador e
           limpa-la e seguro. Em Linux o `/tmp` e de toda a gente, e tem o sticky
           bit precisamente para impedir que um utilizador apague ficheiros de
           outro. Esta limpeza toca apenas no que pertence a quem esta a correr a
-          aplicacao, e na cache pessoal — nunca no `/tmp` inteiro.
+          aplicação, e na cache pessoal — nunca no `/tmp` inteiro.
 
 EN-UK: Quick tools — one-off maintenance actions.
 
@@ -59,8 +59,8 @@ from .shell import Resultado, abrir_ficheiro, disponivel, executar
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Emuladores de terminal, por ordem de preferencia. O
-#:        `x-terminal-emulator` vem primeiro porque e o mecanismo das familias
+#: PT-PT: Emuladores de terminal, por ordem de preferência. O
+#:        `x-terminal-emulator` vem primeiro porque e o mecanismo das famílias
 #:        Debian para dizer «o terminal que este utilizador escolheu».
 #: EN-UK: Terminal emulators, in order of preference. `x-terminal-emulator`
 #:        comes first because it is the Debian families' way of saying "the
@@ -81,7 +81,7 @@ TERMINAIS: tuple[tuple[str, tuple[str, ...]], ...] = (
 @dataclass(frozen=True, slots=True)
 class Accao:
     """
-    PT-PT: Descricao de uma accao para a interface construir os botoes sem
+    PT-PT: Descrição de uma acção para a interface construir os botões sem
            saber nada sobre o que cada uma faz.
     EN-UK: Description of an action, so the interface can build buttons without
            knowing anything about what each one does.
@@ -93,10 +93,10 @@ class Accao:
     #: PT-PT: True obriga a interface a confirmar antes de executar.
     #: EN-UK: True forces the interface to confirm before running.
     confirmar: bool = False
-    #: PT-PT: True significa que abre uma consola propria e nao devolve saida.
+    #: PT-PT: True significa que abre uma consola própria e não devolve saída.
     #: EN-UK: True means it opens its own console and returns no output.
     consola: bool = False
-    #: PT-PT: True significa que so funciona como root.
+    #: PT-PT: True significa que só funciona como root.
     #: EN-UK: True means it only works as root.
     root: bool = False
 
@@ -156,10 +156,10 @@ ACCOES: tuple[Accao, ...] = (
     ),
 )
 
-# PT-PT: Ferramentas graficas de gestao, para nao andar a procura-las no menu.
-#        Ao contrario das consolas MMC do Windows, estas podem nao estar
+# PT-PT: Ferramentas gráficas de gestão, para não andar a procura-las no menu.
+#        Ao contrário das consolas MMC do Windows, estas podem não estar
 #        instaladas — a interface deve verificar com `ferramenta_disponivel`
-#        antes de mostrar o botao.
+#        antes de mostrar o botão.
 # EN-UK: Graphical management tools, so nobody hunts for them in the menu.
 #        Unlike Windows MMC consoles these may not be installed — the interface
 #        should check with `ferramenta_disponivel` before showing the button.
@@ -180,10 +180,10 @@ def ferramenta_disponivel(comando: str) -> bool:
 
 def _abrir_consola(comando: list[str]) -> Resultado:
     """
-    PT-PT: Lanca um comando numa consola propria, sem esperar por ele.
+    PT-PT: Lança um comando numa consola própria, sem esperar por ele.
 
-           Ver o cabecalho do modulo para o porque de haver uma lista de
-           terminais em vez de um so.
+           Ver o cabeçalho do módulo para o porque de haver uma lista de
+           terminais em vez de um só.
 
     EN-UK: Launches a command in its own console, without waiting for it. See
            the module header for why there is a list of terminals rather than one.
@@ -217,17 +217,17 @@ def _abrir_consola(comando: list[str]) -> Resultado:
 
 def limpar_temp() -> Resultado:
     """
-    PT-PT: Limpa os temporarios deste utilizador e a cache pessoal.
+    PT-PT: Limpa os temporários deste utilizador e a cache pessoal.
 
-           Conta o que apagou e o que nao conseguiu. Ficheiros em uso, ou de
-           outro utilizador, nao sao apagaveis e isso e normal, nao um erro — a
-           v1.0 lancava a excepcao do primeiro ficheiro bloqueado e desistia do
-           resto, o que na pratica significava que quase nunca limpava nada.
+           Conta o que apagou e o que não conseguiu. Ficheiros em uso, ou de
+           outro utilizador, não são apagáveis e isso é normal, não um erro — a
+           v1.0 lançava a excepção do primeiro ficheiro bloqueado e desistia do
+           resto, o que na prática significava que quase nunca limpava nada.
 
-           **So toca no que pertence a quem esta a correr a aplicacao.** O `/tmp`
-           de um Linux tem ficheiros de todos os utilizadores e de varios
-           servicos; apagar o que e de outro nao so falha por causa do sticky
-           bit como, se corresse como root, partia sessoes alheias.
+           **Só toca no que pertence a quem esta a correr a aplicação.** O `/tmp`
+           de um Linux tem ficheiros de todos os utilizadores e de vários
+           serviços; apagar o que é de outro não só falha por causa do sticky
+           bit como, se corresse como root, partia sessões alheias.
 
     EN-UK: Clears this user's temporary files and personal cache.
 
@@ -291,9 +291,9 @@ def _limpar_pacotes() -> Resultado:
     """
     PT-PT: Limpa a cache de pacotes descarregados, conforme o gestor.
 
-           O comando muda com a distribuicao; a escolha vem do
-           `platform_support` e nao de adivinhacao pelo que existe no PATH — uma
-           maquina pode ter o `apt` instalado sem ser uma Debian.
+           O comando muda com a distribuição; a escolha vem do
+           `platform_support` e não de adivinhação pelo que existe no PATH — uma
+           máquina pode ter o `apt` instalado sem ser uma Debian.
 
     EN-UK: Clears the downloaded-package cache, per manager. The command changes
            with the distribution; the choice comes from `platform_support` rather
@@ -320,7 +320,7 @@ def _limpar_pacotes() -> Resultado:
 
 def executar_accao(chave: str) -> Resultado:
     """
-    PT-PT: Corre a accao correspondente a chave.
+    PT-PT: Corre a acção correspondente a chave.
     EN-UK: Runs the action matching the key.
     """
     if chave == "limpar_temp":
@@ -353,7 +353,7 @@ def executar_accao(chave: str) -> Resultado:
     if chave == "renovar_ip":
         if disponivel("nmcli"):
             # PT-PT: O `networking off/on` do nmcli renova sem precisar de saber
-            #        o nome da ligacao, que muda de maquina para maquina.
+            #        o nome da ligação, que muda de máquina para máquina.
             # EN-UK: nmcli's `networking off/on` renews without needing the
             #        connection name, which differs from machine to machine.
             desligar = executar(["nmcli", "networking", "off"], timeout=60)
@@ -412,7 +412,7 @@ def executar_accao(chave: str) -> Resultado:
 
 def abrir_ferramenta(comando: str) -> Resultado:
     """
-    PT-PT: Abre uma ferramenta grafica de gestao.
+    PT-PT: Abre uma ferramenta gráfica de gestão.
 
     EN-UK: Opens a graphical management tool.
     """
@@ -431,5 +431,5 @@ def abrir_ferramenta(comando: str) -> Resultado:
 
 
 def abrir_pasta(caminho: os.PathLike[str] | str) -> Resultado:
-    """PT-PT: Abre uma pasta no ambiente grafico. / EN-UK: Opens a folder in the desktop."""
+    """PT-PT: Abre uma pasta no ambiente gráfico. / EN-UK: Opens a folder in the desktop."""
     return abrir_ficheiro(str(caminho))

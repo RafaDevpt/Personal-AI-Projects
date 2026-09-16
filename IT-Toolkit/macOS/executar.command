@@ -2,31 +2,31 @@
 # ===========================================================================
 # PT-PT: Arranque do IT Toolkit em macOS.
 #
-#        A extensao .command e o que permite abrir isto com duplo clique no
+#        A extensão .command e o que permite abrir isto com duplo clique no
 #        Finder, tal como o .bat em Windows.
 #
-#        Tres particularidades do macOS tratadas aqui.
+#        Três particularidades do macOS tratadas aqui.
 #
-#        **O PATH do Homebrew.** Um script aberto pelo Finder nao herda
-#        necessariamente o ambiente da shell, e o `brew` instala em sitios
+#        **O PATH do Homebrew.** Um script aberto pelo Finder não herda
+#        necessariamente o ambiente da shell, e o `brew` instala em sítios
 #        diferentes conforme o processador: /opt/homebrew nos Apple Silicon e
 #        /usr/local nos Intel. Sem os acrescentar, uma ferramenta esta instalada
-#        e a aplicacao jura que nao esta.
+#        e a aplicação jura que não esta.
 #
-#        **O Acesso Total ao Disco.** E a permissao que o `sudo` nao da e que
-#        decide metade do que este diagnostico consegue ver. O aviso aparece
-#        antes de arrancar, porque descobri-lo depois de o relatorio sair
+#        **O Acesso Total ao Disco.** E a permissão que o `sudo` não da e que
+#        decide metade do que este diagnóstico consegue ver. O aviso aparece
+#        antes de arrancar, porque descobri-lo depois de o relatório sair
 #        limpo e descobri-lo tarde.
 #
 #        **O Python do sistema.** O /usr/bin/python3 funciona, mas traz um Tk
-#        antigo que desenha janelas desfocadas em ecrans Retina, e a Apple ja
+#        antigo que desenha janelas desfocadas em ecrans Retina, e a Apple já
 #        anunciou que o vai retirar.
 #
-#        Sobre o sudo: este lancador **nao** se eleva sozinho, e e de proposito.
-#        Correr uma interface grafica como root deixa os relatorios com o dono
-#        trocado, e a partir dai o utilizador normal nao consegue abrir os seus
-#        proprios ficheiros. Quem precisar do diagnostico completo corre
-#        `sudo ./cli.sh --cli`, que nao abre janela nenhuma.
+#        Sobre o sudo: este lancador **não** se eleva sozinho, e e de propósito.
+#        Correr uma interface gráfica como root deixa os relatórios com o dono
+#        trocado, e a partir dai o utilizador normal não consegue abrir os seus
+#        próprios ficheiros. Quem precisar do diagnóstico completo corre
+#        `sudo ./cli.sh --cli`, que não abre janela nenhuma.
 #
 # EN-UK: IT Toolkit launcher for macOS.
 #
@@ -45,15 +45,15 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e Linux
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e Linux
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and Linux versions
 #        live in the folders alongside, each complete and independent.
 PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
-# PT-PT: Os dois sitios onde o Homebrew instala. Acrescentar os dois e
-#        inofensivo: o que nao existir e simplesmente ignorado pela shell.
+# PT-PT: Os dois sítios onde o Homebrew instala. Acrescentar os dois e
+#        inofensivo: o que não existir e simplesmente ignorado pela shell.
 # EN-UK: The two places Homebrew installs to. Adding both is harmless: whichever
 #        does not exist is simply ignored by the shell.
 export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
@@ -95,8 +95,8 @@ fi
 # PT-PT: O que falta, e o que isso custa.
 #
 #        Nada disto impede o arranque. O aviso existe para o operador saber, a
-#        cabeca, o que vai ficar por ver — e nao concluir "esta tudo bem" a
-#        partir de uma verificacao que nunca chegou a correr.
+#        cabeça, o que vai ficar por ver — e não concluir "esta tudo bem" a
+#        partir de uma verificação que nunca chegou a correr.
 #
 # EN-UK: What is missing, and what it costs. None of this stops the launch.
 # ---------------------------------------------------------------------------
@@ -106,9 +106,9 @@ if ! python3 -c "import tkinter" >/dev/null 2>&1; then
     passo "sem ele resta o modo sem interface: ./cli.sh --cli"
 fi
 
-# PT-PT: O teste do Acesso Total ao Disco e por tentativa, porque nao ha API
-#        para perguntar. A pasta dos relatorios de paragem do sistema devolve
-#        "Operation not permitted" a quem nao tem a permissao — mesmo ao root.
+# PT-PT: O teste do Acesso Total ao Disco e por tentativa, porque não há API
+#        para perguntar. A pasta dos relatórios de paragem do sistema devolve
+#        "Operation not permitted" a quem não tem a permissão — mesmo ao root.
 # EN-UK: The Full Disk Access test is by attempt, because there is no API to
 #        ask. The system crash-reports folder returns "Operation not permitted"
 #        to whoever lacks the permission — even to root.

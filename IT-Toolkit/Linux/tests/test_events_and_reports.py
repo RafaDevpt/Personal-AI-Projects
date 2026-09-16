@@ -1,11 +1,11 @@
 """
-PT-PT: Testes da analise do diario, da geracao de relatorios e da configuracao.
+PT-PT: Testes da análise do diário, da geração de relatórios e da configuração.
 
-       Nenhum destes testes corre um comando, le o diario de uma maquina real ou
-       precisa de Linux. Os registos sao construidos a mao, no formato que o
-       `journalctl -o json` produz, e e por isso que esta suite corre em
-       qualquer sitio — incluindo numa maquina de desenvolvimento que nao seja
-       Linux, e num runner de integracao continua.
+       Nenhum destes testes corre um comando, lê o diário de uma máquina real ou
+       precisa de Linux. Os registos são construídos a mão, no formato que o
+       `journalctl -o json` produz, e é por isso que esta suite corre em
+       qualquer sítio — incluindo numa máquina de desenvolvimento que não seja
+       Linux, e num runner de integração contínua.
 
 EN-UK: Tests for journal analysis, report generation and configuration.
 
@@ -28,11 +28,11 @@ from ittoolkit.models import Achado, Gravidade
 
 def registo(mensagem, unidade="cron.service", prioridade=3, instante=1_756_000_000_000_000):
     """
-    PT-PT: Constroi um registo como o `journalctl -o json` o devolve.
+    PT-PT: Constrói um registo como o `journalctl -o json` o devolve.
 
            O `__REALTIME_TIMESTAMP` vem em microssegundos e **como texto** — e
            assim que o journalctl o escreve, e um teste que passasse um inteiro
-           nao estaria a testar o que a maquina entrega.
+           não estaria a testar o que a máquina entrega.
 
     EN-UK: Builds a record as `journalctl -o json` returns it.
 
@@ -50,9 +50,9 @@ def registo(mensagem, unidade="cron.service", prioridade=3, instante=1_756_000_0
 
 class TestAssinatura:
     """
-    PT-PT: A assinatura e o centro do modulo: e o que decide o que conta como
+    PT-PT: A assinatura e o centro do módulo: e o que decide o que conta como
            «a mesma mensagem». Cada teste aqui corresponde a uma forma de o
-           diario escrever um valor diferente na mesma mensagem.
+           diário escrever um valor diferente na mesma mensagem.
     EN-UK: The signature is the module's centre: it decides what counts as "the
            same message".
     """
@@ -69,8 +69,8 @@ class TestAssinatura:
 
     def test_ip_diferente_da_a_mesma_assinatura(self):
         """
-        PT-PT: Cinquenta tentativas de sessao falhadas de cinquenta enderecos
-               sao um ataque, e um ataque e um problema — nao cinquenta.
+        PT-PT: Cinquenta tentativas de sessão falhadas de cinquenta endereços
+               são um ataque, e um ataque e um problema — não cinquenta.
         EN-UK: Fifty failed logins from fifty addresses are one attack.
         """
         a = events.assinatura("Failed password for root from 192.0.2.10 port 51234 ssh2")
@@ -96,9 +96,9 @@ class TestAnalise:
 
     def test_separa_a_mesma_mensagem_de_unidades_diferentes(self):
         """
-        PT-PT: O mesmo texto vindo de duas unidades sao dois problemas. Um
-               «connection refused» do Postfix e um do Nginx nao se resolvem no
-               mesmo sitio.
+        PT-PT: O mesmo texto vindo de duas unidades são dois problemas. Um
+               «connection refused» do Postfix e um do Nginx não se resolvem no
+               mesmo sítio.
         EN-UK: The same text from two units is two problems.
         """
         registos = [
@@ -119,7 +119,7 @@ class TestAnalise:
 
     def test_o_grupo_fica_com_a_prioridade_mais_grave(self):
         """
-        PT-PT: Um servico que avisa noventa vezes e falha uma e um problema, nao
+        PT-PT: Um serviço que avisa noventa vezes e falha uma e um problema, não
                um aviso. Ordenar pelo aviso enterrava-o no fim da lista.
         EN-UK: A service warning ninety times and failing once is a problem.
         """
@@ -192,7 +192,7 @@ class TestUnidadeDe:
 
     def test_usa_o_identificador_quando_nao_ha_unidade(self):
         """
-        PT-PT: As mensagens do kernel nao vêm de unidade nenhuma, e sem este
+        PT-PT: As mensagens do kernel não vêm de unidade nenhuma, e sem este
                recurso ficavam todas agrupadas em «desconhecido».
         EN-UK: Kernel messages come from no unit at all.
         """
@@ -242,8 +242,8 @@ class TestRelatorios:
     def test_html_escapa_o_conteudo_do_sistema(self):
         """
         PT-PT: O teste que importa mais deste ficheiro. Mensagens do kernel e do
-               udev com sinais de menor e maior sao vulgares, e inseri-las em
-               bruto partia o relatorio ou, no pior caso, executava-as.
+               udev com sinais de menor e maior são vulgares, e inseri-las em
+               bruto partia o relatório ou, no pior caso, executava-as.
         EN-UK: The most important test here.
         """
         registos = [registo("<script>alert('x')</script> e <b>negrito</b>")]
@@ -386,8 +386,8 @@ class TestConfig:
 
     def test_config_nao_escreve_dentro_do_repositorio(self):
         """
-        PT-PT: A configuracao vai para o `~/.config`, nunca para a pasta do
-               codigo — um `git status` sujo depois de abrir a aplicacao e um
+        PT-PT: A configuração vai para o `~/.config`, nunca para a pasta do
+               código — um `git status` sujo depois de abrir a aplicação e um
                convite a cometer o ficheiro por engano.
         EN-UK: Configuration goes to `~/.config`, never the code folder.
         """
@@ -408,8 +408,8 @@ class TestParticao:
 
     def test_volume_so_de_leitura_nao_gera_alerta(self):
         """
-        PT-PT: Uma imagem so de leitura esta sempre a 0% livre e nunca e um
-               problema. Alertar sobre ela ensina o operador a ignorar a seccao.
+        PT-PT: Uma imagem só de leitura esta sempre a 0% livre e nunca e um
+               problema. Alertar sobre ela ensina o operador a ignorar a secção.
         EN-UK: A read-only image always sits at 0% free and is never a problem.
         """
         parte = disks.Particao("/mnt/iso", "iso9660", 4.0, 0.0, so_leitura=True)
@@ -419,7 +419,7 @@ class TestParticao:
 
 class TestMontagensRelevantes:
     """
-    PT-PT: A funcao que decide o que entra no relatorio de espaco. Cada caso
+    PT-PT: A função que decide o que entra no relatório de espaço. Cada caso
            aqui apareceu como falso alarme antes de existir esta filtragem.
     EN-UK: The function deciding what enters the space report.
     """
@@ -431,8 +431,8 @@ class TestMontagensRelevantes:
 
     def test_snap_nao_conta(self):
         """
-        PT-PT: Cada snap e um squashfs a 100% de ocupacao por definicao. Numa
-               Ubuntu com quinze snaps, isto dava quinze avisos criticos.
+        PT-PT: Cada snap e um squashfs a 100% de ocupação por definição. Numa
+               Ubuntu com quinze snaps, isto dava quinze avisos críticos.
         EN-UK: Every snap is a squashfs at 100% used by definition.
         """
         assert disks.relevante("squashfs", "/snap/firefox/1234") is False
@@ -454,8 +454,8 @@ class TestRedeAuxiliares:
 
     def test_interfaces_virtuais_sao_ignoradas(self):
         """
-        PT-PT: Uma ponte do Docker nao ter gateway e o normal. Alertar sobre
-               isso numa maquina de programador enchia o relatorio de ruido.
+        PT-PT: Uma ponte do Docker não ter gateway e o normal. Alertar sobre
+               isso numa máquina de programador enchia o relatório de ruído.
         EN-UK: A Docker bridge having no gateway is normal.
         """
         assert network.ignorar_interface("docker0") is True
@@ -481,9 +481,9 @@ class TestServicos:
 
     def test_leitura_da_tabela_mantem_a_descricao_com_espacos(self):
         """
-        PT-PT: A descricao de uma unidade tem espacos; o nome nunca tem. Dividir
-               pela esquerda com um numero fixo de campos e o que impede a
-               descricao de ser cortada ao meio.
+        PT-PT: A descrição de uma unidade tem espaços; o nome nunca tem. Dividir
+               pela esquerda com um número fixo de campos e o que impede a
+               descrição de ser cortada ao meio.
         EN-UK: A unit's description has spaces; its name never does.
         """
         saida = "nginx.service loaded active running A high performance web server\n"

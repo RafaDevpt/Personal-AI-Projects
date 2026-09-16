@@ -1,11 +1,11 @@
 """
-PT-PT: Estado geral da maquina — processador, memoria, tempo ligado e
-       reinicio pendente.
+PT-PT: Estado geral da máquina — processador, memória, tempo ligado e
+       reinício pendente.
 
-       O `psutil` e importado de forma tolerante. E uma dependencia declarada e
-       instalada pelo EXECUTAR.bat, mas numa maquina de dominio a instalacao de
-       pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso nao abria de
-       todo. Aqui o que depende do psutil fica indisponivel e o resto — que e a
+       O `psutil` e importado de forma tolerante. E uma dependência declarada e
+       instalada pelo EXECUTAR.bat, mas numa máquina de domínio a instalação de
+       pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso não abria de
+       todo. Aqui o que depende do psutil fica indisponível e o resto — que é a
        maior parte — continua a funcionar.
 
 EN-UK: Overall machine state — processor, memory, uptime and pending restart.
@@ -36,10 +36,10 @@ except ImportError:  # pragma: no cover
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Chaves do registo que indicam um reinicio pendente. Sao varias porque
+# PT-PT: Chaves do registo que indicam um reinício pendente. São várias porque
 #        cada componente do Windows marca a sua: o Component Based Servicing, o
 #        Windows Update e o renomear de ficheiros no arranque. Verificar apenas
-#        uma — como fazia a v1.0 — dava «sem reinicio pendente» em maquinas que
+#        uma — como fazia a v1.0 — dava «sem reinício pendente» em máquinas que
 #        estavam mesmo a precisar de reiniciar.
 # EN-UK: Registry keys indicating a pending restart. There are several because
 #        each Windows component marks its own. Checking only one — as v1.0 did —
@@ -62,7 +62,7 @@ CHAVES_REBOOT: tuple[tuple[str, str], ...] = (
 
 def identificacao() -> dict[str, str]:
     """
-    PT-PT: Identificacao basica da maquina e da sessao.
+    PT-PT: Identificação básica da máquina e da sessão.
     EN-UK: Basic machine and session identification.
     """
     try:
@@ -80,12 +80,12 @@ def identificacao() -> dict[str, str]:
 
 def arranque() -> dt.datetime | None:
     """
-    PT-PT: Momento do ultimo arranque.
+    PT-PT: Momento do último arranque.
 
-           Vem do `LastBootUpTime` do WMI, e nao do `psutil.boot_time()`, por
-           uma razao especifica do Windows: com o arranque rapido ligado — que
-           e o valor por omissao em portateis — um «encerrar» nao e um
-           encerramento, e uma hibernacao do kernel. As duas fontes discordam
+           Vem do `LastBootUpTime` do WMI, e não do `psutil.boot_time()`, por
+           uma razão específica do Windows: com o arranque rápido ligado — que
+           e o valor por omissão em portáteis — um «encerrar» não é um
+           encerramento, e uma hibernação do kernel. As duas fontes discordam
            nesse caso, e a do WMI e a que corresponde ao que o Windows
            considera o arranque.
 
@@ -137,8 +137,8 @@ def reinicio_pendente() -> list[str]:
         if res.saida.strip().lower() == "sim":
             motivos.append(descricao)
 
-    # PT-PT: Renomeacoes agendadas para o proximo arranque. E a quarta forma de
-    #        marcar reinicio pendente e a que passa mais despercebida.
+    # PT-PT: Renomeações agendadas para o próximo arranque. E a quarta forma de
+    #        marcar reinício pendente e a que passa mais despercebida.
     # EN-UK: Renames scheduled for next boot — the fourth way of marking a
     #        pending restart and the one most often missed.
     res = powershell(
@@ -155,9 +155,9 @@ def reinicio_pendente() -> list[str]:
 
 def carga() -> dict[str, float]:
     """
-    PT-PT: Percentagens de utilizacao de processador e memoria.
+    PT-PT: Percentagens de utilização de processador e memória.
 
-           O intervalo de 0,5 s no `cpu_percent` nao e decorativo: chamado sem
+           O intervalo de 0,5 s no `cpu_percent` não é decorativo: chamado sem
            intervalo, o psutil devolve a media desde o arranque do processo, que
            na primeira chamada e sempre 0,0. A v1.0 mostrava «CPU 0%» no
            dashboard a toda a hora por causa disto.

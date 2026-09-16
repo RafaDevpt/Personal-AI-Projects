@@ -1,11 +1,11 @@
 """
 PT-PT: Testes das particularidades do Linux.
 
-       Correm em qualquer maquina, incluindo uma que nao seja Linux: tudo o que
-       depende do sistema — o conteudo do `/etc/os-release`, o UID, os grupos,
-       a pasta do systemd — entra por argumento. Nao e arrumacao: uma funcao que
-       so se consegue testar na plataforma dela nao e testada em lado nenhum
-       antes de chegar a uma maquina real.
+       Correm em qualquer máquina, incluindo uma que não seja Linux: tudo o que
+       depende do sistema — o conteúdo do `/etc/os-release`, o UID, os grupos,
+       a pasta do systemd — entra por argumento. Não e arrumação: uma função que
+       só se consegue testar na plataforma dela não é testada em lado nenhum
+       antes de chegar a uma máquina real.
 
 EN-UK: Tests for the Linux specifics.
 
@@ -49,7 +49,7 @@ class TestDeteccaoDeDistribuicao:
 
     def test_derivada_pelo_id_like(self) -> None:
         """
-        PT-PT: O Linux Mint nao esta na lista de IDs, e nao precisa: declara
+        PT-PT: O Linux Mint não esta na lista de IDs, e não precisa: declara
                `ID_LIKE=ubuntu debian` precisamente para isto.
         EN-UK: Linux Mint is not in the ID list and does not need to be.
         """
@@ -89,9 +89,9 @@ class TestGestorDePacotes:
 
     def test_distribuicao_desconhecida_nao_inventa_um_gestor(self) -> None:
         """
-        PT-PT: Devolver "apt" por omissao levaria o inventario a procurar um
-               `/var/log/dpkg.log` que nao existe, e a apresentar «sem
-               actualizacoes» numa maquina com centenas.
+        PT-PT: Devolver "apt" por omissão levaria o inventário a procurar um
+               `/var/log/dpkg.log` que não existe, e a apresentar «sem
+               actualizações» numa máquina com centenas.
         EN-UK: Defaulting to "apt" would make the inventory look for a
                `/var/log/dpkg.log` that is not there.
         """
@@ -109,8 +109,8 @@ class TestComandosDeInstalacao:
     def test_o_iproute_muda_de_nome_entre_distribuicoes(self) -> None:
         """
         PT-PT: Em Fedora o pacote chama-se `iproute`, sem o 2. E o tipo de
-               detalhe que faz a diferenca entre uma instrucao que funciona e
-               uma que devolve «pacote nao encontrado».
+               detalhe que faz a diferença entre uma instrução que funciona e
+               uma que devolve «pacote não encontrado».
         EN-UK: On Fedora the package is called `iproute`, with no 2.
         """
         assert "iproute2" in ps.install_command("iproute2", Distro.DEBIAN)
@@ -126,7 +126,7 @@ class TestComandosDeInstalacao:
     def test_nunca_sugere_gestores_de_outro_sistema(self, familia: Distro) -> None:
         """
         PT-PT: Sugerir `brew` ou `winget` a quem esta em Linux e o sintoma de
-               codigo copiado de outra versao sem ser lido.
+               código copiado de outra versão sem ser lido.
         EN-UK: Suggesting `brew` or `winget` on Linux is the symptom of code
                copied from another version without being read.
         """
@@ -149,9 +149,9 @@ class TestPermissoes:
 
     def test_sem_grupo_nao_le_o_diario_completo(self) -> None:
         """
-        PT-PT: E o caso que produz a pior conclusao possivel: o journalctl
-               corre, devolve zero, mostra so as mensagens deste utilizador, e
-               um diagnostico distraido conclui «sem erros no sistema».
+        PT-PT: E o caso que produz a pior conclusão possível: o journalctl
+               corre, devolve zero, mostra só as mensagens deste utilizador, e
+               um diagnóstico distraído conclui «sem erros no sistema».
         EN-UK: The case producing the worst possible conclusion.
         """
         assert ps.reads_full_journal(["users", "video", "audio"]) is False
@@ -161,8 +161,8 @@ class TestPermissoes:
 
     def test_systemd_pela_pasta_e_nao_pelo_binario(self, tmp_path: Path) -> None:
         """
-        PT-PT: Ter o `systemctl` instalado nao significa que o systemd esteja a
-               correr — num contentor, ou numa maquina com OpenRC, o binario
+        PT-PT: Ter o `systemctl` instalado não significa que o systemd esteja a
+               correr — num contentor, ou numa máquina com OpenRC, o binário
                pode la estar sem haver init nenhum a responder.
         EN-UK: Having `systemctl` installed does not mean systemd is running.
         """
@@ -178,9 +178,9 @@ class TestPastaDeDados:
 
     def test_respeita_o_xdg_config_home(self, tmp_path: Path, monkeypatch) -> None:
         """
-        PT-PT: Quem define esta variavel fe-lo de proposito, normalmente para
-               separar configuracao de cache ou para a por num volume
-               sincronizado. Ignora-la e escrever onde ninguem espera.
+        PT-PT: Quem define esta variável fe-lo de propósito, normalmente para
+               separar configuração de cache ou para a por num volume
+               sincronizado. Ignora-la e escrever onde ninguém espera.
         EN-UK: Whoever sets this variable meant to.
         """
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "personalizado"))
@@ -201,9 +201,9 @@ class TestRequisitos:
 
     def test_nenhum_requisito_e_essencial(self) -> None:
         """
-        PT-PT: E deliberado: o diagnostico tem de correr numa maquina onde nao
+        PT-PT: E deliberado: o diagnóstico tem de correr numa máquina onde não
                se pode instalar nada, dizendo o que ficou por ver. Numa sala de
-               servidores e essa a situacao normal.
+               servidores e essa a situação normal.
         EN-UK: Deliberate: the diagnostic must run where nothing can be
                installed, saying what went unseen.
         """

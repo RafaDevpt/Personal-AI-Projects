@@ -2,24 +2,24 @@
 # ===========================================================================
 # PT-PT: Arranque do IT Toolkit em Linux.
 #
-#        Prepara o ambiente na primeira execucao e arranca nas seguintes.
+#        Prepara o ambiente na primeira execução e arranca nas seguintes.
 #
-#        Ao contrario da versao de Windows, este lancador nao exige nada: o
-#        diagnostico corre numa maquina sem Tkinter, sem smartctl e sem
-#        dmidecode. O que ele faz e dizer, antes de arrancar, o que e que vai
-#        ficar por ver — porque um relatorio que nao diz o que lhe faltou da a
-#        impressao de ter olhado para tudo.
+#        Ao contrário da versão de Windows, este lancador não exige nada: o
+#        diagnóstico corre numa máquina sem Tkinter, sem smartctl e sem
+#        dmidecode. O que ele faz e dizer, antes de arrancar, o que é que vai
+#        ficar por ver — porque um relatório que não diz o que lhe faltou da a
+#        impressão de ter olhado para tudo.
 #
-#        As instrucoes de instalacao sao as da distribuicao onde isto esta a
+#        As instruções de instalação são as da distribuição onde isto esta a
 #        correr. Um utilizador de Fedora que leia "sudo apt install" conclui,
-#        com razao, que a aplicacao nao foi pensada para o sistema dele.
+#        com razão, que a aplicação não foi pensada para o sistema dele.
 #
-#        Sobre o sudo: este lancador **nao** se eleva sozinho, e e de proposito.
-#        Correr uma interface grafica como root e uma ma pratica antiga — o Tk
-#        fica com o ambiente do root, os ficheiros que a aplicacao escreve
+#        Sobre o sudo: este lancador **não** se eleva sozinho, e e de propósito.
+#        Correr uma interface gráfica como root e uma má prática antiga — o Tk
+#        fica com o ambiente do root, os ficheiros que a aplicação escreve
 #        passam a pertencer ao root, e a partir dai o utilizador normal deixa de
-#        conseguir abrir os seus proprios relatorios. Quem precisar do SMART
-#        corre `sudo ./cli.sh`, que nao abre janela nenhuma.
+#        conseguir abrir os seus próprios relatórios. Quem precisar do SMART
+#        corre `sudo ./cli.sh`, que não abre janela nenhuma.
 #
 # EN-UK: IT Toolkit launcher for Linux.
 #
@@ -42,7 +42,7 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e macOS
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and macOS versions
 #        live in the folders alongside, each complete and independent.
@@ -60,10 +60,10 @@ ok()    { printf "${VERDE}[OK]${FIM} %s\n" "$1"; }
 passo() { printf "        %s\n" "$1" >&2; }
 
 # ---------------------------------------------------------------------------
-# PT-PT: Que distribuicao, e portanto que gestor de pacotes.
+# PT-PT: Que distribuição, e portanto que gestor de pacotes.
 #
 #        O ID_LIKE e o que faz isto funcionar num Linux Mint ou num Pop!_OS sem
-#        eles estarem em lado nenhum desta lista: uma distribuicao derivada
+#        eles estarem em lado nenhum desta lista: uma distribuição derivada
 #        preenche esse campo precisamente para dizer "trate-me como uma Debian".
 #
 # EN-UK: Which distribution, and therefore which package manager.
@@ -83,8 +83,8 @@ gestor_de_pacotes() {
         *" debian "*|*" ubuntu "*) echo "apt" ;;
         *" fedora "*|*" rhel "*)   echo "dnf" ;;
         *" arch "*)                echo "pacman" ;;
-        # PT-PT: O `*opensuse*` sem espacos apanha o `ID=opensuse-leap` de uma
-        #        instalacao que nao declare ID_LIKE.
+        # PT-PT: O `*opensuse*` sem espaços apanha o `ID=opensuse-leap` de uma
+        #        instalação que não declare ID_LIKE.
         # EN-UK: The space-less `*opensuse*` catches `ID=opensuse-leap`.
         *" suse "*|*opensuse*)     echo "zypper" ;;
         *" alpine "*)              echo "apk" ;;
@@ -145,8 +145,8 @@ fi
 # PT-PT: O que falta, e o que isso custa.
 #
 #        Nada disto impede o arranque. O aviso existe para o operador saber, a
-#        cabeca, que seccoes do relatorio vao aparecer vazias — e nao concluir
-#        "esta tudo bem" a partir de uma verificacao que nunca chegou a correr.
+#        cabeça, que secções do relatório vão aparecer vazias — e não concluir
+#        "esta tudo bem" a partir de uma verificação que nunca chegou a correr.
 #
 # EN-UK: What is missing, and what it costs.
 #
@@ -180,10 +180,10 @@ if [ ! -d /run/systemd/system ]; then
     passo "discos, rede e inventario funcionam na mesma"
 fi
 
-# PT-PT: A permissao de ler o diario completo e o aviso que mais vezes evita uma
-#        conclusao errada. Sem ela o journalctl corre, devolve zero e mostra so
-#        as mensagens deste utilizador — e um diagnostico que nao repare nisso
-#        conclui "sem erros no sistema" a partir de um diario que nunca viu.
+# PT-PT: A permissão de ler o diário completo e o aviso que mais vezes evita uma
+#        conclusão errada. Sem ela o journalctl corre, devolve zero e mostra só
+#        as mensagens deste utilizador — e um diagnóstico que não repare nisso
+#        conclui "sem erros no sistema" a partir de um diário que nunca viu.
 # EN-UK: Permission to read the full journal is the warning that most often
 #        prevents a wrong conclusion. Without it journalctl runs, returns zero
 #        and shows only this user's messages.

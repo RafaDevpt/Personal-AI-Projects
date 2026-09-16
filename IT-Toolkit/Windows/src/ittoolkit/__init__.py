@@ -1,9 +1,9 @@
 """
-PT-PT: IT Toolkit — ferramenta de diagnostico e manutencao do dia a dia de IT
-       em maquinas Windows. Le e interpreta os event logs, diagnostica a rede,
-       verifica discos e servicos, e produz relatorios em HTML.
+PT-PT: IT Toolkit — ferramenta de diagnóstico e manutenção do dia a dia de IT
+       em máquinas Windows. Lê e interpreta os event logs, diagnostica a rede,
+       verifica discos e serviços, e produz relatórios em HTML.
 
-       Esta e a versao para Windows. Ha outras duas, completas e
+       Esta e a versão para Windows. Há outras duas, completas e
        independentes, nas pastas `Linux/` e `macOS/` ao lado desta.
 
 EN-UK: IT Toolkit — day-to-day IT diagnostics and maintenance tool for Windows

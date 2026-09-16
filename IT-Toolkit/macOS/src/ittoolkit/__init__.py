@@ -1,10 +1,10 @@
 """
-PT-PT: IT Toolkit — ferramenta de diagnostico e manutencao do dia a dia de IT
-       em maquinas macOS. Le e interpreta o diario unificado e os relatorios de
-       paragem, diagnostica a rede, verifica discos e servicos do launchd, e
-       produz relatorios em HTML.
+PT-PT: IT Toolkit — ferramenta de diagnóstico e manutenção do dia a dia de IT
+       em máquinas macOS. Lê e interpreta o diário unificado e os relatórios de
+       paragem, diagnostica a rede, verifica discos e serviços do launchd, e
+       produz relatórios em HTML.
 
-       Esta e a versao para macOS. Ha outras duas, completas e independentes,
+       Esta e a versão para macOS. Há outras duas, completas e independentes,
        nas pastas `Windows/` e `Linux/` ao lado desta.
 
 EN-UK: IT Toolkit — day-to-day IT diagnostics and maintenance tool for macOS

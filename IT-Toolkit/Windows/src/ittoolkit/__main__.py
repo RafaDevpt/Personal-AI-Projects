@@ -1,10 +1,10 @@
 """
 PT-PT: Ponto de entrada do IT Toolkit.
 
-       Dois modos. Sem argumentos abre a interface grafica. Com `--cli` corre um
-       diagnostico completo, escreve o relatorio e sai com um codigo que diz o
-       que encontrou — e o que permite agendar isto num parque de maquinas e
-       so olhar para as que devolveram alguma coisa.
+       Dois modos. Sem argumentos abre a interface gráfica. Com `--cli` corre um
+       diagnóstico completo, escreve o relatório e sai com um código que diz o
+       que encontrou — e o que permite agendar isto num parque de máquinas e
+       só olhar para as que devolveram alguma coisa.
 
 EN-UK: IT Toolkit entry point.
 
@@ -30,11 +30,11 @@ from .shell import Ambiente
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Codigos de saida do modo --cli. Sao a interface da ferramenta para o
-#        Agendador de Tarefas ou para um RMM: um codigo diferente por situacao
-#        permite reagir sem ler o relatorio.
-# PT-PT: 0 limpo · 1 problemas · 2 criticos · 3 sem interface grafica
-#        4 falha a gravar o relatorio · 130 interrompido
+# PT-PT: Códigos de saída do modo --cli. São a interface da ferramenta para o
+#        Agendador de Tarefas ou para um RMM: um código diferente por situação
+#        permite reagir sem ler o relatório.
+# PT-PT: 0 limpo · 1 problemas · 2 críticos · 3 sem interface gráfica
+#        4 falha a gravar o relatório · 130 interrompido
 # EN-UK: --cli exit codes. They are the tool's interface to Task Scheduler or an
 #        RMM: a distinct code per situation allows reacting without reading the
 #        report.
@@ -48,7 +48,7 @@ SAIDA_INTERROMPIDO = 130
 
 def build_parser() -> argparse.ArgumentParser:
     """
-    PT-PT: Constroi o interpretador de argumentos.
+    PT-PT: Constrói o interpretador de argumentos.
     EN-UK: Builds the argument parser.
     """
     parser = argparse.ArgumentParser(
@@ -104,11 +104,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _recolher(config: AppConfig, com_eventos: bool):
     """
-    PT-PT: Corre todos os modulos de diagnostico e devolve (achados, analise).
+    PT-PT: Corre todos os módulos de diagnóstico e devolve (achados, análise).
 
-           Cada modulo e envolvido em try/except de proposito. Numa maquina onde
+           Cada módulo e envolvido em try/except de propósito. Numa máquina onde
            o WMI esta partido — o que acontece, e mais do que se gostaria — o
-           inventario rebenta; sem isto, levava consigo o diagnostico de rede e
+           inventário rebenta; sem isto, levava consigo o diagnóstico de rede e
            de discos, que teriam funcionado perfeitamente.
 
     EN-UK: Runs every diagnostic module and returns (findings, analysis). Each
@@ -149,7 +149,7 @@ def _recolher(config: AppConfig, com_eventos: bool):
 
 def executar_cli(args: argparse.Namespace, config: AppConfig) -> int:
     """
-    PT-PT: Modo sem interface. Escreve o resumo no ecra e o relatorio em disco.
+    PT-PT: Modo sem interface. Escreve o resumo no ecrã e o relatório em disco.
     EN-UK: Headless mode. Writes the summary to screen and the report to disk.
     """
     from . import reports, system
@@ -163,8 +163,8 @@ def executar_cli(args: argparse.Namespace, config: AppConfig) -> int:
 
     if analise is not None:
         # PT-PT: Os problemas dos event logs contam para o veredicto final; sem
-        #        isto, uma maquina com discos a falhar registados no log mas com
-        #        espaco livre suficiente saia com codigo 0.
+        #        isto, uma máquina com discos a falhar registados no log mas com
+        #        espaço livre suficiente saia com código 0.
         # EN-UK: Event log problems count towards the final verdict; without
         #        this, a machine with failing disks recorded in the log but
         #        enough free space exited with code 0.
@@ -212,7 +212,7 @@ def executar_cli(args: argparse.Namespace, config: AppConfig) -> int:
 
 def executar_gui(config: AppConfig) -> int:
     """
-    PT-PT: Abre a interface grafica.
+    PT-PT: Abre a interface gráfica.
 
            A falta do customtkinter e tratada aqui com uma mensagem que diz o
            que fazer, em vez do ImportError cru que a v1.0 mostrava numa janela
@@ -247,9 +247,9 @@ def main(argv: list[str] | None = None) -> int:
     """
     args = build_parser().parse_args(argv)
 
-    # PT-PT: O diagnostico corre antes de tudo o resto, e por uma razao pratica:
-    #        e o comando a que alguem recorre quando *nada* funciona, e nessa
-    #        altura nao se pode assumir que o resto arranca.
+    # PT-PT: O diagnóstico corre antes de tudo o resto, e por uma razão prática:
+    #        e o comando a que alguém recorre quando *nada* funciona, e nessa
+    #        altura não se pode assumir que o resto arranca.
     # EN-UK: The diagnostic runs before everything else, for a practical reason:
     #        it is what somebody reaches for when *nothing* works, and at that
     #        point the rest cannot be assumed to start.

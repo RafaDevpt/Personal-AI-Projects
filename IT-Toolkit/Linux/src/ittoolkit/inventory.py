@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-PT-PT: Inventario da maquina — modelo, numero de serie, BIOS e software.
+PT-PT: Inventário da máquina — modelo, número de série, BIOS e software.
 
-       Em Windows isto sai todo do WMI, que e um sitio so. Em Linux esta
-       espalhado por tres sitios com regras diferentes:
+       Em Windows isto sai todo do WMI, que é um sítio só. Em Linux esta
+       espalhado por três sítios com regras diferentes:
 
-       - **`/sys/class/dmi/id/`** — os ficheiros do DMI. A maioria le-se sem
-         permissao nenhuma, mas o `product_serial` e o `board_serial` estao a
-         0400 e pertencem ao root. Nao e um detalhe: e a diferenca entre um
-         inventario com numero de serie e um inventario sem ele, e vale a pena
+       - **`/sys/class/dmi/id/`** — os ficheiros do DMI. A maioria lê-se sem
+         permissão nenhuma, mas o `product_serial` e o `board_serial` estão a
+         0400 e pertencem ao root. Não e um detalhe: e a diferença entre um
+         inventário com número de série e um inventário sem ele, e vale a pena
          dize-lo em vez de escrever «?».
-       - **`/proc`** — processador e memoria, sempre legivel.
-       - **O gestor de pacotes** — que muda com a distribuicao, e por isso a
+       - **`/proc`** — processador e memória, sempre legível.
+       - **O gestor de pacotes** — que muda com a distribuição, e por isso a
          escolha vem do `platform_support`.
 
-       Nao ha aqui equivalente ao `Win32_Product`, e ainda bem: em Windows esse
-       provedor dispara uma reconfiguracao de cada pacote MSI que enumera. Os
+       Não há aqui equivalente ao `Win32_Product`, e ainda bem: em Windows esse
+       provedor dispara uma reconfiguração de cada pacote MSI que enumera. Os
        gestores de pacotes de Linux respondem a uma pergunta sem tocar em nada.
 
 EN-UK: Machine inventory — model, serial number, BIOS and software.
@@ -52,7 +52,7 @@ log = logging.getLogger(__name__)
 
 DMI = Path("/sys/class/dmi/id")
 
-#: PT-PT: Campos do DMI e o nome com que aparecem no relatorio.
+#: PT-PT: Campos do DMI e o nome com que aparecem no relatório.
 #: EN-UK: DMI fields and the name they appear under in the report.
 CAMPOS_DMI: tuple[tuple[str, str], ...] = (
     ("sys_vendor", "Fabricante"),
@@ -65,15 +65,15 @@ CAMPOS_DMI: tuple[tuple[str, str], ...] = (
     ("chassis_type", "Tipo de chassis"),
 )
 
-#: PT-PT: Os que so o root le. Distinguir «nao tenho permissao» de «a maquina
-#:        nao declara» evita mandar alguem procurar uma etiqueta que existe.
+#: PT-PT: Os que só o root lê. Distinguir «não tenho permissão» de «a máquina
+#:        não declara» evita mandar alguém procurar uma etiqueta que existe.
 #: EN-UK: The root-only ones. Telling "no permission" from "the machine does not
 #:        declare it" avoids sending somebody to look for a label that exists.
 DMI_RESTRITOS: frozenset[str] = frozenset({"product_serial", "board_serial", "product_uuid"})
 
-#: PT-PT: Tipos de chassis do SMBIOS que interessam. O numero sozinho nao diz
-#:        nada a quem le o relatorio, e saber se e portatil ou servidor muda o
-#:        que se espera da maquina.
+#: PT-PT: Tipos de chassis do SMBIOS que interessam. O número sozinho não diz
+#:        nada a quem lê o relatório, e saber se e portátil ou servidor muda o
+#:        que se espera da máquina.
 #: EN-UK: The SMBIOS chassis types that matter. The bare number tells the reader
 #:        nothing, and knowing laptop from server changes what to expect.
 CHASSIS: dict[str, str] = {
@@ -87,13 +87,13 @@ CHASSIS: dict[str, str] = {
 
 def _ler_dmi(campo: str) -> tuple[str, bool]:
     """
-    PT-PT: Le um campo do DMI.
+    PT-PT: Lê um campo do DMI.
 
     EN-UK: Reads one DMI field.
 
     :return:
-        PT-PT: (valor, houve_permissao). O valor vem vazio quando nao se
-               conseguiu ler, e o segundo elemento diz se a razao foi permissao.
+        PT-PT: (valor, houve_permissao). O valor vem vazio quando não se
+               conseguiu ler, e o segundo elemento diz se a razão foi permissão.
         EN-UK: (value, had_permission). The value is empty when it could not be
                read, and the second element says whether permission was the
                reason.
@@ -109,12 +109,12 @@ def _ler_dmi(campo: str) -> tuple[str, bool]:
 
 def hardware() -> dict[str, str]:
     """
-    PT-PT: Modelo, fabricante, numero de serie, BIOS, processador e memoria.
+    PT-PT: Modelo, fabricante, número de série, BIOS, processador e memória.
 
-           Os valores que o fabricante deixa por preencher — e sao muitos em
-           maquinas montadas — vêm com textos como «To be filled by O.E.M.» ou
-           «System Product Name». Sao filtrados: escrever isso num inventario e
-           pior do que nao escrever nada, porque parece informacao.
+           Os valores que o fabricante deixa por preencher — e são muitos em
+           máquinas montadas — vêm com textos como «To be filled by O.E.M.» ou
+           «System Product Name». São filtrados: escrever isso num inventário e
+           pior do que não escrever nada, porque parece informação.
 
     EN-UK: Model, manufacturer, serial, BIOS, processor and memory.
 
@@ -163,13 +163,13 @@ def hardware() -> dict[str, str]:
 
 def sistema() -> dict[str, str]:
     """
-    PT-PT: Distribuicao, kernel, arquitectura e data de instalacao.
+    PT-PT: Distribuição, kernel, arquitectura e data de instalação.
 
-           A data de instalacao nao existe em Linux como campo. O que existe e o
-           `/etc/machine-id`, que e escrito uma vez no primeiro arranque depois
-           da instalacao e nunca mais e tocado — a data de criacao dele e a
-           melhor aproximacao que ha, e esta identificada como aproximacao para
-           ninguem a tomar por um facto declarado pelo sistema.
+           A data de instalação não existe em Linux como campo. O que existe e o
+           `/etc/machine-id`, que é escrito uma vez no primeiro arranque depois
+           da instalação e nunca mais e tocado — a data de criação dele e a
+           melhor aproximação que há, e esta identificada como aproximação para
+           ninguém a tomar por um facto declarado pelo sistema.
 
     EN-UK: Distribution, kernel, architecture and installation date.
 
@@ -204,10 +204,10 @@ def sistema() -> dict[str, str]:
 
 def _historico_apt(quantas: int) -> list[dict]:
     """
-    PT-PT: Ultimas instalacoes e actualizacoes, lidas do `/var/log/dpkg.log`.
+    PT-PT: Últimas instalações e actualizações, lidas do `/var/log/dpkg.log`.
 
-           Le o ficheiro e nao chama o `apt`: o `apt list` sem rede demora, e
-           com rede vai buscar indices que nao interessam nada a esta pergunta.
+           Lê o ficheiro e não chama o `apt`: o `apt list` sem rede demora, e
+           com rede vai buscar indices que não interessam nada a esta pergunta.
 
     EN-UK: Latest installs and upgrades from `/var/log/dpkg.log`. It reads the
            file rather than calling `apt`, which without network is slow and with
@@ -239,7 +239,7 @@ def _historico_apt(quantas: int) -> list[dict]:
 
 def _historico_pacman(quantas: int) -> list[dict]:
     """
-    PT-PT: Ultimas alteracoes, lidas do `/var/log/pacman.log`.
+    PT-PT: Últimas alterações, lidas do `/var/log/pacman.log`.
     EN-UK: Latest changes, from `/var/log/pacman.log`.
     """
     registos: list[dict] = []
@@ -266,13 +266,13 @@ def _historico_pacman(quantas: int) -> list[dict]:
 
 def actualizacoes(quantas: int = 10) -> list[dict]:
     """
-    PT-PT: Ultimas actualizacoes de pacotes instaladas.
+    PT-PT: Últimas actualizações de pacotes instaladas.
 
     EN-UK: Latest installed package updates.
 
     :return:
-        PT-PT: Um dicionario por entrada com `pacote`, `versao`, `accao` e
-               `quando`. Lista vazia quando o gestor nao e conhecido.
+        PT-PT: Um dicionário por entrada com `pacote`, `versao`, `accao` e
+               `quando`. Lista vazia quando o gestor não é conhecido.
         EN-UK: One dictionary per entry. Empty when the manager is unknown.
     """
     familia = detect_distro()
@@ -284,10 +284,10 @@ def actualizacoes(quantas: int = 10) -> list[dict]:
         return _historico_pacman(quantas)
 
     if familia is Distro.FEDORA and disponivel("rpm"):
-        # PT-PT: O `rpm` sabe a data de instalacao de cada pacote e nao precisa
-        #        de root nem de rede. O `dnf history` daria a operacao completa,
+        # PT-PT: O `rpm` sabe a data de instalação de cada pacote e não precisa
+        #        de root nem de rede. O `dnf history` daria a operação completa,
         #        mas fica bloqueado se houver outro dnf a correr — e um
-        #        diagnostico nao pode ficar a espera de um `dnf update` alheio.
+        #        diagnóstico não pode ficar a espera de um `dnf update` alheio.
         # EN-UK: `rpm` knows each package's install date and needs neither root
         #        nor network. `dnf history` would give the full transaction but
         #        blocks when another dnf is running — and a diagnostic cannot
@@ -319,17 +319,17 @@ def actualizacoes(quantas: int = 10) -> list[dict]:
 
 def software() -> list[dict]:
     """
-    PT-PT: Pacotes instalados, pelo gestor da distribuicao.
+    PT-PT: Pacotes instalados, pelo gestor da distribuição.
 
-           Ordenado por nome, como no inventario de Windows, para dois
-           relatorios da mesma maquina poderem ser comparados linha a linha.
+           Ordenado por nome, como no inventário de Windows, para dois
+           relatórios da mesma máquina poderem ser comparados linha a linha.
 
     EN-UK: Installed packages, via the distribution's manager. Sorted by name, as
            in the Windows inventory, so two reports of the same machine can be
            compared line by line.
 
     :return:
-        PT-PT: Um dicionario por pacote com `nome`, `versao` e `origem`.
+        PT-PT: Um dicionário por pacote com `nome`, `versao` e `origem`.
         EN-UK: One dictionary per package with `nome`, `versao` and `origem`.
     """
     familia = detect_distro()

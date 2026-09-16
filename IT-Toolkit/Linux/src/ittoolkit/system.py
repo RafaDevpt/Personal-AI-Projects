@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """
-PT-PT: Estado geral da maquina — processador, memoria, tempo ligado e reinicio
+PT-PT: Estado geral da máquina — processador, memória, tempo ligado e reinício
        pendente.
 
-       O `psutil` e importado de forma tolerante. E uma dependencia declarada e
-       instalada pelo `executar.sh`, mas numa maquina gerida a instalacao de
-       pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso nao abria de
-       todo. Aqui o que depende do psutil fica indisponivel e o resto — que e a
-       maior parte — continua a funcionar, porque em Linux quase tudo se le do
-       `/proc` sem dependencia nenhuma.
+       O `psutil` e importado de forma tolerante. E uma dependência declarada e
+       instalada pelo `executar.sh`, mas numa máquina gerida a instalação de
+       pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso não abria de
+       todo. Aqui o que depende do psutil fica indisponível e o resto — que é a
+       maior parte — continua a funcionar, porque em Linux quase tudo se lê do
+       `/proc` sem dependência nenhuma.
 
-       **O reinicio pendente e o ponto onde esta versao mais se afasta da de
-       Windows.** Em Windows ha chaves de registo que dizem «falta reiniciar».
-       Em Linux nao ha nada disso normalizado, e ha tres sinais diferentes, cada
+       **O reinício pendente e o ponto onde esta versão mais se afasta da de
+       Windows.** Em Windows há chaves de registo que dizem «falta reiniciar».
+       Em Linux não há nada disso normalizado, e há três sinais diferentes, cada
        um a dizer uma coisa diferente:
 
-       - O `/var/run/reboot-required`, que so as familias Debian escrevem.
-       - O `needs-restarting -r`, que so existe nas familias Fedora.
+       - O `/var/run/reboot-required`, que só as famílias Debian escrevem.
+       - O `needs-restarting -r`, que só existe nas famílias Fedora.
        - **O kernel.** Este funciona em todo o lado e e o mais importante: se o
-         kernel que esta a correr nao e o mais recente que esta instalado, houve
-         uma actualizacao de kernel que so entra ao reiniciar. Uma maquina pode
-         estar ha semanas a correr um kernel com uma vulnerabilidade ja corrigida
+         kernel que esta a correr não é o mais recente que esta instalado, houve
+         uma actualização de kernel que só entra ao reiniciar. Uma máquina pode
+         estar há semanas a correr um kernel com uma vulnerabilidade já corrigida
          no disco, e nenhum aviso do sistema o diz.
 
 EN-UK: Overall machine state — processor, memory, uptime and pending restart.
@@ -69,7 +69,7 @@ log = logging.getLogger(__name__)
 
 BOOT = Path("/boot")
 
-#: PT-PT: Marcadores de reinicio pendente que sao um ficheiro no disco.
+#: PT-PT: Marcadores de reinício pendente que são um ficheiro no disco.
 #: EN-UK: Pending-restart markers that are a file on disk.
 FICHEIROS_REBOOT: tuple[tuple[str, str], ...] = (
     ("/var/run/reboot-required", "Actualizações de pacotes por concluir"),
@@ -77,8 +77,8 @@ FICHEIROS_REBOOT: tuple[tuple[str, str], ...] = (
     ("/run/systemd/shutdown-scheduled", "Encerramento ou reinício já agendado"),
 )
 
-#: PT-PT: O sufixo que as distribuicoes acrescentam ao nome do kernel a correr
-#:        mas nao ao ficheiro em `/boot`. Sem o tirar, a comparacao de versoes
+#: PT-PT: O sufixo que as distribuições acrescentam ao nome do kernel a correr
+#:        mas não ao ficheiro em `/boot`. Sem o tirar, a comparação de versões
 #:        dizia sempre que havia kernel novo.
 #: EN-UK: The suffix distributions add to the running kernel's name but not to
 #:        the file in `/boot`. Without stripping it, the version comparison
@@ -88,7 +88,7 @@ _SUFIXO_KERNEL = re.compile(r"(\+|-dirty)$")
 
 def identificacao() -> dict[str, str]:
     """
-    PT-PT: Quem e esta maquina e quem esta a usa-la.
+    PT-PT: Quem e esta máquina e quem esta a usa-la.
     EN-UK: What this machine is and who is using it.
     """
     return {
@@ -103,12 +103,12 @@ def identificacao() -> dict[str, str]:
 
 def arranque() -> dt.datetime | None:
     """
-    PT-PT: A hora a que a maquina arrancou.
+    PT-PT: A hora a que a máquina arrancou.
 
-           Vem do `/proc/uptime`, que e um ficheiro de duas casas decimais e
-           existe desde sempre. Nao usa o psutil de proposito: e a informacao
-           que o resto do modulo mais precisa e nao devia depender de um pacote
-           que pode nao estar instalado.
+           Vem do `/proc/uptime`, que é um ficheiro de duas casas decimais e
+           existe desde sempre. Não usa o psutil de propósito: e a informação
+           que o resto do módulo mais precisa e não devia depender de um pacote
+           que pode não estar instalado.
 
     EN-UK: When the machine booted. It comes from `/proc/uptime`, a two-decimal
            file that has always existed. It deliberately avoids psutil: this is
@@ -126,7 +126,7 @@ def arranque() -> dt.datetime | None:
 
 
 def uptime_dias() -> float | None:
-    """PT-PT: Ha quantos dias esta ligada. / EN-UK: How many days it has been up."""
+    """PT-PT: Há quantos dias esta ligada. / EN-UK: How many days it has been up."""
     inicio = arranque()
     if inicio is None:
         return None
@@ -135,12 +135,12 @@ def uptime_dias() -> float | None:
 
 def _versao(nome: str) -> tuple:
     """
-    PT-PT: Uma versao de kernel como tuplo comparavel.
+    PT-PT: Uma versão de kernel como tuplo comparável.
 
            Comparar «5.15.0-91» com «5.15.0-107» como texto da o resultado
-           errado, porque "107" < "91" em ordem alfabetica. Foi exactamente esse
-           o erro que fazia a deteccao de kernel novo falhar precisamente quando
-           havia mais actualizacoes acumuladas.
+           errado, porque "107" < "91" em ordem alfabética. Foi exactamente esse
+           o erro que fazia a detecção de kernel novo falhar precisamente quando
+           havia mais actualizações acumuladas.
 
     EN-UK: A kernel version as a comparable tuple.
 
@@ -155,10 +155,10 @@ def _versao(nome: str) -> tuple:
 def kernel_mais_recente(instalados: list[str] | None = None, a_correr: str | None = None) -> str:
     """
     PT-PT: O nome do kernel instalado mais recente, se for diferente do que
-           esta a correr; "" caso contrario.
+           esta a correr; "" caso contrário.
 
            Recebe as duas listas como argumentos para se poder testar sem `/boot`
-           nenhum — que e o unico modo de testar uma comparacao de versoes com os
+           nenhum — que é o único modo de testar uma comparação de versões com os
            casos que interessam.
 
     EN-UK: The newest installed kernel's name when it differs from the running
@@ -196,7 +196,7 @@ def kernel_mais_recente(instalados: list[str] | None = None, a_correr: str | Non
 
 def reinicio_pendente() -> list[str]:
     """
-    PT-PT: Motivos para reiniciar esta maquina.
+    PT-PT: Motivos para reiniciar esta máquina.
 
     EN-UK: Reasons to restart this machine.
     """
@@ -205,8 +205,8 @@ def reinicio_pendente() -> list[str]:
     for caminho, motivo in FICHEIROS_REBOOT:
         if Path(caminho).exists() and motivo not in motivos:
             # PT-PT: O Debian escreve ao lado a lista de pacotes que pediram o
-            #        reinicio. E o que transforma «falta reiniciar» em «falta
-            #        reiniciar por causa do openssl», que e accionavel.
+            #        reinício. E o que transforma «falta reiniciar» em «falta
+            #        reiniciar por causa do openssl», que é accionável.
             # EN-UK: Debian writes the list of packages that asked for the
             #        restart alongside. It turns "a restart is due" into "a
             #        restart is due because of openssl", which is actionable.
@@ -223,9 +223,9 @@ def reinicio_pendente() -> list[str]:
 
     if disponivel("needs-restarting"):
         resultado = executar(["needs-restarting", "-r"], timeout=60)
-        # PT-PT: Codigo 1 quer dizer «e preciso reiniciar». Nao e um erro, e a
+        # PT-PT: Código 1 quer dizer «e preciso reiniciar». Não e um erro, e a
         #        resposta — e trata-lo como erro era o que fazia esta
-        #        verificacao nunca dar nada em Fedora.
+        #        verificação nunca dar nada em Fedora.
         # EN-UK: Exit code 1 means "a reboot is needed". It is not an error, it
         #        is the answer — treating it as an error is what made this check
         #        never fire on Fedora.
@@ -237,15 +237,15 @@ def reinicio_pendente() -> list[str]:
 
 def carga() -> dict[str, float]:
     """
-    PT-PT: Utilizacao de processador, memoria e carga media.
+    PT-PT: Utilização de processador, memória e carga media.
 
-           A carga media nao tem equivalente em Windows e vale por si: e a media
-           de processos a espera de correr no ultimo minuto, nos ultimos cinco e
-           nos ultimos quinze. Uma leitura de CPU e um instante; a carga media diz
-           se o instante e representativo. Uma maquina com 8 nucleos e carga 30
+           A carga media não tem equivalente em Windows e vale por si: e a media
+           de processos a espera de correr no último minuto, nos últimos cinco e
+           nos últimos quinze. Uma leitura de CPU e um instante; a carga media diz
+           se o instante e representativo. Uma máquina com 8 núcleos e carga 30
            esta em apuros mesmo que o CPU marque 40% no segundo em que se olhou.
 
-           O intervalo de 0,5 s no `cpu_percent` nao e decorativo: chamado sem
+           O intervalo de 0,5 s no `cpu_percent` não é decorativo: chamado sem
            intervalo, o psutil devolve a media desde o arranque do processo, que
            na primeira chamada e sempre 0,0.
 
@@ -292,7 +292,7 @@ def carga() -> dict[str, float]:
 
 def achados(uptime_max: int, ram_max: int, cpu_max: int) -> list[Achado]:
     """
-    PT-PT: Problemas de estado geral, prontos para o relatorio.
+    PT-PT: Problemas de estado geral, prontos para o relatório.
     EN-UK: Overall state problems, ready for the report.
     """
     encontrados: list[Achado] = []
@@ -314,9 +314,9 @@ def achados(uptime_max: int, ram_max: int, cpu_max: int) -> list[Achado]:
 
     motivos = reinicio_pendente()
     if motivos:
-        # PT-PT: Um kernel novo por aplicar e mais grave do que um reinicio
-        #        pendente qualquer: costuma trazer correccoes de seguranca, e a
-        #        maquina nao esta protegida enquanto nao reiniciar.
+        # PT-PT: Um kernel novo por aplicar e mais grave do que um reinício
+        #        pendente qualquer: costuma trazer correccoes de segurança, e a
+        #        máquina não esta protegida enquanto não reiniciar.
         # EN-UK: A pending new kernel is graver than any other pending restart:
         #        it usually carries security fixes, and the machine is not
         #        protected until it reboots.

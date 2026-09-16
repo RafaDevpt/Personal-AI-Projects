@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-PT-PT: Inventario da maquina — modelo, numero de serie, sistema e aplicacoes.
+PT-PT: Inventário da máquina — modelo, número de série, sistema e aplicações.
 
-       **O `system_profiler` responde a tudo, e e por isso que e preciso ter
-       cuidado com ele.** Cada «data type» e um modulo separado com um custo
-       proprio: o `SPHardwareDataType` responde num instante, o
+       **O `system_profiler` responde a tudo, e é por isso que é preciso ter
+       cuidado com ele.** Cada «data type» e um módulo separado com um custo
+       próprio: o `SPHardwareDataType` responde num instante, o
        `SPApplicationsDataType` percorre o disco inteiro a ler bundles e demora
-       minutos num Mac com muitas aplicacoes. Chamar os dois da mesma maneira,
+       minutos num Mac com muitas aplicações. Chamar os dois da mesma maneira,
        como se custassem o mesmo, foi o que fez a v1.0 parecer bloqueada sempre
-       que alguem abria o separador do inventario.
+       que alguém abria o separador do inventário.
 
-       Por isso o inventario de aplicacoes **nao** usa o `system_profiler`: le
-       os `Info.plist` das pastas de aplicacoes directamente. Da o mesmo — nome
-       e versao — em segundos em vez de minutos, e nao depende de um formato de
-       saida que a Apple ja mudou mais do que uma vez.
+       Por isso o inventário de aplicações **não** usa o `system_profiler`: lê
+       os `Info.plist` das pastas de aplicações directamente. Da o mesmo — nome
+       e versão — em segundos em vez de minutos, e não depende de um formato de
+       saída que a Apple já mudou mais do que uma vez.
 
-       **O numero de serie vem do `system_profiler` e nao do DMI.** Um Mac nao
-       tem DMI: nao ha `/sys/class/dmi/id` nem equivalente. O que ha e o
+       **O número de série vem do `system_profiler` e não do DMI.** Um Mac não
+       tem DMI: não há `/sys/class/dmi/id` nem equivalente. O que há e o
        IORegistry, e o `system_profiler` e a forma suportada de lhe perguntar.
 
 EN-UK: Machine inventory — model, serial number, system and applications.
@@ -50,9 +50,9 @@ from .shell import executar, executar_json, ler_plist
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Onde estao as aplicacoes. A pasta pessoal conta: e onde ficam as
-#:        aplicacoes que o utilizador instalou sem privilegios, que num parque
-#:        gerido sao precisamente as que interessa inventariar.
+#: PT-PT: Onde estão as aplicações. A pasta pessoal conta: e onde ficam as
+#:        aplicações que o utilizador instalou sem privilegios, que num parque
+#:        gerido são precisamente as que interessa inventariar.
 #: EN-UK: Where applications live. The personal folder counts: it holds the
 #:        applications the user installed without privilege, which on a managed
 #:        estate are precisely the ones worth inventorying.
@@ -63,8 +63,8 @@ PASTAS_APLICACOES: tuple[Path, ...] = (
     Path.home() / "Applications",
 )
 
-#: PT-PT: O tecto de aplicacoes a percorrer. Um Mac com uma pasta de aplicacoes
-#:        montada por rede pode ter milhares, e o inventario nao vale uma espera
+#: PT-PT: O tecto de aplicações a percorrer. Um Mac com uma pasta de aplicações
+#:        montada por rede pode ter milhares, e o inventário não vale uma espera
 #:        de minutos.
 #: EN-UK: The application ceiling. A Mac with a network-mounted applications
 #:        folder can hold thousands.
@@ -187,10 +187,10 @@ def sistema() -> dict[str, str]:
             if valor:
                 dados[etiqueta] = str(valor)
 
-    # PT-PT: Nao ha data de instalacao em macOS. O `/var/db/.AppleSetupDone` e
-    #        escrito quando o assistente de configuracao termina, e nunca mais e
-    #        tocado — e a melhor aproximacao que ha, e esta identificada como
-    #        aproximacao para ninguem a tomar por um facto declarado.
+    # PT-PT: Não há data de instalação em macOS. O `/var/db/.AppleSetupDone` e
+    #        escrito quando o assistente de configuração termina, e nunca mais e
+    #        tocado — e a melhor aproximação que há, e esta identificada como
+    #        aproximação para ninguém a tomar por um facto declarado.
     # EN-UK: There is no installation date on macOS. `/var/db/.AppleSetupDone` is
     #        written when Setup Assistant finishes and never touched again — the
     #        best approximation there is, and labelled as one.

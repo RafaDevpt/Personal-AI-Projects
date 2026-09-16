@@ -1,5 +1,5 @@
 """
-PT-PT: Discos — espaco livre por particao, estado SMART e pastas maiores.
+PT-PT: Discos — espaço livre por partição, estado SMART e pastas maiores.
 
 EN-UK: Disks — free space per partition, SMART status and largest folders.
 
@@ -25,16 +25,16 @@ log = logging.getLogger(__name__)
 
 @dataclass(slots=True)
 class Particao:
-    """PT-PT: Uma particao montada. / EN-UK: One mounted partition."""
+    """PT-PT: Uma partição montada. / EN-UK: One mounted partition."""
 
     montagem: str
     sistema: str
     total_gb: float
     livre_gb: float
-    #: PT-PT: Volumes so de leitura estao sempre a 0% livre e nunca sao um
-    #:        problema — uma ISO montada, uma partilha so de leitura, uma
-    #:        imagem squashfs. Alertar sobre eles enche o relatorio de ruido
-    #:        critico e ensina o operador a ignorar a seccao dos discos.
+    #: PT-PT: Volumes só de leitura estão sempre a 0% livre e nunca são um
+    #:        problema — uma ISO montada, uma partilha só de leitura, uma
+    #:        imagem squashfs. Alertar sobre eles enche o relatório de ruído
+    #:        crítico e ensina o operador a ignorar a secção dos discos.
     #: EN-UK: Read-only volumes always sit at 0% free and are never a problem —
     #:        a mounted ISO, a read-only share, a squashfs image. Alerting on
     #:        them fills the report with critical noise and teaches the operator
@@ -58,12 +58,12 @@ class Particao:
 
 def particoes() -> list[Particao]:
     """
-    PT-PT: Lista as particoes com espaco utilizavel.
+    PT-PT: Lista as partições com espaço utilizável.
 
-           As unidades sem suporte inserido — leitores de cartoes, drives
-           opticas — sao ignoradas. Em Windows o `disk_usage` sobre uma dessas
+           As unidades sem suporte inserido — leitores de cartões, drives
+           opticas — são ignoradas. Em Windows o `disk_usage` sobre uma dessas
            levanta OSError, e a v1.0 parava a listagem inteira na primeira que
-           encontrasse: uma maquina com leitor de cartoes vazio nao mostrava
+           encontrasse: uma máquina com leitor de cartões vazio não mostrava
            disco nenhum.
 
     EN-UK: Lists partitions with usable space. Drives with no media — card
@@ -97,9 +97,9 @@ def particoes() -> list[Particao]:
 
 def smart() -> list[dict]:
     """
-    PT-PT: Estado dos discos fisicos.
+    PT-PT: Estado dos discos físicos.
 
-           Requer elevacao: sem ela o `Get-PhysicalDisk` devolve a lista mas com
+           Requer elevação: sem ela o `Get-PhysicalDisk` devolve a lista mas com
            o estado de saude vazio. Quem chama deve verificar `Ambiente.administrador`
            antes de apresentar o resultado como conclusivo.
 
@@ -118,11 +118,11 @@ def smart() -> list[dict]:
 
 def pastas_maiores(raiz: str = "C:\\", quantas: int = 10) -> list[tuple[str, float]]:
     """
-    PT-PT: As maiores pastas de primeiro nivel, em GB.
+    PT-PT: As maiores pastas de primeiro nível, em GB.
 
-           Percorre apenas um nivel de profundidade, de proposito. A v1.0 fazia
+           Percorre apenas um nível de profundidade, de propósito. A v1.0 fazia
            uma travessia recursiva de C: inteiro dentro do fio da interface: em
-           qualquer servidor com dados a serio, a janela deixava de responder
+           qualquer servidor com dados a sério, a janela deixava de responder
            durante minutos e o Windows marcava-a como bloqueada.
 
     EN-UK: The largest first-level folders, in GB. Deliberately one level deep:
@@ -151,8 +151,8 @@ def pastas_maiores(raiz: str = "C:\\", quantas: int = 10) -> list[tuple[str, flo
                     if ficheiro.is_file():
                         total += ficheiro.stat().st_size
                 except (OSError, PermissionError):
-                    # PT-PT: Ficheiros de sistema sem acesso sao normais; um
-                    #        deles nao pode interromper a contagem dos restantes.
+                    # PT-PT: Ficheiros de sistema sem acesso são normais; um
+                    #        deles não pode interromper a contagem dos restantes.
                     # EN-UK: Inaccessible system files are normal; one of them
                     #        must not interrupt counting the rest.
                     continue
@@ -169,12 +169,12 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
     """
     PT-PT: Problemas de armazenamento.
 
-           A regra usa duas condicoes em simultaneo, e nao so a percentagem. Num
-           disco de dados de 4 TB, 10% livres sao 400 GB e nao ha problema
-           nenhum; num SSD de sistema de 128 GB, 12 GB livres ja impedem uma
-           actualizacao de funcionalidades do Windows. A v1.0 usava so a
+           A regra usa duas condições em simultâneo, e não só a percentagem. Num
+           disco de dados de 4 TB, 10% livres são 400 GB e não há problema
+           nenhum; num SSD de sistema de 128 GB, 12 GB livres já impedem uma
+           actualização de funcionalidades do Windows. A v1.0 usava só a
            percentagem e por isso alertava para o primeiro caso e calava-se no
-           segundo — exactamente ao contrario do util.
+           segundo — exactamente ao contrário do útil.
 
     EN-UK: Storage problems. The rule uses two conditions at once rather than
            percentage alone: on a 4 TB data disk, 10% free is 400 GB and no
@@ -211,9 +211,9 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
         operacional = str(disco.get("OperationalStatus") or "").strip()
         nome = str(disco.get("FriendlyName") or disco.get("DeviceId") or "disco")
 
-        # PT-PT: Um estado vazio significa «nao consegui ler», nao «saudavel».
-        #        Ha uma diferenca enorme entre as duas coisas e a v1.0 tratava-as
-        #        do mesmo modo: sem elevacao, todos os discos apareciam bem.
+        # PT-PT: Um estado vazio significa «não consegui ler», não «saudável».
+        #        Há uma diferença enorme entre as duas coisas e a v1.0 tratava-as
+        #        do mesmo modo: sem elevação, todos os discos apareciam bem.
         # EN-UK: An empty status means "could not read", not "healthy". v1.0
         #        treated the two identically: without elevation every disk
         #        appeared fine.

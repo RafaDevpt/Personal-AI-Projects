@@ -19,10 +19,10 @@ class TestBaseConhecimento:
 
     def test_todas_as_regras_estao_completas(self):
         """
-        PT-PT: Uma regra sem causa ou sem solucao aparece no relatorio como um
-               espaco em branco e o operador fica sem saber o que fazer. Este
-               teste e a razao de a v1.0 ter tido entradas incompletas durante
-               meses sem ninguem reparar.
+        PT-PT: Uma regra sem causa ou sem solução aparece no relatório como um
+               espaço em branco e o operador fica sem saber o que fazer. Este
+               teste e a razão de a v1.0 ter tido entradas incompletas durante
+               meses sem ninguém reparar.
         EN-UK: A rule with no cause or solution shows in the report as a blank.
         """
         for regra in knowledge.REGRAS:
@@ -42,7 +42,7 @@ class TestBaseConhecimento:
 
     def test_sem_pares_id_provider_duplicados(self):
         """
-        PT-PT: Duas regras para o mesmo par tornam a segunda inalcancavel.
+        PT-PT: Duas regras para o mesmo par tornam a segunda inalcançável.
         EN-UK: Two rules for the same pair make the second unreachable.
         """
         vistos = set()
@@ -111,7 +111,7 @@ class TestGrupoEventos:
 
     def test_nivel_em_portugues_independente_do_idioma_da_maquina(self):
         """
-        PT-PT: O nome vem do numero, nunca do LevelDisplayName traduzido.
+        PT-PT: O nome vem do número, nunca do LevelDisplayName traduzido.
         EN-UK: The name comes from the number, never from the localised field.
         """
         assert self._grupo(nivel=1).nivel_texto == "Crítico"
@@ -138,7 +138,7 @@ class TestAnalise:
 
     def test_ruido_nao_conta_como_accionavel(self):
         """
-        PT-PT: Trinta eventos 10016 nao devem produzir «30 problemas».
+        PT-PT: Trinta eventos 10016 não devem produzir «30 problemas».
         EN-UK: Thirty 10016 events must not produce "30 problems".
         """
         regra_ruido = knowledge.procurar(10016, "DistributedCOM")

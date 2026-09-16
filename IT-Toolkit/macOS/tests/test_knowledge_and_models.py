@@ -21,8 +21,8 @@ class TestBaseConhecimento:
 
     def test_todas_as_regras_estao_completas(self):
         """
-        PT-PT: Uma regra sem causa ou sem solucao aparece no relatorio como um
-               espaco em branco e o operador fica sem saber o que fazer.
+        PT-PT: Uma regra sem causa ou sem solução aparece no relatório como um
+               espaço em branco e o operador fica sem saber o que fazer.
         EN-UK: A rule with no cause or solution shows in the report as a blank.
         """
         for regra in knowledge.REGRAS:
@@ -33,8 +33,8 @@ class TestBaseConhecimento:
 
     def test_todos_os_padroes_compilam(self):
         """
-        PT-PT: Uma expressao regular invalida numa entrada nova rebentaria a
-               meio de um diagnostico numa maquina real.
+        PT-PT: Uma expressão regular inválida numa entrada nova rebentaria a
+               meio de um diagnóstico numa máquina real.
         EN-UK: An invalid regular expression would blow up mid-diagnostic.
         """
         for regra in knowledge.REGRAS:
@@ -60,9 +60,9 @@ class TestBaseConhecimento:
 
     def test_regras_com_processo_exigem_o_processo_certo(self):
         """
-        PT-PT: O processo e metade da chave. Sem ele, o mesmo padrao apanha
+        PT-PT: O processo e metade da chave. Sem ele, o mesmo padrão apanha
                coisas diferentes: um «I/O error» do kernel e um disco a falhar,
-               e o mesmo texto vindo de uma aplicacao qualquer nao e nada.
+               e o mesmo texto vindo de uma aplicação qualquer não é nada.
         EN-UK: The process is half the key.
         """
         com_processo = [r for r in knowledge.REGRAS if r.processos]
@@ -72,9 +72,9 @@ class TestBaseConhecimento:
 
     def test_o_ruido_do_macos_esta_coberto(self):
         """
-        PT-PT: A sandbox, o TCC e o nehelper sao os tres maiores geradores de
-               linhas do diario unificado, e nenhum deles e avaria. Sem entradas
-               de ruido para eles, o relatorio de um Mac saudavel vinha cheio.
+        PT-PT: A sandbox, o TCC e o nehelper são os três maiores geradores de
+               linhas do diário unificado, e nenhum deles e avaria. Sem entradas
+               de ruído para eles, o relatório de um Mac saudável vinha cheio.
         EN-UK: Sandbox, TCC and nehelper are the unified log's three biggest line
                generators, and none of them is a fault.
         """
@@ -154,10 +154,10 @@ class TestGrupoEventos:
 
     def test_gravidade_deriva_do_tipo_sem_regra(self):
         """
-        PT-PT: O `Fault` do diario unificado e mais grave do que o `Error`, e a
-               ordem entre os dois nao e obvia para quem vem de outro sistema:
-               um Fault e um erro de programacao apanhado pelo sistema, um Error
-               e uma condicao que a aplicacao reportou.
+        PT-PT: O `Fault` do diário unificado e mais grave do que o `Error`, e a
+               ordem entre os dois não é óbvia para quem vem de outro sistema:
+               um Fault e um erro de programação apanhado pelo sistema, um Error
+               e uma condição que a aplicação reportou.
         EN-UK: The unified log's `Fault` is graver than `Error`, and the order
                is not obvious to somebody coming from another system.
         """
@@ -175,8 +175,8 @@ class TestGrupoEventos:
 
     def test_nivel_em_portugues(self):
         """
-        PT-PT: O nome vem do tipo. O `log show` nao traduz, e um relatorio em
-               portugues nao deve dizer «Fault».
+        PT-PT: O nome vem do tipo. O `log show` não traduz, e um relatório em
+               português não deve dizer «Fault».
         EN-UK: The name comes from the type. `log show` does not translate.
         """
         assert self._grupo(tipo="Fault").nivel_texto == "Falha grave"

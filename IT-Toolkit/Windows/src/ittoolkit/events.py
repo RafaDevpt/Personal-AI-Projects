@@ -1,10 +1,10 @@
 """
-PT-PT: Leitura e analise dos event logs do Windows.
+PT-PT: Leitura e análise dos event logs do Windows.
 
-       Divide-se de proposito em duas metades: a leitura, que precisa de
-       Windows, e a analise, que so precisa de dicionarios. E o que permite
-       testar o agrupamento, a deteccao de recorrencia e o veredicto do
-       relatorio numa maquina qualquer, sem event logs nenhuns.
+       Divide-se de propósito em duas metades: a leitura, que precisa de
+       Windows, e a análise, que só precisa de dicionários. E o que permite
+       testar o agrupamento, a detecção de recorrência e o veredicto do
+       relatório numa máquina qualquer, sem event logs nenhuns.
 
 EN-UK: Reading and analysing the Windows event logs.
 
@@ -27,8 +27,8 @@ from .shell import powershell_json
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Niveis do Windows. 1 critico, 2 erro, 3 aviso. O nivel 0 («Info» em
-#        alguns providers) e o 4 sao informativos e nao interessam aqui.
+# PT-PT: Níveis do Windows. 1 crítico, 2 erro, 3 aviso. O nível 0 («Info» em
+#        alguns providers) e o 4 são informativos e não interessam aqui.
 # EN-UK: Windows levels. 1 critical, 2 error, 3 warning. Levels 0 and 4 are
 #        informational and of no interest here.
 NIVEL_CRITICO = 1
@@ -36,8 +36,8 @@ NIVEL_ERRO = 2
 NIVEL_AVISO = 3
 
 # PT-PT: Corte da mensagem guardada como exemplo. As mensagens do Windows
-#        chegam a varios milhares de caracteres com texto repetido; guardar
-#        tudo inchava o relatorio HTML para dezenas de MB.
+#        chegam a vários milhares de caracteres com texto repetido; guardar
+#        tudo inchava o relatório HTML para dezenas de MB.
 # EN-UK: Cut-off for the message kept as an example. Windows messages run to
 #        thousands of characters; keeping all of it inflated the HTML report to
 #        tens of megabytes.
@@ -46,20 +46,20 @@ MAX_MENSAGEM = 600
 
 def _comando_leitura(log_nome: str, horas: int, niveis: list[int], maximo: int) -> str:
     """
-    PT-PT: Monta o comando PowerShell que le um log.
+    PT-PT: Monta o comando PowerShell que lê um log.
 
-           Usa `Get-WinEvent -FilterHashtable`, e nao `Get-EventLog`. A
-           diferenca nao e de estilo: o FilterHashtable e aplicado pelo proprio
-           servico de eventos antes de os registos chegarem ao PowerShell,
+           Usa `Get-WinEvent -FilterHashtable`, e não `Get-EventLog`. A
+           diferença não é de estilo: o FilterHashtable e aplicado pelo próprio
+           serviço de eventos antes de os registos chegarem ao PowerShell,
            enquanto o `Get-EventLog` traz tudo e filtra depois. Num servidor com
-           meses de registos isso e a diferenca entre um segundo e varios
-           minutos com a interface presa. O `Get-EventLog` esta alem disso
-           obsoleto e nao le os logs modernos.
+           meses de registos isso é a diferença entre um segundo e vários
+           minutos com a interface presa. O `Get-EventLog` esta além disso
+           obsoleto e não lê os logs modernos.
 
            O `-ErrorAction SilentlyContinue` esta la por um motivo concreto:
-           quando um log nao tem eventos no periodo pedido, o `Get-WinEvent`
-           escreve um erro nao terminante em stderr. Sem isto, um resultado
-           perfeitamente normal — «nao houve erros nas ultimas 24 horas» —
+           quando um log não tem eventos no período pedido, o `Get-WinEvent`
+           escreve um erro não terminante em stderr. Sem isto, um resultado
+           perfeitamente normal — «não houve erros nas últimas 24 horas» —
            aparecia ao operador como uma falha da ferramenta.
 
     EN-UK: Builds the PowerShell command that reads one log.
@@ -90,7 +90,7 @@ def _comando_leitura(log_nome: str, horas: int, niveis: list[int], maximo: int) 
 
 def ler_log(log_nome: str, horas: int, incluir_avisos: bool, maximo: int) -> list[dict]:
     """
-    PT-PT: Le um log do Windows e devolve os registos em bruto.
+    PT-PT: Lê um log do Windows e devolve os registos em bruto.
     EN-UK: Reads one Windows log and returns the raw records.
     """
     niveis = [NIVEL_CRITICO, NIVEL_ERRO]
@@ -104,7 +104,7 @@ def ler_log(log_nome: str, horas: int, incluir_avisos: bool, maximo: int) -> lis
 
 def _limpar_mensagem(texto: str) -> str:
     """
-    PT-PT: Reduz a mensagem a uma linha legivel e de tamanho controlado.
+    PT-PT: Reduz a mensagem a uma linha legível e de tamanho controlado.
     EN-UK: Reduces the message to one readable line of controlled length.
     """
     if not texto:
@@ -119,10 +119,10 @@ def _chave(registo: dict) -> tuple[int, str] | None:
     """
     PT-PT: Chave de agrupamento: o par (id, provider).
 
-           Devolve None se o registo nao trouxer um id utilizavel. Vale a pena
-           ser explicito: o `Id` chega como inteiro na maioria das maquinas mas
-           como string nalgumas versoes do PowerShell, e a v1.0 partia com um
-           TypeError a meio da analise quando isso acontecia.
+           Devolve None se o registo não trouxer um id utilizável. Vale a pena
+           ser explicito: o `Id` chega como inteiro na maioria das máquinas mas
+           como string nalgumas versões do PowerShell, e a v1.0 partia com um
+           TypeError a meio da análise quando isso acontecia.
 
     EN-UK: Grouping key: the (id, provider) pair. Returns None when the record
            carries no usable id — `Id` arrives as an integer on most machines
@@ -146,7 +146,7 @@ def analisar(registos_por_log: dict[str, list[dict]], horas: int, teto: int) -> 
     :param registos_por_log:
         PT-PT: Registos em bruto, por nome de log.
         EN-UK: Raw records, keyed by log name.
-    :param horas: PT-PT: Periodo analisado. / EN-UK: Period analysed.
+    :param horas: PT-PT: Período analisado. / EN-UK: Period analysed.
     :param teto:
         PT-PT: Tecto de leitura, para saber se algum log foi truncado.
         EN-UK: Read ceiling, used to tell whether any log was truncated.
@@ -160,10 +160,10 @@ def analisar(registos_por_log: dict[str, list[dict]], horas: int, teto: int) -> 
 
     for nome_log, registos in registos_por_log.items():
         if len(registos) >= teto:
-            # PT-PT: Atingir o tecto significa que ha mais eventos por ler. Dizer
-            #        isto e obrigatorio: um relatorio que analisou os primeiros
-            #        3000 de 50000 eventos e um relatorio incompleto, e quem o
-            #        le tem de saber disso.
+            # PT-PT: Atingir o tecto significa que há mais eventos por ler. Dizer
+            #        isto é obrigatório: um relatório que analisou os primeiros
+            #        3000 de 50000 eventos e um relatório incompleto, e quem o
+            #        lê tem de saber disso.
             # EN-UK: Hitting the ceiling means more events remain unread. Saying
             #        so is mandatory: a report covering the first 3000 of 50000
             #        events is an incomplete report.
@@ -207,8 +207,8 @@ def analisar(registos_por_log: dict[str, list[dict]], horas: int, teto: int) -> 
             if quando:
                 # PT-PT: O Get-WinEvent devolve do mais recente para o mais
                 #        antigo. Comparar as datas em vez de assumir a ordem
-                #        evita que uma mudanca no comando estrague as colunas
-                #        «primeiro» e «ultimo» sem ninguem dar por isso.
+                #        evita que uma mudança no comando estrague as colunas
+                #        «primeiro» e «último» sem ninguém dar por isso.
                 # EN-UK: Get-WinEvent returns newest first. Comparing the dates
                 #        rather than assuming the order stops a future change to
                 #        the command quietly corrupting the first/last columns.
@@ -226,9 +226,9 @@ def analisar(registos_por_log: dict[str, list[dict]], horas: int, teto: int) -> 
     conhecidos = [g for g in grupos.values() if g.regra]
     desconhecidos = [g for g in grupos.values() if not g.regra]
 
-    # PT-PT: Um evento sem regra mas repetido dezenas de vezes tambem e um
-    #        problema. Sobe para a lista principal, sem causa nem solucao mas
-    #        com destaque — nao ter entrada na base nao o torna inofensivo.
+    # PT-PT: Um evento sem regra mas repetido dezenas de vezes também e um
+    #        problema. Sobe para a lista principal, sem causa nem solução mas
+    #        com destaque — não ter entrada na base não o torna inofensivo.
     # EN-UK: An event with no rule but repeating dozens of times is a problem
     #        too. It moves up to the main list — having no knowledge-base entry
     #        does not make it harmless.

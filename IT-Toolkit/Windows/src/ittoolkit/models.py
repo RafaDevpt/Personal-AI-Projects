@@ -1,6 +1,6 @@
 """
-PT-PT: Estruturas de dados partilhadas. Sem dependencias de GUI, de Windows ou
-       de rede — e o que torna a logica testavel numa maquina qualquer.
+PT-PT: Estruturas de dados partilhadas. Sem dependências de GUI, de Windows ou
+       de rede — e o que torna a lógica testável numa máquina qualquer.
 EN-UK: Shared data structures. No GUI, Windows or network dependencies — which
        is what makes the logic testable on any machine.
 
@@ -16,14 +16,14 @@ from enum import Enum
 
 class Gravidade(Enum):
     """
-    PT-PT: Gravidade de um achado. O valor numerico define a ordenacao: o que
-           importa mais aparece primeiro, no ecra e no relatorio.
+    PT-PT: Gravidade de um achado. O valor numérico define a ordenação: o que
+           importa mais aparece primeiro, no ecrã e no relatório.
 
            A v1.0 usava strings soltas ("critica", "alta"...) indexadas contra
-           um dicionario de cores. Um erro de escrita numa entrada da base de
-           conhecimento rebentava a geracao do relatorio com um KeyError, e so
-           quando essa entrada aparecesse numa maquina real. Com um Enum, o erro
-           aparece ao importar o modulo, e ha um teste que percorre a base toda.
+           um dicionário de cores. Um erro de escrita numa entrada da base de
+           conhecimento rebentava a geração do relatório com um KeyError, e só
+           quando essa entrada aparecesse numa máquina real. Com um Enum, o erro
+           aparece ao importar o módulo, e há um teste que percorre a base toda.
 
     EN-UK: Severity of a finding. The numeric value defines ordering. v1.0 used
            loose strings indexed against a colour dictionary; a typo in a
@@ -39,7 +39,7 @@ class Gravidade(Enum):
 
     @property
     def etiqueta(self) -> str:
-        """PT-PT: Nome em maiusculas para o relatorio.
+        """PT-PT: Nome em maiúsculas para o relatório.
         EN-UK: Upper-case name for the report."""
         return self.name
 
@@ -62,9 +62,9 @@ class Regra:
     PT-PT: Uma entrada da base de conhecimento de Event IDs.
 
            A chave e o par (event id, fragmento do nome do provider). Sem o
-           provider, o mesmo numero significa coisas diferentes conforme quem o
-           escreveu: o ID 1000 e um crash de aplicacao no provider «Application
-           Error», mas tambem existe noutros providers a dizer outra coisa.
+           provider, o mesmo número significa coisas diferentes conforme quem o
+           escreveu: o ID 1000 e um crash de aplicação no provider «Application
+           Error», mas também existe noutros providers a dizer outra coisa.
 
     EN-UK: One knowledge-base entry. The key is the (event id, provider
            fragment) pair — without the provider, the same number means
@@ -77,8 +77,8 @@ class Regra:
     causa: str
     solucao: str
     gravidade: Gravidade
-    #: PT-PT: Ruido conhecido do Windows que so interessa se coincidir com
-    #:        falhas reais. Nao conta para o veredicto do relatorio.
+    #: PT-PT: Ruído conhecido do Windows que só interessa se coincidir com
+    #:        falhas reais. Não conta para o veredicto do relatório.
     #: EN-UK: Known Windows noise; excluded from the report verdict.
     ruido: bool = False
 
@@ -96,8 +96,8 @@ class Regra:
 @dataclass(slots=True)
 class GrupoEventos:
     """
-    PT-PT: Ocorrencias do mesmo evento agrupadas. Cinquenta linhas iguais no
-           Event Viewer sao um problema, nao cinquenta.
+    PT-PT: Ocorrências do mesmo evento agrupadas. Cinquenta linhas iguais no
+           Event Viewer são um problema, não cinquenta.
     EN-UK: Occurrences of the same event, grouped. Fifty identical lines in the
            Event Viewer are one problem, not fifty.
     """
@@ -112,7 +112,7 @@ class GrupoEventos:
     exemplo: str = ""
     regra: Regra | None = None
 
-    #: PT-PT: A partir de quantas ocorrencias se considera recorrente.
+    #: PT-PT: A partir de quantas ocorrências se considera recorrente.
     #: EN-UK: Occurrence count from which it counts as recurring.
     LIMITE_RECORRENCIA: int = field(default=5, repr=False)
 
@@ -125,9 +125,9 @@ class GrupoEventos:
     @property
     def gravidade(self) -> Gravidade:
         """
-        PT-PT: Gravidade da regra, se houver; caso contrario deriva do nivel do
-               proprio evento, para os eventos sem entrada na base de
-               conhecimento tambem serem ordenados de forma util.
+        PT-PT: Gravidade da regra, se houver; caso contrário deriva do nível do
+               próprio evento, para os eventos sem entrada na base de
+               conhecimento também serem ordenados de forma útil.
         EN-UK: The rule's severity if there is one; otherwise derived from the
                event's own level.
         """
@@ -140,12 +140,12 @@ class GrupoEventos:
     @property
     def nivel_texto(self) -> str:
         """
-        PT-PT: Nome do nivel em portugues.
+        PT-PT: Nome do nível em português.
 
-               Deliberadamente calculado a partir do numero, e nao lido do
+               Deliberadamente calculado a partir do número, e não lido do
                `LevelDisplayName` do Windows: esse campo vem traduzido conforme
-               o idioma da maquina, e um parque com maquinas em portugues e
-               ingles produzia relatorios com «Erro» e «Error» misturados.
+               o idioma da máquina, e um parque com máquinas em português e
+               inglês produzia relatórios com «Erro» e «Error» misturados.
 
         EN-UK: Level name in Portuguese, deliberately derived from the numeric
                value rather than Windows' localised LevelDisplayName.
@@ -158,8 +158,8 @@ class GrupoEventos:
 @dataclass(slots=True)
 class Analise:
     """
-    PT-PT: Resultado completo de uma analise de eventos, pronto a mostrar ou a
-           escrever num relatorio.
+    PT-PT: Resultado completo de uma análise de eventos, pronto a mostrar ou a
+           escrever num relatório.
     EN-UK: The complete result of an event analysis, ready to display or write
            into a report.
     """
@@ -175,14 +175,14 @@ class Analise:
 
     @property
     def criticos(self) -> int:
-        """PT-PT: Quantos problemas criticos foram identificados.
+        """PT-PT: Quantos problemas críticos foram identificados.
         EN-UK: How many critical problems were identified."""
         return sum(1 for g in self.problemas if g.gravidade is Gravidade.CRITICA)
 
     @property
     def acionaveis(self) -> list[GrupoEventos]:
         """
-        PT-PT: Problemas que merecem accao, ou seja, tudo menos o ruido conhecido.
+        PT-PT: Problemas que merecem acção, ou seja, tudo menos o ruído conhecido.
         EN-UK: Problems worth acting on — everything but the known noise.
         """
         return [g for g in self.problemas if not (g.regra and g.regra.ruido)]
@@ -212,9 +212,9 @@ class Analise:
 @dataclass(slots=True)
 class Achado:
     """
-    PT-PT: Um problema detectado fora dos event logs — disco sem espaco, servico
-           parado, sem ligacao ao gateway. Usado pelo modo de linha de comandos
-           e pelo relatorio de saude.
+    PT-PT: Um problema detectado fora dos event logs — disco sem espaço, serviço
+           parado, sem ligação ao gateway. Usado pelo modo de linha de comandos
+           e pelo relatório de saude.
     EN-UK: A problem detected outside the event logs — a full disk, a stopped
            service, no gateway. Used by the command-line mode and the health
            report.

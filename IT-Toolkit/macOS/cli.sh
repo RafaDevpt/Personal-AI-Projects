@@ -3,28 +3,28 @@
 # PT-PT: Modo sem interface, em macOS.
 #
 #        Para um agente do launchd, para o cron, ou para um Mac de sala sem
-#        ninguem a olhar:
+#        ninguém a olhar:
 #
-#          ./cli.sh --cli                     diagnostico e relatorio
-#          sudo ./cli.sh --cli                idem, com os servicos de sistema
+#          ./cli.sh --cli                     diagnóstico e relatório
+#          sudo ./cli.sh --cli                idem, com os serviços de sistema
 #          ./cli.sh --diagnostico             o que esta instalado e o que falta
-#          ./cli.sh --cli --horas 168         a ultima semana
-#          ./cli.sh --cli --sem-eventos       salta o diario; muito mais rapido
+#          ./cli.sh --cli --horas 168         a última semana
+#          ./cli.sh --cli --sem-eventos       salta o diário; muito mais rápido
 #
-#        Codigos de saida: 0 limpo, 1 problemas, 2 criticos, 3 sem interface,
-#        4 falha a gravar o relatorio, 130 interrompido. Sao a interface desta
-#        ferramenta para um RMM: um codigo diferente por situacao permite
-#        reagir sem ler o relatorio.
+#        Códigos de saída: 0 limpo, 1 problemas, 2 críticos, 3 sem interface,
+#        4 falha a gravar o relatório, 130 interrompido. São a interface desta
+#        ferramenta para um RMM: um código diferente por situação permite
+#        reagir sem ler o relatório.
 #
-#        **Sobre o Acesso Total ao Disco num agente do launchd:** a permissao
-#        pertence a aplicacao que corre o processo. Um agente do launchd nao e o
-#        Terminal — e um processo proprio — e por isso tem de ser autorizado
-#        separadamente. Se o relatorio agendado sair sempre mais limpo do que o
-#        que se corre a mao, e isto.
+#        **Sobre o Acesso Total ao Disco num agente do launchd:** a permissão
+#        pertence a aplicação que corre o processo. Um agente do launchd não é o
+#        Terminal — e um processo próprio — e por isso tem de ser autorizado
+#        separadamente. Se o relatório agendado sair sempre mais limpo do que o
+#        que se corre a mão, e isto.
 #
-#        Nao prepara o ambiente: se ele nao existir, diz o que executar. Um
-#        script agendado que decide instalar dependencias a meio da noite e um
-#        script que um dia enche o disco sem ninguem dar por isso.
+#        Não prepara o ambiente: se ele não existir, diz o que executar. Um
+#        script agendado que decide instalar dependências a meio da noite e um
+#        script que um dia enche o disco sem ninguém dar por isso.
 #
 # EN-UK: Headless mode on macOS.
 #
@@ -46,7 +46,7 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e Linux
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e Linux
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and Linux versions
 #        live in the folders alongside, each complete and independent.

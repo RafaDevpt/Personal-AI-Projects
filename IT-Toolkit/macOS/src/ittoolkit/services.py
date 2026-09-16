@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 """
-PT-PT: Servicos do launchd — listagem, deteccao dos que falharam e arranque
+PT-PT: Serviços do launchd — listagem, detecção dos que falharam e arranque
        manual.
 
-       O launchd nao tem estado «failed». Isto e a diferenca de fundo em relacao
-       ao systemd, e e o que molda este modulo inteiro.
+       O launchd não tem estado «failed». Isto é a diferença de fundo em relação
+       ao systemd, e e o que molda este módulo inteiro.
 
-       O que o `launchctl list` da sao tres colunas: o PID, o **ultimo codigo de
-       saida** e a etiqueta. Um servico a correr tem PID e um traco na segunda
-       coluna. Um servico que correu e saiu bem tem um traco no PID e um zero.
-       Um servico que **falhou** tem um traco no PID e um numero diferente de
-       zero — e nao ha mais nenhum sitio onde isso apareca. Ler mal esta coluna
-       e nao ver falha nenhuma numa maquina cheia delas.
+       O que o `launchctl list` da são três colunas: o PID, o **último código de
+       saída** e a etiqueta. Um serviço a correr tem PID e um traço na segunda
+       coluna. Um serviço que correu e saiu bem tem um traço no PID e um zero.
+       Um serviço que **falhou** tem um traço no PID e um número diferente de
+       zero — e não há mais nenhum sítio onde isso apareça. Ler mal esta coluna
+       e não ver falha nenhuma numa máquina cheia delas.
 
-       A segunda particularidade sao os dois dominios. O `launchctl list` sem
-       sudo mostra os servicos **do utilizador**; com sudo mostra os **do
-       sistema**. Nao ha comando que mostre os dois, e sao populacoes
-       completamente diferentes: as aplicacoes de arranque estao no primeiro, os
+       A segunda particularidade são os dois domínios. O `launchctl list` sem
+       sudo mostra os serviços **do utilizador**; com sudo mostra os **do
+       sistema**. Não há comando que mostre os dois, e são populações
+       completamente diferentes: as aplicações de arranque estão no primeiro, os
        daemons no segundo.
 
-       A terceira e o vocabulario, que mudou. O `launchctl load` e o `start`
-       estao obsoletos ha varias versoes do macOS; o que funciona hoje e o
+       A terceira e o vocabulário, que mudou. O `launchctl load` e o `start`
+       estão obsoletos há várias versões do macOS; o que funciona hoje e o
        `bootstrap`, o `kickstart` e o `print`, sobre alvos com a forma
        `system/<etiqueta>` ou `gui/<uid>/<etiqueta>`. Um artigo de 2015 na
-       Internet ensina o contrario, e por isso esta escrito aqui.
+       Internet ensina o contrário, e por isso esta escrito aqui.
 
 EN-UK: launchd services — listing, failure detection and manual start.
 
@@ -59,21 +59,21 @@ from .shell import Resultado, e_root, executar
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Caracteres validos numa etiqueta de launchd. Sao nomes em notacao
-#:        inversa de dominio — `com.apple.mDNSResponder`.
+#: PT-PT: Caracteres válidos numa etiqueta de launchd. São nomes em notação
+#:        inversa de domínio — `com.apple.mDNSResponder`.
 #: EN-UK: Valid characters in a launchd label. They are reverse-domain names.
 _CARACTERES_ETIQUETA = set(
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-."
 )
 
-# PT-PT: Servicos que saem com codigo diferente de zero por desenho, e nao por
-#        avaria. Sao os que o sistema arranca a pedido, os que terminam quando
-#        nao ha nada a fazer, e alguns que a Apple deixa a falhar em maquinas
-#        onde a funcionalidade nao existe — o `com.apple.mbsystemadministration`
-#        num Mac sem gestao, por exemplo.
+# PT-PT: Serviços que saem com código diferente de zero por desenho, e não por
+#        avaria. São os que o sistema arranca a pedido, os que terminam quando
+#        não há nada a fazer, e alguns que a Apple deixa a falhar em máquinas
+#        onde a funcionalidade não existe — o `com.apple.mbsystemadministration`
+#        num Mac sem gestão, por exemplo.
 #
-#        Sem esta lista, um Mac saudavel apresentava vinte «servicos falhados» e
-#        o operador aprendia a ignorar a seccao inteira.
+#        Sem esta lista, um Mac saudável apresentava vinte «serviços falhados» e
+#        o operador aprendia a ignorar a secção inteira.
 # EN-UK: Services exiting non-zero by design rather than by failure: those the
 #        system starts on demand, those ending when there is nothing to do, and
 #        a few Apple leaves failing on machines where the feature does not exist.
@@ -99,7 +99,7 @@ RUIDO_CONHECIDO: frozenset[str] = frozenset(
     }
 )
 
-#: PT-PT: Quantos servicos listar no detalhe de um achado.
+#: PT-PT: Quantos serviços listar no detalhe de um achado.
 #: EN-UK: How many services to list in a finding's detail.
 MAX_NO_DETALHE = 12
 

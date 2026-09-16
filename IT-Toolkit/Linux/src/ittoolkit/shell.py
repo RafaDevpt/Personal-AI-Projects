@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 """
-PT-PT: Execucao de comandos externos em Linux.
+PT-PT: Execução de comandos externos em Linux.
 
-       Quase todo o diagnostico depende de correr ferramentas do sistema e ler
+       Quase todo o diagnóstico depende de correr ferramentas do sistema e ler
        o que elas devolvem — e ler mal e a fonte mais comum de bugs silenciosos
        numa ferramenta destas.
 
-       Tres decisoes que valem mais do que o codigo que as implementa.
+       Três decisões que valem mais do que o código que as implementa.
 
-       **Nunca `shell=True`.** Os comandos vao como lista de argumentos. Uma
-       ferramenta de diagnostico corre com privilegios e recebe nomes de
+       **Nunca `shell=True`.** Os comandos vão como lista de argumentos. Uma
+       ferramenta de diagnóstico corre com privilegios e recebe nomes de
        unidades e de dispositivos que vem do sistema; passa-los por uma shell
-       seria dar-lhes poder de execucao que nao precisam de ter.
+       seria dar-lhes poder de execução que não precisam de ter.
 
        **O ambiente e forcado a C.** Um `LANG=pt_PT.UTF-8` faz o `systemctl` e o
-       `lsblk` traduzirem os cabecalhos e os estados, e um parser que procura
-       "failed" deixa de encontrar "falhou". A versao anterior desta ferramenta
+       `lsblk` traduzirem os cabeçalhos e os estados, e um parser que procura
+       "failed" deixa de encontrar "falhou". A versão anterior desta ferramenta
        em Windows aprendeu isto com as codepages; em Linux o problema e o mesmo
        com outro nome.
 
-       **Um comando que nao existe nao e um erro.** Numa instalacao minima nao
-       ha `smartctl`, nem `dmidecode`, nem `ss`. O `Resultado` distingue «correu
+       **Um comando que não existe não é um erro.** Numa instalação mínima não
+       há `smartctl`, nem `dmidecode`, nem `ss`. O `Resultado` distingue «correu
        e falhou» de «nem sequer esta instalado», porque a resposta a dar ao
        utilizador e diferente em cada caso.
 
@@ -61,9 +61,9 @@ from typing import Any
 log = logging.getLogger(__name__)
 
 # PT-PT: O ambiente com que todos os comandos correm. O `LC_ALL=C` garante
-#        saidas em ingles e formatos numericos previsiveis; sem ele, uma maquina
-#        configurada em portugues devolve "falhou" onde o parser espera "failed"
-#        e virgulas onde ele espera pontos decimais.
+#        saídas em inglês e formatos numéricos previsiveis; sem ele, uma máquina
+#        configurada em português devolve "falhou" onde o parser espera "failed"
+#        e vírgulas onde ele espera pontos decimais.
 # EN-UK: The environment every command runs with. `LC_ALL=C` guarantees English
 #        output and predictable number formats; without it a Portuguese-
 #        configured machine returns "falhou" where the parser expects "failed".
@@ -76,11 +76,11 @@ class Resultado:
     PT-PT: O resultado de um comando.
 
            `ausente` e o campo que distingue os dois tipos de falha. Um
-           `smartctl` que devolve codigo 2 esta a dizer alguma coisa sobre o
-           disco; um `smartctl` que nao existe nao esta a dizer nada sobre o
+           `smartctl` que devolve código 2 esta a dizer alguma coisa sobre o
+           disco; um `smartctl` que não existe não esta a dizer nada sobre o
            disco nenhum — esta a dizer que falta um pacote. Apresentar os dois
-           como «erro ao ler o disco» seria mandar alguem procurar uma avaria
-           que nao existe.
+           como «erro ao ler o disco» seria mandar alguém procurar uma avaria
+           que não existe.
 
     EN-UK: A command's result.
 
@@ -122,7 +122,7 @@ class Resultado:
 
     @property
     def linhas(self) -> list[str]:
-        """PT-PT: A saida em linhas, sem vazias. / EN-UK: Output as lines, blanks dropped."""
+        """PT-PT: A saída em linhas, sem vazias. / EN-UK: Output as lines, blanks dropped."""
         return [linha for linha in self.saida.splitlines() if linha.strip()]
 
     def explicacao(self) -> str:
@@ -307,12 +307,12 @@ def e_root() -> bool:
            root, and `journalctl` without it only shows what the user may see —
            which, in a diagnostic, is half the story.
     """
-    # PT-PT: O `geteuid` so existe em POSIX. O `getattr` mantem este modulo
-    #        importavel e chamavel numa maquina de desenvolvimento que nao seja
-    #        Linux, e e o que permite correr o `--cli` desta versao a partir de
-    #        qualquer sitio para confirmar que a ligacao entre os modulos esta
-    #        de pe. Numa maquina Linux — a unica onde isto e suposto correr a
-    #        serio — o atributo existe sempre.
+    # PT-PT: O `geteuid` só existe em POSIX. O `getattr` mantém este módulo
+    #        importável e chamavel numa máquina de desenvolvimento que não seja
+    #        Linux, e e o que permite correr o `--cli` desta versão a partir de
+    #        qualquer sítio para confirmar que a ligação entre os módulos esta
+    #        de pé. Numa máquina Linux — a única onde isto é suposto correr a
+    #        sério — o atributo existe sempre.
     # EN-UK: `geteuid` exists on POSIX only. The `getattr` keeps this module
     #        importable and callable on a non-Linux development machine, which
     #        is what allows running this version's `--cli` from anywhere to
@@ -350,7 +350,7 @@ def no_grupo_systemd_journal() -> bool:
                 continue
             if grupo.gr_gid in os.getgroups():
                 return True
-    except Exception:  # noqa: BLE001 - PT-PT: sem grp nao ha como saber
+    except Exception:  # noqa: BLE001 - PT-PT: sem grp não há como saber
         log.debug("Não foi possível verificar os grupos", exc_info=True)
     return False
 

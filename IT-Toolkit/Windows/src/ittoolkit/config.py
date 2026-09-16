@@ -1,12 +1,12 @@
 """
-PT-PT: Definicoes da aplicacao.
+PT-PT: Definições da aplicação.
 
-       A v1.0 gravava os relatorios numa pasta «Relatorios» ao lado do proprio
-       ficheiro .py. Parecia pratico e trazia dois problemas: numa pasta em
-       Program Files ou numa partilha de rede so de leitura a escrita falhava,
-       e os relatorios — que contem nome da maquina, utilizador, numero de serie
-       e mensagens de erro — ficavam dentro da arvore do repositorio, a um
-       `git add .` de distancia de irem parar ao GitHub.
+       A v1.0 gravava os relatórios numa pasta «Relatórios» ao lado do próprio
+       ficheiro .py. Parecia prático e trazia dois problemas: numa pasta em
+       Program Files ou numa partilha de rede só de leitura a escrita falhava,
+       e os relatórios — que contém nome da máquina, utilizador, número de série
+       e mensagens de erro — ficavam dentro da árvore do repositório, a um
+       `git add .` de distância de irem parar ao GitHub.
 
 EN-UK: Application settings.
 
@@ -33,28 +33,28 @@ _log = logging.getLogger(__name__)
 
 APP_FOLDER_NAME = "ITToolkit"
 
-# PT-PT: Valores admissiveis, validados ao carregar.
+# PT-PT: Valores admissíveis, validados ao carregar.
 # EN-UK: Permitted values, validated on load.
 TEMAS: tuple[str, ...] = ("system", "light", "dark")
 
-# PT-PT: Periodos oferecidos na analise de eventos, em horas.
+# PT-PT: Períodos oferecidos na análise de eventos, em horas.
 # EN-UK: Periods offered in the event analysis, in hours.
 PERIODOS: tuple[int, ...] = (24, 48, 168, 720)
 
 
 def default_data_dir() -> Path:
     """
-    PT-PT: Pasta de dados da aplicacao (configuracao e registo).
+    PT-PT: Pasta de dados da aplicação (configuração e registo).
            Em Windows usa %APPDATA%; nos restantes sistemas segue a norma XDG.
-           Nunca escreve dentro da pasta do repositorio.
+           Nunca escreve dentro da pasta do repositório.
 
     EN-UK: Application data folder (configuration and log). On Windows it uses
            %APPDATA%; elsewhere it follows the XDG convention. It never writes
            inside the repository folder.
     """
-    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
-    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
-    #        esta versao corre num sistema e sabe qual e.
+    # PT-PT: A convenção desta pasta e a do sistema desta versão, e vive num
+    #        sítio só — `platform_support`. Não há aqui ramificação nenhuma:
+    #        esta versão corre num sistema e sabe qual é.
     # EN-UK: This folder's convention is that of this version's system, and it
     #        lives in one place — `platform_support`. There is no branching
     #        here: this version runs on one system and knows which.
@@ -63,9 +63,9 @@ def default_data_dir() -> Path:
 
 def default_reports_dir() -> Path:
     """
-    PT-PT: Pasta dos relatorios, dentro dos Documentos do utilizador.
+    PT-PT: Pasta dos relatórios, dentro dos Documentos do utilizador.
            E onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
-           mais arrumada e ninguem a encontraria.
+           mais arrumada e ninguém a encontraria.
 
     EN-UK: Reports folder, inside the user's Documents. It is where people look
            for files — a folder under %APPDATA% would be tidier and nobody would
@@ -77,29 +77,29 @@ def default_reports_dir() -> Path:
 @dataclass
 class AppConfig:
     """
-    PT-PT: Definicoes da aplicacao. Todos os campos tem valor por omissao, pelo
+    PT-PT: Definições da aplicação. Todos os campos tem valor por omissão, pelo
            que um ficheiro corrompido ou parcial nunca impede o arranque.
 
     EN-UK: Application settings. Every field has a default, so a corrupt or
            partial file can never prevent start-up.
     """
 
-    # --- PT-PT: Saida / EN-UK: Output --------------------------------------
+    # --- PT-PT: Saída / EN-UK: Output --------------------------------------
     reports_dir: Path = field(default_factory=default_reports_dir)
 
-    # --- PT-PT: Analise de eventos / EN-UK: Event analysis -----------------
+    # --- PT-PT: Análise de eventos / EN-UK: Event analysis -----------------
     periodo_horas: int = 24
     incluir_system: bool = True
     incluir_application: bool = True
-    #: PT-PT: O log Security exige elevacao e enche-se de ruido; desligado por
-    #:        omissao. EN-UK: The Security log needs elevation and is noisy.
+    #: PT-PT: O log Security exige elevação e enche-se de ruído; desligado por
+    #:        omissão. EN-UK: The Security log needs elevation and is noisy.
     incluir_security: bool = False
     incluir_avisos: bool = True
 
-    # PT-PT: Tecto de eventos lidos por log. Sem tecto, uma maquina com o
+    # PT-PT: Tecto de eventos lidos por log. Sem tecto, uma máquina com o
     #        Application a rebentar em ciclo devolve centenas de milhares de
-    #        linhas e a interface fica presa varios minutos. Quando o tecto e
-    #        atingido, o relatorio di-lo em vez de fingir que leu tudo.
+    #        linhas e a interface fica presa vários minutos. Quando o tecto e
+    #        atingido, o relatório di-lo em vez de fingir que leu tudo.
     # EN-UK: Ceiling on events read per log. Without one, a machine whose
     #        Application log is looping returns hundreds of thousands of lines
     #        and the interface locks up for minutes. When the ceiling is hit the
@@ -110,9 +110,9 @@ class AppConfig:
     # PT-PT: Percentagem livre abaixo da qual um disco e assinalado.
     # EN-UK: Free percentage below which a disk is flagged.
     disco_percent_min: int = 10
-    # PT-PT: E tambem um minimo absoluto. Num disco de 4 TB, 10% livres sao
-    #        400 GB e nao ha problema nenhum; num SSD de 128 GB do sistema,
-    #        12 GB livres ja impedem uma actualizacao do Windows. So a
+    # PT-PT: E também um mínimo absoluto. Num disco de 4 TB, 10% livres são
+    #        400 GB e não há problema nenhum; num SSD de 128 GB do sistema,
+    #        12 GB livres já impedem uma actualização do Windows. Só a
     #        percentagem, como na v1.0, engana nos dois sentidos.
     # EN-UK: And an absolute floor too. On a 4 TB disk, 10% free is 400 GB and
     #        no problem at all; on a 128 GB system SSD, 12 GB free already
@@ -132,7 +132,7 @@ class AppConfig:
 
     # --- PT-PT: Comportamento / EN-UK: Behaviour ---------------------------
     # PT-PT: Analisar assim que a janela abre. A v1.0 abria vazia e obrigava a
-    #        carregar num botao para ver seja o que for.
+    #        carregar num botão para ver seja o que for.
     # EN-UK: Analyse as soon as the window opens. v1.0 opened empty and required
     #        a button press before showing anything at all.
     analisar_ao_arrancar: bool = True
@@ -144,7 +144,7 @@ class AppConfig:
     def __post_init__(self) -> None:
         """
         PT-PT: Normaliza tipos e limita os valores a intervalos sensatos,
-               revertendo em silencio e deixando registo.
+               revertendo em silêncio e deixando registo.
         EN-UK: Normalises types and clamps values to sensible ranges, falling
                back silently and recording it in the log.
         """
@@ -170,20 +170,20 @@ class AppConfig:
         self.timeout_porta = max(0.2, min(float(self.timeout_porta), 30.0))
 
     # -----------------------------------------------------------------------
-    # PT-PT: Persistencia / EN-UK: Persistence
+    # PT-PT: Persistência / EN-UK: Persistence
     # -----------------------------------------------------------------------
 
     @classmethod
     def config_path(cls) -> Path:
-        """PT-PT: Caminho do ficheiro de configuracao.
+        """PT-PT: Caminho do ficheiro de configuração.
         EN-UK: Path of the configuration file."""
         return default_data_dir() / "config.json"
 
     @classmethod
     def load(cls, path: Path | None = None) -> AppConfig:
         """
-        PT-PT: Carrega a configuracao do disco. Qualquer falha resulta nos
-               valores por omissao, nunca numa excecao.
+        PT-PT: Carrega a configuração do disco. Qualquer falha resulta nos
+               valores por omissão, nunca numa excepção.
         EN-UK: Loads the configuration from disk. Any failure yields the
                defaults, never an exception.
         """
@@ -211,17 +211,17 @@ class AppConfig:
             return cls(**{k: v for k, v in raw.items() if k in conhecidos})
         except (TypeError, ValueError) as exc:
             # PT-PT: Um tipo errado no JSON (uma string onde se espera um
-            #        numero) nao deve impedir a aplicacao de abrir.
+            #        número) não deve impedir a aplicação de abrir.
             # EN-UK: A wrong type in the JSON must not stop the app opening.
             _log.warning("Configuração com valores inválidos: %s", exc)
             return cls()
 
     def save(self, path: Path | None = None) -> bool:
         """
-        PT-PT: Grava a configuracao em JSON.
+        PT-PT: Grava a configuração em JSON.
         EN-UK: Writes the configuration as JSON.
 
-        :return: PT-PT: True se gravou; False se falhou (a aplicacao continua).
+        :return: PT-PT: True se gravou; False se falhou (a aplicação continua).
                  EN-UK: True on success; False on failure (the app carries on).
         """
         path = path or self.config_path()
@@ -238,7 +238,7 @@ class AppConfig:
 
     def ensure_directories(self) -> None:
         """
-        PT-PT: Garante que a pasta de relatorios existe.
+        PT-PT: Garante que a pasta de relatórios existe.
         EN-UK: Ensures the reports folder exists.
         """
         try:
@@ -249,7 +249,7 @@ class AppConfig:
     @property
     def logs_escolhidos(self) -> list[str]:
         """
-        PT-PT: Lista dos logs do Windows a analisar, conforme as opcoes.
+        PT-PT: Lista dos logs do Windows a analisar, conforme as opções.
         EN-UK: List of Windows logs to analyse, according to the options.
         """
         escolhidos = []

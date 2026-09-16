@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
-PT-PT: Rede — configuracao, diagnostico e testes pontuais.
+PT-PT: Rede — configuração, diagnóstico e testes pontuais.
 
-       **O `/etc/resolv.conf` de um Mac e uma mentira util.** Existe, tem
-       servidores la dentro, e nao e o que o sistema usa. O macOS resolve nomes
-       pelo `mDNSResponder`, que mantem uma configuracao propria por interface,
-       com ordem de prioridade e dominios de pesquisa que aquele ficheiro nao
-       representa. Com uma VPN ligada, entao, a diferenca e total: o
+       **O `/etc/resolv.conf` de um Mac e uma mentira útil.** Existe, tem
+       servidores la dentro, e não é o que o sistema usa. O macOS resolve nomes
+       pelo `mDNSResponder`, que mantém uma configuração própria por interface,
+       com ordem de prioridade e domínios de pesquisa que aquele ficheiro não
+       representa. Com uma VPN ligada, então, a diferença e total: o
        `resolv.conf` continua a mostrar os servidores da rede local enquanto
-       todo o trafego vai por outro lado. A fonte certa e o `scutil --dns`, e e
-       essa que este modulo usa.
+       todo o tráfego vai por outro lado. A fonte certa e o `scutil --dns`, e e
+       essa que este módulo usa.
 
-       **O nome da interface tem duas formas, e o utilizador so conhece uma.**
+       **O nome da interface tem duas formas, e o utilizador só conhece uma.**
        O `ifconfig` diz `en0`; o utilizador diz «Wi-Fi». Quem esta ao telefone
-       com o helpdesk nao sabe o que e o `en0`, e um relatorio que so diga `en0`
-       obriga alguem a traduzir. O `networksetup -listallhardwareports` faz essa
-       traducao, e este modulo apresenta as duas.
+       com o helpdesk não sabe o que é o `en0`, e um relatório que só diga `en0`
+       obriga alguém a traduzir. O `networksetup -listallhardwareports` faz essa
+       tradução, e este módulo apresenta as duas.
 
        **A ordem das interfaces decide tudo.** Num Mac com Wi-Fi e Ethernet
-       ligados ao mesmo tempo, o que decide por onde sai o trafego nao e a
-       metrica de uma rota: e a ordem da lista em Definicoes de Rede. Uma
-       maquina com o Wi-Fi de convidados acima da Ethernet da empresa parece bem
-       configurada em tudo o que se olhe, e nao chega a lado nenhum.
+       ligados ao mesmo tempo, o que decide por onde sai o tráfego não é a
+       métrica de uma rota: e a ordem da lista em Definições de Rede. Uma
+       máquina com o Wi-Fi de convidados acima da Ethernet da empresa parece bem
+       configurada em tudo o que se olhe, e não chega a lado nenhum.
 
 EN-UK: Network — configuration, diagnostics and one-off tests.
 
@@ -51,15 +51,15 @@ from .shell import Resultado, disponivel, executar
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Gama que o macOS atribui a si proprio quando o DHCP nao responde. Ver
-#        um endereco destes e ver uma maquina sem rede utilizavel, mesmo que o
-#        icone do Wi-Fi nao se queixe.
+# PT-PT: Gama que o macOS atribui a si próprio quando o DHCP não responde. Ver
+#        um endereço destes e ver uma máquina sem rede utilizável, mesmo que o
+#        icone do Wi-Fi não se queixe.
 # EN-UK: The range macOS assigns itself when DHCP does not answer.
 APIPA = ipaddress.ip_network("169.254.0.0/16")
 
-#: PT-PT: Interfaces que nao valem um alerta: o loopback, as pontes de
-#:        virtualizacao, o Thunderbolt sem nada ligado e as interfaces de
-#:        servico da Apple. Nao terem gateway e o normal delas.
+#: PT-PT: Interfaces que não valem um alerta: o loopback, as pontes de
+#:        virtualização, o Thunderbolt sem nada ligado e as interfaces de
+#:        serviço da Apple. Não terem gateway e o normal delas.
 #: EN-UK: Interfaces not worth an alert: loopback, virtualisation bridges,
 #:        Thunderbolt with nothing attached, and Apple's service interfaces.
 INTERFACES_IGNORADAS: tuple[str, ...] = (
@@ -228,9 +228,9 @@ def adaptadores() -> list[dict]:
                 "descricao": nome,
                 "ipv4": ipv4,
                 "mascara": mascara.saida.strip() or "?",
-                # PT-PT: So a interface de saida tem gateway efectivo. As outras
-                #        podem ter um configurado e nao estar a ser usadas — e
-                #        apresenta-lo como se estivessem confunde quem le.
+                # PT-PT: Só a interface de saída tem gateway efectivo. As outras
+                #        podem ter um configurado e não estar a ser usadas — e
+                #        apresenta-lo como se estivessem confunde quem lê.
                 # EN-UK: Only the outbound interface has an effective gateway.
                 "gateway": gateway if dispositivo == saida else "",
                 "dns": dns,
@@ -242,7 +242,7 @@ def adaptadores() -> list[dict]:
 
 
 def _e_apipa(endereco: str) -> bool:
-    """PT-PT: O endereco esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
+    """PT-PT: O endereço esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
     try:
         return ipaddress.ip_address(endereco) in APIPA
     except ValueError:

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-PT-PT: Discos — espaco livre por ponto de montagem, estado SMART e pastas
+PT-PT: Discos — espaço livre por ponto de montagem, estado SMART e pastas
        maiores.
 
-       Duas coisas separam isto da versao de Windows, e ambas nasceram de falsos
+       Duas coisas separam isto da versão de Windows, e ambas nasceram de falsos
        alarmes:
 
-       1. **Os pseudo-sistemas de ficheiros.** Um Linux tipico tem dezenas de
-          montagens que nao sao disco nenhum: `tmpfs`, `devtmpfs`, `overlay` de
+       1. **Os pseudo-sistemas de ficheiros.** Um Linux típico tem dezenas de
+          montagens que não são disco nenhum: `tmpfs`, `devtmpfs`, `overlay` de
           contentores e — em Ubuntu — um `squashfs` por cada snap instalado.
-          Todos os squashfs estao a 100% de ocupacao por definicao, porque sao
-          imagens so de leitura do tamanho exacto do conteudo. Lista-los dava
-          quinze avisos criticos numa maquina perfeitamente saudavel.
+          Todos os squashfs estão a 100% de ocupação por definição, porque são
+          imagens só de leitura do tamanho exacto do conteúdo. Lista-los dava
+          quinze avisos críticos numa máquina perfeitamente saudável.
 
-       2. **O `/proc` e o `/sys`.** Contar o tamanho das pastas de primeiro nivel
-          de `/` sem os excluir e entrar num sistema de ficheiros virtual onde ha
-          ficheiros que nunca acabam de ler e outros que bloqueiam a leitura. Nao
-          e lento: nao termina.
+       2. **O `/proc` e o `/sys`.** Contar o tamanho das pastas de primeiro nível
+          de `/` sem os excluir e entrar num sistema de ficheiros virtual onde há
+          ficheiros que nunca acabam de ler e outros que bloqueiam a leitura. Não
+          e lento: não termina.
 
 EN-UK: Disks — free space per mount point, SMART status and largest folders.
 
@@ -55,8 +55,8 @@ except ImportError:  # pragma: no cover
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Sistemas de ficheiros que nao representam armazenamento real e nao
-#:        devem entrar no relatorio de espaco.
+#: PT-PT: Sistemas de ficheiros que não representam armazenamento real e não
+#:        devem entrar no relatório de espaço.
 #: EN-UK: Filesystems that represent no real storage and must not enter the
 #:        space report.
 SISTEMAS_VIRTUAIS: frozenset[str] = frozenset(
@@ -69,14 +69,14 @@ SISTEMAS_VIRTUAIS: frozenset[str] = frozenset(
     }
 )
 
-#: PT-PT: Prefixos de montagem a ignorar. O `/snap` e o caso que mais ruido dava.
+#: PT-PT: Prefixos de montagem a ignorar. O `/snap` e o caso que mais ruído dava.
 #: EN-UK: Mount prefixes to ignore. `/snap` was the noisiest case.
 MONTAGENS_IGNORADAS: tuple[str, ...] = (
     "/snap/", "/var/snap/", "/var/lib/docker/", "/var/lib/containers/",
     "/run/", "/sys/", "/proc/", "/dev/",
 )
 
-#: PT-PT: Pastas de `/` que sao virtuais e nunca devem ser percorridas.
+#: PT-PT: Pastas de `/` que são virtuais e nunca devem ser percorridas.
 #: EN-UK: Folders of `/` that are virtual and must never be walked.
 PASTAS_VIRTUAIS: frozenset[str] = frozenset({"proc", "sys", "dev", "run", "snap"})
 
@@ -90,10 +90,10 @@ class Particao:
     total_gb: float
     livre_gb: float
     dispositivo: str = ""
-    #: PT-PT: Volumes so de leitura estao sempre a 0% livre e nunca sao um
+    #: PT-PT: Volumes só de leitura estão sempre a 0% livre e nunca são um
     #:        problema — uma ISO montada, uma imagem squashfs de um snap, uma
-    #:        partilha exportada so de leitura. Alertar sobre eles enche o
-    #:        relatorio de ruido critico e ensina o operador a ignorar a seccao
+    #:        partilha exportada só de leitura. Alertar sobre eles enche o
+    #:        relatório de ruído crítico e ensina o operador a ignorar a secção
     #:        dos discos.
     #: EN-UK: Read-only volumes always sit at 0% free and are never a problem.
     #:        Alerting on them fills the report with critical noise and teaches
@@ -119,10 +119,10 @@ def relevante(sistema: str, montagem: str) -> bool:
     """
     PT-PT: Se um ponto de montagem representa armazenamento que interessa vigiar.
 
-           Esta e a funcao que decide o que aparece no relatorio de espaco, e por
+           Esta e a função que decide o que aparece no relatório de espaço, e por
            isso esta separada e recebe os valores como argumentos: da para a
-           testar com a lista de montagens de qualquer maquina, incluindo uma
-           que nao seja Linux.
+           testar com a lista de montagens de qualquer máquina, incluindo uma
+           que não seja Linux.
 
     EN-UK: Whether a mount point represents storage worth watching.
 
@@ -143,12 +143,12 @@ def relevante(sistema: str, montagem: str) -> bool:
 
 def particoes() -> list[Particao]:
     """
-    PT-PT: Lista os pontos de montagem com espaco utilizavel.
+    PT-PT: Lista os pontos de montagem com espaço utilizável.
 
-           As montagens que nao respondem — uma partilha NFS de um servidor
-           desligado, por exemplo — levantam OSError no `disk_usage` e sao
-           saltadas. A v1.0 parava a listagem inteira na primeira: uma maquina
-           com um NFS morto no `fstab` nao mostrava disco nenhum, incluindo o
+           As montagens que não respondem — uma partilha NFS de um servidor
+           desligado, por exemplo — levantam OSError no `disk_usage` e são
+           saltadas. A v1.0 parava a listagem inteira na primeira: uma máquina
+           com um NFS morto no `fstab` não mostrava disco nenhum, incluindo o
            disco de sistema que estava cheio.
 
     EN-UK: Lists mount points with usable space.
@@ -188,13 +188,13 @@ def particoes() -> list[Particao]:
 
 def _dispositivos_fisicos() -> list[str]:
     """
-    PT-PT: Os discos fisicos da maquina, pelo nome de dispositivo.
+    PT-PT: Os discos físicos da máquina, pelo nome de dispositivo.
 
-           Usa o `--scan` do proprio `smartctl` e nao uma lista de `/dev/sd*`:
-           um NVMe nao se chama `sda`, um disco atras de uma controladora RAID
-           precisa de um `-d megaraid,N` que so o scan sabe indicar, e adivinhar
-           nomes falha em qualquer maquina que nao seja a de quem escreveu o
-           codigo.
+           Usa o `--scan` do próprio `smartctl` e não uma lista de `/dev/sd*`:
+           um NVMe não se chama `sda`, um disco atrás de uma controladora RAID
+           precisa de um `-d megaraid,N` que só o scan sabe indicar, e adivinhar
+           nomes falha em qualquer máquina que não seja a de quem escreveu o
+           código.
 
     EN-UK: The machine's physical disks, by device name.
 
@@ -216,17 +216,17 @@ def _dispositivos_fisicos() -> list[str]:
 
 def smart() -> list[dict]:
     """
-    PT-PT: Estado dos discos fisicos, lido pelo `smartctl`.
+    PT-PT: Estado dos discos físicos, lido pelo `smartctl`.
 
-           Requer root: sem ele o `smartctl` nao consegue abrir o dispositivo e
-           devolve erro de permissao, nao «disco saudavel». Quem chama deve
+           Requer root: sem ele o `smartctl` não consegue abrir o dispositivo e
+           devolve erro de permissão, não «disco saudável». Quem chama deve
            verificar `Ambiente.root` antes de apresentar o resultado como
-           conclusivo — e `achados()` fa-lo, distinguindo «nao consegui ler» de
+           conclusivo — e `achados()` fa-lo, distinguindo «não consegui ler» de
            «esta bom».
 
-           O `smartctl` faz parte do pacote `smartmontools`, que nao vem
-           instalado em quase nenhuma distribuicao. A ausencia e reportada como
-           ausencia e nao como falha.
+           O `smartctl` faz parte do pacote `smartmontools`, que não vem
+           instalado em quase nenhuma distribuição. A ausência e reportada como
+           ausência e não como falha.
 
     EN-UK: Physical disk status, read by `smartctl`.
 
@@ -239,9 +239,9 @@ def smart() -> list[dict]:
            no distribution. Its absence is reported as absence, not as failure.
 
     :return:
-        PT-PT: Um dicionario por disco com `dispositivo`, `modelo`, `tipo`,
-               `tamanho_gb`, `saude` e `detalhe`. O `saude` vazio significa «nao
-               foi possivel ler».
+        PT-PT: Um dicionário por disco com `dispositivo`, `modelo`, `tipo`,
+               `tamanho_gb`, `saude` e `detalhe`. O `saude` vazio significa «não
+               foi possível ler».
         EN-UK: One dictionary per disk. An empty `saude` means "could not read".
     """
     if not disponivel("smartctl"):
@@ -260,7 +260,7 @@ def smart() -> list[dict]:
             saude = "OK" if estado["passed"] else "FALHA"
         else:
             # PT-PT: Sem `smart_status` o SMART esta desligado, o disco esta
-            #        atras de um adaptador USB que nao o passa, ou faltou root.
+            #        atrás de um adaptador USB que não o passa, ou faltou root.
             # EN-UK: With no `smart_status`, SMART is off, the disk sits behind a
             #        USB bridge that does not pass it through, or root was missing.
             saude = ""
@@ -288,17 +288,17 @@ def smart() -> list[dict]:
 
 def pastas_maiores(raiz: str = "/", quantas: int = 10) -> list[tuple[str, float]]:
     """
-    PT-PT: As maiores pastas de primeiro nivel, em GB.
+    PT-PT: As maiores pastas de primeiro nível, em GB.
 
-           Percorre apenas um nivel de profundidade, de proposito. A v1.0 fazia
+           Percorre apenas um nível de profundidade, de propósito. A v1.0 fazia
            uma travessia recursiva a partir da raiz dentro do fio da interface, e
-           em qualquer maquina com dados a serio a janela deixava de responder
+           em qualquer máquina com dados a sério a janela deixava de responder
            durante minutos.
 
-           As pastas virtuais sao excluidas antes de qualquer leitura — ver o
-           cabecalho do modulo. E os `symlink` nao sao seguidos: em Linux o
+           As pastas virtuais são excluídas antes de qualquer leitura — ver o
+           cabeçalho do módulo. E os `symlink` não são seguidos: em Linux o
            `/lib` costuma apontar para `/usr/lib`, e segui-lo conta o mesmo
-           conteudo duas vezes e faz o total das pastas ultrapassar o tamanho do
+           conteúdo duas vezes e faz o total das pastas ultrapassar o tamanho do
            disco.
 
     EN-UK: The largest first-level folders, in GB. Deliberately one level deep.
@@ -331,8 +331,8 @@ def pastas_maiores(raiz: str = "/", quantas: int = 10) -> list[tuple[str, float]
                     if ficheiro.is_file():
                         total += ficheiro.stat().st_size
                 except (OSError, PermissionError):
-                    # PT-PT: Ficheiros sem acesso sao normais fora de root; um
-                    #        deles nao pode interromper a contagem dos restantes.
+                    # PT-PT: Ficheiros sem acesso são normais fora de root; um
+                    #        deles não pode interromper a contagem dos restantes.
                     # EN-UK: Inaccessible files are normal outside root; one of
                     #        them must not interrupt counting the rest.
                     continue
@@ -349,17 +349,17 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
     """
     PT-PT: Problemas de armazenamento.
 
-           A regra usa duas condicoes em simultaneo, e nao so a percentagem. Num
-           disco de dados de 4 TB, 10% livres sao 400 GB e nao ha problema
-           nenhum; num `/` de 20 GB de uma maquina virtual, 2 GB livres ja
-           impedem uma actualizacao de pacotes. A v1.0 usava so a percentagem e
+           A regra usa duas condições em simultâneo, e não só a percentagem. Num
+           disco de dados de 4 TB, 10% livres são 400 GB e não há problema
+           nenhum; num `/` de 20 GB de uma máquina virtual, 2 GB livres já
+           impedem uma actualização de pacotes. A v1.0 usava só a percentagem e
            por isso alertava para o primeiro caso e calava-se no segundo —
-           exactamente ao contrario do util.
+           exactamente ao contrário do útil.
 
-           O `/boot` tem tratamento proprio, porque e o caso em que a
-           percentagem sozinha tambem falha ao contrario: uma particao de 512 MB
-           a 80% tem 100 MB livres, o que nao chega para um kernel novo, e o
-           `apt` falha a meio de uma actualizacao — que e a pior altura possivel.
+           O `/boot` tem tratamento próprio, porque e o caso em que a
+           percentagem sozinha também falha ao contrário: uma partição de 512 MB
+           a 80% tem 100 MB livres, o que não chega para um kernel novo, e o
+           `apt` falha a meio de uma actualização — que é a pior altura possível.
 
     EN-UK: Storage problems. The rule uses two conditions at once rather than
            percentage alone.
@@ -420,8 +420,8 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
         nome = str(disco.get("dispositivo") or "disco")
         modelo = str(disco.get("modelo") or "")
 
-        # PT-PT: Um estado vazio significa «nao consegui ler», nao «saudavel».
-        #        Ha uma diferenca enorme entre as duas coisas e a v1.0 tratava-as
+        # PT-PT: Um estado vazio significa «não consegui ler», não «saudável».
+        #        Há uma diferença enorme entre as duas coisas e a v1.0 tratava-as
         #        do mesmo modo: sem root, todos os discos apareciam bem.
         # EN-UK: An empty status means "could not read", not "healthy". v1.0
         #        treated the two identically: without root every disk looked fine.

@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-PT-PT: Discos — espaco livre por volume, estado SMART e pastas maiores.
+PT-PT: Discos — espaço livre por volume, estado SMART e pastas maiores.
 
-       **O APFS partilha espaco, e e isso que torna este modulo diferente dos
-       outros dois.** Num contentor APFS, todos os volumes veem o mesmo espaco
+       **O APFS partilha espaço, e e isso que torna este módulo diferente dos
+       outros dois.** Num contentor APFS, todos os volumes veem o mesmo espaço
        livre: o volume de sistema, o de dados, o `Preboot`, o `Recovery` e o
-       `VM` reportam, cada um, os mesmos 40 GB livres. Um relatorio que os liste
+       `VM` reportam, cada um, os mesmos 40 GB livres. Um relatório que os liste
        todos diz cinco vezes a mesma coisa e sugere um disco com 200 GB livres
-       que nao existem. Este modulo agrupa por contentor e conta uma vez.
+       que não existem. Este módulo agrupa por contentor e conta uma vez.
 
-       **O «espaco purgavel» e a segunda armadilha.** O Finder de um Mac mostra
-       como livre um espaco que na verdade esta ocupado por snapshots locais do
+       **O «espaço purgável» e a segunda armadilha.** O Finder de um Mac mostra
+       como livre um espaço que na verdade esta ocupado por snapshots locais do
        Time Machine e por caches que o sistema apagara se precisar. E honesto do
        ponto de vista do utilizador e enganador do ponto de vista de um
-       diagnostico: o `df` ve o espaco realmente livre, que pode ser dezenas de
-       GB menos. Este modulo usa o valor do `df` — via psutil — e diz que
-       snapshots existem, porque apagar snapshots e muitas vezes a solucao mais
-       rapida para um disco cheio num Mac.
+       diagnóstico: o `df` vê o espaço realmente livre, que pode ser dezenas de
+       GB menos. Este módulo usa o valor do `df` — via psutil — e diz que
+       snapshots existem, porque apagar snapshots e muitas vezes a solução mais
+       rápida para um disco cheio num Mac.
 
-       **O SMART num Apple Silicon nao e o SMART de sempre.** O NVMe interno de
-       um Mac com chip da Apple nao expoe atributos SMART: o `diskutil` responde
-       «Verified» ou «Not Supported» e nao ha mais nada para ler. Nao e uma
-       falha do diagnostico, e uma propriedade da maquina, e o relatorio diz-lo
-       em vez de fingir que nao conseguiu ler.
+       **O SMART num Apple Silicon não é o SMART de sempre.** O NVMe interno de
+       um Mac com chip da Apple não expõe atributos SMART: o `diskutil` responde
+       «Verified» ou «Not Supported» e não há mais nada para ler. Não e uma
+       falha do diagnóstico, e uma propriedade da máquina, e o relatório diz-lo
+       em vez de fingir que não conseguiu ler.
 
 EN-UK: Disks — free space per volume, SMART status and largest folders.
 
@@ -63,8 +63,8 @@ except ImportError:  # pragma: no cover
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Volumes internos do APFS que nao interessam a ninguem num relatorio.
-#:        Sao pequenos, sao geridos pelo sistema, e o utilizador nao pode fazer
+#: PT-PT: Volumes internos do APFS que não interessam a ninguém num relatório.
+#:        São pequenos, são geridos pelo sistema, e o utilizador não pode fazer
 #:        nada sobre eles.
 #: EN-UK: Internal APFS volumes of no interest in a report: small,
 #:        system-managed, and nothing the user can act on.
@@ -74,12 +74,12 @@ VOLUMES_INTERNOS: frozenset[str] = frozenset(
      "/System/Volumes/Hardware"}
 )
 
-#: PT-PT: Sistemas de ficheiros que nao sao armazenamento real.
+#: PT-PT: Sistemas de ficheiros que não são armazenamento real.
 #: EN-UK: Filesystems that are not real storage.
 SISTEMAS_VIRTUAIS: frozenset[str] = frozenset({"devfs", "autofs", "nullfs", "map"})
 
-#: PT-PT: Pastas de `/` que nao se percorrem: sao geridas pelo sistema, estao
-#:        protegidas pelo SIP, ou sao pontos de montagem de outros volumes.
+#: PT-PT: Pastas de `/` que não se percorrem: são geridas pelo sistema, estão
+#:        protegidas pelo SIP, ou são pontos de montagem de outros volumes.
 #: EN-UK: Folders of `/` never walked: system-managed, SIP-protected, or mount
 #:        points for other volumes.
 PASTAS_VIRTUAIS: frozenset[str] = frozenset(
@@ -96,12 +96,12 @@ class Particao:
     total_gb: float
     livre_gb: float
     dispositivo: str = ""
-    #: PT-PT: O contentor APFS a que pertence, quando ha um. E o que permite
-    #:        contar o espaco uma vez em vez de uma por volume.
+    #: PT-PT: O contentor APFS a que pertence, quando há um. E o que permite
+    #:        contar o espaço uma vez em vez de uma por volume.
     #: EN-UK: The APFS container it belongs to, when there is one. It is what
     #:        allows counting the space once rather than once per volume.
     contentor: str = ""
-    #: PT-PT: Volumes so de leitura estao sempre a 0% livre e nunca sao um
+    #: PT-PT: Volumes só de leitura estão sempre a 0% livre e nunca são um
     #:        problema — o volume de sistema selado de um macOS moderno e
     #:        exactamente isso.
     #: EN-UK: Read-only volumes always sit at 0% free and are never a problem —
@@ -211,7 +211,7 @@ def particoes() -> list[Particao]:
 
         # PT-PT: Um contentor conta uma vez. O primeiro volume que aparece e o
         #        que fica, e e quase sempre o `/` ou o `/System/Volumes/Data` —
-        #        que sao os dois que o utilizador reconhece.
+        #        que são os dois que o utilizador reconhece.
         # EN-UK: A container counts once. The first volume seen is the one kept.
         if contentor and contentor in vistos:
             continue
@@ -291,9 +291,9 @@ def smart() -> list[dict]:
             continue
 
         estado = str(info.get("SMARTStatus") or "").strip()
-        # PT-PT: «Not Supported» nao e «nao consegui ler»: e o disco a dizer que
-        #        nao fala SMART. Apresenta-lo como estado desconhecido mandava
-        #        alguem instalar o smartmontools para nada.
+        # PT-PT: «Not Supported» não é «não consegui ler»: e o disco a dizer que
+        #        não fala SMART. Apresenta-lo como estado desconhecido mandava
+        #        alguém instalar o smartmontools para nada.
         # EN-UK: "Not Supported" is not "could not read": it is the disk saying
         #        it does not speak SMART.
         if estado.lower() in {"verified", "ok"}:
@@ -360,8 +360,8 @@ def pastas_maiores(raiz: str = "/", quantas: int = 10) -> list[tuple[str, float]
                     if ficheiro.is_file():
                         total += ficheiro.stat().st_size
                 except (OSError, PermissionError):
-                    # PT-PT: Ficheiros protegidos pelo TCC sao normais; um deles
-                    #        nao pode interromper a contagem dos restantes.
+                    # PT-PT: Ficheiros protegidos pelo TCC são normais; um deles
+                    #        não pode interromper a contagem dos restantes.
                     # EN-UK: TCC-protected files are normal; one of them must not
                     #        interrupt counting the rest.
                     continue
@@ -399,9 +399,9 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
                 f"({parte.percent_livre:.0f}%)."
             )
 
-            # PT-PT: A dica dos snapshots so aparece quando ha snapshots. Uma
-            #        sugestao que nao se aplica gasta a confianca do operador na
-            #        proxima que se lhe der.
+            # PT-PT: A dica dos snapshots só aparece quando há snapshots. Uma
+            #        sugestão que não se aplica gasta a confiança do operador na
+            #        próxima que se lhe der.
             # EN-UK: The snapshot hint appears only when there are snapshots. A
             #        suggestion that does not apply spends the operator's trust.
             locais = snapshots()
@@ -436,9 +436,9 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
         modelo = str(disco.get("modelo") or "")
 
         if saude == "n/d":
-            # PT-PT: Nao e um problema e nao vale um achado. Ver o cabecalho: os
-            #        NVMe internos dos Apple Silicon nao expoem SMART, e alertar
-            #        sobre isso em todos os Macs modernos seria ruido garantido.
+            # PT-PT: Não e um problema e não vale um achado. Ver o cabeçalho: os
+            #        NVMe internos dos Apple Silicon não expoem SMART, e alertar
+            #        sobre isso em todos os Macs modernos seria ruído garantido.
             # EN-UK: Not a problem and not worth a finding. See the header.
             continue
 

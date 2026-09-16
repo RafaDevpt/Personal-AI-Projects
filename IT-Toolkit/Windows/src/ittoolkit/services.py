@@ -1,5 +1,5 @@
 """
-PT-PT: Servicos do Windows — listagem, deteccao dos que deviam estar a correr
+PT-PT: Serviços do Windows — listagem, detecção dos que deviam estar a correr
        e arranque manual.
 
 EN-UK: Windows services — listing, detection of those that should be running,
@@ -17,9 +17,9 @@ from .shell import IS_WINDOWS, Resultado, powershell, powershell_json
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Servicos com arranque automatico que estao parados por desenho e nao
-#        por avaria. Sao arrancados a pedido pelo proprio Windows e assinala-los
-#        so gera ruido: a v1.0 listava-os a todos e o operador aprendia depressa
+# PT-PT: Serviços com arranque automático que estão parados por desenho e não
+#        por avaria. São arrancados a pedido pelo próprio Windows e assinala-los
+#        só gera ruído: a v1.0 listava-os a todos e o operador aprendia depressa
 #        a ignorar a lista inteira, incluindo as entradas que importavam.
 # EN-UK: Automatic-start services that are stopped by design rather than
 #        failure. Windows starts them on demand, and flagging them only creates
@@ -36,7 +36,7 @@ ARRANQUE_TARDIO: frozenset[str] = frozenset(
         "edgeupdate",
         "edgeupdatem",
         "TrustedInstaller",
-        "wuauserv",  # Windows Update — para-se sozinho quando nao ha trabalho
+        "wuauserv",  # Windows Update — para-se sozinho quando não há trabalho
         "BITS",
         "dmwappushservice",
         "CDPUserSvc",
@@ -50,13 +50,13 @@ ARRANQUE_TARDIO: frozenset[str] = frozenset(
 
 def listar(apenas_automaticos: bool = True) -> list[dict]:
     """
-    PT-PT: Lista os servicos e o seu estado.
+    PT-PT: Lista os serviços e o seu estado.
 
-           O `StartType` vem do `Get-Service`, e nao do WMI, porque o WMI
-           devolve o modo de arranque traduzido para o idioma da maquina: numa
-           maquina em portugues comparar contra a string «Automatic» nunca dava
+           O `StartType` vem do `Get-Service`, e não do WMI, porque o WMI
+           devolve o modo de arranque traduzido para o idioma da máquina: numa
+           máquina em português comparar contra a string «Automatic» nunca dava
            resultado, e a v1.0 acabava sempre com a lista vazia — o que parecia
-           uma maquina saudavel.
+           uma máquina saudável.
 
     EN-UK: Lists services and their state. `StartType` comes from `Get-Service`
            rather than WMI, because WMI returns the start mode localised: on a
@@ -82,7 +82,7 @@ def listar(apenas_automaticos: bool = True) -> list[dict]:
 
 def parados() -> list[dict]:
     """
-    PT-PT: Servicos automaticos que nao estao a correr, sem o ruido conhecido.
+    PT-PT: Serviços automáticos que não estão a correr, sem o ruído conhecido.
     EN-UK: Automatic services not running, minus the known noise.
     """
     resultado = []
@@ -90,9 +90,9 @@ def parados() -> list[dict]:
         nome = str(servico.get("Name") or "")
         estado = str(servico.get("Status") or "")
 
-        # PT-PT: O Status chega como numero nalgumas versoes do PowerShell e
+        # PT-PT: O Status chega como número nalgumas versões do PowerShell e
         #        como texto noutras. Aceitar os dois evita uma lista vazia numa
-        #        maquina e cheia noutra sem razao aparente.
+        #        máquina e cheia noutra sem razão aparente.
         # EN-UK: Status arrives as a number on some PowerShell versions and as
         #        text on others. Accepting both avoids an empty list on one
         #        machine and a full one on another for no visible reason.
@@ -107,11 +107,11 @@ def parados() -> list[dict]:
 
 def arrancar(nome: str) -> Resultado:
     """
-    PT-PT: Arranca um servico pelo nome.
+    PT-PT: Arranca um serviço pelo nome.
 
-           Nao e destrutivo, mas tem impacto: quem chama deve confirmar com o
+           Não e destrutivo, mas tem impacto: quem chama deve confirmar com o
            operador antes. O nome e validado aqui porque vai para dentro de uma
-           string de comando — sem isto, um nome com aspas ou ponto e virgula
+           string de comando — sem isto, um nome com aspas ou ponto e vírgula
            permitia executar outra coisa qualquer.
 
     EN-UK: Starts a service by name. Not destructive but not trivial either;
@@ -120,9 +120,9 @@ def arrancar(nome: str) -> Resultado:
            that, a name containing quotes or a semicolon would allow arbitrary
            execution.
     """
-    # PT-PT: A validacao vem primeiro, antes da verificacao de plataforma. Nao e
-    #        detalhe de arrumacao: e o que permite testa-la sem Windows, e uma
-    #        validacao de seguranca que so corre numa plataforma nao e testada
+    # PT-PT: A validação vem primeiro, antes da verificação de plataforma. Não e
+    #        detalhe de arrumação: e o que permite testa-la sem Windows, e uma
+    #        validação de segurança que só corre numa plataforma não é testada
     #        em lado nenhum.
     # EN-UK: Validation comes first, before the platform check. Not tidiness:
     #        it is what allows testing it without Windows, and a security check
@@ -142,7 +142,7 @@ def arrancar(nome: str) -> Resultado:
 
 def achados() -> list[Achado]:
     """
-    PT-PT: Servicos automaticos parados, agrupados num unico achado.
+    PT-PT: Serviços automáticos parados, agrupados num único achado.
     EN-UK: Stopped automatic services, gathered into a single finding.
     """
     lista = parados()

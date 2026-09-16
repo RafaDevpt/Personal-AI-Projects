@@ -1,5 +1,5 @@
 """
-PT-PT: Rede — configuracao, diagnostico e testes pontuais.
+PT-PT: Rede — configuração, diagnóstico e testes pontuais.
 
 EN-UK: Network — configuration, diagnostics and one-off tests.
 
@@ -17,9 +17,9 @@ from .shell import IS_WINDOWS, Resultado, executar, powershell_json
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Gama que o Windows atribui a si proprio quando nao ha DHCP. Ver um
-#        endereco destes e ver uma maquina sem rede utilizavel, mesmo que o
-#        icone do Windows nao se queixe.
+# PT-PT: Gama que o Windows atribui a si próprio quando não há DHCP. Ver um
+#        endereço destes e ver uma máquina sem rede utilizável, mesmo que o
+#        icone do Windows não se queixe.
 # EN-UK: The range Windows assigns itself when there is no DHCP. Seeing one of
 #        these means a machine with no usable network.
 APIPA = ipaddress.ip_network("169.254.0.0/16")
@@ -27,7 +27,7 @@ APIPA = ipaddress.ip_network("169.254.0.0/16")
 
 def adaptadores() -> list[dict]:
     """
-    PT-PT: Adaptadores activos com endereco IPv4.
+    PT-PT: Adaptadores activos com endereço IPv4.
     EN-UK: Active adapters carrying an IPv4 address.
     """
     if not IS_WINDOWS:
@@ -45,7 +45,7 @@ def adaptadores() -> list[dict]:
 
 
 def _e_apipa(endereco: str) -> bool:
-    """PT-PT: O endereco esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
+    """PT-PT: O endereço esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
     try:
         return ipaddress.ip_address(endereco) in APIPA
     except ValueError:
@@ -56,9 +56,9 @@ def ping(destino: str, contagem: int = 4, timeout: int = 15) -> Resultado:
     """
     PT-PT: Ping a um destino.
 
-           O `-n` fixa o numero de pacotes, o que impede o comando de correr
+           O `-n` fixa o número de pacotes, o que impede o comando de correr
            indefinidamente, e o `timeout` do subprocesso e a segunda rede de
-           seguranca. Sem os dois, um destino que responde muito devagar deixa a
+           segurança. Sem os dois, um destino que responde muito devagar deixa a
            interface a espera para sempre.
 
     EN-UK: Pings a destination. `-n` fixes the packet count so the command
@@ -73,10 +73,10 @@ def alcancavel(destino: str, timeout: int = 10) -> bool:
     """
     PT-PT: Diz apenas se responde ao ping.
 
-           Baseia-se no codigo de saida e nao no texto. A v1.0 procurava a
-           palavra «Reply» na saida, que numa maquina em portugues e «Resposta»:
-           num parque com maquinas nas duas linguas, metade dos diagnosticos
-           dava «sem resposta» em destinos perfeitamente acessiveis.
+           Baseia-se no código de saída e não no texto. A v1.0 procurava a
+           palavra «Reply» na saída, que numa máquina em português e «Resposta»:
+           num parque com máquinas nas duas línguas, metade dos diagnósticos
+           dava «sem resposta» em destinos perfeitamente acessíveis.
 
     EN-UK: Says only whether it answers a ping. Based on the exit code, not the
            text: v1.0 searched for "Reply", which on a Portuguese machine is
@@ -87,7 +87,7 @@ def alcancavel(destino: str, timeout: int = 10) -> bool:
 
 
 def tracert(destino: str, saltos: int = 15, timeout: int = 90) -> Resultado:
-    """PT-PT: Rota ate ao destino. / EN-UK: Route to the destination."""
+    """PT-PT: Rota até ao destino. / EN-UK: Route to the destination."""
     if IS_WINDOWS:
         return executar(["tracert", "-d", "-h", str(saltos), destino], timeout=timeout)
     return executar(["traceroute", "-n", "-m", str(saltos), destino], timeout=timeout)
@@ -95,7 +95,7 @@ def tracert(destino: str, saltos: int = 15, timeout: int = 90) -> Resultado:
 
 def resolver(dominio: str) -> list[str]:
     """
-    PT-PT: Resolve um nome para enderecos IPv4.
+    PT-PT: Resolve um nome para endereços IPv4.
     EN-UK: Resolves a name to IPv4 addresses.
     """
     try:
@@ -108,11 +108,11 @@ def resolver(dominio: str) -> list[str]:
 
 def testar_porta(host: str, porta: int, timeout: float = 1.5) -> bool:
     """
-    PT-PT: Confirma se uma porta TCP aceita ligacoes.
+    PT-PT: Confirma se uma porta TCP aceita ligações.
 
            Usa um socket directo em vez do `Test-NetConnection`. O cmdlet do
-           PowerShell demora tipicamente varios segundos por porta porque faz
-           tambem resolucao inversa e tracert; um socket com timeout responde
+           PowerShell demora tipicamente vários segundos por porta porque faz
+           também resolução inversa e tracert; um socket com timeout responde
            no tempo que se lhe der.
 
     EN-UK: Confirms whether a TCP port accepts connections. Uses a direct socket

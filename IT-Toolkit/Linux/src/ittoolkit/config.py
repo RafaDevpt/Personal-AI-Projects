@@ -1,12 +1,12 @@
 """
-PT-PT: Definicoes da aplicacao.
+PT-PT: Definições da aplicação.
 
-       A v1.0 gravava os relatorios numa pasta «Relatorios» ao lado do proprio
-       ficheiro .py. Parecia pratico e trazia dois problemas: numa pasta em
-       Program Files ou numa partilha de rede so de leitura a escrita falhava,
-       e os relatorios — que contem nome da maquina, utilizador, numero de serie
-       e mensagens de erro — ficavam dentro da arvore do repositorio, a um
-       `git add .` de distancia de irem parar ao GitHub.
+       A v1.0 gravava os relatórios numa pasta «Relatórios» ao lado do próprio
+       ficheiro .py. Parecia prático e trazia dois problemas: numa pasta em
+       Program Files ou numa partilha de rede só de leitura a escrita falhava,
+       e os relatórios — que contém nome da máquina, utilizador, número de série
+       e mensagens de erro — ficavam dentro da árvore do repositório, a um
+       `git add .` de distância de irem parar ao GitHub.
 
 EN-UK: Application settings.
 
@@ -33,30 +33,30 @@ _log = logging.getLogger(__name__)
 
 APP_FOLDER_NAME = "ITToolkit"
 
-# PT-PT: Valores admissiveis, validados ao carregar.
+# PT-PT: Valores admissíveis, validados ao carregar.
 # EN-UK: Permitted values, validated on load.
 TEMAS: tuple[str, ...] = ("system", "light", "dark")
 
-# PT-PT: Periodos oferecidos na analise de eventos, em horas.
+# PT-PT: Períodos oferecidos na análise de eventos, em horas.
 # EN-UK: Periods offered in the event analysis, in hours.
 PERIODOS: tuple[int, ...] = (24, 48, 168, 720)
 
 
 def default_data_dir() -> Path:
     """
-    PT-PT: Pasta de dados da aplicacao (configuracao e registo).
+    PT-PT: Pasta de dados da aplicação (configuração e registo).
            Segue a norma XDG: `$XDG_CONFIG_HOME/ITToolkit`, ou
-           `~/.config/ITToolkit` quando a variavel nao esta definida.
-           Nunca escreve dentro da pasta do repositorio.
+           `~/.config/ITToolkit` quando a variável não esta definida.
+           Nunca escreve dentro da pasta do repositório.
 
     EN-UK: Application data folder (configuration and log). It follows the XDG
            convention: `$XDG_CONFIG_HOME/ITToolkit`, or `~/.config/ITToolkit`
            when the variable is unset. It never writes inside the repository
            folder.
     """
-    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
-    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
-    #        esta versao corre num sistema e sabe qual e.
+    # PT-PT: A convenção desta pasta e a do sistema desta versão, e vive num
+    #        sítio só — `platform_support`. Não há aqui ramificação nenhuma:
+    #        esta versão corre num sistema e sabe qual é.
     # EN-UK: This folder's convention is that of this version's system, and it
     #        lives in one place — `platform_support`. There is no branching
     #        here: this version runs on one system and knows which.
@@ -65,9 +65,9 @@ def default_data_dir() -> Path:
 
 def default_reports_dir() -> Path:
     """
-    PT-PT: Pasta dos relatorios, dentro dos Documentos do utilizador.
+    PT-PT: Pasta dos relatórios, dentro dos Documentos do utilizador.
            E onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
-           mais arrumada e ninguem a encontraria.
+           mais arrumada e ninguém a encontraria.
 
     EN-UK: Reports folder, inside the user's Documents. It is where people look
            for files — a folder under %APPDATA% would be tidier and nobody would
@@ -79,42 +79,42 @@ def default_reports_dir() -> Path:
 @dataclass
 class AppConfig:
     """
-    PT-PT: Definicoes da aplicacao. Todos os campos tem valor por omissao, pelo
+    PT-PT: Definições da aplicação. Todos os campos tem valor por omissão, pelo
            que um ficheiro corrompido ou parcial nunca impede o arranque.
 
     EN-UK: Application settings. Every field has a default, so a corrupt or
            partial file can never prevent start-up.
     """
 
-    # --- PT-PT: Saida / EN-UK: Output --------------------------------------
+    # --- PT-PT: Saída / EN-UK: Output --------------------------------------
     reports_dir: Path = field(default_factory=default_reports_dir)
 
-    # --- PT-PT: Analise de eventos / EN-UK: Event analysis -----------------
+    # --- PT-PT: Análise de eventos / EN-UK: Event analysis -----------------
     periodo_horas: int = 24
-    #: PT-PT: Ler o diario do sistema. E onde estao os erros de kernel, de
-    #:        disco e de servicos — e onde esta praticamente tudo o que
-    #:        interessa a um diagnostico.
+    #: PT-PT: Ler o diário do sistema. E onde estão os erros de kernel, de
+    #:        disco e de serviços — e onde esta praticamente tudo o que
+    #:        interessa a um diagnóstico.
     #: EN-UK: Read the system journal. That is where kernel, disk and service
     #:        errors live — practically everything a diagnostic wants.
     incluir_sistema: bool = True
-    #: PT-PT: Ler tambem o diario deste utilizador (`--user`). Traz as falhas
-    #:        das aplicacoes da sessao grafica, que numa maquina de posto de
-    #:        trabalho sao metade das queixas.
+    #: PT-PT: Ler também o diário deste utilizador (`--user`). Traz as falhas
+    #:        das aplicações da sessão gráfica, que numa máquina de posto de
+    #:        trabalho são metade das queixas.
     #: EN-UK: Also read this user's journal (`--user`). It brings the desktop
     #:        session's application failures, half the complaints on a
     #:        workstation.
     incluir_utilizador: bool = False
-    #: PT-PT: Limitar ao arranque actual. Numa maquina que se reinicia todos os
-    #:        dias e o mais util; num servidor ligado ha meses nao muda nada.
+    #: PT-PT: Limitar ao arranque actual. Numa máquina que se reinicia todos os
+    #:        dias e o mais útil; num servidor ligado há meses não muda nada.
     #: EN-UK: Limit to the current boot. Most useful on a machine rebooted
     #:        daily; on a server up for months it changes nothing.
     apenas_este_arranque: bool = False
     incluir_avisos: bool = True
 
-    # PT-PT: Tecto de eventos lidos por log. Sem tecto, uma maquina com o
+    # PT-PT: Tecto de eventos lidos por log. Sem tecto, uma máquina com o
     #        Application a rebentar em ciclo devolve centenas de milhares de
-    #        linhas e a interface fica presa varios minutos. Quando o tecto e
-    #        atingido, o relatorio di-lo em vez de fingir que leu tudo.
+    #        linhas e a interface fica presa vários minutos. Quando o tecto e
+    #        atingido, o relatório di-lo em vez de fingir que leu tudo.
     # EN-UK: Ceiling on events read per log. Without one, a machine whose
     #        Application log is looping returns hundreds of thousands of lines
     #        and the interface locks up for minutes. When the ceiling is hit the
@@ -125,10 +125,10 @@ class AppConfig:
     # PT-PT: Percentagem livre abaixo da qual um disco e assinalado.
     # EN-UK: Free percentage below which a disk is flagged.
     disco_percent_min: int = 10
-    # PT-PT: E tambem um minimo absoluto. Num disco de 4 TB, 10% livres sao
-    #        400 GB e nao ha problema nenhum; num SSD de 128 GB do sistema,
-    #        2 GB livres num `/` de 20 GB ja impedem uma actualizacao de
-    #        pacotes. So a percentagem, como na v1.0, engana nos dois sentidos.
+    # PT-PT: E também um mínimo absoluto. Num disco de 4 TB, 10% livres são
+    #        400 GB e não há problema nenhum; num SSD de 128 GB do sistema,
+    #        2 GB livres num `/` de 20 GB já impedem uma actualização de
+    #        pacotes. Só a percentagem, como na v1.0, engana nos dois sentidos.
     # EN-UK: And an absolute floor too. On a 4 TB disk, 10% free is 400 GB and
     #        no problem at all; on a 20 GB root filesystem, 2 GB free already
     #        blocks a package upgrade. Percentage alone misleads both ways.
@@ -147,7 +147,7 @@ class AppConfig:
 
     # --- PT-PT: Comportamento / EN-UK: Behaviour ---------------------------
     # PT-PT: Analisar assim que a janela abre. A v1.0 abria vazia e obrigava a
-    #        carregar num botao para ver seja o que for.
+    #        carregar num botão para ver seja o que for.
     # EN-UK: Analyse as soon as the window opens. v1.0 opened empty and required
     #        a button press before showing anything at all.
     analisar_ao_arrancar: bool = True
@@ -159,7 +159,7 @@ class AppConfig:
     def __post_init__(self) -> None:
         """
         PT-PT: Normaliza tipos e limita os valores a intervalos sensatos,
-               revertendo em silencio e deixando registo.
+               revertendo em silêncio e deixando registo.
         EN-UK: Normalises types and clamps values to sensible ranges, falling
                back silently and recording it in the log.
         """
@@ -185,20 +185,20 @@ class AppConfig:
         self.timeout_porta = max(0.2, min(float(self.timeout_porta), 30.0))
 
     # -----------------------------------------------------------------------
-    # PT-PT: Persistencia / EN-UK: Persistence
+    # PT-PT: Persistência / EN-UK: Persistence
     # -----------------------------------------------------------------------
 
     @classmethod
     def config_path(cls) -> Path:
-        """PT-PT: Caminho do ficheiro de configuracao.
+        """PT-PT: Caminho do ficheiro de configuração.
         EN-UK: Path of the configuration file."""
         return default_data_dir() / "config.json"
 
     @classmethod
     def load(cls, path: Path | None = None) -> AppConfig:
         """
-        PT-PT: Carrega a configuracao do disco. Qualquer falha resulta nos
-               valores por omissao, nunca numa excecao.
+        PT-PT: Carrega a configuração do disco. Qualquer falha resulta nos
+               valores por omissão, nunca numa excepção.
         EN-UK: Loads the configuration from disk. Any failure yields the
                defaults, never an exception.
         """
@@ -226,17 +226,17 @@ class AppConfig:
             return cls(**{k: v for k, v in raw.items() if k in conhecidos})
         except (TypeError, ValueError) as exc:
             # PT-PT: Um tipo errado no JSON (uma string onde se espera um
-            #        numero) nao deve impedir a aplicacao de abrir.
+            #        número) não deve impedir a aplicação de abrir.
             # EN-UK: A wrong type in the JSON must not stop the app opening.
             _log.warning("Configuração com valores inválidos: %s", exc)
             return cls()
 
     def save(self, path: Path | None = None) -> bool:
         """
-        PT-PT: Grava a configuracao em JSON.
+        PT-PT: Grava a configuração em JSON.
         EN-UK: Writes the configuration as JSON.
 
-        :return: PT-PT: True se gravou; False se falhou (a aplicacao continua).
+        :return: PT-PT: True se gravou; False se falhou (a aplicação continua).
                  EN-UK: True on success; False on failure (the app carries on).
         """
         path = path or self.config_path()
@@ -253,7 +253,7 @@ class AppConfig:
 
     def ensure_directories(self) -> None:
         """
-        PT-PT: Garante que a pasta de relatorios existe.
+        PT-PT: Garante que a pasta de relatórios existe.
         EN-UK: Ensures the reports folder exists.
         """
         try:
@@ -264,12 +264,12 @@ class AppConfig:
     @property
     def diarios_escolhidos(self) -> list[str]:
         """
-        PT-PT: Que diarios ler, conforme as opcoes.
+        PT-PT: Que diários ler, conforme as opções.
 
-               Em Windows sao tres logs com nomes proprios. Aqui sao dois
-               ambitos do mesmo diario: o do sistema e o do utilizador. Nao sao
-               ficheiros diferentes — sao filtros diferentes sobre o mesmo
-               journal, e por isso a opcao chama-se ambito e nao ficheiro.
+               Em Windows são três logs com nomes próprios. Aqui são dois
+               ambitos do mesmo diário: o do sistema e o do utilizador. Não são
+               ficheiros diferentes — são filtros diferentes sobre o mesmo
+               journal, e por isso a opção chama-se âmbito e não ficheiro.
 
         EN-UK: Which journals to read, according to the options.
 

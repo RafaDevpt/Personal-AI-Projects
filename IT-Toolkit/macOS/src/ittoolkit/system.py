@@ -1,25 +1,25 @@
 #!/usr/bin/env python3
 """
-PT-PT: Estado geral da maquina — processador, memoria, tempo ligado e reinicio
+PT-PT: Estado geral da máquina — processador, memória, tempo ligado e reinício
        pendente.
 
-       O `psutil` e importado de forma tolerante. E uma dependencia declarada e
-       instalada pelo `executar.command`, mas numa maquina gerida a instalacao
-       de pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso nao abria de
-       todo. Aqui o que depende do psutil fica indisponivel e o resto continua a
+       O `psutil` e importado de forma tolerante. E uma dependência declarada e
+       instalada pelo `executar.command`, mas numa máquina gerida a instalação
+       de pacotes esta muitas vezes bloqueada, e a v1.0 nesse caso não abria de
+       todo. Aqui o que depende do psutil fica indisponível e o resto continua a
        funcionar.
 
-       **A percentagem de memoria usada de um Mac nao quer dizer nada, e este e
-       o erro mais comum de quem vem do Windows.** O macOS usa toda a memoria
-       que ha: o que sobra vira cache de ficheiros, e uma maquina saudavel com
+       **A percentagem de memória usada de um Mac não quer dizer nada, e este e
+       o erro mais comum de quem vem do Windows.** O macOS usa toda a memória
+       que há: o que sobra vira cache de ficheiros, e uma máquina saudável com
        32 GB mostra 30 GB «em uso» a toda a hora. Alertar a 90% de RAM usada
        significa alertar sempre, em todos os Macs, o dia inteiro.
 
-       O que interessa e a **pressao de memoria**, que e uma medida diferente: e
+       O que interessa e a **pressão de memória**, que é uma medida diferente: e
        o quanto o sistema esta a comprimir e a paginar para aguentar o que lhe
-       pedem. Um Mac com 95% de RAM usada e pressao verde esta bem; um com 70% e
-       pressao vermelha esta em apuros. Este modulo calcula-a a partir da memoria
-       comprimida e do swap, que sao os dois sinais que a compoem.
+       pedem. Um Mac com 95% de RAM usada e pressão verde esta bem; um com 70% e
+       pressão vermelha esta em apuros. Este módulo calcula-a a partir da memória
+       comprimida e do swap, que são os dois sinais que a compoem.
 
 EN-UK: Overall machine state — processor, memory, uptime and pending restart.
 
@@ -59,16 +59,16 @@ except ImportError:  # pragma: no cover
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: O formato do `kern.boottime`, que e um struct timeval impresso como
-#:        texto: `{ sec = 1756000000, usec = 123456 } Sat Aug 30 ...`. So o
-#:        primeiro numero interessa.
+#: PT-PT: O formato do `kern.boottime`, que é um struct timeval impresso como
+#:        texto: `{ sec = 1756000000, usec = 123456 } Sat Aug 30 ...`. Só o
+#:        primeiro número interessa.
 #: EN-UK: `kern.boottime`'s format, a timeval printed as text. Only the first
 #:        number matters.
 _BOOTTIME = re.compile(r"sec\s*=\s*(\d+)")
 
-#: PT-PT: A partir de que percentagem de memoria comprimida se considera que a
-#:        pressao e real. Abaixo disto, o macOS esta a comprimir por habito e
-#:        nao por necessidade.
+#: PT-PT: A partir de que percentagem de memória comprimida se considera que a
+#:        pressão e real. Abaixo disto, o macOS esta a comprimir por hábito e
+#:        não por necessidade.
 #: EN-UK: The compressed-memory percentage from which pressure counts as real.
 LIMITE_PRESSAO = 25.0
 
@@ -242,8 +242,8 @@ def carga() -> dict[str, float]:
     trocas = psutil.swap_memory()
 
     total_gb = memoria.total / 1024**3
-    # PT-PT: O psutil expoe a memoria comprimida do macOS quando consegue. Se
-    #        nao a tiver, a pressao calcula-se so com o swap — subestima, mas
+    # PT-PT: O psutil expõe a memória comprimida do macOS quando consegue. Se
+    #        não a tiver, a pressão calcula-se só com o swap — subestima, mas
     #        subestimar e melhor do que inventar.
     # EN-UK: psutil exposes macOS's compressed memory when it can. Without it,
     #        pressure is computed from swap alone — an underestimate, but
@@ -336,7 +336,7 @@ def achados(uptime_max: int, ram_max: int, cpu_max: int) -> list[Achado]:  # noq
 
     medidas = carga()
 
-    # PT-PT: A pressao, e nao a percentagem de RAM. Ver o cabecalho.
+    # PT-PT: A pressão, e não a percentagem de RAM. Ver o cabeçalho.
     # EN-UK: Pressure, not the RAM percentage. See the header.
     if medidas.get("pressao", 0) >= LIMITE_PRESSAO:
         encontrados.append(

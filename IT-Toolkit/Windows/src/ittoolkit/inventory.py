@@ -1,5 +1,5 @@
 """
-PT-PT: Inventario da maquina — modelo, numero de serie, BIOS e software.
+PT-PT: Inventário da máquina — modelo, número de série, BIOS e software.
 
 EN-UK: Machine inventory — model, serial number, BIOS and software.
 
@@ -14,10 +14,10 @@ from .shell import IS_WINDOWS, powershell_json
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Chaves de desinstalacao. Sao tres, e a v1.0 lia so a primeira: numa
-#        maquina de 64 bits, isso deixava de fora todo o software de 32 bits
-#        (que e a maior parte do software de gestao antigo) e tudo o que estava
-#        instalado por utilizador e nao por maquina.
+# PT-PT: Chaves de desinstalação. São três, e a v1.0 lia só a primeira: numa
+#        máquina de 64 bits, isso deixava de fora todo o software de 32 bits
+#        (que é a maior parte do software de gestão antigo) e tudo o que estava
+#        instalado por utilizador e não por máquina.
 # EN-UK: Uninstall keys. There are three; v1.0 read only the first, which on a
 #        64-bit machine left out every 32-bit application and everything
 #        installed per-user rather than per-machine.
@@ -30,7 +30,7 @@ CHAVES_SOFTWARE: tuple[str, ...] = (
 
 def hardware() -> dict[str, str]:
     """
-    PT-PT: Modelo, fabricante, numero de serie, BIOS, processador e memoria.
+    PT-PT: Modelo, fabricante, número de série, BIOS, processador e memória.
     EN-UK: Model, manufacturer, serial number, BIOS, processor and memory.
     """
     if not IS_WINDOWS:
@@ -75,7 +75,7 @@ def hardware() -> dict[str, str]:
 
 def sistema() -> dict[str, str]:
     """
-    PT-PT: Versao do Windows, instalacao e ultimas actualizacoes.
+    PT-PT: Versão do Windows, instalação e últimas actualizações.
     EN-UK: Windows version, installation date and latest updates.
     """
     if not IS_WINDOWS:
@@ -98,7 +98,7 @@ def sistema() -> dict[str, str]:
 
 def actualizacoes(quantas: int = 10) -> list[dict]:
     """
-    PT-PT: Ultimas actualizacoes instaladas.
+    PT-PT: Últimas actualizações instaladas.
     EN-UK: Latest installed updates.
     """
     if not IS_WINDOWS:
@@ -115,12 +115,12 @@ def actualizacoes(quantas: int = 10) -> list[dict]:
 
 def software() -> list[dict]:
     """
-    PT-PT: Software instalado, das tres chaves de desinstalacao.
+    PT-PT: Software instalado, das três chaves de desinstalação.
 
-           Deliberadamente nao usa `Win32_Product`. Esse provedor WMI dispara
-           uma reconfiguracao de cada pacote MSI que enumera: consome minutos,
-           enche o log de eventos 1035 e ja partiu instalacoes em producao. O
-           registo devolve a mesma informacao sem tocar em nada.
+           Deliberadamente não usa `Win32_Product`. Esse provedor WMI dispara
+           uma reconfiguração de cada pacote MSI que enumera: consome minutos,
+           enche o log de eventos 1035 e já partiu instalações em produção. O
+           registo devolve a mesma informação sem tocar em nada.
 
     EN-UK: Installed software, from all three uninstall keys. Deliberately does
            not use `Win32_Product`: that WMI provider triggers a reconfiguration
@@ -140,8 +140,8 @@ def software() -> list[dict]:
         timeout=120,
     )
 
-    # PT-PT: As tres chaves sobrepoem-se em parte; sem isto o mesmo programa
-    #        aparecia duas vezes no inventario.
+    # PT-PT: As três chaves sobrepoem-se em parte; sem isto o mesmo programa
+    #        aparecia duas vezes no inventário.
     # EN-UK: The three keys partly overlap; without this the same program
     #        appeared twice in the inventory.
     vistos: set[tuple[str, str]] = set()

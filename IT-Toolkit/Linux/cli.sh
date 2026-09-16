@@ -3,25 +3,25 @@
 # PT-PT: Modo sem interface, em Linux.
 #
 #        Para um temporizador do systemd, para o cron, ou para um servidor sem
-#        ambiente grafico:
+#        ambiente gráfico:
 #
-#          ./cli.sh --cli                     diagnostico e relatorio
-#          sudo ./cli.sh --cli                idem, com SMART e numero de serie
+#          ./cli.sh --cli                     diagnóstico e relatório
+#          sudo ./cli.sh --cli                idem, com SMART e número de série
 #          ./cli.sh --diagnostico             o que esta instalado e o que falta
-#          ./cli.sh --cli --horas 168         a ultima semana
+#          ./cli.sh --cli --horas 168         a última semana
 #
-#        Codigos de saida: 0 limpo, 1 problemas, 2 criticos, 3 sem interface,
-#        4 falha a gravar o relatorio, 130 interrompido. Sao a interface desta
-#        ferramenta para um RMM: um codigo diferente por situacao permite
-#        reagir sem ler o relatorio.
+#        Códigos de saída: 0 limpo, 1 problemas, 2 críticos, 3 sem interface,
+#        4 falha a gravar o relatório, 130 interrompido. São a interface desta
+#        ferramenta para um RMM: um código diferente por situação permite
+#        reagir sem ler o relatório.
 #
-#        Nao prepara o ambiente: se ele nao existir, diz o que executar. Um
-#        script agendado que decide instalar dependencias a meio da noite e um
-#        script que um dia enche o disco sem ninguem dar por isso.
+#        Não prepara o ambiente: se ele não existir, diz o que executar. Um
+#        script agendado que decide instalar dependências a meio da noite e um
+#        script que um dia enche o disco sem ninguém dar por isso.
 #
-#        Correr isto com sudo e a forma certa de obter o diagnostico completo:
-#        sem janela nenhuma, o root nao deixa ficheiros do utilizador com o
-#        dono trocado — e o relatorio vai para a pasta de quem chamou o sudo.
+#        Correr isto com sudo e a forma certa de obter o diagnóstico completo:
+#        sem janela nenhuma, o root não deixa ficheiros do utilizador com o
+#        dono trocado — e o relatório vai para a pasta de quem chamou o sudo.
 #
 # EN-UK: Headless mode on Linux.
 #
@@ -41,7 +41,7 @@
 
 set -euo pipefail
 
-# PT-PT: Esta pasta e a raiz desta versao. As versoes de Windows e macOS
+# PT-PT: Esta pasta e a raiz desta versão. As versões de Windows e macOS
 #        vivem nas pastas ao lado, cada uma completa e independente.
 # EN-UK: This folder is this version's root. The Windows and macOS versions
 #        live in the folders alongside, each complete and independent.

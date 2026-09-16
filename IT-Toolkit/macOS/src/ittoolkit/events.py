@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
 """
-PT-PT: Leitura e analise do diario unificado do macOS.
+PT-PT: Leitura e análise do diário unificado do macOS.
 
-       Divide-se de proposito em duas metades: a leitura, que precisa de um Mac,
-       e a analise, que so precisa de dicionarios. E o que permite testar o
-       agrupamento, a deteccao de recorrencia e o veredicto do relatorio numa
-       maquina qualquer, sem diario nenhum.
+       Divide-se de propósito em duas metades: a leitura, que precisa de um Mac,
+       e a análise, que só precisa de dicionários. E o que permite testar o
+       agrupamento, a detecção de recorrência e o veredicto do relatório numa
+       máquina qualquer, sem diário nenhum.
 
-       **A assinatura da mensagem e o centro deste modulo.** O diario escreve
-       PID, enderecos de memoria, UUID e identificadores de sessao dentro do
-       texto. Cinquenta ocorrencias da mesma falha sao cinquenta mensagens
+       **A assinatura da mensagem e o centro deste módulo.** O diário escreve
+       PID, endereços de memória, UUID e identificadores de sessão dentro do
+       texto. Cinquenta ocorrências da mesma falha são cinquenta mensagens
        diferentes byte a byte, e agrupa-las pelo texto inteiro daria cinquenta
-       problemas onde ha um.
+       problemas onde há um.
 
-       **Duas coisas separam isto da versao de Linux.**
+       **Duas coisas separam isto da versão de Linux.**
 
        A primeira e o volume. O `journalctl` de um servidor devolve algumas
        centenas de linhas de erro por dia; o `log show` de um Mac devolve
-       dezenas de milhares por hora, porque o diario unificado regista tudo o
-       que qualquer processo diz. Por isso o predicado e restritivo a cabeca — so
+       dezenas de milhares por hora, porque o diário unificado regista tudo o
+       que qualquer processo diz. Por isso o predicado e restritivo a cabeça — só
        `Error` e `Fault` — e a janela e sempre limitada: pedir tudo e esperar
        filtrar depois faz o comando demorar minutos e devolver centenas de MB.
 
-       A segunda sao os relatorios de paragem. Em Linux, um servico que morre
-       deixa rastro no diario e mais nada. Num Mac, um panic ou um crash
-       produzem um ficheiro proprio em `DiagnosticReports`, com muito mais
-       informacao do que a linha correspondente no diario — e esse ficheiro
-       existe mesmo quando a maquina reiniciou e o diario dessa sessao ja passou
-       a historia. Le-los e o que permite dizer «esta maquina teve um kernel
-       panic ha tres dias» em vez de «nao encontrei nada nas ultimas 24 horas».
+       A segunda são os relatórios de paragem. Em Linux, um serviço que morre
+       deixa rastro no diário e mais nada. Num Mac, um panic ou um crash
+       produzem um ficheiro próprio em `DiagnosticReports`, com muito mais
+       informação do que a linha correspondente no diário — e esse ficheiro
+       existe mesmo quando a máquina reiniciou e o diário dessa sessão já passou
+       a historia. Lê-los e o que permite dizer «esta máquina teve um kernel
+       panic há três dias» em vez de «não encontrei nada nas últimas 24 horas».
 
 EN-UK: Reading and analysing the macOS unified log.
 
@@ -69,9 +69,9 @@ log = logging.getLogger(__name__)
 
 MAX_MENSAGEM = 400
 
-#: PT-PT: As pastas onde o macOS guarda os relatorios de paragem. A primeira e
-#:        do sistema — e onde estao os kernel panics — e so se le com Acesso
-#:        Total ao Disco. A segunda e do utilizador e le-se sempre.
+#: PT-PT: As pastas onde o macOS guarda os relatórios de paragem. A primeira e
+#:        do sistema — e onde estão os kernel panics — e só se lê com Acesso
+#:        Total ao Disco. A segunda e do utilizador e lê-se sempre.
 #: EN-UK: The folders where macOS keeps crash reports. The first is the
 #:        system's — where kernel panics live — and needs Full Disk Access. The
 #:        second is the user's and always reads.
@@ -81,45 +81,45 @@ PASTAS_RELATORIOS: tuple[Path, ...] = (
 )
 
 #: PT-PT: O predicado que o `log show` recebe. Restringe a `Error` e `Fault` do
-#:        lado do sistema, que e a unica forma de isto ser rapido: filtrar
+#:        lado do sistema, que é a única forma de isto ser rápido: filtrar
 #:        depois de receber e receber tudo.
 #: EN-UK: The predicate `log show` receives. Restricting to `Error` and `Fault`
 #:        system-side is the only way to make this fast: filtering afterwards
 #:        means receiving everything.
 PREDICADO = 'messageType == "Error" OR messageType == "Fault"'
 
-#: PT-PT: O mesmo, mais o `Default`, para quando se querem tambem os avisos.
+#: PT-PT: O mesmo, mais o `Default`, para quando se querem também os avisos.
 #: EN-UK: The same plus `Default`, for when warnings are wanted too.
 PREDICADO_COM_AVISOS = (
     'messageType == "Error" OR messageType == "Fault" OR messageType == "Default"'
 )
 
-#: PT-PT: O que substituir para obter a assinatura. A ordem importa: os padroes
-#:        mais especificos primeiro, senao o generico dos numeros come-os.
+#: PT-PT: O que substituir para obter a assinatura. A ordem importa: os padrões
+#:        mais específicos primeiro, senão o genérico dos números come-os.
 #: EN-UK: What to replace to obtain the signature. Order matters.
 _VARIAVEIS: tuple[tuple[re.Pattern[str], str], ...] = (
-    # PT-PT: UUID — o macOS mete-os em quase tudo, e sao sempre diferentes.
+    # PT-PT: UUID — o macOS mete-os em quase tudo, e são sempre diferentes.
     # EN-UK: UUIDs — macOS puts them in nearly everything, always different.
     (re.compile(r"\b[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}\b", re.I), "UUID"),
-    # PT-PT: Enderecos de memoria — mudam a cada execucao.
+    # PT-PT: Endereços de memória — mudam a cada execução.
     # EN-UK: Memory addresses — different on every run.
     (re.compile(r"\b0x[0-9a-f]+\b", re.IGNORECASE), "0xADDR"),
     # PT-PT: PID entre parenteses rectos ou depois de "pid".
     # EN-UK: PIDs in brackets or after "pid".
     (re.compile(r"\[\d+\]"), "[PID]"),
     (re.compile(r"\bpid[= ]\d+", re.IGNORECASE), "pid=PID"),
-    # PT-PT: Enderecos IP e portas.
+    # PT-PT: Endereços IP e portas.
     # EN-UK: IP addresses and ports.
     (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b"), "IP"),
     # PT-PT: Datas e horas dentro do texto.
     # EN-UK: Dates and times inside the text.
     (re.compile(r"\b\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}\S*"), "DATA"),
     (re.compile(r"\b\d{2}:\d{2}:\d{2}\b"), "HORA"),
-    # PT-PT: Caminhos de contentor e de temporarios, que trazem identificadores.
+    # PT-PT: Caminhos de contentor e de temporários, que trazem identificadores.
     # EN-UK: Container and temporary paths, which carry identifiers.
     (re.compile(r"/private/var/folders/\S+"), "/var/folders/X"),
     (re.compile(r"/Users/[^/\s]+"), "/Users/UTILIZADOR"),
-    # PT-PT: Numeros soltos, por fim.
+    # PT-PT: Números soltos, por fim.
     # EN-UK: Loose numbers, last.
     (re.compile(r"\b\d+\b"), "N"),
 )
@@ -192,7 +192,7 @@ def ler_diario(horas: int, incluir_avisos: bool, maximo: int) -> list[dict]:
     registos = linhas_json(comando_leitura(horas, incluir_avisos, maximo), timeout=300)
     log.info("Diário: %d registos nas últimas %d horas.", len(registos), horas)
 
-    # PT-PT: Os mais recentes sao os que interessam quando ha corte, e o
+    # PT-PT: Os mais recentes são os que interessam quando há corte, e o
     #        `log show` devolve por ordem cronologica.
     # EN-UK: The most recent ones matter when there is a cut, and `log show`
     #        returns in chronological order.
@@ -320,7 +320,7 @@ def analisar(registos: list[dict], horas: int, teto: int) -> Analise:
             grupos[chave] = grupo
         else:
             # PT-PT: O tipo do grupo e o mais grave que se viu. Um processo que
-            #        regista noventa vezes e falha uma e um problema, nao um
+            #        regista noventa vezes e falha uma e um problema, não um
             #        registo — e ordenar pelo registo enterrava-o no fim.
             # EN-UK: The group's type is the most severe seen.
             from .models import TIPOS
@@ -416,7 +416,7 @@ def relatorios_de_paragem(dias: int = 7, pastas: tuple[Path, ...] | None = None)
                 continue
             encontrados.append(
                 {
-                    # PT-PT: O nome do ficheiro comeca pelo processo que parou.
+                    # PT-PT: O nome do ficheiro começa pelo processo que parou.
                     # EN-UK: The filename starts with the process that stopped.
                     "nome": ficheiro.name.split("_")[0],
                     "tipo": ficheiro.suffix.lstrip("."),

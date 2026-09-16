@@ -1,11 +1,11 @@
 """
 PT-PT: Testes das particularidades do macOS.
 
-       Correm em qualquer maquina, incluindo uma que nao seja um Mac: tudo o que
+       Correm em qualquer máquina, incluindo uma que não seja um Mac: tudo o que
        depende do sistema — a arquitectura, o UID, a pasta protegida pelo TCC —
-       entra por argumento. Nao e arrumacao: uma funcao que so se consegue testar
-       na plataforma dela nao e testada em lado nenhum antes de chegar a uma
-       maquina real.
+       entra por argumento. Não e arrumação: uma função que só se consegue testar
+       na plataforma dela não é testada em lado nenhum antes de chegar a uma
+       máquina real.
 
 EN-UK: Tests for the macOS specifics.
 
@@ -40,9 +40,9 @@ class TestHomebrew:
     def test_os_dois_prefixos_estao_declarados(self) -> None:
         """
         PT-PT: O Homebrew instala em `/opt/homebrew` nos Apple Silicon e em
-               `/usr/local` nos Intel. Procurar so num deles faz a aplicacao
-               jurar que uma ferramenta instalada nao existe — em metade das
-               maquinas.
+               `/usr/local` nos Intel. Procurar só num deles faz a aplicação
+               jurar que uma ferramenta instalada não existe — em metade das
+               máquinas.
         EN-UK: Homebrew installs to `/opt/homebrew` on Apple Silicon and
                `/usr/local` on Intel. Looking in only one makes the application
                swear an installed tool is missing — on half the machines.
@@ -59,8 +59,8 @@ class TestHomebrew:
 
     def test_nunca_sugere_gestores_de_outro_sistema(self) -> None:
         """
-        PT-PT: Sugerir `apt` ou `winget` num Mac e o sintoma de codigo copiado
-               de outra versao sem ser lido.
+        PT-PT: Sugerir `apt` ou `winget` num Mac e o sintoma de código copiado
+               de outra versão sem ser lido.
         EN-UK: Suggesting `apt` or `winget` on a Mac is the symptom of code
                copied from another version without being read.
         """
@@ -89,8 +89,8 @@ class TestPermissoes:
 
     def test_acesso_total_ao_disco_por_tentativa(self, tmp_path: Path) -> None:
         """
-        PT-PT: Nao ha API para perguntar se ha Acesso Total ao Disco. O que ha e
-               uma pasta que o TCC protege, e o teste e tentar le-la.
+        PT-PT: Não há API para perguntar se há Acesso Total ao Disco. O que há e
+               uma pasta que o TCC protege, e o teste e tentar lê-la.
         EN-UK: There is no API to ask whether Full Disk Access is held. What
                there is, is a folder TCC protects, and the test is to read it.
         """
@@ -98,9 +98,9 @@ class TestPermissoes:
 
     def test_pasta_inexistente_nao_e_falta_de_permissao(self, tmp_path: Path) -> None:
         """
-        PT-PT: A pasta nao existir e outra coisa: e uma maquina que nunca
-               registou uma paragem, que e boa noticia. Trata-la como falta de
-               permissao mandava o utilizador as Definicoes do Sistema sem razao.
+        PT-PT: A pasta não existir e outra coisa: e uma máquina que nunca
+               registou uma paragem, que é boa notícia. Trata-la como falta de
+               permissão mandava o utilizador as Definições do Sistema sem razão.
         EN-UK: The folder not existing is something else: a machine that never
                recorded a crash, which is good news.
         """
@@ -113,7 +113,7 @@ class TestPermissoes:
     def test_pasta_sem_leitura_conta_como_sem_acesso(self, tmp_path: Path) -> None:
         """
         PT-PT: O sinal que interessa e o `PermissionError`. Este teste simula-o
-               com permissoes de ficheiro, que e o mais perto que se chega do TCC
+               com permissões de ficheiro, que é o mais perto que se chega do TCC
                fora de um Mac.
         EN-UK: The signal that matters is `PermissionError`. This test simulates
                it with file permissions, the closest one gets to TCC off a Mac.
@@ -124,8 +124,8 @@ class TestPermissoes:
         protegida.mkdir()
         protegida.chmod(0)
         try:
-            # PT-PT: O root passa por cima das permissoes e o teste nao teria
-            #        valor nenhum — dai a verificacao.
+            # PT-PT: O root passa por cima das permissões e o teste não teria
+            #        valor nenhum — dai a verificação.
             # EN-UK: root walks straight past permissions.
             if os.geteuid() != 0:
                 assert ps.full_disk_access(protegida) is False
@@ -136,8 +136,8 @@ class TestPermissoes:
 class TestPastaDeDados:
     def test_usa_application_support(self, tmp_path: Path) -> None:
         """
-        PT-PT: E a convencao do macOS. Uma pasta `.config` escondida na raiz da
-               conta e habito de Linux, e num Mac ninguem a vai la procurar.
+        PT-PT: E a convenção do macOS. Uma pasta `.config` escondida na raiz da
+               conta e hábito de Linux, e num Mac ninguém a vai la procurar.
         EN-UK: It is the macOS convention.
         """
         destino = ps.app_data_dir("ITToolkit", home=tmp_path)
@@ -159,7 +159,7 @@ class TestRequisitos:
 
     def test_nenhum_requisito_e_essencial(self) -> None:
         """
-        PT-PT: E deliberado: o diagnostico tem de correr numa maquina onde nao
+        PT-PT: E deliberado: o diagnóstico tem de correr numa máquina onde não
                se pode instalar nada, dizendo o que ficou por ver.
         EN-UK: Deliberate: the diagnostic must run where nothing can be
                installed, saying what went unseen.
@@ -173,8 +173,8 @@ class TestRequisitos:
 
     def test_o_acesso_total_explica_onde_se_da(self) -> None:
         """
-        PT-PT: «Instale o Acesso Total ao Disco» nao ajuda ninguem: nao e um
-               pacote, e uma autorizacao numa janela especifica das Definicoes.
+        PT-PT: «Instale o Acesso Total ao Disco» não ajuda ninguém: não é um
+               pacote, e uma autorização numa janela específica das Definições.
                E preciso dizer qual.
         EN-UK: "Install Full Disk Access" helps nobody: it is not a package, it
                is an authorisation in a specific Settings pane.

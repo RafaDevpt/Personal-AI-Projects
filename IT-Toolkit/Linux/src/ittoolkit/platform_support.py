@@ -366,10 +366,10 @@ def is_root(uid: int | None = None) -> bool:
     """
     if uid is not None:
         return uid == 0
-    # PT-PT: O `geteuid` so existe em POSIX. O `getattr` mantem este modulo
-    #        importavel numa maquina de desenvolvimento que nao seja Linux, e e
-    #        o que permite correr a suite de testes desta versao a partir de
-    #        qualquer sitio — as funcoes que dependem do sistema recebem os
+    # PT-PT: O `geteuid` só existe em POSIX. O `getattr` mantém este módulo
+    #        importável numa máquina de desenvolvimento que não seja Linux, e e
+    #        o que permite correr a suite de testes desta versão a partir de
+    #        qualquer sítio — as funções que dependem do sistema recebem os
     #        valores como argumentos precisamente por isso.
     # EN-UK: `geteuid` exists on POSIX only. The `getattr` keeps this module
     #        importable on a non-Linux development machine, which is what allows

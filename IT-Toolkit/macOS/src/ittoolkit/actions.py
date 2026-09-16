@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
 """
-PT-PT: Ferramentas rapidas — accoes pontuais de manutencao.
+PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
 
-       Regra do modulo: nada aqui apaga dados do utilizador, e tudo o que tem
-       impacto declara-o na sua descricao para a interface poder pedir
-       confirmacao.
+       Regra do módulo: nada aqui apaga dados do utilizador, e tudo o que tem
+       impacto declara-o na sua descrição para a interface poder pedir
+       confirmação.
 
-       Tres coisas sao especificas do macOS e moldaram este ficheiro.
+       Três coisas são específicas do macOS e moldaram este ficheiro.
 
-       **A limpeza de DNS sao dois comandos, nao um.** O `dscacheutil
+       **A limpeza de DNS são dois comandos, não um.** O `dscacheutil
        -flushcache` esvazia a cache do Directory Service; o
-       `killall -HUP mDNSResponder` obriga o resolvedor a reler a configuracao.
-       Correr so o primeiro — que e o que a maioria dos artigos diz — nao
-       resolve o caso mais comum, que e o de um servidor DNS que mudou e o
+       `killall -HUP mDNSResponder` obriga o resolvedor a reler a configuração.
+       Correr só o primeiro — que é o que a maioria dos artigos diz — não
+       resolve o caso mais comum, que é o de um servidor DNS que mudou e o
        mDNSResponder continuar a falar com o antigo.
 
-       **O `open -a` e o equivalente das consolas MMC.** Um Mac nao tem
-       `services.msc` nem `diskmgmt.msc`; tem aplicacoes em `/System/
+       **O `open -a` e o equivalente das consolas MMC.** Um Mac não tem
+       `services.msc` nem `diskmgmt.msc`; tem aplicações em `/System/
        Applications/Utilities`, e o `open -a` abre-as pelo nome sem precisar de
-       saber onde estao. As que existem sao sempre as mesmas, porque fazem parte
-       do sistema — ao contrario do Linux, onde metade das ferramentas graficas
-       podem nao estar instaladas.
+       saber onde estão. As que existem são sempre as mesmas, porque fazem parte
+       do sistema — ao contrário do Linux, onde metade das ferramentas gráficas
+       podem não estar instaladas.
 
-       **A limpeza de temporarios nao toca no `/tmp`.** Num Mac, os temporarios
-       de cada processo estao em `/private/var/folders`, numa arvore por
+       **A limpeza de temporários não toca no `/tmp`.** Num Mac, os temporários
+       de cada processo estão em `/private/var/folders`, numa árvore por
        utilizador que o sistema gere e limpa sozinho — e onde apagar coisas a
-       mao parte sessoes a serio. O que se limpa aqui e o `~/Library/Caches`, que
-       e o que ocupa espaco e o que e seguro apagar: as aplicacoes reconstroem-no.
+       mão parte sessões a sério. O que se limpa aqui e o `~/Library/Caches`, que
+       e o que ocupa espaço e o que é seguro apagar: as aplicações reconstroem-no.
 
 EN-UK: Quick tools — one-off maintenance actions.
 
@@ -70,7 +70,7 @@ log = logging.getLogger(__name__)
 @dataclass(frozen=True, slots=True)
 class Accao:
     """
-    PT-PT: Descricao de uma accao para a interface construir os botoes sem
+    PT-PT: Descrição de uma acção para a interface construir os botões sem
            saber nada sobre o que cada uma faz.
     EN-UK: Description of an action, so the interface can build buttons without
            knowing anything about what each one does.
@@ -82,10 +82,10 @@ class Accao:
     #: PT-PT: True obriga a interface a confirmar antes de executar.
     #: EN-UK: True forces the interface to confirm before running.
     confirmar: bool = False
-    #: PT-PT: True significa que abre uma janela propria e nao devolve saida.
+    #: PT-PT: True significa que abre uma janela própria e não devolve saída.
     #: EN-UK: True means it opens its own window and returns no output.
     consola: bool = False
-    #: PT-PT: True significa que so funciona como root.
+    #: PT-PT: True significa que só funciona como root.
     #: EN-UK: True means it only works as root.
     root: bool = False
 
@@ -136,8 +136,8 @@ ACCOES: tuple[Accao, ...] = (
     Accao("processos", "Monitor de Actividade", "Abre o Monitor de Actividade.", consola=True),
 )
 
-# PT-PT: Aplicacoes de gestao do macOS. Ao contrario das ferramentas graficas
-#        de Linux, estas fazem parte do sistema e estao sempre la — o `open -a`
+# PT-PT: Aplicações de gestão do macOS. Ao contrário das ferramentas gráficas
+#        de Linux, estas fazem parte do sistema e estão sempre la — o `open -a`
 #        encontra-as pelo nome sem precisar do caminho.
 # EN-UK: macOS management applications. Unlike Linux's graphical tools these are
 #        part of the system and always present — `open -a` finds them by name.
@@ -279,7 +279,7 @@ def _apagar_snapshots() -> Resultado:
 
 def executar_accao(chave: str) -> Resultado:
     """
-    PT-PT: Corre a accao correspondente a chave.
+    PT-PT: Corre a acção correspondente a chave.
     EN-UK: Runs the action matching the key.
     """
     if chave == "limpar_caches":
@@ -297,7 +297,7 @@ def executar_accao(chave: str) -> Resultado:
         return Resultado(comando="ifconfig", codigo=enderecos.codigo, saida="\n".join(partes))
 
     if chave == "flush_dns":
-        # PT-PT: Os dois comandos, sempre. Ver o cabecalho do modulo.
+        # PT-PT: Os dois comandos, sempre. Ver o cabeçalho do módulo.
         # EN-UK: Both commands, always. See the module header.
         cache = executar(["dscacheutil", "-flushcache"], timeout=30)
         resolvedor = executar(["killall", "-HUP", "mDNSResponder"], timeout=30)
@@ -318,9 +318,9 @@ def executar_accao(chave: str) -> Resultado:
         )
 
     if chave == "renovar_ip":
-        # PT-PT: A interface por onde sai o trafego e a que interessa renovar.
+        # PT-PT: A interface por onde sai o tráfego e a que interessa renovar.
         #        Renovar todas de uma vez derruba a VPN e as pontes de
-        #        virtualizacao sem necessidade nenhuma.
+        #        virtualização sem necessidade nenhuma.
         # EN-UK: The outbound interface is the one worth renewing. Renewing all
         #        at once needlessly drops the VPN and virtualisation bridges.
         from .network import _interface_de_saida
@@ -367,8 +367,8 @@ def executar_accao(chave: str) -> Resultado:
         return executar(["systemsetup", "-getusingnetworktime"], timeout=30)
 
     if chave == "primeira_ajuda":
-        # PT-PT: `verifyVolume` e so de leitura. O `repairVolume` alteraria o
-        #        disco e nao pertence a uma ferramenta de diagnostico: quem
+        # PT-PT: `verifyVolume` e só de leitura. O `repairVolume` alteraria o
+        #        disco e não pertence a uma ferramenta de diagnóstico: quem
         #        precisar de reparar deve faze-lo pelo Utilitario de Disco, a
         #        ver o que esta a acontecer.
         # EN-UK: `verifyVolume` is read-only. `repairVolume` would alter the disk

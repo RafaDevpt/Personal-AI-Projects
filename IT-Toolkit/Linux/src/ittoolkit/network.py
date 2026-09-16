@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """
-PT-PT: Rede — configuracao, diagnostico e testes pontuais.
+PT-PT: Rede — configuração, diagnóstico e testes pontuais.
 
-       O ponto que mais confusao gera num diagnostico de rede em Linux e o
-       `/etc/resolv.conf`. Numa maquina com `systemd-resolved` — e sao quase
-       todas as distribuicoes modernas — esse ficheiro tem uma unica linha,
-       `nameserver 127.0.0.53`, que e o proprio resolvedor local. Ler dali e
-       concluir «o DNS desta maquina e 127.0.0.53» nao esta errado, mas tambem
-       nao diz nada: os servidores a serio estao um nivel abaixo, e quem quer
-       saber se o DNS esta bem configurado precisa desses. Por isso este modulo
-       pergunta primeiro ao `resolvectl` e so recorre ao ficheiro se ele nao
+       O ponto que mais confusão gera num diagnóstico de rede em Linux e o
+       `/etc/resolv.conf`. Numa máquina com `systemd-resolved` — e são quase
+       todas as distribuições modernas — esse ficheiro tem uma única linha,
+       `nameserver 127.0.0.53`, que é o próprio resolvedor local. Ler dali e
+       concluir «o DNS desta máquina e 127.0.0.53» não esta errado, mas também
+       não diz nada: os servidores a sério estão um nível abaixo, e quem quer
+       saber se o DNS esta bem configurado precisa desses. Por isso este módulo
+       pergunta primeiro ao `resolvectl` e só recorre ao ficheiro se ele não
        existir.
 
 EN-UK: Network — configuration, diagnostics and one-off tests.
@@ -37,32 +37,32 @@ from .shell import Resultado, disponivel, executar, executar_json, ler_ficheiro
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Gama que o Linux atribui a si proprio quando o DHCP nao responde. Ver
-#        um endereco destes e ver uma maquina sem rede utilizavel, mesmo que o
-#        icone do ambiente de trabalho nao se queixe.
+# PT-PT: Gama que o Linux atribui a si próprio quando o DHCP não responde. Ver
+#        um endereço destes e ver uma máquina sem rede utilizável, mesmo que o
+#        icone do ambiente de trabalho não se queixe.
 # EN-UK: The range Linux assigns itself when DHCP does not answer. Seeing one of
 #        these means a machine with no usable network.
 APIPA = ipaddress.ip_network("169.254.0.0/16")
 
-#: PT-PT: Interfaces que nao valem um alerta: o loopback e as pontes que o
-#:        Docker, o libvirt e as VPN criam. Nao terem gateway e o normal delas.
+#: PT-PT: Interfaces que não valem um alerta: o loopback e as pontes que o
+#:        Docker, o libvirt e as VPN criam. Não terem gateway e o normal delas.
 #: EN-UK: Interfaces not worth an alert: loopback and the bridges Docker,
 #:        libvirt and VPNs create. Having no gateway is normal for them.
 INTERFACES_IGNORADAS: tuple[str, ...] = (
     "lo", "docker", "br-", "virbr", "veth", "tun", "tap", "vboxnet", "cni", "flannel",
 )
 
-#: PT-PT: O resolvedor local do systemd-resolved. Nao e o DNS real da maquina.
+#: PT-PT: O resolvedor local do systemd-resolved. Não e o DNS real da máquina.
 #: EN-UK: systemd-resolved's local stub. Not the machine's real DNS.
 RESOLVEDOR_LOCAL = "127.0.0.53"
 
 
 def ignorar_interface(nome: str) -> bool:
     """
-    PT-PT: Se a interface e virtual e nao deve gerar achados.
+    PT-PT: Se a interface e virtual e não deve gerar achados.
 
-           Recebe o nome como argumento, e nao vai busca-lo ao sistema, para dar
-           para testar com a lista de interfaces de qualquer maquina.
+           Recebe o nome como argumento, e não vai busca-lo ao sistema, para dar
+           para testar com a lista de interfaces de qualquer máquina.
 
     EN-UK: Whether the interface is virtual and should raise no findings. It
            takes the name as an argument rather than reading the system, so it
@@ -74,9 +74,9 @@ def ignorar_interface(nome: str) -> bool:
 
 def servidores_dns() -> list[str]:
     """
-    PT-PT: Os servidores DNS que a maquina esta mesmo a usar.
+    PT-PT: Os servidores DNS que a máquina esta mesmo a usar.
 
-           Ver o cabecalho do modulo para o porque de nao bastar ler o
+           Ver o cabeçalho do módulo para o porque de não bastar ler o
            `/etc/resolv.conf`.
 
     EN-UK: The DNS servers the machine is actually using. See the module header
@@ -106,12 +106,12 @@ def servidores_dns() -> list[str]:
 
 def _rotas_por_omissao() -> dict[str, str]:
     """
-    PT-PT: A rota por omissao de cada interface.
+    PT-PT: A rota por omissão de cada interface.
 
     EN-UK: Each interface's default route.
 
     :return:
-        PT-PT: Nome da interface → endereco do gateway.
+        PT-PT: Nome da interface → endereço do gateway.
         EN-UK: Interface name → gateway address.
     """
     dados = executar_json(["ip", "-j", "route", "show", "default"], timeout=30)
@@ -126,10 +126,10 @@ def _rotas_por_omissao() -> dict[str, str]:
 
 def adaptadores() -> list[dict]:
     """
-    PT-PT: Interfaces activas com endereco IPv4.
+    PT-PT: Interfaces activas com endereço IPv4.
 
-           Usa o `-j` do `ip`, que devolve JSON, e nao a saida humana do
-           `ip addr`: essa muda de formato entre versoes do iproute2 e nao foi
+           Usa o `-j` do `ip`, que devolve JSON, e não a saída humana do
+           `ip addr`: essa muda de formato entre versões do iproute2 e não foi
            feita para ser lida por programas.
 
     EN-UK: Active interfaces carrying an IPv4 address. It uses `ip -j`, which
@@ -137,7 +137,7 @@ def adaptadores() -> list[dict]:
            format between iproute2 versions and was not made to be parsed.
 
     :return:
-        PT-PT: Um dicionario por interface com `interface`, `descricao`, `ipv4`,
+        PT-PT: Um dicionário por interface com `interface`, `descricao`, `ipv4`,
                `mascara`, `gateway`, `dns`, `mac` e `estado`.
         EN-UK: One dictionary per interface.
     """
@@ -176,7 +176,7 @@ def adaptadores() -> list[dict]:
 
 
 def _e_apipa(endereco: str) -> bool:
-    """PT-PT: O endereco esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
+    """PT-PT: O endereço esta na gama APIPA? / EN-UK: Is the address in APIPA?"""
     try:
         return ipaddress.ip_address(endereco) in APIPA
     except ValueError:
@@ -187,11 +187,11 @@ def ping(destino: str, contagem: int = 4, timeout: int = 15) -> Resultado:
     """
     PT-PT: Ping a um destino.
 
-           O `-c` fixa o numero de pacotes e o `-w` o prazo total, o que impede
+           O `-c` fixa o número de pacotes e o `-w` o prazo total, o que impede
            o comando de correr indefinidamente. O `timeout` do subprocesso e a
-           segunda rede de seguranca, para o caso de o proprio `ping` ficar
-           preso — acontece com destinos que resolvem para um endereco
-           inalcancavel numa rota sem resposta.
+           segunda rede de segurança, para o caso de o próprio `ping` ficar
+           preso — acontece com destinos que resolvem para um endereço
+           inalcançável numa rota sem resposta.
 
     EN-UK: Pings a destination. `-c` fixes the packet count and `-w` the overall
            deadline, preventing an endless run. The subprocess `timeout` is the
@@ -207,8 +207,8 @@ def alcancavel(destino: str, timeout: int = 10) -> bool:
     """
     PT-PT: Se um destino responde ao ping.
 
-           Dois pacotes chegam: quatro so tornam mais lento um diagnostico que ja
-           faz varios testes destes em sequencia.
+           Dois pacotes chegam: quatro só tornam mais lento um diagnóstico que já
+           faz vários testes destes em sequência.
 
     EN-UK: Whether a destination answers ping. Two packets are enough; four only
            slow down a diagnostic already doing several of these in a row.
@@ -218,12 +218,12 @@ def alcancavel(destino: str, timeout: int = 10) -> bool:
 
 def tracert(destino: str, saltos: int = 15, timeout: int = 90) -> Resultado:
     """
-    PT-PT: Rota ate um destino.
+    PT-PT: Rota até um destino.
 
-           Prefere o `traceroute`, mas aceita o `tracepath`: o primeiro nao vem
-           instalado em muitas distribuicoes e o segundo faz parte do `iputils`,
-           que vem sempre — insistir so no `traceroute` deixava esta funcao sem
-           resposta na maioria das maquinas.
+           Prefere o `traceroute`, mas aceita o `tracepath`: o primeiro não vem
+           instalado em muitas distribuições e o segundo faz parte do `iputils`,
+           que vem sempre — insistir só no `traceroute` deixava esta função sem
+           resposta na maioria das máquinas.
 
     EN-UK: Route to a destination. It prefers `traceroute` but accepts
            `tracepath`: the former is not installed on many distributions and the
@@ -236,7 +236,7 @@ def tracert(destino: str, saltos: int = 15, timeout: int = 90) -> Resultado:
 
 def resolver(dominio: str) -> list[str]:
     """
-    PT-PT: Resolve um nome para enderecos IPv4.
+    PT-PT: Resolve um nome para endereços IPv4.
     EN-UK: Resolves a name to IPv4 addresses.
     """
     try:
@@ -249,10 +249,10 @@ def resolver(dominio: str) -> list[str]:
 
 def testar_porta(host: str, porta: int, timeout: float = 1.5) -> bool:
     """
-    PT-PT: Confirma se uma porta TCP aceita ligacoes.
+    PT-PT: Confirma se uma porta TCP aceita ligações.
 
            Usa um socket directo em vez de chamar o `nc` ou o `nmap`: nenhum dos
-           dois vem instalado por omissao, e um socket com timeout responde no
+           dois vem instalado por omissão, e um socket com timeout responde no
            tempo que se lhe der sem depender de pacote nenhum.
 
     EN-UK: Confirms whether a TCP port accepts connections. It uses a direct

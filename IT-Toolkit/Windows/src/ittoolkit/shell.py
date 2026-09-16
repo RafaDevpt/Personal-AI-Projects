@@ -1,7 +1,7 @@
 """
-PT-PT: Execucao de comandos externos (cmd.exe e PowerShell).
+PT-PT: Execução de comandos externos (cmd.exe e PowerShell).
 
-       Este modulo existe porque quase todo o diagnostico depende de correr
+       Este módulo existe porque quase todo o diagnóstico depende de correr
        ferramentas do Windows e ler o que elas devolvem — e ler mal e a fonte
        mais comum de bugs silenciosos numa ferramenta destas.
 
@@ -26,7 +26,7 @@ from typing import Any
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Impede que uma janela de consola pisque no ecra a cada comando.
+# PT-PT: Impede que uma janela de consola pisque no ecrã a cada comando.
 # EN-UK: Stops a console window flashing on screen for every command.
 CREATE_NO_WINDOW = 0x08000000 if os.name == "nt" else 0
 
@@ -36,11 +36,11 @@ IS_WINDOWS = os.name == "nt"
 @dataclass(slots=True)
 class Resultado:
     """
-    PT-PT: Resultado de um comando. A versao anterior devolvia apenas uma
-           string e engolia todas as excecoes, o que significava que uma falha
-           de permissoes e um comando que devolve texto vazio eram
-           indistinguiveis. Aqui ficam separados: `ok` diz se correu, `erro`
-           diz porque nao.
+    PT-PT: Resultado de um comando. A versão anterior devolvia apenas uma
+           string e engolia todas as excepções, o que significava que uma falha
+           de permissões e um comando que devolve texto vazio eram
+           indistinguíveis. Aqui ficam separados: `ok` diz se correu, `erro`
+           diz porque não.
     EN-UK: Result of a command. The previous version returned only a string and
            swallowed every exception, which meant a permissions failure and a
            command returning empty text were indistinguishable. Here they are
@@ -54,7 +54,7 @@ class Resultado:
 
     @property
     def texto(self) -> str:
-        """PT-PT: Saida util, ou a mensagem de erro se nao houver saida.
+        """PT-PT: Saída útil, ou a mensagem de erro se não houver saída.
         EN-UK: Useful output, or the error message when there is none."""
         if self.saida:
             return self.saida
@@ -63,14 +63,14 @@ class Resultado:
 
 def _codepage_oem() -> str:
     """
-    PT-PT: Descobre a codificacao que a consola do Windows usa realmente.
+    PT-PT: Descobre a codificação que a consola do Windows usa realmente.
 
-           A v1.0 assumia cp850 fixo, com o comentario «a consola PT usa
-           cp850». Nem sempre: depende da versao do Windows, da regiao e de a
-           opcao «Beta: usar UTF-8 para suporte de idioma mundial» estar ou nao
-           ligada — nesse caso e cp65001. Assumir errado nao rebenta nada, so
-           enche os relatorios de acentos trocados, que e o tipo de bug que
-           ninguem reporta e toda a gente nota.
+           A v1.0 assumia cp850 fixo, com o comentário «a consola PT usa
+           cp850». Nem sempre: depende da versão do Windows, da região e de a
+           opção «Beta: usar UTF-8 para suporte de idioma mundial» estar ou não
+           ligada — nesse caso e cp65001. Assumir errado não rebenta nada, só
+           enche os relatórios de acentos trocados, que é o tipo de bug que
+           ninguém reporta e toda a gente nota.
 
     EN-UK: Works out which encoding the Windows console actually uses. Version
            1.0 assumed a fixed cp850; that depends on the Windows version,
@@ -85,14 +85,14 @@ def _codepage_oem() -> str:
         return "cp850"
 
 
-# PT-PT: Calculado uma vez; nao muda durante a sessao.
+# PT-PT: Calculado uma vez; não muda durante a sessão.
 # EN-UK: Computed once; does not change during the session.
 CODEPAGE = _codepage_oem()
 
 
 def executar(args: list[str], timeout: int = 60) -> Resultado:
     """
-    PT-PT: Corre um comando de sistema e devolve a saida descodificada.
+    PT-PT: Corre um comando de sistema e devolve a saída descodificada.
     EN-UK: Runs a system command and returns the decoded output.
     """
     log.debug("A executar: %s", " ".join(args))
@@ -118,11 +118,11 @@ def executar(args: list[str], timeout: int = 60) -> Resultado:
 
 def powershell(comando: str, timeout: int = 90) -> Resultado:
     """
-    PT-PT: Corre um comando PowerShell e devolve a saida em UTF-8.
+    PT-PT: Corre um comando PowerShell e devolve a saída em UTF-8.
 
-           O prefixo forca a codificacao de saida para UTF-8 antes de correr o
+           O prefixo força a codificação de saída para UTF-8 antes de correr o
            comando, o que torna esta chamada independente da codepage da
-           consola — ao contrario do `executar` acima, que tem de a adivinhar.
+           consola — ao contrário do `executar` acima, que tem de a adivinhar.
 
     EN-UK: Runs a PowerShell command and returns UTF-8 output. The prefix forces
            the output encoding to UTF-8, making this call independent of the
@@ -162,16 +162,16 @@ def powershell(comando: str, timeout: int = 90) -> Resultado:
 
 def normalizar_json(dados: Any) -> list[dict]:
     """
-    PT-PT: Transforma o que o ConvertTo-Json devolveu numa lista de dicionarios.
+    PT-PT: Transforma o que o ConvertTo-Json devolveu numa lista de dicionários.
 
-           Sao tres casos, e a v1.0 so tratava dois. Uma lista fica como esta;
-           um objecto unico e embrulhado numa lista — o PowerShell desenrola
+           São três casos, e a v1.0 só tratava dois. Uma lista fica como esta;
+           um objecto único e embrulhado numa lista — o PowerShell desenrola
            arrays de um elemento e devolve o objecto directamente. O terceiro
            caso e o que faltava: quando o comando devolve valores simples (uma
            lista de strings, tipicamente `Select-Object -ExpandProperty`), o
-           JSON e uma string ou um numero. Era exactamente o que acontecia com
-           um unico servidor DNS configurado, e o resultado era a lista de DNS
-           aparecer vazia no diagnostico sem qualquer erro.
+           JSON e uma string ou um número. Era exactamente o que acontecia com
+           um único servidor DNS configurado, e o resultado era a lista de DNS
+           aparecer vazia no diagnóstico sem qualquer erro.
 
     EN-UK: Turns whatever ConvertTo-Json returned into a list of dictionaries.
            Three cases; v1.0 handled only two. The missing one was scalar
@@ -189,7 +189,7 @@ def normalizar_json(dados: Any) -> list[dict]:
 
 def powershell_json(comando: str, timeout: int = 90) -> list[dict]:
     """
-    PT-PT: Corre PowerShell que termina em ConvertTo-Json e devolve dicionarios.
+    PT-PT: Corre PowerShell que termina em ConvertTo-Json e devolve dicionários.
     EN-UK: Runs PowerShell ending in ConvertTo-Json and returns dictionaries.
     """
     res = powershell(comando, timeout)
@@ -220,10 +220,10 @@ def e_administrador() -> bool:
     """
     PT-PT: Diz se o processo esta elevado.
 
-           Importa saber: sem elevacao, o log Security fica inacessivel, o SMART
-           nao devolve nada e os servicos nao arrancam. A v1.0 nao verificava, e
-           esses modulos limitavam-se a devolver vazio — o operador ficava a
-           pensar que a maquina estava limpa quando na verdade nao tinha lido
+           Importa saber: sem elevação, o log Security fica inacessível, o SMART
+           não devolve nada e os serviços não arrancam. A v1.0 não verificava, e
+           esses módulos limitavam-se a devolver vazio — o operador ficava a
+           pensar que a máquina estava limpa quando na verdade não tinha lido
            nada.
 
     EN-UK: Reports whether the process is elevated. Without elevation the
@@ -241,7 +241,7 @@ def e_administrador() -> bool:
 
 def abrir_ficheiro(caminho: str) -> Resultado:
     """
-    PT-PT: Abre um ficheiro ou consola do Windows com a aplicacao associada.
+    PT-PT: Abre um ficheiro ou consola do Windows com a aplicação associada.
     EN-UK: Opens a file or Windows console with its associated application.
     """
     if not IS_WINDOWS:
@@ -256,9 +256,9 @@ def abrir_ficheiro(caminho: str) -> Resultado:
 @dataclass(slots=True)
 class Ambiente:
     """
-    PT-PT: Retrato do ambiente onde a aplicacao esta a correr, para os modulos
-           poderem explicar o que nao vao conseguir fazer em vez de falharem em
-           silencio.
+    PT-PT: Retrato do ambiente onde a aplicação esta a correr, para os módulos
+           poderem explicar o que não vão conseguir fazer em vez de falharem em
+           silêncio.
     EN-UK: Snapshot of the running environment, so modules can explain what they
            will not be able to do instead of failing silently.
     """
@@ -268,7 +268,7 @@ class Ambiente:
     codepage: str = field(default_factory=lambda: CODEPAGE)
 
     def limitacoes(self) -> list[str]:
-        """PT-PT: Lista o que nao vai funcionar e porque.
+        """PT-PT: Lista o que não vai funcionar e porque.
         EN-UK: Lists what will not work, and why."""
         avisos = []
         if not self.windows:

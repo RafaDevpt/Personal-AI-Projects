@@ -21,10 +21,10 @@ class TestBaseConhecimento:
 
     def test_todas_as_regras_estao_completas(self):
         """
-        PT-PT: Uma regra sem causa ou sem solucao aparece no relatorio como um
-               espaco em branco e o operador fica sem saber o que fazer. Este
-               teste e a razao de a v1.0 ter tido entradas incompletas durante
-               meses sem ninguem reparar.
+        PT-PT: Uma regra sem causa ou sem solução aparece no relatório como um
+               espaço em branco e o operador fica sem saber o que fazer. Este
+               teste e a razão de a v1.0 ter tido entradas incompletas durante
+               meses sem ninguém reparar.
         EN-UK: A rule with no cause or solution shows in the report as a blank.
         """
         for regra in knowledge.REGRAS:
@@ -35,10 +35,10 @@ class TestBaseConhecimento:
 
     def test_todos_os_padroes_compilam(self):
         """
-        PT-PT: Uma expressao regular invalida numa entrada nova rebentaria a
-               meio de um diagnostico numa maquina real. O `__post_init__`
-               compila-as ao importar o modulo, e este teste confirma que a
-               importacao ja aconteceu sem erro para todas.
+        PT-PT: Uma expressão regular inválida numa entrada nova rebentaria a
+               meio de um diagnóstico numa máquina real. O `__post_init__`
+               compila-as ao importar o módulo, e este teste confirma que a
+               importação já aconteceu sem erro para todas.
         EN-UK: An invalid regular expression in a new entry would blow up
                halfway through a diagnostic on a real machine.
         """
@@ -47,8 +47,8 @@ class TestBaseConhecimento:
 
     def test_sem_padroes_duplicados(self):
         """
-        PT-PT: Duas regras com o mesmo padrao e as mesmas unidades tornam a
-               segunda inalcancavel — `procurar` devolve sempre a primeira.
+        PT-PT: Duas regras com o mesmo padrão e as mesmas unidades tornam a
+               segunda inalcançável — `procurar` devolve sempre a primeira.
         EN-UK: Two rules with the same pattern and units make the second
                unreachable — `procurar` always returns the first.
         """
@@ -71,9 +71,9 @@ class TestBaseConhecimento:
 
     def test_regras_com_unidade_exigem_a_unidade_certa(self):
         """
-        PT-PT: A unidade e metade da chave. Sem ela, o mesmo padrao apanha
+        PT-PT: A unidade e metade da chave. Sem ela, o mesmo padrão apanha
                coisas diferentes: um «I/O error» do kernel e um disco a falhar,
-               e o mesmo texto vindo de uma aplicacao qualquer nao e nada.
+               e o mesmo texto vindo de uma aplicação qualquer não é nada.
         EN-UK: The unit is half the key.
         """
         com_unidade = [r for r in knowledge.REGRAS if r.unidades]
@@ -112,7 +112,7 @@ class TestRegra:
 
     def test_fragmento_de_unidade_e_por_conteudo(self):
         """
-        PT-PT: O fragmento e uma parte do nome, nao o nome inteiro: uma regra
+        PT-PT: O fragmento e uma parte do nome, não o nome inteiro: uma regra
                para «ssh» tem de apanhar o `sshd.service` e o `ssh.service`.
         EN-UK: The fragment is part of the name, not the whole name.
         """
@@ -159,10 +159,10 @@ class TestGrupoEventos:
 
     def test_gravidade_deriva_da_prioridade_syslog_sem_regra(self):
         """
-        PT-PT: As oito prioridades do syslog nao mapeiam uma a uma nas cinco
-               gravidades. As tres primeiras — emerg, alert, crit — sao todas
-               criticas, e junta-las e o que evita um relatorio com tres niveis
-               de vermelho que ninguem distingue.
+        PT-PT: As oito prioridades do syslog não mapeiam uma a uma nas cinco
+               gravidades. As três primeiras — emerg, alert, crit — são todas
+               criticas, e junta-las e o que evita um relatório com três níveis
+               de vermelho que ninguém distingue.
         EN-UK: Syslog's eight priorities do not map one-to-one onto the five
                severities. The first three are all critical.
         """
@@ -174,9 +174,9 @@ class TestGrupoEventos:
 
     def test_nivel_em_portugues_independente_do_idioma_da_maquina(self):
         """
-        PT-PT: O nome vem do numero. O journalctl nao traduz, mas as oito
-               prioridades do syslog tem nomes proprios, e um relatorio em
-               portugues nao deve dizer «emerg».
+        PT-PT: O nome vem do número. O journalctl não traduz, mas as oito
+               prioridades do syslog tem nomes próprios, e um relatório em
+               português não deve dizer «emerg».
         EN-UK: The name comes from the number.
         """
         assert self._grupo(nivel=0).nivel_texto == "Emergência"
@@ -209,7 +209,7 @@ class TestAnalise:
 
     def test_ruido_nao_conta_como_accionavel(self):
         """
-        PT-PT: Trinta erros ACPI do arranque nao devem produzir «30 problemas».
+        PT-PT: Trinta erros ACPI do arranque não devem produzir «30 problemas».
         EN-UK: Thirty ACPI boot errors must not produce "30 problems".
         """
         ruido = next(r for r in knowledge.REGRAS if r.ruido)

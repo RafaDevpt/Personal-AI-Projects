@@ -1,14 +1,14 @@
 """
-PT-PT: Relatorios em HTML.
+PT-PT: Relatórios em HTML.
 
        Uma nota que vale mais do que parece: tudo o que vem do sistema passa
-       por `escape()` antes de entrar no HTML. As mensagens do diario contem
-       caminhos, XML e, com alguma frequencia, sinais de menor e maior — as
+       por `escape()` antes de entrar no HTML. As mensagens do diário contém
+       caminhos, XML e, com alguma frequência, sinais de menor e maior — as
        mensagens do kernel trazem `<mem>`, as do udev trazem regras inteiras. A
-       v1.0 inseria essas mensagens directamente e o resultado eram relatorios
-       com metade do conteudo invisivel, porque o navegador interpretava
+       v1.0 inseria essas mensagens directamente e o resultado eram relatórios
+       com metade do conteúdo invisível, porque o navegador interpretava
        fragmentos da mensagem como etiquetas. Se em vez de um fragmento
-       inofensivo aparecesse um `<script>`, o relatorio passava a executa-lo ao
+       inofensivo aparecesse um `<script>`, o relatório passava a executa-lo ao
        ser aberto.
 
 EN-UK: HTML reports.
@@ -100,12 +100,12 @@ def _nome_seguro(texto: str) -> str:
     """
     PT-PT: Reduz um texto a um nome de ficheiro seguro.
 
-           Em Linux quase tudo e valido num nome de ficheiro — a barra e o byte
-           zero sao as unicas proibicoes reais. Mesmo assim o filtro e o mesmo
-           que na versao de Windows, de proposito: estes relatorios circulam por
+           Em Linux quase tudo e válido num nome de ficheiro — a barra e o byte
+           zero são as únicas proibições reais. Mesmo assim o filtro e o mesmo
+           que na versão de Windows, de propósito: estes relatórios circulam por
            correio e acabam em partilhas SMB, e um ficheiro chamado
-           `relatorio:2026.html` nao se copia para la. Os espacos tambem saem,
-           que e o que evita aspas em qualquer comando que lhe toque depois.
+           `relatorio:2026.html` não se copia para la. Os espaços também saem,
+           que é o que evita aspas em qualquer comando que lhe toque depois.
 
     EN-UK: Reduces text to a safe file name.
 
@@ -121,7 +121,7 @@ def _nome_seguro(texto: str) -> str:
 
 
 def _cabecalho(titulo: str, identificacao: dict[str, str]) -> str:
-    """PT-PT: Bloco de cabecalho comum. / EN-UK: Common header block."""
+    """PT-PT: Bloco de cabeçalho comum. / EN-UK: Common header block."""
     agora = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     linhas = " · ".join(
         f"{escape(k)}: <b>{escape(str(v))}</b>" for k, v in identificacao.items()
@@ -209,7 +209,7 @@ def _bloco_achado(achado: Achado) -> str:
 
 def relatorio_eventos(analise: Analise, identificacao: dict[str, str]) -> str:
     """
-    PT-PT: Relatorio HTML da analise de eventos.
+    PT-PT: Relatório HTML da análise de eventos.
     EN-UK: HTML report of the event analysis.
     """
     corpo = [_cabecalho("Análise de Event Logs", identificacao)]
@@ -366,10 +366,10 @@ def gravar(html: str, pasta: Path, prefixo: str) -> Path:
     """
     PT-PT: Grava o HTML com data e hora no nome.
 
-           O carimbo temporal esta no nome de proposito: um relatorio nunca
-           sobrepoe outro. A v1.0 usava um nome fixo por tipo, e quem corresse
+           O carimbo temporal esta no nome de propósito: um relatório nunca
+           sobrepõe outro. A v1.0 usava um nome fixo por tipo, e quem corresse
            duas analises seguidas perdia a primeira — que era muitas vezes a que
-           interessava, tirada antes de mexer na maquina.
+           interessava, tirada antes de mexer na máquina.
 
     EN-UK: Writes the HTML with date and time in the name. The timestamp is
            deliberate: a report never overwrites another. v1.0 used a fixed name
@@ -381,10 +381,10 @@ def gravar(html: str, pasta: Path, prefixo: str) -> Path:
     base = _nome_seguro(prefixo)
     destino = pasta / f"{base}_{carimbo}.html"
 
-    # PT-PT: O carimbo tem resolucao de um segundo, e gerar dois relatorios
+    # PT-PT: O carimbo tem resolução de um segundo, e gerar dois relatórios
     #        seguidos leva menos do que isso — carregar em «relatório de saúde»
     #        e logo a seguir em «relatório de eventos» chega. Sem este
-    #        contador, o segundo apagava o primeiro, que e precisamente o
+    #        contador, o segundo apagava o primeiro, que é precisamente o
     #        problema que o carimbo existia para evitar.
     # EN-UK: The stamp has one-second resolution, and producing two reports in a
     #        row takes less than that. Without this counter the second
@@ -402,7 +402,7 @@ def gravar(html: str, pasta: Path, prefixo: str) -> Path:
 
 def listar_relatorios(pasta: Path) -> list[Path]:
     """
-    PT-PT: Relatorios existentes, do mais recente para o mais antigo.
+    PT-PT: Relatórios existentes, do mais recente para o mais antigo.
     EN-UK: Existing reports, newest first.
     """
     if not pasta.is_dir():

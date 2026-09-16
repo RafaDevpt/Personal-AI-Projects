@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 """
-PT-PT: Leitura e analise do diario do systemd.
+PT-PT: Leitura e análise do diário do systemd.
 
-       Divide-se de proposito em duas metades: a leitura, que precisa de uma
-       maquina com systemd, e a analise, que so precisa de dicionarios. E o que
-       permite testar o agrupamento, a deteccao de recorrencia e o veredicto do
-       relatorio numa maquina qualquer, sem diario nenhum.
+       Divide-se de propósito em duas metades: a leitura, que precisa de uma
+       máquina com systemd, e a análise, que só precisa de dicionários. E o que
+       permite testar o agrupamento, a detecção de recorrência e o veredicto do
+       relatório numa máquina qualquer, sem diário nenhum.
 
-       **A assinatura da mensagem e o centro deste modulo.** O diario escreve
-       PID, enderecos de memoria, nomes de ficheiros temporarios e numeros de
-       sessao dentro do texto. Cinquenta ocorrencias do mesmo segfault sao
+       **A assinatura da mensagem e o centro deste módulo.** O diário escreve
+       PID, endereços de memória, nomes de ficheiros temporários e números de
+       sessão dentro do texto. Cinquenta ocorrências do mesmo segfault são
        cinquenta mensagens diferentes byte a byte, e agrupa-las pelo texto
-       inteiro daria cinquenta problemas onde ha um. A assinatura substitui
+       inteiro daria cinquenta problemas onde há um. A assinatura substitui
        tudo o que varia por marcadores, e e por ela que se agrupa.
 
-       Isto e o equivalente Linux do que a versao de Windows faz com o par
-       (Event ID, provider) — la o sistema ja da um identificador estavel, aqui
+       Isto é o equivalente Linux do que a versão de Windows faz com o par
+       (Event ID, provider) — la o sistema já da um identificador estável, aqui
        tem de ser construido.
 
 EN-UK: Reading and analysing the systemd journal.
@@ -58,12 +58,12 @@ PRIORIDADE_AVISO = 4
 
 MAX_MENSAGEM = 400
 
-#: PT-PT: O que substituir para obter a assinatura. A ordem importa: os padroes
-#:        mais especificos primeiro, senao o generico dos numeros come-os.
+#: PT-PT: O que substituir para obter a assinatura. A ordem importa: os padrões
+#:        mais específicos primeiro, senão o genérico dos números come-os.
 #: EN-UK: What to replace to obtain the signature. Order matters: the more
 #:        specific patterns first, otherwise the generic number one eats them.
 _VARIAVEIS: tuple[tuple[re.Pattern[str], str], ...] = (
-    # PT-PT: Enderecos de memoria — mudam a cada execucao.
+    # PT-PT: Endereços de memória — mudam a cada execução.
     # EN-UK: Memory addresses — different on every run.
     (re.compile(r"\b0x[0-9a-f]+\b", re.IGNORECASE), "0xADDR"),
     (re.compile(r"\b[0-9a-f]{8,16}\b", re.IGNORECASE), "ADDR"),
@@ -71,18 +71,18 @@ _VARIAVEIS: tuple[tuple[re.Pattern[str], str], ...] = (
     # EN-UK: PIDs in brackets or after "pid".
     (re.compile(r"\[\d+\]"), "[PID]"),
     (re.compile(r"\bpid[= ]\d+", re.IGNORECASE), "pid=PID"),
-    # PT-PT: Enderecos IP e portas — a mensagem e a mesma venha de onde vier.
+    # PT-PT: Endereços IP e portas — a mensagem e a mesma venha de onde vier.
     # EN-UK: IP addresses and ports — the message is the same wherever it came from.
     (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b"), "IP"),
     # PT-PT: Datas e horas dentro do texto.
     # EN-UK: Dates and times inside the text.
     (re.compile(r"\b\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}\S*"), "DATA"),
     (re.compile(r"\b\d{2}:\d{2}:\d{2}\b"), "HORA"),
-    # PT-PT: Caminhos temporarios com numeros aleatorios.
+    # PT-PT: Caminhos temporários com números aleatórios.
     # EN-UK: Temporary paths with random numbers.
     (re.compile(r"/tmp/\S+"), "/tmp/FICHEIRO"),
     (re.compile(r"/proc/\d+"), "/proc/PID"),
-    # PT-PT: Numeros soltos, por fim.
+    # PT-PT: Números soltos, por fim.
     # EN-UK: Loose numbers, last.
     (re.compile(r"\b\d+\b"), "N"),
 )

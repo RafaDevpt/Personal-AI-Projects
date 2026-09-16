@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-PT-PT: Base de conhecimento do diario unificado do macOS.
+PT-PT: Base de conhecimento do diário unificado do macOS.
 
-       Cada entrada e um padrao no texto de uma mensagem, mais o processo que a
+       Cada entrada e um padrão no texto de uma mensagem, mais o processo que a
        escreveu, mais o que isso quer dizer e o que fazer a seguir. E a parte da
-       ferramenta que transforma «ha aqui um erro» em «e isto, e resolve-se
-       assim» — e a unica que nao se pode derivar do sistema.
+       ferramenta que transforma «há aqui um erro» em «e isto, e resolve-se
+       assim» — e a única que não se pode derivar do sistema.
 
-       **O ruido em macOS e um problema maior do que nos outros dois sistemas.**
-       O diario unificado de um Mac produz dezenas de milhares de linhas por
-       hora, e uma fatia enorme delas sao negacoes de sandbox, avisos de TCC e
+       **O ruído em macOS e um problema maior do que nos outros dois sistemas.**
+       O diário unificado de um Mac produz dezenas de milhares de linhas por
+       hora, e uma fatia enorme delas são negações de sandbox, avisos de TCC e
        mensagens de daemons a falar uns com os outros. Nada disso e avaria: e o
        sistema a funcionar como foi desenhado. As entradas marcadas com
-       `ruido=True` existem para isso — sao reconhecidas, ficam registadas, e
-       nao contam para o veredicto.
+       `ruido=True` existem para isso — são reconhecidas, ficam registadas, e
+       não contam para o veredicto.
 
-       A ordem da lista e a ordem de prioridade: o especifico antes do generico,
-       e o ruido no fim.
+       A ordem da lista e a ordem de prioridade: o específico antes do genérico,
+       e o ruído no fim.
 
 EN-UK: Knowledge base for the macOS unified log.
 
@@ -97,7 +97,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.ALTA,
     ),
     # -----------------------------------------------------------------------
-    # PT-PT: Memoria / EN-UK: Memory
+    # PT-PT: Memória / EN-UK: Memory
     # -----------------------------------------------------------------------
     Regra(
         padrao=r"jetsam|memorystatus.*kill|low swap|compressor.*thrash",
@@ -169,7 +169,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.CRITICA,
     ),
     # -----------------------------------------------------------------------
-    # PT-PT: Servicos e aplicacoes / EN-UK: Services and applications
+    # PT-PT: Serviços e aplicações / EN-UK: Services and applications
     # -----------------------------------------------------------------------
     Regra(
         padrao=r"Service exited with abnormal code|exited due to signal|Job appears to have crashed",
@@ -341,7 +341,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.ALTA,
     ),
     # -----------------------------------------------------------------------
-    # PT-PT: Actualizacoes e certificados / EN-UK: Updates and certificates
+    # PT-PT: Actualizações e certificados / EN-UK: Updates and certificates
     # -----------------------------------------------------------------------
     Regra(
         padrao=r"softwareupdate.*(failed|error)|Update.*failed to install",
@@ -375,7 +375,7 @@ REGRAS: tuple[Regra, ...] = (
         gravidade=Gravidade.MEDIA,
     ),
     # -----------------------------------------------------------------------
-    # PT-PT: Ruido conhecido. Nao conta para o veredicto — ver o cabecalho.
+    # PT-PT: Ruído conhecido. Não conta para o veredicto — ver o cabeçalho.
     # EN-UK: Known noise. Excluded from the verdict — see the header.
     # -----------------------------------------------------------------------
     Regra(

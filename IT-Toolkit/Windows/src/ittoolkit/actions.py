@@ -1,11 +1,11 @@
 """
-PT-PT: Ferramentas rapidas — accoes pontuais de manutencao.
+PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
 
-       Regra do modulo: nada aqui apaga dados do utilizador, e tudo o que tem
-       impacto declara-o na sua descricao para a interface poder pedir
-       confirmacao. As accoes que exigem uma consola propria (SFC, DISM,
-       chkdsk) sao lancadas numa janela separada em vez de capturadas — sao
-       demoradas e mostram progresso, e capturar a saida deixava o operador a
+       Regra do módulo: nada aqui apaga dados do utilizador, e tudo o que tem
+       impacto declara-o na sua descrição para a interface poder pedir
+       confirmação. As acções que exigem uma consola própria (SFC, DISM,
+       chkdsk) são lancadas numa janela separada em vez de capturadas — são
+       demoradas e mostram progresso, e capturar a saída deixava o operador a
        olhar para uma interface parada sem saber se estava a correr.
 
 EN-UK: Quick tools — one-off maintenance actions.
@@ -37,7 +37,7 @@ log = logging.getLogger(__name__)
 @dataclass(frozen=True, slots=True)
 class Accao:
     """
-    PT-PT: Descricao de uma accao para a interface construir os botoes sem
+    PT-PT: Descrição de uma acção para a interface construir os botões sem
            saber nada sobre o que cada uma faz.
     EN-UK: Description of an action, so the interface can build buttons without
            knowing anything about what each one does.
@@ -49,7 +49,7 @@ class Accao:
     #: PT-PT: True obriga a interface a confirmar antes de executar.
     #: EN-UK: True forces the interface to confirm before running.
     confirmar: bool = False
-    #: PT-PT: True significa que abre uma consola propria e nao devolve saida.
+    #: PT-PT: True significa que abre uma consola própria e não devolve saída.
     #: EN-UK: True means it opens its own console and returns no output.
     consola: bool = False
 
@@ -95,7 +95,7 @@ ACCOES: tuple[Accao, ...] = (
     ),
 )
 
-# PT-PT: Consolas de gestao, para nao andar a escrever nomes no Executar.
+# PT-PT: Consolas de gestão, para não andar a escrever nomes no Executar.
 # EN-UK: Management consoles, so nobody has to type names into Run.
 CONSOLAS: tuple[tuple[str, str], ...] = (
     ("Gestor de Dispositivos", "devmgmt.msc"),
@@ -113,7 +113,7 @@ CONSOLAS: tuple[tuple[str, str], ...] = (
 
 def _abrir_consola(comando: str) -> Resultado:
     """
-    PT-PT: Lanca um comando numa consola propria, sem esperar por ele.
+    PT-PT: Lança um comando numa consola própria, sem esperar por ele.
     EN-UK: Launches a command in its own console, without waiting for it.
     """
     if not IS_WINDOWS:
@@ -132,14 +132,14 @@ def _abrir_consola(comando: str) -> Resultado:
 
 def limpar_temp() -> Resultado:
     """
-    PT-PT: Limpa a pasta de temporarios do utilizador.
+    PT-PT: Limpa a pasta de temporários do utilizador.
 
-           Conta o que apagou e o que nao conseguiu. Ficheiros em uso nao sao
-           apagaveis e isso e normal, nao um erro — a v1.0 lancava a excepcao do
-           primeiro ficheiro bloqueado e desistia do resto, o que na pratica
+           Conta o que apagou e o que não conseguiu. Ficheiros em uso não são
+           apagáveis e isso é normal, não um erro — a v1.0 lançava a excepção do
+           primeiro ficheiro bloqueado e desistia do resto, o que na prática
            significava que quase nunca limpava nada.
 
-           Nunca sai da pasta TEMP e nunca apaga a propria pasta.
+           Nunca sai da pasta TEMP e nunca apaga a própria pasta.
 
     EN-UK: Clears the user's temporary folder. Counts what it removed and what
            it could not. Files in use are not deletable and that is normal, not
@@ -182,7 +182,7 @@ def limpar_temp() -> Resultado:
 
 def executar_accao(chave: str) -> Resultado:
     """
-    PT-PT: Corre a accao correspondente a chave.
+    PT-PT: Corre a acção correspondente a chave.
     EN-UK: Runs the action matching the key.
     """
     if chave == "limpar_temp":
@@ -223,7 +223,7 @@ def executar_accao(chave: str) -> Resultado:
 
 def abrir_consola_mmc(ficheiro: str) -> Resultado:
     """
-    PT-PT: Abre uma consola de gestao do Windows.
+    PT-PT: Abre uma consola de gestão do Windows.
     EN-UK: Opens a Windows management console.
     """
     if not IS_WINDOWS:

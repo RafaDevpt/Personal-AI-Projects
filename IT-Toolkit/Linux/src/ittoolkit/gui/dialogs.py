@@ -1,5 +1,5 @@
 """
-PT-PT: Janelas auxiliares — definicoes e testes de rede pontuais.
+PT-PT: Janelas auxiliares — definições e testes de rede pontuais.
 
 EN-UK: Auxiliary windows — settings and one-off network tests.
 
@@ -30,11 +30,11 @@ class _JanelaBase(ctk.CTkToplevel):
     """
     PT-PT: Base comum das janelas auxiliares.
 
-           O `grab_set` esta dentro de um `after` de 200 ms de proposito. Em
+           O `grab_set` esta dentro de um `after` de 200 ms de propósito. Em
            Linux, chamado imediatamente a seguir ao construtor, o CustomTkinter
-           ainda nao terminou de desenhar a janela e o pedido de foco falha em
-           silencio — a janela abre atras da principal e o utilizador conclui
-           que o botao nao fez nada.
+           ainda não terminou de desenhar a janela e o pedido de foco falha em
+           silêncio — a janela abre atrás da principal e o utilizador conclui
+           que o botão não fez nada.
 
     EN-UK: Common base for the auxiliary windows. The `grab_set` sits inside a
            200 ms `after` deliberately: on Linux, called straight after the
@@ -64,7 +64,7 @@ class _JanelaBase(ctk.CTkToplevel):
 
 class JanelaDefinicoes(_JanelaBase):
     """
-    PT-PT: Definicoes da aplicacao.
+    PT-PT: Definições da aplicação.
     EN-UK: Application settings.
     """
 
@@ -213,11 +213,11 @@ class JanelaDefinicoes(_JanelaBase):
 
     def _inteiro(self, entrada: ctk.CTkEntry, actual: int, nome: str) -> int:
         """
-        PT-PT: Le um inteiro de um campo, mantendo o valor actual se for invalido.
+        PT-PT: Lê um inteiro de um campo, mantendo o valor actual se for inválido.
 
                Avisar e manter o valor anterior e melhor do que aceitar em
-               silencio: a v1.0 convertia com um `int()` sem protecao e um campo
-               vazio fechava a janela de definicoes com um ValueError, perdendo
+               silêncio: a v1.0 convertia com um `int()` sem protecção e um campo
+               vazio fechava a janela de definições com um ValueError, perdendo
                tudo o que tinha sido escrito nos outros campos.
 
         EN-UK: Reads an integer from a field, keeping the current value when
@@ -247,8 +247,8 @@ class JanelaDefinicoes(_JanelaBase):
         config.incluir_avisos = bool(self.var_avisos.get())
 
         if not config.diarios_escolhidos:
-            # PT-PT: Sem nenhum ambito seleccionado a analise nao teria o que
-            #        ler e devolveria «sem problemas», que e a conclusao errada.
+            # PT-PT: Sem nenhum âmbito seleccionado a análise não teria o que
+            #        ler e devolveria «sem problemas», que é a conclusão errada.
             # EN-UK: With no scope selected the analysis would have nothing to
             #        read and would return "no problems", the wrong answer.
             messagebox.showwarning(
@@ -274,8 +274,8 @@ class JanelaDefinicoes(_JanelaBase):
         config.tema = self.tema.get()
         config.analisar_ao_arrancar = bool(self.var_arranque.get())
 
-        # PT-PT: Volta a passar pela validacao do dataclass, que limita os
-        #        valores aos intervalos admissiveis.
+        # PT-PT: Volta a passar pela validação do dataclass, que limita os
+        #        valores aos intervalos admissíveis.
         # EN-UK: Runs the dataclass validation again, clamping to valid ranges.
         config.__post_init__()
 
@@ -342,7 +342,7 @@ class JanelaTesteRede(_JanelaBase):
         self.saida.configure(state="disabled")
 
     def _pump(self) -> None:
-        """PT-PT: Le a fila no fio principal. / EN-UK: Reads the queue on the main thread."""
+        """PT-PT: Lê a fila no fio principal. / EN-UK: Reads the queue on the main thread."""
         try:
             while True:
                 self._escrever(self._fila.get_nowait())
