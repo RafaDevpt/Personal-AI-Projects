@@ -104,7 +104,7 @@ def _nome_seguro(texto: str) -> str:
            nome, mas o Finder mostra-os como barras — heranca do Mac OS clássico,
            onde os dois-pontos eram o separador de caminhos. Um relatório chamado
            `saude:2026` aparece ao utilizador como `saude/2026` e ninguém o
-           encontra. O filtro e o mesmo da versão de Windows, e serve também para
+           encontra. O filtro é o mesmo da versão de Windows, e serve também para
            estes ficheiros circularem por partilhas SMB sem se estragarem.
 
     EN-UK: Reduces text to a safe file name.

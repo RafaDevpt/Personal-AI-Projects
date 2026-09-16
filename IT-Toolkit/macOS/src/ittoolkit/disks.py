@@ -20,7 +20,7 @@ PT-PT: Discos — espaço livre por volume, estado SMART e pastas maiores.
 
        **O SMART num Apple Silicon não é o SMART de sempre.** O NVMe interno de
        um Mac com chip da Apple não expõe atributos SMART: o `diskutil` responde
-       «Verified» ou «Not Supported» e não há mais nada para ler. Não e uma
+       «Verified» ou «Not Supported» e não há mais nada para ler. Não é uma
        falha do diagnóstico, e uma propriedade da máquina, e o relatório diz-lo
        em vez de fingir que não conseguiu ler.
 
@@ -436,7 +436,7 @@ def achados(percent_min: int, gb_min: int) -> list[Achado]:
         modelo = str(disco.get("modelo") or "")
 
         if saude == "n/d":
-            # PT-PT: Não e um problema e não vale um achado. Ver o cabeçalho: os
+            # PT-PT: Não é um problema e não vale um achado. Ver o cabeçalho: os
             #        NVMe internos dos Apple Silicon não expoem SMART, e alertar
             #        sobre isso em todos os Macs modernos seria ruído garantido.
             # EN-UK: Not a problem and not worth a finding. See the header.

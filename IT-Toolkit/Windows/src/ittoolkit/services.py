@@ -109,7 +109,7 @@ def arrancar(nome: str) -> Resultado:
     """
     PT-PT: Arranca um serviço pelo nome.
 
-           Não e destrutivo, mas tem impacto: quem chama deve confirmar com o
+           Não é destrutivo, mas tem impacto: quem chama deve confirmar com o
            operador antes. O nome e validado aqui porque vai para dentro de uma
            string de comando — sem isto, um nome com aspas ou ponto e vírgula
            permitia executar outra coisa qualquer.
@@ -120,7 +120,7 @@ def arrancar(nome: str) -> Resultado:
            that, a name containing quotes or a semicolon would allow arbitrary
            execution.
     """
-    # PT-PT: A validação vem primeiro, antes da verificação de plataforma. Não e
+    # PT-PT: A validação vem primeiro, antes da verificação de plataforma. Não é
     #        detalhe de arrumação: e o que permite testa-la sem Windows, e uma
     #        validação de segurança que só corre numa plataforma não é testada
     #        em lado nenhum.

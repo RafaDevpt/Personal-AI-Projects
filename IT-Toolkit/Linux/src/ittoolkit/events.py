@@ -71,7 +71,7 @@ _VARIAVEIS: tuple[tuple[re.Pattern[str], str], ...] = (
     # EN-UK: PIDs in brackets or after "pid".
     (re.compile(r"\[\d+\]"), "[PID]"),
     (re.compile(r"\bpid[= ]\d+", re.IGNORECASE), "pid=PID"),
-    # PT-PT: Endereços IP e portas — a mensagem e a mesma venha de onde vier.
+    # PT-PT: Endereços IP e portas — a mensagem é a mesma venha de onde vier.
     # EN-UK: IP addresses and ports — the message is the same wherever it came from.
     (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b"), "IP"),
     # PT-PT: Datas e horas dentro do texto.

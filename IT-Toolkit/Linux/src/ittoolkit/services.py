@@ -4,7 +4,7 @@ PT-PT: Unidades do systemd — listagem, detecção das que falharam e arranque
        manual.
 
        A diferença em relação ao Windows não é só de vocabulário. Em Windows a
-       pergunta útil e «que serviços automáticos estão parados», porque parado e
+       pergunta útil e «que serviços automáticos estão parados», porque parado é
        o único sinal que há. O systemd distingue três coisas que o Windows junta
        numa só:
 
@@ -334,7 +334,7 @@ def arrancar(nome: str) -> Resultado:
     """
     PT-PT: Arranca uma unidade pelo nome.
 
-           Não e destrutivo, mas tem impacto: quem chama deve confirmar com o
+           Não é destrutivo, mas tem impacto: quem chama deve confirmar com o
            operador antes.
 
            Sem root, o `systemctl start` de uma unidade de sistema falha com

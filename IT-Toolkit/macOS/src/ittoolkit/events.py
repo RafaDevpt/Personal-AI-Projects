@@ -19,7 +19,7 @@ PT-PT: Leitura e análise do diário unificado do macOS.
        centenas de linhas de erro por dia; o `log show` de um Mac devolve
        dezenas de milhares por hora, porque o diário unificado regista tudo o
        que qualquer processo diz. Por isso o predicado e restritivo a cabeça — só
-       `Error` e `Fault` — e a janela e sempre limitada: pedir tudo e esperar
+       `Error` e `Fault` — e a janela é sempre limitada: pedir tudo e esperar
        filtrar depois faz o comando demorar minutos e devolver centenas de MB.
 
        A segunda são os relatórios de paragem. Em Linux, um serviço que morre
@@ -70,7 +70,7 @@ log = logging.getLogger(__name__)
 MAX_MENSAGEM = 400
 
 #: PT-PT: As pastas onde o macOS guarda os relatórios de paragem. A primeira e
-#:        do sistema — e onde estão os kernel panics — e só se lê com Acesso
+#:        do sistema — é onde estão os kernel panics — e só se lê com Acesso
 #:        Total ao Disco. A segunda e do utilizador e lê-se sempre.
 #: EN-UK: The folders where macOS keeps crash reports. The first is the
 #:        system's — where kernel panics live — and needs Full Disk Access. The

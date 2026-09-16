@@ -1,7 +1,7 @@
 """
 PT-PT: Base de conhecimento de Event IDs do Windows.
 
-       Só dados. E o único ficheiro do projecto que pode ser editado por quem
+       Só dados. É o único ficheiro do projecto que pode ser editado por quem
        não programa: acrescentar uma regra e acrescentar uma entrada a lista.
 
        Nota sobre o par (id, provider). Um Event ID sozinho não identifica nada.

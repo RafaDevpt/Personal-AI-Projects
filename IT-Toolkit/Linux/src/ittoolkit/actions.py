@@ -8,7 +8,7 @@ PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
 
        Duas coisas são específicas do Linux e moldaram este ficheiro:
 
-       1. **Não há um `cmd /c start`.** Para abrir uma consola própria e preciso
+       1. **Não há um `cmd /c start`.** Para abrir uma consola própria é preciso
           um emulador de terminal, e não há nenhum que exista em todo o lado: uma
           máquina com GNOME tem `gnome-terminal`, uma com KDE tem `konsole`, um
           servidor sem ambiente gráfico não tem nenhum. A lista `TERMINAIS` e
@@ -17,7 +17,7 @@ PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
           silêncio.
 
        2. **O `/tmp` e partilhado.** Em Windows, a pasta TEMP e do utilizador e
-          limpa-la e seguro. Em Linux o `/tmp` e de toda a gente, e tem o sticky
+          limpa-la é seguro. Em Linux o `/tmp` e de toda a gente, e tem o sticky
           bit precisamente para impedir que um utilizador apague ficheiros de
           outro. Esta limpeza toca apenas no que pertence a quem esta a correr a
           aplicação, e na cache pessoal — nunca no `/tmp` inteiro.

@@ -215,7 +215,7 @@ class JanelaDefinicoes(_JanelaBase):
         """
         PT-PT: Lê um inteiro de um campo, mantendo o valor actual se for inválido.
 
-               Avisar e manter o valor anterior e melhor do que aceitar em
+               Avisar e manter o valor anterior é melhor do que aceitar em
                silêncio: a v1.0 convertia com um `int()` sem protecção e um campo
                vazio fechava a janela de definições com um ValueError, perdendo
                tudo o que tinha sido escrito nos outros campos.

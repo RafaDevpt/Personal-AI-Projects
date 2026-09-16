@@ -9,7 +9,7 @@ PT-PT: Estado geral da máquina — processador, memória, tempo ligado e reiní
        todo. Aqui o que depende do psutil fica indisponível e o resto continua a
        funcionar.
 
-       **A percentagem de memória usada de um Mac não quer dizer nada, e este e
+       **A percentagem de memória usada de um Mac não quer dizer nada, e este é
        o erro mais comum de quem vem do Windows.** O macOS usa toda a memória
        que há: o que sobra vira cache de ficheiros, e uma máquina saudável com
        32 GB mostra 30 GB «em uso» a toda a hora. Alertar a 90% de RAM usada

@@ -84,7 +84,7 @@ def arranque() -> dt.datetime | None:
 
            Vem do `LastBootUpTime` do WMI, e não do `psutil.boot_time()`, por
            uma razão específica do Windows: com o arranque rápido ligado — que
-           e o valor por omissão em portáteis — um «encerrar» não é um
+           é o valor por omissão em portáteis — um «encerrar» não é um
            encerramento, e uma hibernação do kernel. As duas fontes discordam
            nesse caso, e a do WMI e a que corresponde ao que o Windows
            considera o arranque.
@@ -159,7 +159,7 @@ def carga() -> dict[str, float]:
 
            O intervalo de 0,5 s no `cpu_percent` não é decorativo: chamado sem
            intervalo, o psutil devolve a media desde o arranque do processo, que
-           na primeira chamada e sempre 0,0. A v1.0 mostrava «CPU 0%» no
+           na primeira chamada é sempre 0,0. A v1.0 mostrava «CPU 0%» no
            dashboard a toda a hora por causa disto.
 
     EN-UK: Processor and memory usage percentages. The 0.5 s interval in

@@ -79,7 +79,7 @@ BREW_PREFIXES = (Path("/opt/homebrew"), Path("/usr/local"))
 
 SYSTEM_PYTHON = "/usr/bin/python3"
 
-#: PT-PT: A pasta que só se lê com Acesso Total ao Disco. E onde o macOS guarda
+#: PT-PT: A pasta que só se lê com Acesso Total ao Disco. É onde o macOS guarda
 #:        os relatórios de paragem do sistema, incluindo os kernel panics.
 #: EN-UK: The folder readable only with Full Disk Access. It is where macOS
 #:        keeps system diagnostic reports, kernel panics included.

@@ -7,7 +7,7 @@ PT-PT: Inventário da máquina — modelo, número de série, BIOS e software.
 
        - **`/sys/class/dmi/id/`** — os ficheiros do DMI. A maioria lê-se sem
          permissão nenhuma, mas o `product_serial` e o `board_serial` estão a
-         0400 e pertencem ao root. Não e um detalhe: e a diferença entre um
+         0400 e pertencem ao root. Não é um detalhe: e a diferença entre um
          inventário com número de série e um inventário sem ele, e vale a pena
          dize-lo em vez de escrever «?».
        - **`/proc`** — processador e memória, sempre legível.
@@ -113,7 +113,7 @@ def hardware() -> dict[str, str]:
 
            Os valores que o fabricante deixa por preencher — e são muitos em
            máquinas montadas — vêm com textos como «To be filled by O.E.M.» ou
-           «System Product Name». São filtrados: escrever isso num inventário e
+           «System Product Name». São filtrados: escrever isso num inventário é
            pior do que não escrever nada, porque parece informação.
 
     EN-UK: Model, manufacturer, serial, BIOS, processor and memory.
@@ -167,7 +167,7 @@ def sistema() -> dict[str, str]:
 
            A data de instalação não existe em Linux como campo. O que existe e o
            `/etc/machine-id`, que é escrito uma vez no primeiro arranque depois
-           da instalação e nunca mais e tocado — a data de criação dele e a
+           da instalação e nunca mais e tocado — a data de criação dele é a
            melhor aproximação que há, e esta identificada como aproximação para
            ninguém a tomar por um facto declarado pelo sistema.
 

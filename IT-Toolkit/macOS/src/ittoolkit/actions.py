@@ -24,9 +24,9 @@ PT-PT: Ferramentas rápidas — acções pontuais de manutenção.
 
        **A limpeza de temporários não toca no `/tmp`.** Num Mac, os temporários
        de cada processo estão em `/private/var/folders`, numa árvore por
-       utilizador que o sistema gere e limpa sozinho — e onde apagar coisas a
+       utilizador que o sistema gere e limpa sozinho — é onde apagar coisas a
        mão parte sessões a sério. O que se limpa aqui e o `~/Library/Caches`, que
-       e o que ocupa espaço e o que é seguro apagar: as aplicações reconstroem-no.
+       é o que ocupa espaço e o que é seguro apagar: as aplicações reconstroem-no.
 
 EN-UK: Quick tools — one-off maintenance actions.
 

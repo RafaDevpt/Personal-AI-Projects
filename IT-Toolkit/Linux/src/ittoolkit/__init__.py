@@ -3,7 +3,7 @@ PT-PT: IT Toolkit — ferramenta de diagnóstico e manutenção do dia a dia de 
        em máquinas Linux. Lê e interpreta o diário do systemd, diagnostica a
        rede, verifica discos e unidades, e produz relatórios em HTML.
 
-       Esta e a versão para Linux. Há outras duas, completas e independentes,
+       Esta é a versão para Linux. Há outras duas, completas e independentes,
        nas pastas `Windows/` e `macOS/` ao lado desta.
 
 EN-UK: IT Toolkit — day-to-day IT diagnostics and maintenance tool for Linux

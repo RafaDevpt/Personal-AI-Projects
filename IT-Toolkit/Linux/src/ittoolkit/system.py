@@ -88,7 +88,7 @@ _SUFIXO_KERNEL = re.compile(r"(\+|-dirty)$")
 
 def identificacao() -> dict[str, str]:
     """
-    PT-PT: Quem e esta máquina e quem esta a usa-la.
+    PT-PT: Quem é esta máquina e quem esta a usa-la.
     EN-UK: What this machine is and who is using it.
     """
     return {
@@ -223,7 +223,7 @@ def reinicio_pendente() -> list[str]:
 
     if disponivel("needs-restarting"):
         resultado = executar(["needs-restarting", "-r"], timeout=60)
-        # PT-PT: Código 1 quer dizer «e preciso reiniciar». Não e um erro, e a
+        # PT-PT: Código 1 quer dizer «é preciso reiniciar». Não é um erro, e a
         #        resposta — e trata-lo como erro era o que fazia esta
         #        verificação nunca dar nada em Fedora.
         # EN-UK: Exit code 1 means "a reboot is needed". It is not an error, it
@@ -247,7 +247,7 @@ def carga() -> dict[str, float]:
 
            O intervalo de 0,5 s no `cpu_percent` não é decorativo: chamado sem
            intervalo, o psutil devolve a media desde o arranque do processo, que
-           na primeira chamada e sempre 0,0.
+           na primeira chamada é sempre 0,0.
 
     EN-UK: Processor and memory usage, and load average.
 

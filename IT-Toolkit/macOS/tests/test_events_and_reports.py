@@ -31,7 +31,7 @@ def registo(mensagem, processo="/usr/libexec/exemplod", tipo="Error",
     """
     PT-PT: Constrói um registo como o `log show --style ndjson` o devolve.
 
-           O `processImagePath` e um caminho completo, e não um nome — e assim
+           O `processImagePath` e um caminho completo, e não um nome — é assim
            que o macOS o escreve, e um teste que passasse só o nome não estaria
            a testar o que a máquina entrega.
 
@@ -241,7 +241,7 @@ class TestComandoLeitura:
 
 class TestRelatoriosDeParagem:
     """
-    PT-PT: Os relatórios de paragem são ficheiros e não linhas de diário, e e
+    PT-PT: Os relatórios de paragem são ficheiros e não linhas de diário, e é
            por isso que sobrevivem ao reinício que levou o diário. Estes testes
            usam uma pasta temporária, e não a do sistema.
     EN-UK: Crash reports are files rather than log lines, which is why they
@@ -534,7 +534,7 @@ class TestServicos:
 
     def test_a_coluna_do_codigo_e_a_que_identifica_a_falha(self):
         """
-        PT-PT: E a única forma de o launchd dizer que um serviço falhou. Ler mal
+        PT-PT: É a única forma de o launchd dizer que um serviço falhou. Ler mal
                esta coluna e não ver falha nenhuma numa máquina cheia delas.
         EN-UK: It is launchd's only way of saying a service failed.
         """

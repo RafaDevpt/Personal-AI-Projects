@@ -66,7 +66,7 @@ def default_data_dir() -> Path:
 def default_reports_dir() -> Path:
     """
     PT-PT: Pasta dos relatórios, dentro dos Documentos do utilizador.
-           E onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
+           É onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
            mais arrumada e ninguém a encontraria.
 
     EN-UK: Reports folder, inside the user's Documents. It is where people look
@@ -91,8 +91,8 @@ class AppConfig:
 
     # --- PT-PT: Análise de eventos / EN-UK: Event analysis -----------------
     periodo_horas: int = 24
-    #: PT-PT: Ler o diário do sistema. E onde estão os erros de kernel, de
-    #:        disco e de serviços — e onde esta praticamente tudo o que
+    #: PT-PT: Ler o diário do sistema. É onde estão os erros de kernel, de
+    #:        disco e de serviços — é onde esta praticamente tudo o que
     #:        interessa a um diagnóstico.
     #: EN-UK: Read the system journal. That is where kernel, disk and service
     #:        errors live — practically everything a diagnostic wants.

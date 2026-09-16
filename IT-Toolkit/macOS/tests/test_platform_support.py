@@ -3,7 +3,7 @@ PT-PT: Testes das particularidades do macOS.
 
        Correm em qualquer máquina, incluindo uma que não seja um Mac: tudo o que
        depende do sistema — a arquitectura, o UID, a pasta protegida pelo TCC —
-       entra por argumento. Não e arrumação: uma função que só se consegue testar
+       entra por argumento. Não é arrumação: uma função que só se consegue testar
        na plataforma dela não é testada em lado nenhum antes de chegar a uma
        máquina real.
 
@@ -159,7 +159,7 @@ class TestRequisitos:
 
     def test_nenhum_requisito_e_essencial(self) -> None:
         """
-        PT-PT: E deliberado: o diagnóstico tem de correr numa máquina onde não
+        PT-PT: É deliberado: o diagnóstico tem de correr numa máquina onde não
                se pode instalar nada, dizendo o que ficou por ver.
         EN-UK: Deliberate: the diagnostic must run where nothing can be
                installed, saying what went unseen.
@@ -175,7 +175,7 @@ class TestRequisitos:
         """
         PT-PT: «Instale o Acesso Total ao Disco» não ajuda ninguém: não é um
                pacote, e uma autorização numa janela específica das Definições.
-               E preciso dizer qual.
+               É preciso dizer qual.
         EN-UK: "Install Full Disk Access" helps nobody: it is not a package, it
                is an authorisation in a specific Settings pane.
         """

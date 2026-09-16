@@ -50,7 +50,7 @@ from .shell import executar, executar_json, ler_plist
 
 log = logging.getLogger(__name__)
 
-#: PT-PT: Onde estão as aplicações. A pasta pessoal conta: e onde ficam as
+#: PT-PT: Onde estão as aplicações. A pasta pessoal conta: é onde ficam as
 #:        aplicações que o utilizador instalou sem privilegios, que num parque
 #:        gerido são precisamente as que interessa inventariar.
 #: EN-UK: Where applications live. The personal folder counts: it holds the
@@ -189,7 +189,7 @@ def sistema() -> dict[str, str]:
 
     # PT-PT: Não há data de instalação em macOS. O `/var/db/.AppleSetupDone` e
     #        escrito quando o assistente de configuração termina, e nunca mais e
-    #        tocado — e a melhor aproximação que há, e esta identificada como
+    #        tocado — é a melhor aproximação que há, e esta identificada como
     #        aproximação para ninguém a tomar por um facto declarado.
     # EN-UK: There is no installation date on macOS. `/var/db/.AppleSetupDone` is
     #        written when Setup Assistant finishes and never touched again — the
@@ -259,7 +259,7 @@ def software() -> list[dict]:
 
            O `CFBundleShortVersionString` é a versão que o utilizador vê — a
            que aparece na janela «Acerca de». O `CFBundleVersion` é a versão de
-           compilação, que é outra coisa e quase sempre um número sem
+           compilação, que é outra coisa é quase sempre um número sem
            significado para quem lê o inventário. Escolher o primeiro não é
            detalhe: é a diferença entre um inventário que se pode comparar com
            as notas de versão do fabricante e um que não se pode.

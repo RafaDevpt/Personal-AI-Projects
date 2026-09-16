@@ -16,7 +16,7 @@ PT-PT: Execução de comandos externos em Linux.
        **O ambiente e forcado a C.** Um `LANG=pt_PT.UTF-8` faz o `systemctl` e o
        `lsblk` traduzirem os cabeçalhos e os estados, e um parser que procura
        "failed" deixa de encontrar "falhou". A versão anterior desta ferramenta
-       em Windows aprendeu isto com as codepages; em Linux o problema e o mesmo
+       em Windows aprendeu isto com as codepages; em Linux o problema é o mesmo
        com outro nome.
 
        **Um comando que não existe não é um erro.** Numa instalação mínima não

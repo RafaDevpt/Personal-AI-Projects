@@ -52,7 +52,7 @@ INTERFACES_IGNORADAS: tuple[str, ...] = (
     "lo", "docker", "br-", "virbr", "veth", "tun", "tap", "vboxnet", "cni", "flannel",
 )
 
-#: PT-PT: O resolvedor local do systemd-resolved. Não e o DNS real da máquina.
+#: PT-PT: O resolvedor local do systemd-resolved. Não é o DNS real da máquina.
 #: EN-UK: systemd-resolved's local stub. Not the machine's real DNS.
 RESOLVEDOR_LOCAL = "127.0.0.53"
 

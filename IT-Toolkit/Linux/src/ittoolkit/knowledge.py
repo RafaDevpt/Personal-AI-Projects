@@ -2,7 +2,7 @@
 """
 PT-PT: Base de conhecimento do diário do systemd.
 
-       Só dados. E o único ficheiro do projecto que pode ser editado por quem
+       Só dados. É o único ficheiro do projecto que pode ser editado por quem
        não programa: acrescentar uma regra e acrescentar uma entrada a lista.
 
        **Porque e que a chave não é um número.** A versão de Windows desta

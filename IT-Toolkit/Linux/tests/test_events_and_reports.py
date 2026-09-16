@@ -30,7 +30,7 @@ def registo(mensagem, unidade="cron.service", prioridade=3, instante=1_756_000_0
     """
     PT-PT: Constrói um registo como o `journalctl -o json` o devolve.
 
-           O `__REALTIME_TIMESTAMP` vem em microssegundos e **como texto** — e
+           O `__REALTIME_TIMESTAMP` vem em microssegundos e **como texto** — é
            assim que o journalctl o escreve, e um teste que passasse um inteiro
            não estaria a testar o que a máquina entrega.
 
@@ -408,7 +408,7 @@ class TestParticao:
 
     def test_volume_so_de_leitura_nao_gera_alerta(self):
         """
-        PT-PT: Uma imagem só de leitura esta sempre a 0% livre e nunca e um
+        PT-PT: Uma imagem só de leitura esta sempre a 0% livre e nunca é um
                problema. Alertar sobre ela ensina o operador a ignorar a secção.
         EN-UK: A read-only image always sits at 0% free and is never a problem.
         """

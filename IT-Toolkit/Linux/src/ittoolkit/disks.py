@@ -16,7 +16,7 @@ PT-PT: Discos — espaço livre por ponto de montagem, estado SMART e pastas
        2. **O `/proc` e o `/sys`.** Contar o tamanho das pastas de primeiro nível
           de `/` sem os excluir e entrar num sistema de ficheiros virtual onde há
           ficheiros que nunca acabam de ler e outros que bloqueiam a leitura. Não
-          e lento: não termina.
+          é lento: não termina.
 
 EN-UK: Disks — free space per mount point, SMART status and largest folders.
 
@@ -119,7 +119,7 @@ def relevante(sistema: str, montagem: str) -> bool:
     """
     PT-PT: Se um ponto de montagem representa armazenamento que interessa vigiar.
 
-           Esta e a função que decide o que aparece no relatório de espaço, e por
+           Esta é a função que decide o que aparece no relatório de espaço, e por
            isso esta separada e recebe os valores como argumentos: da para a
            testar com a lista de montagens de qualquer máquina, incluindo uma
            que não seja Linux.

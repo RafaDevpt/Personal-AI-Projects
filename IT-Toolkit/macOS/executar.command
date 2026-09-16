@@ -22,7 +22,7 @@
 #        antigo que desenha janelas desfocadas em ecrans Retina, e a Apple já
 #        anunciou que o vai retirar.
 #
-#        Sobre o sudo: este lancador **não** se eleva sozinho, e e de propósito.
+#        Sobre o sudo: este lancador **não** se eleva sozinho, e é de propósito.
 #        Correr uma interface gráfica como root deixa os relatórios com o dono
 #        trocado, e a partir dai o utilizador normal não consegue abrir os seus
 #        próprios ficheiros. Quem precisar do diagnóstico completo corre

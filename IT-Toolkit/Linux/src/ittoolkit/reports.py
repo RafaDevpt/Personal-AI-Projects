@@ -101,7 +101,7 @@ def _nome_seguro(texto: str) -> str:
     PT-PT: Reduz um texto a um nome de ficheiro seguro.
 
            Em Linux quase tudo e válido num nome de ficheiro — a barra e o byte
-           zero são as únicas proibições reais. Mesmo assim o filtro e o mesmo
+           zero são as únicas proibições reais. Mesmo assim o filtro é o mesmo
            que na versão de Windows, de propósito: estes relatórios circulam por
            correio e acabam em partilhas SMB, e um ficheiro chamado
            `relatorio:2026.html` não se copia para la. Os espaços também saem,

@@ -5,7 +5,7 @@ PT-PT: Base de conhecimento do diário unificado do macOS.
        Cada entrada e um padrão no texto de uma mensagem, mais o processo que a
        escreveu, mais o que isso quer dizer e o que fazer a seguir. E a parte da
        ferramenta que transforma «há aqui um erro» em «e isto, e resolve-se
-       assim» — e a única que não se pode derivar do sistema.
+       assim» — é a única que não se pode derivar do sistema.
 
        **O ruído em macOS e um problema maior do que nos outros dois sistemas.**
        O diário unificado de um Mac produz dezenas de milhares de linhas por

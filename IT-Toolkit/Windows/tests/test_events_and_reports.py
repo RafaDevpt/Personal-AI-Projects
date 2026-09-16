@@ -355,7 +355,7 @@ class TestParticao:
 
     def test_volume_so_de_leitura_nao_gera_alerta(self, monkeypatch=None):
         """
-        PT-PT: Uma ISO montada esta sempre a 0% livre e nunca e um problema.
+        PT-PT: Uma ISO montada esta sempre a 0% livre e nunca é um problema.
                Sem esta excepção, o relatório abria com alertas críticos falsos
                e o operador aprendia a ignorar a secção dos discos.
         EN-UK: A mounted ISO always sits at 0% free and is never a problem.

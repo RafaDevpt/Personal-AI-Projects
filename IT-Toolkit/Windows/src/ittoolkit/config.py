@@ -64,7 +64,7 @@ def default_data_dir() -> Path:
 def default_reports_dir() -> Path:
     """
     PT-PT: Pasta dos relatórios, dentro dos Documentos do utilizador.
-           E onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
+           É onde as pessoas procuram ficheiros — uma pasta em %APPDATA% seria
            mais arrumada e ninguém a encontraria.
 
     EN-UK: Reports folder, inside the user's Documents. It is where people look

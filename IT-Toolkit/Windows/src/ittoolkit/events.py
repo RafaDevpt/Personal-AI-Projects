@@ -226,7 +226,7 @@ def analisar(registos_por_log: dict[str, list[dict]], horas: int, teto: int) -> 
     conhecidos = [g for g in grupos.values() if g.regra]
     desconhecidos = [g for g in grupos.values() if not g.regra]
 
-    # PT-PT: Um evento sem regra mas repetido dezenas de vezes também e um
+    # PT-PT: Um evento sem regra mas repetido dezenas de vezes também é um
     #        problema. Sobe para a lista principal, sem causa nem solução mas
     #        com destaque — não ter entrada na base não o torna inofensivo.
     # EN-UK: An event with no rule but repeating dozens of times is a problem

@@ -14,7 +14,7 @@
 #        correr. Um utilizador de Fedora que leia "sudo apt install" conclui,
 #        com razão, que a aplicação não foi pensada para o sistema dele.
 #
-#        Sobre o sudo: este lancador **não** se eleva sozinho, e e de propósito.
+#        Sobre o sudo: este lancador **não** se eleva sozinho, e é de propósito.
 #        Correr uma interface gráfica como root e uma má prática antiga — o Tk
 #        fica com o ambiente do root, os ficheiros que a aplicação escreve
 #        passam a pertencer ao root, e a partir dai o utilizador normal deixa de
