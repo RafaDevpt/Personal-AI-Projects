@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PT-PT: Definições e onde tudo é guardado.
+PT-PT: Definições é onde tudo é guardado.
 
        Nada é escrito dentro da pasta do programa. Os relatórios vão para a
        pasta do utilizador por duas razões: a pasta do programa pode estar numa
