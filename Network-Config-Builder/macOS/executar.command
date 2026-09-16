@@ -2,9 +2,9 @@
 # ===========================================================================
 # PT-PT: Arranque do Network Config Builder em macOS.
 #
-#        Verifica os pre-requisitos, prepara o ambiente na primeira execucao e
-#        arranca nas seguintes. O codigo e o mesmo dos outros sistemas: o que
-#        vive nesta pasta e o arranque e o que e preciso ter instalado antes.
+#        Verifica os pre-requisitos, prepara o ambiente na primeira execução e
+#        arranca nas seguintes. O código e o mesmo dos outros sistemas: o que
+#        vive nesta pasta e o arranque e o que é preciso ter instalado antes.
 #
 # EN-UK: Network Config Builder launcher for macOS.
 #
@@ -21,7 +21,7 @@ set -euo pipefail
 PROJECTO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECTO"
 
-# PT-PT: O launchd e o Finder arrancam com um PATH minimo que nao inclui o
+# PT-PT: O launchd e o Finder arrancam com um PATH mínimo que não inclui o
 #        Homebrew. O `brew` instala em /opt/homebrew nos Apple Silicon e em
 #        /usr/local nos Intel; acrescentar os dois e inofensivo.
 # EN-UK: launchd and Finder start with a minimal PATH that excludes Homebrew.
@@ -55,8 +55,8 @@ if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)";
     exit 1
 fi
 
-# PT-PT: O Python que vem com o macOS e para uso do sistema, traz uma versao de
-#        Tk antiga que desenha janelas com aspecto errado, e a Apple ja anunciou
+# PT-PT: O Python que vem com o macOS e para uso do sistema, traz uma versão de
+#        Tk antiga que desenha janelas com aspecto errado, e a Apple já anunciou
 #        que o vai retirar.
 # EN-UK: The Python shipped with macOS is for the system's own use, carries an
 #        old Tk that renders badly, and Apple has said it will be removed.

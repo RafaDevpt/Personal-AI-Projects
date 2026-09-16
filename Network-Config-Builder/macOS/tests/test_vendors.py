@@ -155,7 +155,7 @@ class TestArubaCX:
 
     def test_porta_desactivada(self, spec: DeviceSpec) -> None:
         # PT-PT: Uma porta desactivada leva `shutdown` e mais nada — sem VLAN,
-        #        sem PoE, sem spanning-tree.
+        #        sem Põe, sem spanning-tree.
         # EN-UK: A disabled port carries `shutdown` and nothing else — no VLAN,
         #        no PoE, no spanning-tree.
         bloco = _interface_block(gerar(spec, Platform.ARUBA_CX), "1/1/47")

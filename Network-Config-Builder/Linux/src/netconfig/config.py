@@ -51,9 +51,9 @@ def app_data_dir() -> Path:
         EN-UK: %APPDATA%\\NetworkConfigBuilder on Windows,
                ~/.config/NetworkConfigBuilder elsewhere.
     """
-    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
-    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
-    #        esta versao corre num sistema e sabe qual e.
+    # PT-PT: A convenção desta pasta e a do sistema desta versão, e vive num
+    #        sítio só — `platform_support`. Não há aqui ramificação nenhuma:
+    #        esta versão corre num sistema e sabe qual é.
     # EN-UK: This folder's convention is that of this version's system, and it
     #        lives in one place — `platform_support`. There is no branching
     #        here: this version runs on one system and knows which.

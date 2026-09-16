@@ -2,9 +2,9 @@
 # ===========================================================================
 # PT-PT: Arranque do Network Config Builder em Linux.
 #
-#        Verifica os pre-requisitos, prepara o ambiente na primeira execucao e
-#        arranca nas seguintes. O codigo e o mesmo dos outros sistemas: o que
-#        vive nesta pasta e o arranque e o que e preciso ter instalado antes.
+#        Verifica os pre-requisitos, prepara o ambiente na primeira execução e
+#        arranca nas seguintes. O código e o mesmo dos outros sistemas: o que
+#        vive nesta pasta e o arranque e o que é preciso ter instalado antes.
 #
 # EN-UK: Network Config Builder launcher for Linux.
 #
@@ -32,10 +32,10 @@ ok()    { printf "${VERDE}[OK]${FIM} %s\n" "$1"; }
 passo() { printf "        %s\n" "$1" >&2; }
 
 # ---------------------------------------------------------------------------
-# PT-PT: Que distribuicao, e portanto que gestor de pacotes.
+# PT-PT: Que distribuição, e portanto que gestor de pacotes.
 #
 #        O ID_LIKE e o que faz isto funcionar num Linux Mint ou num Pop!_OS sem
-#        eles estarem em lado nenhum desta lista: uma distribuicao derivada
+#        eles estarem em lado nenhum desta lista: uma distribuição derivada
 #        preenche esse campo precisamente para dizer "trate-me como uma Debian".
 #
 # EN-UK: Which distribution, and therefore which package manager. ID_LIKE is
@@ -97,7 +97,7 @@ if ! python3 -c "import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)";
 fi
 
 # ---------------------------------------------------------------------------
-# PT-PT: Tkinter — a interface assenta nele e em Linux nao vem por omissao.
+# PT-PT: Tkinter — a interface assenta nele e em Linux não vem por omissão.
 # EN-UK: Tkinter — the interface sits on it and on Linux it does not come by
 #        default.
 # ---------------------------------------------------------------------------

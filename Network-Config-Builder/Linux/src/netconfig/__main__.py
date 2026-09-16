@@ -150,9 +150,9 @@ def main(argv: list[str] | None = None) -> int:
     """
     args = build_parser().parse_args(argv)
 
-    # PT-PT: O diagnostico corre antes de tudo o resto, e por uma razao pratica:
-    #        e o comando a que alguem recorre quando *nada* funciona, e nessa
-    #        altura nao se pode assumir que o resto arranca.
+    # PT-PT: O diagnóstico corre antes de tudo o resto, e por uma razão prática:
+    #        e o comando a que alguém recorre quando *nada* funciona, e nessa
+    #        altura não se pode assumir que o resto arranca.
     # EN-UK: The diagnostic runs before everything else, for a practical reason:
     #        it is what somebody reaches for when *nothing* works, and at that
     #        point the rest cannot be assumed to start.
