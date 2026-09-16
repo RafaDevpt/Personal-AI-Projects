@@ -2,7 +2,7 @@
 """
 PT-PT: Particularidades do Windows.
 
-       Esta e a versão para Windows do Monitor de Toners. Não há aqui nenhuma
+       Esta é a versão para Windows do Monitor de Toners. Não há aqui nenhuma
        ramificação por sistema operativo: o código sabe onde esta e diz apenas
        o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
@@ -107,7 +107,7 @@ def app_data_dir(app_name: str, home: Path | None = None) -> Path:
     """
     PT-PT: A pasta de dados da aplicação, em `%APPDATA%`.
 
-           E a convenção do Windows, e e onde um utilizador — ou um perfil móvel
+           E a convenção do Windows, e é onde um utilizador — ou um perfil móvel
            de domínio — espera encontra-la.
 
     EN-UK: The application's data folder, under `%APPDATA%`. It is the Windows

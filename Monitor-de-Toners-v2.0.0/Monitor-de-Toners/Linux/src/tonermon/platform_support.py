@@ -2,12 +2,12 @@
 """
 PT-PT: Particularidades do Linux.
 
-       Esta e a versão para Linux do Monitor de Toners. Não há aqui nenhuma
+       Esta é a versão para Linux do Monitor de Toners. Não há aqui nenhuma
        ramificação por sistema operativo: o código sabe onde esta e diz apenas
        o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
 
-       O que há aqui, e as outras não tem, e a única coisa que em Linux não
+       O que há aqui, e as outras não tem, é a única coisa que em Linux não
        se pode assumir: **qual é a distribuição**. Cada família chama aos
        pacotes coisas diferentes e instala-os com um comando diferente, e
        dizer `sudo apt install` a quem esta numa Fedora não é um erro
