@@ -73,7 +73,7 @@ FF_COMBO = 1 << 17
 
 # PT-PT: Bandeiras da anotação (`/F`). 4 = imprimível. Sem esta bandeira o
 #        campo aparece no ecrã e desaparece na impressão — o que num formulário
-#        preenchido e a pior falha possível, porque só se descobre depois de
+#        preenchido é a pior falha possível, porque só se descobre depois de
 #        estar assinado e entregue em papel.
 # EN-UK: Annotation flags (`/F`). 4 = printable. Without it the field shows on
 #        screen and vanishes when printed, which on a completed form is the
@@ -302,7 +302,7 @@ def tem_formulario(caminho: Path | str) -> int:
     """
     PT-PT: Quantos campos já existem no PDF.
 
-           Vale a pena verificar antes de acrescentar: um PDF que já e
+           Vale a pena verificar antes de acrescentar: um PDF que já é
            preenchível não precisa de ser convertido, e sobrepor campos novos
            aos antigos produz um formulário onde metade dos campos não grava.
 
@@ -515,7 +515,7 @@ def preencher(
         #        obriga a gerar o fluxo de aparência de cada valor, o que é o
         #        trabalho que o NeedAppearances existe para evitar. A alternativa
         #        honesta e marcar os campos como só-leitura: o resultado visível
-        #        e o mesmo, ninguém altera o documento, e não há risco de o
+        #        é o mesmo, ninguém altera o documento, e não há risco de o
         #        texto sair diferente do que estava no ecrã.
         # EN-UK: Genuine flattening requires generating an appearance stream per
         #        value, which is the work NeedAppearances exists to avoid. The

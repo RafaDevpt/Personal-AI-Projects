@@ -186,7 +186,7 @@ def _etiqueta_abaixo(palavras: list[dict], x0: float, x1: float, base: float) ->
            E a convenção das assinaturas: desenha-se a linha e escreve-se por
            baixo, em letra pequena, «Assinatura do colaborador». Sem esta
            procura, todas as linhas de assinatura de todos os formulários
-           ficavam sem nome — e a assinatura e precisamente o campo que mais
+           ficavam sem nome — e a assinatura é precisamente o campo que mais
            importa identificar bem, porque num formulário com duas há sempre
            duas pessoas diferentes a assinar.
 

@@ -17,7 +17,7 @@ PT-PT: Análise assistida por modelo — opcional.
        Segundo, avisa sempre antes de enviar, dizendo quantos documentos e
        quantos caracteres vão sair da máquina.
 
-       Terceiro, o que volta e sempre identificado como vindo do modelo. Num
+       Terceiro, o que volta é sempre identificado como vindo do modelo. Num
        relatório que vai servir para justificar uma adjudicação, a diferença
        entre «o documento diz» e «o modelo interpretou» tem de estar visível.
 

@@ -1,7 +1,7 @@
 """
 PT-PT: Definições da aplicação.
 
-       Nota sobre a chave da API. Não e gravada neste ficheiro nem em nenhum
+       Nota sobre a chave da API. Não é gravada neste ficheiro nem em nenhum
        outro. E lida da variável de ambiente `ANTHROPIC_API_KEY` ou escrita na
        interface e mantida só em memória durante a sessão. Uma chave em texto
        claro num JSON ao lado do executável e comoda e e um problema: quem
@@ -54,7 +54,7 @@ def default_data_dir() -> Path:
 
 def default_output_dir() -> Path:
     """
-    PT-PT: Pasta de saída, dentro dos Documentos do utilizador. E onde as
+    PT-PT: Pasta de saída, dentro dos Documentos do utilizador. É onde as
            pessoas procuram ficheiros.
     EN-UK: Output folder, inside the user's Documents. It is where people look.
     """
@@ -97,7 +97,7 @@ class AppConfig:
     frases_resumo: int = 6
 
     # --- PT-PT: Análise assistida / EN-UK: Assisted analysis ---------------
-    #: PT-PT: A chave NÃO e gravada — ver o cabeçalho deste ficheiro.
+    #: PT-PT: A chave NÃO é gravada — ver o cabeçalho deste ficheiro.
     #: EN-UK: The key is NOT stored — see this file's header.
     usar_ia: bool = False
     modelo_ia: str = "claude-sonnet-4-6"
@@ -117,7 +117,7 @@ class AppConfig:
             self.tema = "system"
 
         # PT-PT: Uma taxa de 0 daria totais sem IVA a quem não o declara, o que
-        #        e exactamente o erro que a ferramenta existe para evitar.
+        #        é exactamente o erro que a ferramenta existe para evitar.
         # EN-UK: A rate of 0 would give VAT-free totals to whoever does not
         #        state it, which is the very error the tool exists to prevent.
         self.taxa_iva = max(0.0, min(float(self.taxa_iva), 40.0))

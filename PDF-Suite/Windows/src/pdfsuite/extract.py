@@ -43,7 +43,7 @@ EXTENSOES_WORD: tuple[str, ...] = (".docx",)
 EXTENSOES_TEXTO: tuple[str, ...] = (".txt", ".md", ".csv", ".log", ".rtf", ".json")
 EXTENSOES = EXTENSOES_PDF + EXTENSOES_WORD + EXTENSOES_TEXTO
 
-# PT-PT: Abaixo disto por página, um PDF e quase de certeza digitalizado. O
+# PT-PT: Abaixo disto por página, um PDF é quase de certeza digitalizado. O
 #        valor não é zero de propósito: páginas digitalizadas trazem muitas
 #        vezes um cabeçalho ou um número de página em texto real, vindos do
 #        próprio scanner. Zero como limite deixava-os passar por bons.
@@ -63,7 +63,7 @@ def _limpar(texto: str) -> str:
     PT-PT: Normaliza o texto extraído.
 
            A junção de palavras cortadas no fim da linha («fornece-\ndor») não
-           e cosmética: sem ela, procurar «fornecedor» no texto de um PDF
+           é cosmética: sem ela, procurar «fornecedor» no texto de um PDF
            justificado falha exactamente nas páginas onde a palavra e mais
            provável de aparecer.
 

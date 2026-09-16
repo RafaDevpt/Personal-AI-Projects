@@ -7,7 +7,7 @@ PT-PT: PDF Suite — duas ferramentas que partilham a mesma leitura de documento
 
        A segunda lê vários documentos — PDF, Word, texto — e compara-os. O caso
        de uso que lhe deu origem são propostas de fornecedores: seis PDF de
-       seis vendedores diferentes, e a pergunta «qual e a melhor». Também
+       seis vendedores diferentes, e a pergunta «qual é a melhor». Também
        resume um documento único.
 
 EN-UK: PDF Suite — two tools sharing the same document reading layer.

@@ -12,7 +12,7 @@ PT-PT: Análise de propostas — extracção dos sinais que permitem compara-las
        extracção por expressões regulares sobre documentos que cada fornecedor
        escreve a sua maneira acerta na maioria e falha em algumas, e as
        falhas nunca são óbvias a olhar para o resultado final. Numa decisão de
-       compra, uma ferramenta que apresenta um número errado com ar de certo e
+       compra, uma ferramenta que apresenta um número errado com ar de certo é
        pior do que não ter ferramenta nenhuma.
 
 EN-UK: Proposal analysis — extracting the signals that make them comparable.
@@ -40,7 +40,7 @@ from .money import detectar_iva, detectar_taxa_iva, encontrar_montantes, limpar_
 log = logging.getLogger(__name__)
 
 # PT-PT: Palavras que marcam o total. Ordenadas por especificidade: «total
-#        geral» e melhor sinal do que «total», que aparece também no fim de
+#        geral» é melhor sinal do que «total», que aparece também no fim de
 #        cada secção. A ordem e usada para desempatar quando há várias.
 # EN-UK: Words marking the total, ordered by specificity: "grand total" is a
 #        better signal than "total", which also ends each section.
@@ -88,7 +88,7 @@ RE_REFERENCIA = re.compile(
 )
 
 # PT-PT: Sufixos societários. Servem para reconhecer o nome do fornecedor: uma
-#        linha com «Lda.» ou «S.A.» e quase sempre a razão social.
+#        linha com «Lda.» ou «S.A.» é quase sempre a razão social.
 # EN-UK: Company suffixes, used to recognise the vendor name: a line containing
 #        "Ltd" or "S.A." is almost always the registered name.
 SUFIXOS_EMPRESA: tuple[str, ...] = (
@@ -147,7 +147,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
            A estratégia e procurar montantes próximos de uma palavra que marque
            um total, e escolher entre os candidatos pela pontuação da marca. Se
            nenhum candidato aparecer, cai no maior montante do documento — que
-           e uma heurística fraca, e por isso sai com confiança baixa e uma
+           é uma heurística fraca, e por isso sai com confiança baixa e uma
            nota a dizer que foi assim que se chegou la.
 
     EN-UK: The proposal total. Looks for amounts near a word marking a total and
@@ -192,7 +192,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
 
             # PT-PT: E excluir o cabeçalho da coluna. Numa tabela de preços a
             #        última coluna chama-se «Total», e o primeiro montante a
-            #        seguir a esse cabeçalho e a primeira linha de artigos — não
+            #        seguir a esse cabeçalho é a primeira linha de artigos — não
             #        o total da proposta. Reconhece-se pelo que vem a seguir:
             #        um cabeçalho e seguido de uma mudança de linha, enquanto um
             #        total a sério e seguido do próprio valor na mesma linha.
@@ -226,7 +226,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
                     continue
 
                 pontuacao = peso * confianca_numero
-                # PT-PT: Entre candidatos igualmente marcados, o maior e quase
+                # PT-PT: Entre candidatos igualmente marcados, o maior é quase
                 #        sempre o total e os outros são linhas de detalhe.
                 # EN-UK: Among equally marked candidates the largest is almost
                 #        always the total.

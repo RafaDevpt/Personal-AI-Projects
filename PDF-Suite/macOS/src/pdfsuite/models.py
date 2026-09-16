@@ -346,7 +346,7 @@ class Criterio:
     EN-UK: One criterion of the decision matrix.
 
     :param maior_melhor:
-        PT-PT: True quando mais e melhor (garantia); False quando menos e
+        PT-PT: True quando mais é melhor (garantia); False quando menos é
                melhor (preço, prazo de entrega).
         EN-UK: True when more is better (warranty); False when less is better
                (price, delivery time).

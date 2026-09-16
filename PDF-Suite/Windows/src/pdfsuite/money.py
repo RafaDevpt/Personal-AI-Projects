@@ -12,7 +12,7 @@ PT-PT: Interpretação de números, moeda e IVA.
        regra que funciona nos dois formatos sem precisar de saber a origem do
        documento. Os casos que continuam ambíguos — `1.234` sozinho — são
        resolvidos pela convenção dos milhares, porque um valor com exactamente
-       três dígitos a seguir ao ponto e quase sempre milhares, e assinalados
+       três dígitos a seguir ao ponto é quase sempre milhares, e assinalados
        com confiança mais baixa para o utilizador confirmar.
 
 EN-UK: Number, currency and VAT parsing.
@@ -130,8 +130,8 @@ MARCAS_IVA_ACRESCE: tuple[str, ...] = (
     "net total",
 )
 
-# PT-PT: Isenção de IVA. Não e o mesmo que «incluído» nem que «acresce»: o
-#        total já e o total e não há nada a somar. Tratar isto como «acresce»
+# PT-PT: Isenção de IVA. Não é o mesmo que «incluído» nem que «acresce»: o
+#        total já é o total e não há nada a somar. Tratar isto como «acresce»
 #        inflacionava a proposta em 23% e podia eliminar a melhor.
 # EN-UK: VAT exemption. Not the same as included or added: the total is already
 #        the total. Treating it as "added" inflated the quote by 23% and could
@@ -272,7 +272,7 @@ def encontrar_montantes(texto: str) -> list[tuple[float, str, str, float]]:
                 )
             )
 
-    # PT-PT: Por posição, e a maior primeiro em caso de empate no inicio.
+    # PT-PT: Por posição, é a maior primeiro em caso de empate no inicio.
     # EN-UK: By position, longest first when two start at the same place.
     candidatos.sort(key=lambda c: (c[0], -(c[1] - c[0])))
 

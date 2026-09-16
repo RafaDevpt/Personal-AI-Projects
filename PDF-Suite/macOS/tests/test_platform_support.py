@@ -29,7 +29,7 @@ class TestComandosDeInstalacao:
         assert ps.install_command("tkinter") == "brew install python-tk"
 
     def test_componente_desconhecido_continua_a_ser_brew(self) -> None:
-        # PT-PT: Em macOS o palpite razoável e sempre o mesmo, ao contrário do
+        # PT-PT: Em macOS o palpite razoável é sempre o mesmo, ao contrário do
         #        Linux, onde adivinhar o gestor de pacotes seria errado.
         # EN-UK: On macOS the reasonable guess is always the same.
         assert ps.install_command("qualquer-coisa") == "brew install qualquer-coisa"
@@ -64,7 +64,7 @@ class TestProcessador:
 class TestPythonDoSistema:
     """
     PT-PT: O `/usr/bin/python3` funciona, mas traz um Tk antigo e vai ser
-           retirado pela Apple. Não e um erro — e um aviso.
+           retirado pela Apple. Não é um erro — e um aviso.
     EN-UK: `/usr/bin/python3` works, but carries an old Tk and is on its way out.
     """
 

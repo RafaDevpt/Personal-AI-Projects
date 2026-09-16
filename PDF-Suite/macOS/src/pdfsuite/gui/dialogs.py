@@ -68,7 +68,7 @@ class _JanelaBase(ctk.CTkToplevel):
         """
         PT-PT: Lê um número de um campo, mantendo o valor actual se for inválido.
 
-               Avisar e manter o anterior e melhor do que aceitar em silêncio:
+               Avisar e manter o anterior é melhor do que aceitar em silêncio:
                um `float()` sem protecção fecha a janela com um ValueError e
                perde tudo o que foi escrito nos outros campos.
 

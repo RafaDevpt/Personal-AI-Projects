@@ -13,7 +13,7 @@ PT-PT: Resumo de documentos.
        identificado como tal.
 
        O método e frequência de termos com penalização das palavras vulgares —
-       o princípio do TF-IDF sobre um documento só. Não e o estado da arte; e
+       o princípio do TF-IDF sobre um documento só. Não é o estado da arte; e
        previsível, não precisa de rede, corre em milissegundos e não envia o
        documento para lado nenhum, o que num relatório interno importa mais.
 

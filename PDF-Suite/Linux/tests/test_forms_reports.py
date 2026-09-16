@@ -3,9 +3,9 @@ PT-PT: Testes da detecção de campos, da escrita do AcroForm, da leitura de
        documentos e dos relatórios.
 
        Ao contrário dos outros ficheiros de teste, este cria PDF a sério e
-       volta a lê-los. E a única forma de verificar que um formulário gerado
+       volta a lê-los. É a única forma de verificar que um formulário gerado
        abre mesmo: um AcroForm mal formado não levanta excepção nenhuma ao ser
-       escrito — só não funciona quando alguém o abre, que já e tarde.
+       escrito — só não funciona quando alguém o abre, que já é tarde.
 
 EN-UK: Tests for field detection, AcroForm writing, document reading and
        reports.

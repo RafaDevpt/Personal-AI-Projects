@@ -3,7 +3,7 @@
 # PT-PT: Arranque do PDF Suite em Linux.
 #
 #        Verifica os pre-requisitos, prepara o ambiente na primeira execução e
-#        arranca nas seguintes. O código e o mesmo dos outros sistemas: o que
+#        arranca nas seguintes. O código é o mesmo dos outros sistemas: o que
 #        vive nesta pasta e o arranque e o que é preciso ter instalado antes.
 #
 # EN-UK: PDF Suite launcher for Linux.

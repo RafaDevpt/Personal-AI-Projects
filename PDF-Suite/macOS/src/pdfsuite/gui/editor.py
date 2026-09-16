@@ -7,11 +7,11 @@ PT-PT: Editor visual dos campos.
 
        Porque e que isto existe em vez de uma tabela de coordenadas: a detecção
        automática acerta na maioria dos campos e falha em alguns, e corrigir um
-       campo mal colocado numa tabela de números e impossível na prática —
+       campo mal colocado numa tabela de números é impossível na prática —
        ninguém sabe o que significa mudar y0 de 472 para 468 sem ver a página.
-       Com a página a vista, e óbvio.
+       Com a página a vista, é óbvio.
 
-       A rasterização usa o `pdftoppm` do poppler, que já e uma dependência
+       A rasterização usa o `pdftoppm` do poppler, que já é uma dependência
        indirecta do pdfplumber, ou o `pypdfium2` se estiver instalado. Se
        nenhum estiver disponível, o editor abre na mesma sem a imagem de fundo
        e diz porque — os campos continuam a poder ser corrigidos pelas
