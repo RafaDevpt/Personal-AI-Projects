@@ -1,17 +1,17 @@
 """
-PT-PT: Relatorios em HTML e em Excel.
+PT-PT: Relatórios em HTML e em Excel.
 
-       Sao dois formatos porque servem duas coisas diferentes. O HTML e para
-       ler e anexar a um pedido de aprovacao: tem o veredicto, os avisos e o
-       raciocinio. O Excel e para trabalhar: quem recebe o relatorio quase
+       São dois formatos porque servem duas coisas diferentes. O HTML e para
+       ler e anexar a um pedido de aprovação: tem o veredicto, os avisos e o
+       raciocinio. O Excel e para trabalhar: quem recebe o relatório quase
        sempre quer mexer nos pesos, acrescentar uma coluna ou juntar isto a
        outra folha.
 
-       Como em qualquer relatorio gerado a partir de ficheiros de terceiros,
+       Como em qualquer relatório gerado a partir de ficheiros de terceiros,
        tudo o que vem dos documentos passa por `escape()` antes de entrar no
        HTML. Uma proposta comercial em PDF traz nomes de artigos com sinais de
        menor e maior mais vezes do que se imagina — «rede <1Gbps>», «prazo
-       <=30 dias» — e insere-los em bruto parte a pagina.
+       <=30 dias» — e insere-los em bruto parte a página.
 
 EN-UK: HTML and Excel reports.
 
@@ -122,7 +122,7 @@ footer {
 
 def nome_seguro(bruto: str) -> str:
     """
-    PT-PT: Reduz um texto a um nome de ficheiro valido em Windows.
+    PT-PT: Reduz um texto a um nome de ficheiro válido em Windows.
     EN-UK: Reduces text to a valid Windows file name.
     """
     limpo = re.sub(r'[<>:"/\\|?*\x00-\x1f]', "", bruto or "").strip(" .")
@@ -155,13 +155,13 @@ def _cabecalho(titulo: str, subtitulo: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Relatorio de comparacao / EN-UK: Comparison report
+# PT-PT: Relatório de comparação / EN-UK: Comparison report
 # ---------------------------------------------------------------------------
 
 
 def relatorio_comparacao(comparacao: Comparacao) -> str:
     """
-    PT-PT: Relatorio HTML da comparacao de propostas.
+    PT-PT: Relatório HTML da comparação de propostas.
     EN-UK: HTML report of the proposal comparison.
     """
     corpo = [
@@ -206,7 +206,7 @@ def relatorio_comparacao(comparacao: Comparacao) -> str:
 
     corpo.append(f'<div class="{classe}">{texto}</div>')
 
-    # --- PT-PT: Cartoes de resumo / EN-UK: Summary cards -------------------
+    # --- PT-PT: Cartões de resumo / EN-UK: Summary cards -------------------
     diferenca = poupanca(comparacao)
     corpo.append('<div class="cartoes">')
     corpo.append(
@@ -224,7 +224,7 @@ def relatorio_comparacao(comparacao: Comparacao) -> str:
             '<div class="r">preço mais baixo</div></div>'
         )
         # PT-PT: A proposta mais cara era desempacotada e nunca mostrada. O
-        #        cartao dizia «entre a mais barata e a mais cara» e so
+        #        cartao dizia «entre a mais barata e a mais cara» e só
         #        identificava uma das duas, obrigando a procurar a outra na
         #        tabela.
         # EN-UK: The most expensive quote was unpacked and never shown. The
@@ -244,7 +244,7 @@ def relatorio_comparacao(comparacao: Comparacao) -> str:
     for aviso in comparacao.avisos:
         corpo.append(f'<div class="aviso">{escape(aviso)}</div>')
 
-    # --- PT-PT: Tabela de pontuacao / EN-UK: Score table -------------------
+    # --- PT-PT: Tabela de pontuação / EN-UK: Score table -------------------
     corpo.append("<h2>Pontuação</h2>")
     corpo.append("<table><tr><th>#</th><th>Proposta</th><th class='num'>Pontos</th>")
     for criterio in comparacao.criterios:
@@ -340,13 +340,13 @@ def relatorio_comparacao(comparacao: Comparacao) -> str:
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Relatorio de resumo / EN-UK: Summary report
+# PT-PT: Relatório de resumo / EN-UK: Summary report
 # ---------------------------------------------------------------------------
 
 
 def relatorio_resumo(resumos: list[Resumo], comparacao_termos: dict | None = None) -> str:
     """
-    PT-PT: Relatorio HTML de um ou varios resumos.
+    PT-PT: Relatório HTML de um ou vários resumos.
     EN-UK: HTML report of one or several summaries.
     """
     plural = "documentos" if len(resumos) != 1 else "documento"
@@ -446,17 +446,17 @@ def relatorio_resumo(resumos: list[Resumo], comparacao_termos: dict | None = Non
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Relatorio de formulario / EN-UK: Form report
+# PT-PT: Relatório de formulário / EN-UK: Form report
 # ---------------------------------------------------------------------------
 
 
 def relatorio_formulario(origem: Path, destino: Path, campos: list[Campo], avisos: list[str]) -> str:
     """
-    PT-PT: Ficha do formulario gerado, com a lista de campos.
+    PT-PT: Ficha do formulário gerado, com a lista de campos.
 
-           Serve de documentacao para quem depois quiser preencher o formulario
-           por script: os nomes dos campos sao as chaves, e sem esta lista a
-           unica forma de os conhecer e abrir o PDF numa ferramenta que os saiba
+           Serve de documentação para quem depois quiser preencher o formulário
+           por script: os nomes dos campos são as chaves, e sem esta lista a
+           única forma de os conhecer e abrir o PDF numa ferramenta que os saiba
            ler.
 
     EN-UK: A record of the generated form, listing its fields. It doubles as
@@ -514,11 +514,11 @@ def relatorio_formulario(origem: Path, destino: Path, campos: list[Campo], aviso
 
 def _largura_automatica(folha) -> None:
     """
-    PT-PT: Ajusta a largura das colunas ao conteudo.
+    PT-PT: Ajusta a largura das colunas ao conteúdo.
 
            Sem isto, a coluna do fornecedor sai com oito caracteres e todos os
-           nomes aparecem cortados — que e a primeira coisa que se nota ao abrir
-           uma folha gerada por codigo, e a que mais depressa a faz parecer
+           nomes aparecem cortados — que é a primeira coisa que se nota ao abrir
+           uma folha gerada por código, e a que mais depressa a faz parecer
            malfeita.
 
     EN-UK: Fits column widths to the content. Without it the vendor column comes
@@ -537,16 +537,16 @@ def _largura_automatica(folha) -> None:
 
 def excel_comparacao(comparacao: Comparacao, destino: Path) -> Path:
     """
-    PT-PT: Exporta a comparacao para Excel.
+    PT-PT: Exporta a comparação para Excel.
 
-           Tres folhas: a comparacao com as formulas de pontuacao vivas, os
+           Três folhas: a comparação com as fórmulas de pontuação vivas, os
            dados em bruto e as notas.
 
-           As formulas ficam vivas de proposito. E a diferenca entre uma folha
-           que se le e uma folha com que se trabalha: mudar um peso na folha
-           dos criterios recalcula a pontuacao toda, e quem tem de justificar a
-           escolha numa reuniao precisa exactamente disso — mostrar que a
-           conclusao aguenta pesos diferentes, ou onde e que deixa de aguentar.
+           As fórmulas ficam vivas de propósito. E a diferença entre uma folha
+           que se lê e uma folha com que se trabalha: mudar um peso na folha
+           dos critérios recalcula a pontuação toda, e quem tem de justificar a
+           escolha numa reunião precisa exactamente disso — mostrar que a
+           conclusão aguenta pesos diferentes, ou onde e que deixa de aguentar.
 
     EN-UK: Exports the comparison to Excel. Three sheets: the comparison with
            live scoring formulas, the raw data, and the notes.
@@ -629,7 +629,7 @@ def excel_comparacao(comparacao: Comparacao, destino: Path) -> Path:
                 colunas_pontos.append(f"{letra_pontos}{linha}*{letra_peso}${linha_criterios + 1}")
                 colunas_pesos.append(f"{letra_peso}${linha_criterios + 1}")
 
-        # PT-PT: A pontuacao e uma formula, nao um numero gravado. Mexer nos
+        # PT-PT: A pontuação e uma fórmula, não um número gravado. Mexer nos
         #        pesos em cima recalcula esta coluna.
         # EN-UK: The score is a formula, not a stored number.
         celula_total = folha.cell(row=linha, column=3)
@@ -747,7 +747,7 @@ def excel_comparacao(comparacao: Comparacao, destino: Path) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# PT-PT: Gravacao / EN-UK: Saving
+# PT-PT: Gravação / EN-UK: Saving
 # ---------------------------------------------------------------------------
 
 
@@ -755,8 +755,8 @@ def gravar_html(html: str, pasta: Path, prefixo: str) -> Path:
     """
     PT-PT: Grava o HTML com data e hora no nome.
 
-           O contador existe porque o carimbo tem resolucao de um segundo e
-           gerar dois relatorios seguidos leva menos do que isso — sem ele, o
+           O contador existe porque o carimbo tem resolução de um segundo e
+           gerar dois relatórios seguidos leva menos do que isso — sem ele, o
            segundo apagava o primeiro.
 
     EN-UK: Writes the HTML with date and time in the name. The counter exists
@@ -782,10 +782,10 @@ def gravar_html(html: str, pasta: Path, prefixo: str) -> Path:
 
 def caminho_livre(pasta: Path, nome: str, extensao: str) -> Path:
     """
-    PT-PT: Um caminho que ainda nao existe, acrescentando um contador.
+    PT-PT: Um caminho que ainda não existe, acrescentando um contador.
 
-           Usado para os PDF gerados. Sobrepor em silencio o formulario que o
-           utilizador acabou de rever e a forma mais rapida de lhe fazer perder
+           Usado para os PDF gerados. Sobrepor em silêncio o formulário que o
+           utilizador acabou de rever e a forma mais rápida de lhe fazer perder
            o trabalho.
 
     EN-UK: A path that does not yet exist, adding a counter. Silently

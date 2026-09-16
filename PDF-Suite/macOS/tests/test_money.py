@@ -1,10 +1,10 @@
 """
-PT-PT: Testes da interpretacao de numeros, moeda e IVA.
+PT-PT: Testes da interpretação de números, moeda e IVA.
 
        E o ficheiro de testes mais importante do projecto. Tudo o resto pode
-       falhar de forma visivel; um numero mal lido falha de forma plausivel, e
-       uma comparacao de propostas com um numero plausivel e errado leva a
-       decisao de compra errada sem ninguem dar por isso.
+       falhar de forma visível; um número mal lido falha de forma plausível, e
+       uma comparação de propostas com um número plausível e errado leva a
+       decisão de compra errada sem ninguém dar por isso.
 
 EN-UK: Tests for number, currency and VAT parsing. The most important test file
        in the project: everything else fails visibly, but a misread number fails
@@ -27,7 +27,7 @@ from pdfsuite.money import (
 
 
 class TestLimparNumero:
-    """PT-PT: Os dois formatos de numero. / EN-UK: The two number formats."""
+    """PT-PT: Os dois formatos de número. / EN-UK: The two number formats."""
 
     @pytest.mark.parametrize(
         "bruto,esperado",

@@ -1,12 +1,12 @@
 """
-PT-PT: Definicoes da aplicacao.
+PT-PT: Definições da aplicação.
 
-       Nota sobre a chave da API. Nao e gravada neste ficheiro nem em nenhum
-       outro. E lida da variavel de ambiente `ANTHROPIC_API_KEY` ou escrita na
-       interface e mantida so em memoria durante a sessao. Uma chave em texto
-       claro num JSON ao lado do executavel e comoda e e um problema: quem
-       tiver acesso a pasta tem acesso a conta, e um `git add .` distraido
-       publica-a. As chaves publicadas em repositorios sao varridas
+       Nota sobre a chave da API. Não e gravada neste ficheiro nem em nenhum
+       outro. E lida da variável de ambiente `ANTHROPIC_API_KEY` ou escrita na
+       interface e mantida só em memória durante a sessão. Uma chave em texto
+       claro num JSON ao lado do executável e comoda e e um problema: quem
+       tiver acesso a pasta tem acesso a conta, e um `git add .` distraído
+       pública-a. As chaves publicadas em repositórios são varridas
        automaticamente por quem as procura, e o custo cai em quem a deixou la.
 
 EN-UK: Application settings.
@@ -40,12 +40,12 @@ TEMAS: tuple[str, ...] = ("system", "light", "dark")
 
 def default_data_dir() -> Path:
     """
-    PT-PT: Pasta de dados da aplicacao (configuracao e registo).
+    PT-PT: Pasta de dados da aplicação (configuração e registo).
     EN-UK: Application data folder (configuration and log).
     """
-    # PT-PT: A convencao desta pasta e a do sistema desta versao, e vive num
-    #        sitio so — `platform_support`. Nao ha aqui ramificacao nenhuma:
-    #        esta versao corre num sistema e sabe qual e.
+    # PT-PT: A convenção desta pasta e a do sistema desta versão, e vive num
+    #        sítio só — `platform_support`. Não há aqui ramificação nenhuma:
+    #        esta versão corre num sistema e sabe qual é.
     # EN-UK: This folder's convention is that of this version's system, and it
     #        lives in one place — `platform_support`. There is no branching
     #        here: this version runs on one system and knows which.
@@ -54,7 +54,7 @@ def default_data_dir() -> Path:
 
 def default_output_dir() -> Path:
     """
-    PT-PT: Pasta de saida, dentro dos Documentos do utilizador. E onde as
+    PT-PT: Pasta de saída, dentro dos Documentos do utilizador. E onde as
            pessoas procuram ficheiros.
     EN-UK: Output folder, inside the user's Documents. It is where people look.
     """
@@ -64,31 +64,31 @@ def default_output_dir() -> Path:
 @dataclass
 class AppConfig:
     """
-    PT-PT: Definicoes. Todos os campos tem valor por omissao, pelo que um
+    PT-PT: Definições. Todos os campos tem valor por omissão, pelo que um
            ficheiro corrompido nunca impede o arranque.
     EN-UK: Settings. Every field has a default, so a corrupt file can never
            prevent start-up.
     """
 
-    # --- PT-PT: Saida / EN-UK: Output --------------------------------------
+    # --- PT-PT: Saída / EN-UK: Output --------------------------------------
     output_dir: Path = field(default_factory=default_output_dir)
     abrir_apos_gerar: bool = True
 
-    # --- PT-PT: Formularios / EN-UK: Forms ---------------------------------
-    #: PT-PT: Incluir a estrategia dos dois pontos, menos fiavel.
+    # --- PT-PT: Formulários / EN-UK: Forms ---------------------------------
+    #: PT-PT: Incluir a estratégia dos dois pontos, menos fiável.
     #: EN-UK: Include the colon strategy, the least reliable one.
     detectar_dois_pontos: bool = True
-    #: PT-PT: Abaixo desta confianca, o campo entra desmarcado na lista de
-    #:        revisao. E o compromisso entre apanhar tudo e nao inundar o
+    #: PT-PT: Abaixo desta confiança, o campo entra desmarcado na lista de
+    #:        revisão. E o compromisso entre apanhar tudo e não inundar o
     #:        utilizador com campos inventados.
     #: EN-UK: Below this confidence a field arrives unticked in the review list.
     confianca_minima: float = 0.5
     substituir_campos_existentes: bool = False
 
-    # --- PT-PT: Comparacao / EN-UK: Comparison -----------------------------
+    # --- PT-PT: Comparação / EN-UK: Comparison -----------------------------
     taxa_iva: float = 23.0
-    #: PT-PT: Pesos dos criterios, por chave. Vazio usa os valores por omissao
-    #:        do modulo de pontuacao.
+    #: PT-PT: Pesos dos critérios, por chave. Vazio usa os valores por omissão
+    #:        do módulo de pontuação.
     #: EN-UK: Criterion weights by key. Empty uses the scoring module defaults.
     pesos: dict[str, float] = field(default_factory=dict)
     penalizar_em_falta: float = 0.0
@@ -96,8 +96,8 @@ class AppConfig:
     # --- PT-PT: Resumo / EN-UK: Summary ------------------------------------
     frases_resumo: int = 6
 
-    # --- PT-PT: Analise assistida / EN-UK: Assisted analysis ---------------
-    #: PT-PT: A chave NAO e gravada — ver o cabecalho deste ficheiro.
+    # --- PT-PT: Análise assistida / EN-UK: Assisted analysis ---------------
+    #: PT-PT: A chave NÃO e gravada — ver o cabeçalho deste ficheiro.
     #: EN-UK: The key is NOT stored — see this file's header.
     usar_ia: bool = False
     modelo_ia: str = "claude-sonnet-4-6"
@@ -116,7 +116,7 @@ class AppConfig:
             _log.warning("Tema inválido %r; a usar 'system'.", self.tema)
             self.tema = "system"
 
-        # PT-PT: Uma taxa de 0 daria totais sem IVA a quem nao o declara, o que
+        # PT-PT: Uma taxa de 0 daria totais sem IVA a quem não o declara, o que
         #        e exactamente o erro que a ferramenta existe para evitar.
         # EN-UK: A rate of 0 would give VAT-free totals to whoever does not
         #        state it, which is the very error the tool exists to prevent.
@@ -138,7 +138,7 @@ class AppConfig:
             self.pesos = limpos
 
     # -----------------------------------------------------------------------
-    # PT-PT: Persistencia / EN-UK: Persistence
+    # PT-PT: Persistência / EN-UK: Persistence
     # -----------------------------------------------------------------------
 
     @classmethod
@@ -149,7 +149,7 @@ class AppConfig:
     def load(cls, path: Path | None = None) -> AppConfig:
         """
         PT-PT: Carrega do disco. Qualquer falha resulta nos valores por
-               omissao, nunca numa excecao.
+               omissão, nunca numa excepção.
         EN-UK: Loads from disk. Any failure yields the defaults, never an
                exception.
         """
@@ -197,7 +197,7 @@ class AppConfig:
             return False
 
     def ensure_directories(self) -> None:
-        """PT-PT: Garante a pasta de saida. / EN-UK: Ensures the output folder."""
+        """PT-PT: Garante a pasta de saída. / EN-UK: Ensures the output folder."""
         try:
             self.output_dir.mkdir(parents=True, exist_ok=True)
         except OSError as exc:
@@ -205,7 +205,7 @@ class AppConfig:
 
     def criterios(self):
         """
-        PT-PT: Criterios com os pesos configurados aplicados.
+        PT-PT: Critérios com os pesos configurados aplicados.
         EN-UK: Criteria with the configured weights applied.
         """
         from .models import Criterio

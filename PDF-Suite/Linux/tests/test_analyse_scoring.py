@@ -1,6 +1,6 @@
 """
-PT-PT: Testes da analise de propostas e da matriz de decisao.
-       Trabalham sobre `Documento` construidos a mao, sem abrir ficheiro nenhum.
+PT-PT: Testes da análise de propostas e da matriz de decisão.
+       Trabalham sobre `Documento` construídos a mão, sem abrir ficheiro nenhum.
 EN-UK: Tests for proposal analysis and the decision matrix. They work on
        hand-built `Documento` objects, opening no files.
 

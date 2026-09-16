@@ -1,15 +1,15 @@
 """
 PT-PT: Janela principal do PDF Suite.
 
-       Tres separadores, um por tarefa: transformar um PDF em preenchivel,
+       Três separadores, um por tarefa: transformar um PDF em preenchível,
        comparar propostas, resumir documentos.
 
-PT-PT: REGRA DE OURO DA CONCORRENCIA. O Tkinter nao e seguro em multiplos fios.
+PT-PT: REGRA DE OURO DA CONCORRÊNCIA. O Tkinter não é seguro em múltiplos fios.
        Ler seis PDF demora segundos, e faze-lo no fio da interface deixa a
        janela marcada como bloqueada pelo Windows. Tudo o que demora corre num
-       fio secundario e comunica com a interface exclusivamente atraves de uma
-       fila lida por `_pump()` no fio principal. Nenhuma funcao que corra num
-       fio secundario pode tocar num widget.
+       fio secundário e comunica com a interface exclusivamente através de uma
+       fila lida por `_pump()` no fio principal. Nenhuma função que corra num
+       fio secundário pode tocar num widget.
 
 EN-UK: Main window of PDF Suite.
 
@@ -65,8 +65,8 @@ class PDFSuiteApp(ctk.CTk):
         self._fila: queue.Queue[tuple[str, Any]] = queue.Queue()
         self._ocupado = False
 
-        # PT-PT: Estado de cada separador. Guardado para os botoes de gerar
-        #        relatorio nao terem de repetir o trabalho todo.
+        # PT-PT: Estado de cada separador. Guardado para os botões de gerar
+        #        relatório não terem de repetir o trabalho todo.
         # EN-UK: Each tab's state, kept so the report buttons need not redo the
         #        whole job.
         self.pdf_formulario: Path | None = None
@@ -80,7 +80,7 @@ class PDFSuiteApp(ctk.CTk):
         self.resumos: list[Resumo] = []
         self.termos: dict | None = None
 
-        # PT-PT: Chave da API so em memoria — nunca vai para o disco.
+        # PT-PT: Chave da API só em memória — nunca vai para o disco.
         # EN-UK: API key in memory only — it never reaches disk.
         self.chave_ia: str = ""
 
@@ -90,7 +90,7 @@ class PDFSuiteApp(ctk.CTk):
         self.after(100, self._pump)
 
     # ------------------------------------------------------------------
-    # PT-PT: Construcao / EN-UK: Construction
+    # PT-PT: Construção / EN-UK: Construction
     # ------------------------------------------------------------------
 
     def _fontes(self) -> None:
@@ -197,7 +197,7 @@ class PDFSuiteApp(ctk.CTk):
         ).grid(row=0, column=2, sticky="e", padx=theme.PAD_M)
 
     # ------------------------------------------------------------------
-    # PT-PT: Pecas reutilizaveis / EN-UK: Reusable pieces
+    # PT-PT: Peças reutilizáveis / EN-UK: Reusable pieces
     # ------------------------------------------------------------------
 
     def _titulo(self, pagina, texto: str, subtitulo: str) -> None:
@@ -235,7 +235,7 @@ class PDFSuiteApp(ctk.CTk):
         return caixa
 
     # ------------------------------------------------------------------
-    # PT-PT: Separador dos formularios / EN-UK: Forms tab
+    # PT-PT: Separador dos formulários / EN-UK: Forms tab
     # ------------------------------------------------------------------
 
     def _pagina_formularios(self, pagina) -> None:
@@ -434,7 +434,7 @@ class PDFSuiteApp(ctk.CTk):
             webbrowser.open(destino.as_uri())
 
     # ------------------------------------------------------------------
-    # PT-PT: Separador da comparacao / EN-UK: Comparison tab
+    # PT-PT: Separador da comparação / EN-UK: Comparison tab
     # ------------------------------------------------------------------
 
     def _pagina_comparar(self, pagina) -> None:
@@ -691,8 +691,8 @@ class PDFSuiteApp(ctk.CTk):
             for p in self.comparacao.ordenadas
         ]
 
-        # PT-PT: A confirmacao diz quantos documentos e quantos caracteres saem
-        #        da maquina. Um «Continuar?» generico nao dava a quem decide o
+        # PT-PT: A confirmação diz quantos documentos e quantos caracteres saem
+        #        da máquina. Um «Continuar?» genérico não dava a quem decide o
         #        que precisa para decidir.
         # EN-UK: The confirmation says how many documents and characters leave
         #        the machine.
@@ -906,7 +906,7 @@ class PDFSuiteApp(ctk.CTk):
         self._trabalhar(trabalho, "recebeu_ia", "A resumir com o modelo…")
 
     # ------------------------------------------------------------------
-    # PT-PT: Navegacao, concorrencia e janelas / EN-UK: Navigation, threads
+    # PT-PT: Navegação, concorrência e janelas / EN-UK: Navigation, threads
     # ------------------------------------------------------------------
 
     def mostrar(self, chave: str) -> None:
@@ -920,7 +920,7 @@ class PDFSuiteApp(ctk.CTk):
             )
 
     def escrever(self, chave: str, texto: str, limpar: bool = True) -> None:
-        """PT-PT: Escreve numa caixa. So do fio principal. / EN-UK: Main thread only."""
+        """PT-PT: Escreve numa caixa. Só do fio principal. / EN-UK: Main thread only."""
         caixa = self.saidas.get(chave)
         if caixa is None:
             return
@@ -938,8 +938,8 @@ class PDFSuiteApp(ctk.CTk):
         """
         PT-PT: Corre `funcao` num fio e entrega o resultado a interface.
 
-               Recusa arrancar se ja houver trabalho em curso: carregar duas
-               vezes em «Comparar» lancava dois fios a escrever na mesma caixa
+               Recusa arrancar se já houver trabalho em curso: carregar duas
+               vezes em «Comparar» lançava dois fios a escrever na mesma caixa
                de texto ao mesmo tempo.
 
         EN-UK: Runs `funcao` on a thread and hands the result to the interface.
@@ -964,7 +964,7 @@ class PDFSuiteApp(ctk.CTk):
         threading.Thread(target=alvo, daemon=True).start()
 
     def _pump(self) -> None:
-        """PT-PT: Le a fila no fio principal. / EN-UK: Reads the queue, main thread."""
+        """PT-PT: Lê a fila no fio principal. / EN-UK: Reads the queue, main thread."""
         try:
             while True:
                 tipo, carga = self._fila.get_nowait()

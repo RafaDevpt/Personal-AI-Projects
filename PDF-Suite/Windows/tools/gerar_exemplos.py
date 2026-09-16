@@ -1,10 +1,10 @@
 """
 PT-PT: Gerador de ficheiros de exemplo.
 
-       Cria um formulario em papel e seis propostas de fornecedores para se
-       poder experimentar a aplicacao sem ter de arranjar documentos reais — e
-       sem os pôr num repositorio, que e o ponto: propostas verdadeiras trazem
-       precos, contactos e condicoes comerciais que nao devem sair da empresa.
+       Cria um formulário em papel e seis propostas de fornecedores para se
+       poder experimentar a aplicação sem ter de arranjar documentos reais — e
+       sem os pôr num repositório, que é o ponto: propostas verdadeiras trazem
+       preços, contactos e condições comerciais que não devem sair da empresa.
 
        Correr com:  python tools/gerar_exemplos.py exemplos/
 
@@ -31,7 +31,7 @@ LARGURA, ALTURA = A4
 
 
 def formulario(destino: Path) -> None:
-    """PT-PT: Formulario em papel, sem campos. / EN-UK: A paper form, no fields."""
+    """PT-PT: Formulário em papel, sem campos. / EN-UK: A paper form, no fields."""
     c = canvas.Canvas(str(destino), pagesize=A4)
 
     c.setFont("Helvetica-Bold", 15)
@@ -67,7 +67,7 @@ def formulario(destino: Path) -> None:
     c.drawString(115 * mm, y, "Extensão: ____________")
     y -= 11 * mm
 
-    # PT-PT: Caixas de seleccao.
+    # PT-PT: Caixas de selecção.
     c.setFont("Helvetica-Bold", 11)
     c.drawString(25 * mm, y, "Sistemas a atribuir")
     y -= 9 * mm
@@ -85,7 +85,7 @@ def formulario(destino: Path) -> None:
 
     y -= 16 * mm
 
-    # PT-PT: Caixa de texto de varias linhas.
+    # PT-PT: Caixa de texto de várias linhas.
     c.setFont("Helvetica", 10)
     c.drawString(25 * mm, y, "Observações:")
     y -= 4 * mm

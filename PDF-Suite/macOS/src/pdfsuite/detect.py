@@ -1,16 +1,16 @@
 """
-PT-PT: Deteccao de campos num PDF estatico.
+PT-PT: Detecção de campos num PDF estático.
 
-       O problema: um formulario em papel digitalizado ou exportado do Word nao
-       tem campos nenhuns — tem tracos, quadrados e espaco em branco desenhados
-       na pagina. Este modulo olha para esses desenhos e adivinha onde as
+       O problema: um formulário em papel digitalizado ou exportado do Word não
+       tem campos nenhuns — tem traços, quadrados e espaço em branco desenhados
+       na página. Este módulo olha para esses desenhos e adivinha onde as
        pessoas escreveriam.
 
        Adivinhar e a palavra certa e o desenho da ferramenta assume-o: cada
-       campo detectado traz uma confianca, e a interface poe o utilizador a
-       rever antes de gravar. Uma deteccao automatica que grave sem revisao
-       produz formularios com campos a mais, a menos e no sitio errado, e o
-       utilizador acaba a fazer o trabalho todo a mao — com o agravante de ter
+       campo detectado traz uma confiança, e a interface põe o utilizador a
+       rever antes de gravar. Uma detecção automática que grave sem revisão
+       produz formulários com campos a mais, a menos e no sítio errado, e o
+       utilizador acaba a fazer o trabalho todo a mão — com o agravante de ter
        primeiro de apagar o que a ferramenta inventou.
 
 EN-UK: Field detection in a static PDF.
@@ -47,21 +47,21 @@ LADO_MINIMO_QUADRADO = 6.0
 LADO_MAXIMO_QUADRADO = 22.0
 TOLERANCIA_QUADRADO = 0.35
 
-# PT-PT: Um rectangulo maior do que isto e uma caixa de texto de varias linhas
-#        («Observacoes»), nao um campo de uma linha.
+# PT-PT: Um rectângulo maior do que isto é uma caixa de texto de várias linhas
+#        («Observacoes»), não um campo de uma linha.
 # EN-UK: A rectangle taller than this is a multi-line text box, not a one-line
 #        field.
 ALTURA_MULTILINHA = 40.0
 
-# PT-PT: Distancia maxima entre uma linha e a etiqueta a sua esquerda. Acima
+# PT-PT: Distância máxima entre uma linha e a etiqueta a sua esquerda. Acima
 #        disto, a etiqueta pertence a outra coisa qualquer da mesma linha.
 # EN-UK: Maximum distance between a rule and the label to its left. Beyond
 #        this, the label belongs to something else on the same row.
 DISTANCIA_MAXIMA_ETIQUETA = 260.0
 
-# PT-PT: Palavras que aparecem antes de um espaco em branco mas nunca sao um
-#        campo. Sem esta lista, os cabecalhos e os rodapes de qualquer
-#        formulario transformavam-se em caixas de texto.
+# PT-PT: Palavras que aparecem antes de um espaço em branco mas nunca são um
+#        campo. Sem esta lista, os cabeçalhos e os rodapes de qualquer
+#        formulário transformavam-se em caixas de texto.
 # EN-UK: Words appearing before white space that are never a field. Without
 #        this list, headers and footers turned into text boxes.
 NAO_SAO_CAMPOS: frozenset[str] = frozenset(
@@ -73,10 +73,10 @@ NAO_SAO_CAMPOS: frozenset[str] = frozenset(
     }
 )
 
-# PT-PT: Etiquetas que indicam o tipo do campo. A deteccao do tipo vale a pena
+# PT-PT: Etiquetas que indicam o tipo do campo. A detecção do tipo vale a pena
 #        porque muda o comportamento no leitor: um campo de data com formato
 #        definido evita que cada pessoa escreva a data a sua maneira, e uma
-#        caixa de seleccao e infinitamente mais rapida de preencher do que
+#        caixa de selecção e infinitamente mais rápida de preencher do que
 #        escrever «sim».
 # EN-UK: Labels indicating the field type. Type detection is worth doing
 #        because it changes behaviour in the reader.
@@ -122,19 +122,19 @@ def _etiqueta_util(texto: str) -> bool:
         return False
     if limpo.lower() in NAO_SAO_CAMPOS:
         return False
-    # PT-PT: Uma etiqueta sem letras e um numero de pagina ou um traco.
+    # PT-PT: Uma etiqueta sem letras e um número de página ou um traço.
     # EN-UK: A label with no letters is a page number or a rule.
     return bool(re.search(r"[A-Za-zÀ-ÿ]", limpo))
 
 
 def _limpar_etiqueta(bruto: str) -> str:
     """
-    PT-PT: Tira de uma etiqueta o que nao e etiqueta.
+    PT-PT: Tira de uma etiqueta o que não é etiqueta.
 
            O caso que motivou isto: numa linha com dois campos —
            `Email: ______  Extensão: ____` — a etiqueta do segundo campo vinha
            com a corrida de sublinhados do primeiro colada à frente. O nome do
-           campo saía com trinta caracteres de lixo antes da palavra util.
+           campo saía com trinta caracteres de lixo antes da palavra útil.
 
     EN-UK: Strips from a label what is not the label. The case behind this: on a
            row with two fields, the second field's label arrived with the first
@@ -149,9 +149,9 @@ def _etiqueta_a_esquerda(palavras: list[dict], x0: float, topo: float, base: flo
     """
     PT-PT: Procura o texto imediatamente a esquerda de uma caixa.
 
-           Junta as palavras que estejam a mesma altura, dentro da distancia
-           maxima, e devolve as ultimas — «Nome do requerente:» dá «Nome do
-           requerente», nao só «requerente».
+           Junta as palavras que estejam a mesma altura, dentro da distância
+           máxima, e devolve as últimas — «Nome do requerente:» dá «Nome do
+           requerente», não só «requerente».
 
     EN-UK: Looks for the text immediately to the left of a box. Joins words at
            the same height within the maximum distance and returns the last of
@@ -170,7 +170,7 @@ def _etiqueta_a_esquerda(palavras: list[dict], x0: float, topo: float, base: flo
 
     candidatas.sort(key=lambda p: p["x0"])
     # PT-PT: Cortar nos dois pontos: em «Departamento: Nome:» o que interessa
-    #        para o segundo campo e «Nome», nao a linha inteira.
+    #        para o segundo campo e «Nome», não a linha inteira.
     # EN-UK: Cut at the colon: in "Department: Name:" the second field wants
     #        "Name", not the whole row.
     texto = " ".join(p["text"] for p in candidatas[-8:])
@@ -183,11 +183,11 @@ def _etiqueta_abaixo(palavras: list[dict], x0: float, x1: float, base: float) ->
     """
     PT-PT: Etiqueta por baixo da caixa.
 
-           E a convencao das assinaturas: desenha-se a linha e escreve-se por
+           E a convenção das assinaturas: desenha-se a linha e escreve-se por
            baixo, em letra pequena, «Assinatura do colaborador». Sem esta
-           procura, todas as linhas de assinatura de todos os formularios
+           procura, todas as linhas de assinatura de todos os formulários
            ficavam sem nome — e a assinatura e precisamente o campo que mais
-           importa identificar bem, porque num formulario com duas ha sempre
+           importa identificar bem, porque num formulário com duas há sempre
            duas pessoas diferentes a assinar.
 
     EN-UK: Label underneath the box. This is the signature convention: draw the
@@ -207,7 +207,7 @@ def _etiqueta_abaixo(palavras: list[dict], x0: float, x1: float, base: float) ->
 
 def _etiqueta_acima(palavras: list[dict], x0: float, x1: float, topo: float) -> str:
     """
-    PT-PT: Etiqueta por cima da caixa, para os formularios que rotulam assim.
+    PT-PT: Etiqueta por cima da caixa, para os formulários que rotulam assim.
     EN-UK: Label above the box, for forms that label that way.
     """
     candidatas = [
@@ -223,12 +223,12 @@ def _etiqueta_acima(palavras: list[dict], x0: float, x1: float, topo: float) -> 
 
 def _sobrepoe(a: Campo, b: Campo, tolerancia: float = 6.0) -> bool:
     """
-    PT-PT: Duas caixas ocupam o mesmo sitio?
+    PT-PT: Duas caixas ocupam o mesmo sítio?
 
-           Necessario porque as estrategias de deteccao encontram a mesma coisa
-           por caminhos diferentes: um campo desenhado como rectangulo tem
-           quatro linhas, e o detector de linhas ve nele um campo por cada
-           lado. Sem esta verificacao, um formulario com molduras ficava com
+           Necessario porque as estratégias de detecção encontram a mesma coisa
+           por caminhos diferentes: um campo desenhado como rectângulo tem
+           quatro linhas, e o detector de linhas vê nele um campo por cada
+           lado. Sem esta verificação, um formulário com molduras ficava com
            quatro campos sobrepostos em cada caixa.
 
     EN-UK: Do two boxes occupy the same place? Needed because the strategies
@@ -247,8 +247,8 @@ def _de_sublinhados(pagina, palavras: list[dict], altura_pagina: float) -> list[
     """
     PT-PT: Campos escritos como corridas de sublinhados: `Nome: ______`.
 
-           E o sinal mais fiavel de todos, porque quem escreveu o documento
-           pos ali os sublinhados exactamente com a intencao de que alguem
+           E o sinal mais fiável de todos, porque quem escreveu o documento
+           pôs ali os sublinhados exactamente com a intenção de que alguém
            escrevesse por cima.
 
     EN-UK: Fields written as runs of underscores. The most reliable signal of
@@ -261,8 +261,8 @@ def _de_sublinhados(pagina, palavras: list[dict], altura_pagina: float) -> list[
         texto = palavra["text"]
         if len(texto) < 3 or not re.fullmatch(r"[_\u2014\u2013.]{3,}", texto):
             continue
-        # PT-PT: Corridas de pontos sao tambem indices («Capitulo 1 ....... 12»).
-        #        Exigir que nao haja numero logo a seguir tira a maioria deles.
+        # PT-PT: Corridas de pontos são também indices («Capitulo 1 ....... 12»).
+        #        Exigir que não haja número logo a seguir tira a maioria deles.
         # EN-UK: Dot runs are also tables of contents; requiring no number
         #        immediately after removes most of them.
         if set(texto) == {"."}:
@@ -277,7 +277,7 @@ def _de_sublinhados(pagina, palavras: list[dict], altura_pagina: float) -> list[
         if not etiqueta:
             etiqueta = _etiqueta_acima(palavras, palavra["x0"], palavra["x1"], palavra["top"])
 
-        # PT-PT: A conversao de coordenadas acontece aqui e so aqui. O
+        # PT-PT: A conversão de coordenadas acontece aqui e só aqui. O
         #        pdfplumber conta de cima para baixo; o PDF conta de baixo para
         #        cima.
         # EN-UK: The coordinate conversion happens here and only here.
@@ -330,7 +330,7 @@ def _de_linhas(pagina, palavras: list[dict], altura_pagina: float) -> list[Campo
         if etiqueta and not _etiqueta_util(etiqueta):
             etiqueta = ""
 
-        # PT-PT: O campo fica por cima da linha, que e onde se escreve.
+        # PT-PT: O campo fica por cima da linha, que é onde se escreve.
         # EN-UK: The field sits above the rule, which is where one writes.
         base = altura_pagina - topo + FOLGA_ACIMA_DA_LINHA
 
@@ -356,10 +356,10 @@ def _de_rectangulos(pagina, palavras: list[dict], altura_pagina: float) -> list[
     """
     PT-PT: Caixas e quadrados desenhados.
 
-           Um quadrado pequeno e uma caixa de seleccao; um rectangulo largo e
-           uma caixa de texto. A distincao pelo tamanho e grosseira mas
-           funciona: nao ha formularios com caixas de seleccao de cinco
-           centimetros nem com campos de nome de meio centimetro.
+           Um quadrado pequeno e uma caixa de selecção; um rectângulo largo e
+           uma caixa de texto. A distinção pelo tamanho e grosseira mas
+           funciona: não há formulários com caixas de selecção de cinco
+           centímetros nem com campos de nome de meio centímetro.
 
     EN-UK: Drawn boxes and squares. A small square is a tick box; a wide
            rectangle is a text box. Distinguishing by size is crude but works.
@@ -385,8 +385,8 @@ def _de_rectangulos(pagina, palavras: list[dict], altura_pagina: float) -> list[
         )
 
         if quadrado:
-            # PT-PT: Numa caixa de seleccao a etiqueta esta a direita («☐ Sim»),
-            #        ao contrario de todos os outros campos. E a excepcao que
+            # PT-PT: Numa caixa de selecção a etiqueta esta a direita («☐ Sim»),
+            #        ao contrário de todos os outros campos. E a excepção que
             #        justifica esta procura separada.
             # EN-UK: On a tick box the label is to the right, unlike every other
             #        field. That exception justifies this separate search.
@@ -445,11 +445,11 @@ def _de_rectangulos(pagina, palavras: list[dict], altura_pagina: float) -> list[
 
 def _de_dois_pontos(palavras: list[dict], altura_pagina: float, largura_pagina: float) -> list[Campo]:
     """
-    PT-PT: Etiquetas terminadas em dois pontos seguidas de espaco em branco.
+    PT-PT: Etiquetas terminadas em dois pontos seguidas de espaço em branco.
 
-           E a estrategia menos fiavel das quatro e a confianca reflecte-o. Um
-           documento em prosa esta cheio de dois pontos que nao sao campo
-           nenhum. So se aplica quando ha espaco livre suficiente a direita e
+           E a estratégia menos fiável das quatro e a confiança reflecte-o. Um
+           documento em prosa esta cheio de dois pontos que não são campo
+           nenhum. Só se aplica quando há espaço livre suficiente a direita e
            nada escrito la — e mesmo assim o utilizador vai ver alguns a mais.
 
     EN-UK: Labels ending in a colon followed by white space. The least reliable
@@ -532,11 +532,11 @@ def detectar_pagina(
     if usar_dois_pontos:
         encontrados.extend(_de_dois_pontos(palavras, altura, largura))
 
-    # PT-PT: A ordem de eliminacao segue a fiabilidade: o primeiro a ficar com
-    #        o sitio e o de maior confianca. Como as estrategias foram
+    # PT-PT: A ordem de eliminação segue a fiabilidade: o primeiro a ficar com
+    #        o sítio e o de maior confiança. Como as estratégias foram
     #        acrescentadas por ordem decrescente de fiabilidade, ordenar por
-    #        confianca garante que um sublinhado ganha sempre a um par de dois
-    #        pontos que ocupe o mesmo espaco.
+    #        confiança garante que um sublinhado ganha sempre a um par de dois
+    #        pontos que ocupe o mesmo espaço.
     # EN-UK: Elimination follows reliability: the higher-confidence field keeps
     #        the spot.
     encontrados.sort(key=lambda c: -c.confianca)
@@ -550,13 +550,13 @@ def detectar_pagina(
             continue
         aceites.append(campo)
 
-    # PT-PT: Segunda eliminacao, por etiqueta. Sao campos que nao se sobrepoem
+    # PT-PT: Segunda eliminação, por etiqueta. São campos que não se sobrepoem
     #        mas descrevem a mesma coisa: «Observações:» seguido de uma caixa
-    #        desenhada por baixo dá dois campos, um pela estrategia dos dois
-    #        pontos e outro pela do rectangulo. O rectangulo e o campo a serio;
-    #        o outro e a etiqueta. Fica o de maior confianca, e so quando estao
-    #        proximos na vertical — duas paginas com um campo «Nome» cada sao
-    #        dois campos legitimos e nao podem ser fundidos.
+    #        desenhada por baixo dá dois campos, um pela estratégia dos dois
+    #        pontos e outro pela do rectângulo. O rectângulo e o campo a sério;
+    #        o outro e a etiqueta. Fica o de maior confiança, e só quando estão
+    #        próximos na vertical — duas páginas com um campo «Nome» cada são
+    #        dois campos legítimos e não podem ser fundidos.
     # EN-UK: A second pass, by label. These are fields that do not overlap but
     #        describe the same thing: a label with a colon and a box drawn
     #        underneath produces two. The higher-confidence one stays, and only
@@ -584,8 +584,8 @@ def detectar_pagina(
 
     # PT-PT: A ordem final e a de leitura — de cima para baixo, da esquerda
     #        para a direita. E a ordem em que o utilizador vai percorrer o
-    #        formulario com o Tab, e portanto a ordem em que os campos devem
-    #        aparecer na lista de revisao.
+    #        formulário com o Tab, e portanto a ordem em que os campos devem
+    #        aparecer na lista de revisão.
     # EN-UK: The final order is reading order, which is also the order the user
     #        will tab through the form.
     finais.sort(key=lambda c: (-c.y1, c.x0))
@@ -600,7 +600,7 @@ def detectar(caminho, usar_dois_pontos: bool = True) -> tuple[list[Campo], list[
 
     :return:
         PT-PT: (campos, avisos). Os avisos dizem o que correu mal sem impedir
-               o resto — uma pagina ilegivel, um PDF digitalizado.
+               o resto — uma página ilegível, um PDF digitalizado.
         EN-UK: (fields, warnings).
     """
     import pdfplumber
@@ -628,10 +628,10 @@ def detectar(caminho, usar_dois_pontos: bool = True) -> tuple[list[Campo], list[
 
             campos.extend(encontrados)
 
-    # PT-PT: Os nomes sao atribuidos no fim, sobre a lista toda, para a
-    #        numeracao de duplicados ser coerente entre paginas. «nome» na
-    #        pagina 1 e «nome» na pagina 3 tem de dar «nome» e «nome_2», e isso
-    #        so se sabe olhando para o documento inteiro.
+    # PT-PT: Os nomes são atribuidos no fim, sobre a lista toda, para a
+    #        numeracao de duplicados ser coerente entre páginas. «nome» na
+    #        página 1 e «nome» na página 3 tem de dar «nome» e «nome_2», e isso
+    #        só se sabe olhando para o documento inteiro.
     # EN-UK: Names are assigned at the end, over the whole list, so duplicate
     #        numbering is consistent across pages.
     usados: set[str] = set()

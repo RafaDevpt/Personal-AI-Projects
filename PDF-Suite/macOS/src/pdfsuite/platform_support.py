@@ -2,15 +2,15 @@
 """
 PT-PT: Particularidades do macOS.
 
-       Esta e a versao para macOS do PDF Suite. Nao ha aqui nenhuma
-       ramificacao por sistema operativo: o codigo sabe onde esta e diz apenas
-       o que e verdade nesta maquina. As outras duas versoes vivem nas pastas
+       Esta e a versão para macOS do PDF Suite. Não há aqui nenhuma
+       ramificação por sistema operativo: o código sabe onde esta e diz apenas
+       o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
 
        Duas particularidades tratadas aqui: o Python do sistema, que traz um
        Tk antigo e vai ser retirado pela Apple; e os dois prefixos do
        Homebrew, `/opt/homebrew` nos Apple Silicon e `/usr/local` nos Intel,
-       porque um processo lancado pelo Finder nao herda o PATH da shell.
+       porque um processo lançado pelo Finder não herda o PATH da shell.
 
 EN-UK: macOS specifics.
 
@@ -41,9 +41,9 @@ class Requirement:
     """
     PT-PT: Um requisito de sistema e o seu estado.
 
-           `essential` separa o que impede a aplicacao de funcionar do que
+           `essential` separa o que impede a aplicação de funcionar do que
            apenas desliga uma funcionalidade. Apresentar os dois com a mesma
-           gravidade levaria alguem a instalar coisas de que nao precisa.
+           gravidade levaria alguém a instalar coisas de que não precisa.
 
     EN-UK: A system requirement and its state. `essential` separates what stops
            the application working from what merely switches a feature off.
@@ -64,7 +64,7 @@ class Requirement:
 
 
 def tkinter_present() -> bool:
-    """PT-PT: Se o Tkinter e importavel. / EN-UK: Whether Tkinter is importable."""
+    """PT-PT: Se o Tkinter e importável. / EN-UK: Whether Tkinter is importable."""
     try:
         import tkinter  # noqa: F401
     except Exception:  # noqa: BLE001
@@ -74,11 +74,11 @@ def tkinter_present() -> bool:
 
 def poppler_present() -> bool:
     """
-    PT-PT: Se o poppler esta disponivel.
+    PT-PT: Se o poppler esta disponível.
 
-           E o que desenha a pagina no editor visual de campos. Sem ele o editor
+           E o que desenha a página no editor visual de campos. Sem ele o editor
            abre em modo de lista e tudo o resto funciona — daí ser opcional e
-           nao essencial.
+           não essencial.
 
     EN-UK: Whether poppler is available. It is what draws the page in the visual
            field editor. Without it the editor opens in list mode and everything
@@ -86,8 +86,8 @@ def poppler_present() -> bool:
     """
     return shutil.which("pdftoppm") is not None
 
-# PT-PT: Os dois prefixos onde o Homebrew instala. Um processo lancado pelo
-#        Finder ou pelo launchd nao herda o PATH da shell, e o `brew` instala em
+# PT-PT: Os dois prefixos onde o Homebrew instala. Um processo lançado pelo
+#        Finder ou pelo launchd não herda o PATH da shell, e o `brew` instala em
 #        /opt/homebrew nos Apple Silicon e em /usr/local nos Intel.
 # EN-UK: The two prefixes Homebrew installs to. A Finder- or launchd-launched
 #        process does not inherit the shell PATH.
@@ -111,7 +111,7 @@ def install_command(component: str) -> str:
 
 
 def apple_silicon(machine: str | None = None) -> bool:
-    """PT-PT: Se a maquina e Apple Silicon. / EN-UK: Whether the machine is Apple Silicon."""
+    """PT-PT: Se a máquina e Apple Silicon. / EN-UK: Whether the machine is Apple Silicon."""
     return (machine or platform.machine()).lower() in {"arm64", "aarch64"}
 
 
@@ -127,9 +127,9 @@ def using_system_python(executable: str | None = None) -> bool:
     """
     PT-PT: Se esta a correr no Python do sistema.
 
-           Nao e um erro — funciona — mas o `/usr/bin/python3` traz uma versao
-           de Tk antiga que desenha janelas desfocadas em ecras Retina, e a
-           Apple ja anunciou que o vai retirar.
+           Não e um erro — funciona — mas o `/usr/bin/python3` traz uma versão
+           de Tk antiga que desenha janelas desfocadas em ecrãs Retina, e a
+           Apple já anunciou que o vai retirar.
 
     EN-UK: Whether it is running on the system Python, which carries an old Tk
            and is on its way out.
@@ -139,10 +139,10 @@ def using_system_python(executable: str | None = None) -> bool:
 
 def app_data_dir(app_name: str, home: Path | None = None) -> Path:
     """
-    PT-PT: A pasta de dados da aplicacao, em `~/Library/Application Support`.
+    PT-PT: A pasta de dados da aplicação, em `~/Library/Application Support`.
 
-           E a convencao do macOS. Uma pasta `.config` escondida na raiz da
-           conta e habito de Linux, e num Mac ninguem a vai la procurar.
+           E a convenção do macOS. Uma pasta `.config` escondida na raiz da
+           conta e hábito de Linux, e num Mac ninguém a vai la procurar.
 
     EN-UK: The application's data folder, under `~/Library/Application Support`,
            which is the macOS convention.
@@ -177,12 +177,12 @@ def check_requirements() -> list[Requirement]:
 
 
 def missing_essentials() -> list[Requirement]:
-    """PT-PT: So os essenciais que faltam. / EN-UK: Only the missing essentials."""
+    """PT-PT: Só os essenciais que faltam. / EN-UK: Only the missing essentials."""
     return [r for r in check_requirements() if r.essential and not r.present]
 
 
 def report() -> str:
-    """PT-PT: Relatorio do estado dos requisitos. / EN-UK: Requirements report."""
+    """PT-PT: Relatório do estado dos requisitos. / EN-UK: Requirements report."""
     processador = "Apple Silicon" if apple_silicon() else "Intel"
     prefixo = brew_prefix()
 

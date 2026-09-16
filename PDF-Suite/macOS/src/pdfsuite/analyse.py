@@ -1,19 +1,19 @@
 """
-PT-PT: Analise de propostas — extraccao dos sinais que permitem compara-las.
+PT-PT: Análise de propostas — extracção dos sinais que permitem compara-las.
 
-       O que este modulo faz e ler texto corrido e tentar responder a seis
-       perguntas: quanto custa, o IVA esta incluido, a quantos dias se paga, em
-       quantos dias entregam, quantos meses de garantia dao, e ate quando vale
+       O que este módulo faz e ler texto corrido e tentar responder a seis
+       perguntas: quanto custa, o IVA esta incluído, a quantos dias se paga, em
+       quantos dias entregam, quantos meses de garantia dão, e até quando vale
        a proposta.
 
-       O que este modulo NAO faz e decidir. Tudo o que sai daqui e uma
-       proposta de leitura com uma confianca associada, para o utilizador
+       O que este módulo NÃO faz e decidir. Tudo o que sai daqui e uma
+       proposta de leitura com uma confiança associada, para o utilizador
        confirmar na tabela antes de pontuar. Essa escolha e deliberada: uma
-       extraccao por expressoes regulares sobre documentos que cada fornecedor
+       extracção por expressões regulares sobre documentos que cada fornecedor
        escreve a sua maneira acerta na maioria e falha em algumas, e as
-       falhas nunca sao obvias a olhar para o resultado final. Numa decisao de
-       compra, uma ferramenta que apresenta um numero errado com ar de certo e
-       pior do que nao ter ferramenta nenhuma.
+       falhas nunca são óbvias a olhar para o resultado final. Numa decisão de
+       compra, uma ferramenta que apresenta um número errado com ar de certo e
+       pior do que não ter ferramenta nenhuma.
 
 EN-UK: Proposal analysis — extracting the signals that make them comparable.
 
@@ -40,8 +40,8 @@ from .money import detectar_iva, detectar_taxa_iva, encontrar_montantes, limpar_
 log = logging.getLogger(__name__)
 
 # PT-PT: Palavras que marcam o total. Ordenadas por especificidade: «total
-#        geral» e melhor sinal do que «total», que aparece tambem no fim de
-#        cada seccao. A ordem e usada para desempatar quando ha varias.
+#        geral» e melhor sinal do que «total», que aparece também no fim de
+#        cada secção. A ordem e usada para desempatar quando há várias.
 # EN-UK: Words marking the total, ordered by specificity: "grand total" is a
 #        better signal than "total", which also ends each section.
 MARCAS_TOTAL: tuple[tuple[str, float], ...] = (
@@ -60,8 +60,8 @@ MARCAS_TOTAL: tuple[tuple[str, float], ...] = (
     ("total:", 0.8),
 )
 
-# PT-PT: Rotulos de subtotal. Sao excluidos activamente: numa proposta com tres
-#        seccoes ha tres subtotais maiores do que zero e um deles seria
+# PT-PT: Rotulos de subtotal. São excluídos activamente: numa proposta com três
+#        secções há três subtotais maiores do que zero e um deles seria
 #        escolhido como total se nada os distinguisse.
 # EN-UK: Subtotal labels, actively excluded: a three-section quote has three
 #        subtotals and one of them would be picked as the total.
@@ -87,8 +87,8 @@ RE_REFERENCIA = re.compile(
     re.IGNORECASE,
 )
 
-# PT-PT: Sufixos societarios. Servem para reconhecer o nome do fornecedor: uma
-#        linha com «Lda.» ou «S.A.» e quase sempre a razao social.
+# PT-PT: Sufixos societários. Servem para reconhecer o nome do fornecedor: uma
+#        linha com «Lda.» ou «S.A.» e quase sempre a razão social.
 # EN-UK: Company suffixes, used to recognise the vendor name: a line containing
 #        "Ltd" or "S.A." is almost always the registered name.
 SUFIXOS_EMPRESA: tuple[str, ...] = (
@@ -98,7 +98,7 @@ SUFIXOS_EMPRESA: tuple[str, ...] = (
 
 
 def _janela(texto: str, posicao: int, antes: int = 90, depois: int = 90) -> str:
-    """PT-PT: Contexto a volta de uma posicao. / EN-UK: Context around a position."""
+    """PT-PT: Contexto a volta de uma posição. / EN-UK: Context around a position."""
     return " ".join(texto[max(0, posicao - antes) : posicao + depois].split())
 
 
@@ -106,11 +106,11 @@ def extrair_fornecedor(documento: Documento) -> Valor:
     """
     PT-PT: Nome do fornecedor.
 
-           Procura nas primeiras linhas, que e onde esta o cabecalho, e da
-           preferencia a linhas com sufixo societario. Sem o encontrar, devolve
-           desconhecido em vez de adivinhar a primeira linha — o titulo de uma
+           Procura nas primeiras linhas, que é onde esta o cabeçalho, e da
+           preferência a linhas com sufixo societário. Sem o encontrar, devolve
+           desconhecido em vez de adivinhar a primeira linha — o título de uma
            proposta e muitas vezes «Proposta Comercial», e ter seis propostas
-           todas chamadas assim na tabela e pior do que ter o nome do ficheiro.
+           todas chamadas assim na tabela é pior do que ter o nome do ficheiro.
 
     EN-UK: The vendor's name. Searches the first lines, where the letterhead
            is, preferring lines with a company suffix. Failing that, returns
@@ -130,7 +130,7 @@ def extrair_fornecedor(documento: Documento) -> Valor:
                 confianca=0.9,
             )
 
-    # PT-PT: Sem sufixo, a primeira linha curta que nao seja um titulo generico.
+    # PT-PT: Sem sufixo, a primeira linha curta que não seja um título genérico.
     # EN-UK: With no suffix, the first short line that is not a generic title.
     genericos = ("proposta", "orcamento", "orçamento", "quotation", "quote", "cotacao", "cotação")
     for linha in linhas[:5]:
@@ -144,10 +144,10 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
     """
     PT-PT: O total da proposta.
 
-           A estrategia e procurar montantes proximos de uma palavra que marque
-           um total, e escolher entre os candidatos pela pontuacao da marca. Se
+           A estratégia e procurar montantes próximos de uma palavra que marque
+           um total, e escolher entre os candidatos pela pontuação da marca. Se
            nenhum candidato aparecer, cai no maior montante do documento — que
-           e uma heuristica fraca, e por isso sai com confianca baixa e uma
+           e uma heurística fraca, e por isso sai com confiança baixa e uma
            nota a dizer que foi assim que se chegou la.
 
     EN-UK: The proposal total. Looks for amounts near a word marking a total and
@@ -181,21 +181,21 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
             janela = minusculas[posicao : posicao + 160]
             if any(s in janela[: len(marca) + 14] for s in MARCAS_SUBTOTAL):
                 continue
-            # PT-PT: Excluir tambem quando a marca de subtotal esta logo antes:
-            #        «Subtotal» contem «total» e seria apanhado pela marca
-            #        generica se so olhassemos para a frente.
+            # PT-PT: Excluir também quando a marca de subtotal esta logo antes:
+            #        «Subtotal» contém «total» e seria apanhado pela marca
+            #        genérica se só olhassemos para a frente.
             # EN-UK: Exclude when the subtotal marker sits just before, too:
             #        "Subtotal" contains "total".
             antes = minusculas[max(0, posicao - 12) : posicao]
             if any(s in antes for s in ("sub", "-", "iva ", "vat ")):
                 continue
 
-            # PT-PT: E excluir o cabecalho da coluna. Numa tabela de precos a
-            #        ultima coluna chama-se «Total», e o primeiro montante a
-            #        seguir a esse cabecalho e a primeira linha de artigos — nao
+            # PT-PT: E excluir o cabeçalho da coluna. Numa tabela de preços a
+            #        última coluna chama-se «Total», e o primeiro montante a
+            #        seguir a esse cabeçalho e a primeira linha de artigos — não
             #        o total da proposta. Reconhece-se pelo que vem a seguir:
-            #        um cabecalho e seguido de uma mudanca de linha, enquanto um
-            #        total a serio e seguido do proprio valor na mesma linha.
+            #        um cabeçalho e seguido de uma mudança de linha, enquanto um
+            #        total a sério e seguido do próprio valor na mesma linha.
             # EN-UK: And exclude the column header. In a price table the last
             #        column is called "Total", and the first amount after that
             #        header is the first line item, not the proposal total. It
@@ -207,12 +207,12 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
 
             for valor, _moeda_local, bruto, confianca_numero in montantes:
                 # PT-PT: A procura e estritamente para a frente. Permitir uns
-                #        caracteres para tras parecia inofensivo e nao era: numa
+                #        caracteres para trás parecia inofensivo e não era: numa
                 #        tabela, a linha imediatamente acima do total acaba com
                 #        um montante, e esse ficava mais perto da palavra
-                #        «TOTAL» do que o proprio total. O resultado era a
-                #        ultima linha de artigos a ser apresentada como total da
-                #        proposta — plausivel, errada, e dificil de notar sem
+                #        «TOTAL» do que o próprio total. O resultado era a
+                #        última linha de artigos a ser apresentada como total da
+                #        proposta — plausível, errada, e dificil de notar sem
                 #        abrir o PDF ao lado.
                 # EN-UK: The search runs strictly forward. Allowing a few
                 #        characters backwards looked harmless and was not: in a
@@ -227,7 +227,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
 
                 pontuacao = peso * confianca_numero
                 # PT-PT: Entre candidatos igualmente marcados, o maior e quase
-                #        sempre o total e os outros sao linhas de detalhe.
+                #        sempre o total e os outros são linhas de detalhe.
                 # EN-UK: Among equally marked candidates the largest is almost
                 #        always the total.
                 pontuacao += min(valor / 1_000_000, 0.05)
@@ -267,7 +267,7 @@ def extrair_total(documento: Documento) -> tuple[Valor, str]:
 
 def _procurar_dias(texto: str, marcas: tuple[str, ...]) -> Valor:
     """
-    PT-PT: Um numero de dias associado a uma das marcas indicadas.
+    PT-PT: Um número de dias associado a uma das marcas indicadas.
     EN-UK: A number of days associated with one of the given markers.
     """
     minusculas = texto.lower()
@@ -298,7 +298,7 @@ def extrair_pagamento(documento: Documento) -> Valor:
            Pronto pagamento conta como zero dias, e essa leitura tem de ser
            explicita: quem escreve «pronto pagamento» nunca escreve «0 dias», e
            sem esta regra a proposta ficava sem prazo em vez de ficar com o
-           prazo mais curto possivel.
+           prazo mais curto possível.
 
     EN-UK: Payment terms in days. Cash on delivery counts as zero days and that
            reading has to be explicit: nobody who writes "cash payment" also
@@ -311,8 +311,8 @@ def extrair_pagamento(documento: Documento) -> Valor:
         if posicao != -1:
             # PT-PT: Muitas propostas oferecem as duas coisas: «pronto
             #        pagamento com desconto, ou 30 dias». Nesse caso o prazo
-            #        real disponivel e o maior, e e esse que interessa a
-            #        tesouraria — o desconto entra na coluna do preco, nao na
+            #        real disponível e o maior, e e esse que interessa a
+            #        tesouraria — o desconto entra na coluna do preço, não na
             #        do prazo.
             # EN-UK: Many quotes offer both: "cash with discount, or 30 days".
             #        The real available term is the longer one, and that is what
@@ -368,10 +368,10 @@ def extrair_garantia(documento: Documento) -> Valor:
     """
     PT-PT: Garantia, convertida sempre para meses.
 
-           A conversao dos anos e o ponto todo: uma proposta diz «3 anos» e
-           outra diz «24 meses», e compara-las como estao daria 3 contra 24, com
+           A conversão dos anos e o ponto todo: uma proposta diz «3 anos» e
+           outra diz «24 meses», e compara-las como estão daria 3 contra 24, com
            a pior a ganhar por oito vezes. Guardar sempre em meses e o que torna
-           a coluna comparavel.
+           a coluna comparável.
 
     EN-UK: Warranty, always converted to months. The year conversion is the
            whole point: one quote says "3 years" and another "24 months", and
@@ -427,8 +427,8 @@ def extrair_validade(documento: Documento) -> Valor:
 
 def extrair_referencia(documento: Documento) -> Valor:
     """
-    PT-PT: Referencia da proposta, para citar no pedido de esclarecimentos e na
-           adjudicacao. Sem ela, responder ao fornecedor obriga a reabrir o PDF.
+    PT-PT: Referência da proposta, para citar no pedido de esclarecimentos e na
+           adjudicação. Sem ela, responder ao fornecedor obriga a reabrir o PDF.
     EN-UK: The quote reference, for use in follow-up questions and in the award.
     """
     correspondencia = RE_REFERENCIA.search(documento.texto)
@@ -444,8 +444,8 @@ def extrair_referencia(documento: Documento) -> Valor:
 
 def analisar(documento: Documento) -> Proposta:
     """
-    PT-PT: Le uma proposta e devolve os sinais encontrados, com as notas do que
-           deve ser confirmado a mao.
+    PT-PT: Lê uma proposta e devolve os sinais encontrados, com as notas do que
+           deve ser confirmado a mão.
     EN-UK: Reads a proposal and returns the signals found, with notes on what
            should be confirmed by hand.
     """
@@ -507,20 +507,20 @@ def analisar(documento: Documento) -> Proposta:
 
 
 def analisar_varios(documentos: list[Documento]) -> list[Proposta]:
-    """PT-PT: Analisa varios documentos. / EN-UK: Analyses several documents."""
+    """PT-PT: Analisa vários documentos. / EN-UK: Analyses several documents."""
     return [analisar(d) for d in documentos]
 
 
 def verificar_coerencia(propostas: list[Proposta]) -> list[str]:
     """
-    PT-PT: Avisos que so se percebem olhando para o conjunto.
+    PT-PT: Avisos que só se percebem olhando para o conjunto.
 
-           Uma proposta em dolares no meio de cinco em euros nao e um problema
-           de nenhuma delas em particular — e da comparacao. O mesmo para uma
+           Uma proposta em dólares no meio de cinco em euros não é um problema
+           de nenhuma delas em particular — e da comparação. O mesmo para uma
            proposta cujo valor esta uma ordem de grandeza fora das outras, que
-           normalmente significa que se leu mal o numero ou que o ambito nao e
-           o mesmo. Sao as duas coisas que estragam uma comparacao e nenhuma se
-           ve a olhar para uma proposta de cada vez.
+           normalmente significa que se leu mal o número ou que o âmbito não é
+           o mesmo. São as duas coisas que estragam uma comparação e nenhuma se
+           vê a olhar para uma proposta de cada vez.
 
     EN-UK: Warnings that only make sense across the set. A quote in dollars
            among five in euros is not any one quote's problem — it is the

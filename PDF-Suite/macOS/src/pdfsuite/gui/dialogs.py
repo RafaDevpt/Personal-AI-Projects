@@ -1,5 +1,5 @@
 """
-PT-PT: Janelas auxiliares — definicoes e pesos dos criterios.
+PT-PT: Janelas auxiliares — definições e pesos dos critérios.
 
 EN-UK: Auxiliary windows — settings and criterion weights.
 
@@ -26,8 +26,8 @@ class _JanelaBase(ctk.CTkToplevel):
     """
     PT-PT: Base comum das janelas auxiliares. O `grab_set` esta num `after` de
            200 ms porque, chamado logo a seguir ao construtor, em Windows o
-           CustomTkinter ainda nao terminou de desenhar e o pedido de foco falha
-           em silencio.
+           CustomTkinter ainda não terminou de desenhar e o pedido de foco falha
+           em silêncio.
     EN-UK: Common base for the auxiliary windows.
     """
 
@@ -66,10 +66,10 @@ class _JanelaBase(ctk.CTkToplevel):
 
     def _numero(self, entrada: ctk.CTkEntry, actual: float, nome: str, inteiro: bool = False):
         """
-        PT-PT: Le um numero de um campo, mantendo o valor actual se for invalido.
+        PT-PT: Lê um número de um campo, mantendo o valor actual se for inválido.
 
-               Avisar e manter o anterior e melhor do que aceitar em silencio:
-               um `float()` sem proteccao fecha a janela com um ValueError e
+               Avisar e manter o anterior e melhor do que aceitar em silêncio:
+               um `float()` sem protecção fecha a janela com um ValueError e
                perde tudo o que foi escrito nos outros campos.
 
         EN-UK: Reads a number from a field, keeping the current value when
@@ -89,7 +89,7 @@ class _JanelaBase(ctk.CTkToplevel):
 
 
 class JanelaDefinicoes(_JanelaBase):
-    """PT-PT: Definicoes da aplicacao. / EN-UK: Application settings."""
+    """PT-PT: Definições da aplicação. / EN-UK: Application settings."""
 
     def __init__(self, pai, config: AppConfig, ao_gravar: Callable[[], None]) -> None:
         super().__init__(pai, f"{__app_name__} — Definições", 580, 660)
@@ -244,8 +244,8 @@ class JanelaDefinicoes(_JanelaBase):
             self.frases, config.frases_resumo, "Frases por resumo", inteiro=True
         )
 
-        # PT-PT: Volta a passar pela validacao do dataclass, que limita tudo aos
-        #        intervalos admissiveis.
+        # PT-PT: Volta a passar pela validação do dataclass, que limita tudo aos
+        #        intervalos admissíveis.
         # EN-UK: Runs the dataclass validation again, clamping to valid ranges.
         config.__post_init__()
 
@@ -255,12 +255,12 @@ class JanelaDefinicoes(_JanelaBase):
 
 class JanelaPesos(_JanelaBase):
     """
-    PT-PT: Pesos dos criterios da comparacao.
+    PT-PT: Pesos dos critérios da comparação.
 
-           Os pesos sao apresentados com uma barra deslizante e o valor ao lado,
-           e a soma aparece em baixo. A soma nao tem de dar 100 — a pontuacao e
-           uma media pesada e normaliza sozinha — mas ve-la ajuda a perceber o
-           peso relativo de cada criterio, que e o que importa decidir.
+           Os pesos são apresentados com uma barra deslizante e o valor ao lado,
+           e a soma aparece em baixo. A soma não tem de dar 100 — a pontuação e
+           uma media pesada e normaliza sozinha — mas vê-la ajuda a perceber o
+           peso relativo de cada critério, que é o que importa decidir.
 
     EN-UK: The comparison's criterion weights. Shown as sliders with the value
            beside them and the sum below. The sum need not be 100 — the score is

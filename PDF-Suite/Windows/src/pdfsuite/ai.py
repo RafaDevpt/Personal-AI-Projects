@@ -1,28 +1,28 @@
 """
-PT-PT: Analise assistida por modelo — opcional.
+PT-PT: Análise assistida por modelo — opcional.
 
-       Tudo o que a aplicacao faz funciona sem este modulo. Ele existe para a
-       parte que as expressoes regulares nao alcancam: perceber que uma
-       clausula de penalizacao numa proposta e uma condicao de rescisao noutra
+       Tudo o que a aplicação faz funciona sem este módulo. Ele existe para a
+       parte que as expressões regulares não alcancam: perceber que uma
+       clausula de penalização numa proposta e uma condição de rescisao noutra
        dizem a mesma coisa por palavras diferentes, ou explicar em prosa o que
        distingue duas propostas.
 
-       Tres decisoes de desenho, todas pela mesma razao — os documentos que
-       passam por aqui sao propostas comerciais e relatorios internos.
+       Três decisões de desenho, todas pela mesma razão — os documentos que
+       passam por aqui são propostas comerciais e relatórios internos.
 
-       Primeiro, e desligado por omissao. Ligar tem de ser um acto consciente,
+       Primeiro, e desligado por omissão. Ligar tem de ser um acto consciente,
        porque ligar significa enviar o texto do documento para fora da
        empresa.
 
        Segundo, avisa sempre antes de enviar, dizendo quantos documentos e
-       quantos caracteres vao sair da maquina.
+       quantos caracteres vão sair da máquina.
 
        Terceiro, o que volta e sempre identificado como vindo do modelo. Num
-       relatorio que vai servir para justificar uma adjudicacao, a diferenca
-       entre «o documento diz» e «o modelo interpretou» tem de estar visivel.
+       relatório que vai servir para justificar uma adjudicação, a diferença
+       entre «o documento diz» e «o modelo interpretou» tem de estar visível.
 
-       O `anthropic` nao esta nas dependencias obrigatorias. Quem nao o
-       instalar tem a aplicacao inteira menos esta funcao.
+       O `anthropic` não esta nas dependências obrigatórias. Quem não o
+       instalar tem a aplicação inteira menos esta função.
 
 EN-UK: Model-assisted analysis — optional.
 
@@ -47,17 +47,17 @@ import os
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Tecto de caracteres por documento. Serve para dois fins: nao enviar um
-#        relatorio de 200 paginas inteiro sem o utilizador contar com isso, e
-#        nao gastar contexto com anexos que nao mudam a analise.
+# PT-PT: Tecto de caracteres por documento. Serve para dois fins: não enviar um
+#        relatório de 200 páginas inteiro sem o utilizador contar com isso, e
+#        não gastar contexto com anexos que não mudam a análise.
 # EN-UK: Character ceiling per document. Two purposes: not sending a 200-page
 #        report in full without the user expecting it, and not spending context
 #        on appendices that do not change the analysis.
 MAX_CARACTERES_POR_DOCUMENTO = 12_000
 
-# PT-PT: Os identificadores sao completos tal como estao — nao levam sufixo
-#        de data. O primeiro da lista e o que a aplicacao usa por omissao.
-#        Opus 5 para analise comparativa, Sonnet 5 quando o volume importa
+# PT-PT: Os identificadores são completos tal como estão — não levam sufixo
+#        de data. O primeiro da lista e o que a aplicação usa por omissão.
+#        Opus 5 para análise comparativa, Sonnet 5 quando o volume importa
 #        mais do que a profundidade, Haiku 4.5 para resumos simples e baratos.
 # EN-UK: The identifiers are complete as they stand — they take no date
 #        suffix. The first in the list is what the application uses by
@@ -73,7 +73,7 @@ MODELO_OMISSAO = MODELOS[0]
 
 
 class IANaoDisponivelError(RuntimeError):
-    """PT-PT: A analise assistida nao pode correr. / EN-UK: Assisted analysis cannot run."""
+    """PT-PT: A análise assistida não pode correr. / EN-UK: Assisted analysis cannot run."""
 
 
 def biblioteca_instalada() -> bool:
@@ -88,7 +88,7 @@ def biblioteca_instalada() -> bool:
 
 def chave_do_ambiente() -> str:
     """
-    PT-PT: Chave da variavel de ambiente, se existir.
+    PT-PT: Chave da variável de ambiente, se existir.
     EN-UK: Key from the environment variable, if present.
     """
     return os.environ.get("ANTHROPIC_API_KEY", "").strip()
@@ -96,12 +96,12 @@ def chave_do_ambiente() -> str:
 
 def disponivel(chave: str = "") -> tuple[bool, str]:
     """
-    PT-PT: A analise assistida pode correr?
+    PT-PT: A análise assistida pode correr?
 
     EN-UK: Can assisted analysis run?
 
     :return:
-        PT-PT: (pode, motivo). O motivo diz o que fazer, nao so o que falta.
+        PT-PT: (pode, motivo). O motivo diz o que fazer, não só o que falta.
         EN-UK: (can, reason). The reason says what to do, not merely what is
                missing.
     """
@@ -121,11 +121,11 @@ def disponivel(chave: str = "") -> tuple[bool, str]:
 
 def resumo_do_envio(textos: list[tuple[str, str]]) -> str:
     """
-    PT-PT: Descreve o que vai ser enviado, para a confirmacao do utilizador.
+    PT-PT: Descreve o que vai ser enviado, para a confirmação do utilizador.
 
-           E o texto da caixa de dialogo. Diz o numero de documentos, o total
-           de caracteres e os nomes, para a decisao ser tomada com os factos e
-           nao com um «Continuar?» generico.
+           E o texto da caixa de diálogo. Diz o número de documentos, o total
+           de caracteres e os nomes, para a decisão ser tomada com os factos e
+           não com um «Continuar?» genérico.
 
     EN-UK: Describes what is about to be sent, for the user's confirmation. It
            is the dialogue text: number of documents, total characters and the
@@ -139,9 +139,9 @@ def resumo_do_envio(textos: list[tuple[str, str]]) -> str:
 
     # PT-PT: O separador de milhares e convertido a parte. Aplicar o
     #        .replace(",", ".") a frase inteira — como acontecia antes — trocava
-    #        tambem as virgulas do texto corrido e as que separam os nomes dos
-    #        documentos por pontos finais. Numa caixa de confirmacao que decide
-    #        se dados comerciais saem da maquina, o texto tem de estar certo.
+    #        também as vírgulas do texto corrido e as que separam os nomes dos
+    #        documentos por pontos finais. Numa caixa de confirmação que decide
+    #        se dados comerciais saem da máquina, o texto tem de estar certo.
     # EN-UK: The thousands separator is converted on its own. Applying
     #        .replace(",", ".") to the whole sentence — as it did before — also
     #        turned the prose commas, and those separating the document names,
@@ -187,7 +187,7 @@ def _pedir(prompt: str, sistema: str, chave: str, modelo: str, max_tokens: int =
             model=modelo,
             max_tokens=max_tokens,
             system=sistema,
-            # PT-PT: Comparar propostas e uma tarefa de raciocinio, nao de
+            # PT-PT: Comparar propostas e uma tarefa de raciocinio, não de
             #        redaccao. O modo adaptativo deixa o modelo decidir quanto
             #        precisa de pensar em cada documento.
             # EN-UK: Comparing quotes is a reasoning task, not a writing one.
@@ -200,9 +200,9 @@ def _pedir(prompt: str, sistema: str, chave: str, modelo: str, max_tokens: int =
         log.error("Pedido à API falhou: %s", exc)
         raise IANaoDisponivelError(f"O pedido falhou: {exc}") from exc
 
-    # PT-PT: Uma recusa chega como resposta valida (HTTP 200) com
-    #        stop_reason "refusal" e conteudo vazio. Sem esta guarda, o
-    #        utilizador via uma analise em branco e nenhuma explicacao.
+    # PT-PT: Uma recusa chega como resposta válida (HTTP 200) com
+    #        stop_reason "refusal" e conteúdo vazio. Sem esta guarda, o
+    #        utilizador via uma análise em branco e nenhuma explicação.
     # EN-UK: A refusal arrives as a valid response (HTTP 200) with stop_reason
     #        "refusal" and empty content. Without this guard the user saw a
     #        blank analysis and no explanation.

@@ -2,8 +2,8 @@
 PT-PT: Ponto de entrada do PDF Suite.
 
        Sem argumentos abre a interface. Com um subcomando corre sem janela, o
-       que serve para o que a interface nao faz bem: converter uma pasta inteira
-       de formularios de uma vez, ou correr a comparacao a partir de um script.
+       que serve para o que a interface não faz bem: converter uma pasta inteira
+       de formulários de uma vez, ou correr a comparação a partir de um script.
 
 EN-UK: PDF Suite entry point.
 
@@ -27,7 +27,7 @@ from .logging_setup import setup_logging
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Codigos de saida, para o modo sem janela poder ser encadeado.
+# PT-PT: Códigos de saída, para o modo sem janela poder ser encadeado.
 # EN-UK: Exit codes, so the headless mode can be chained.
 SAIDA_OK = 0
 SAIDA_NADA_FEITO = 1
@@ -98,10 +98,10 @@ def _expandir(entradas: list[str]) -> list[Path]:
     """
     PT-PT: Transforma ficheiros e pastas numa lista de ficheiros.
 
-           Uma pasta e expandida apenas ao primeiro nivel. Descer a arvore
-           inteira parecia generoso e nao e: apontar sem querer para a raiz dos
-           Documentos poe a ferramenta a ler milhares de ficheiros e o
-           utilizador nao percebe porque e que aquilo nao acaba.
+           Uma pasta e expandida apenas ao primeiro nível. Descer a árvore
+           inteira parecia generoso e não é: apontar sem querer para a raiz dos
+           Documentos põe a ferramenta a ler milhares de ficheiros e o
+           utilizador não percebe porque e que aquilo não acaba.
 
     EN-UK: Turns files and folders into a list of files. A folder is expanded
            one level only: walking the whole tree looked generous and is not —
@@ -123,7 +123,7 @@ def _expandir(entradas: list[str]) -> list[Path]:
 
 
 def comando_formulario(args: argparse.Namespace, config: AppConfig) -> int:
-    """PT-PT: Converte PDFs em preenchiveis. / EN-UK: Converts PDFs to fillable."""
+    """PT-PT: Converte PDFs em preenchíveis. / EN-UK: Converts PDFs to fillable."""
     from .detect import detectar
     from .forms import criar_formulario, tem_formulario
     from .reports import caminho_livre
@@ -292,7 +292,7 @@ def comando_resumir(args: argparse.Namespace, config: AppConfig) -> int:
 
 
 def comando_campos(args: argparse.Namespace, config: AppConfig) -> int:
-    """PT-PT: Lista os campos de um formulario. / EN-UK: Lists a form's fields."""
+    """PT-PT: Lista os campos de um formulário. / EN-UK: Lists a form's fields."""
     from .forms import listar_campos
 
     campos = listar_campos(args.ficheiro)
@@ -339,9 +339,9 @@ def main(argv: list[str] | None = None) -> int:
     """PT-PT: Ponto de entrada. / EN-UK: Entry point."""
     args = build_parser().parse_args(argv)
 
-    # PT-PT: O diagnostico corre antes de tudo o resto, e por uma razao pratica:
-    #        e o comando a que alguem recorre quando *nada* funciona, e nessa
-    #        altura nao se pode assumir que o resto arranca.
+    # PT-PT: O diagnóstico corre antes de tudo o resto, e por uma razão prática:
+    #        e o comando a que alguém recorre quando *nada* funciona, e nessa
+    #        altura não se pode assumir que o resto arranca.
     # EN-UK: The diagnostic runs before everything else, for a practical reason:
     #        it is what somebody reaches for when *nothing* works, and at that
     #        point the rest cannot be assumed to start.

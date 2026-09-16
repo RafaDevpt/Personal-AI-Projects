@@ -1,14 +1,14 @@
 """
 PT-PT: PDF Suite — duas ferramentas que partilham a mesma leitura de documentos.
 
-       A primeira transforma um PDF estatico num PDF preenchivel, detectando
+       A primeira transforma um PDF estático num PDF preenchível, detectando
        sozinha onde ficam os campos e deixando o utilizador corrigi-los antes
        de gravar.
 
-       A segunda le varios documentos — PDF, Word, texto — e compara-os. O caso
-       de uso que lhe deu origem sao propostas de fornecedores: seis PDF de
-       seis vendedores diferentes, e a pergunta «qual e a melhor». Tambem
-       resume um documento unico.
+       A segunda lê vários documentos — PDF, Word, texto — e compara-os. O caso
+       de uso que lhe deu origem são propostas de fornecedores: seis PDF de
+       seis vendedores diferentes, e a pergunta «qual e a melhor». Também
+       resume um documento único.
 
 EN-UK: PDF Suite — two tools sharing the same document reading layer.
 

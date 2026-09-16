@@ -2,16 +2,16 @@
 """
 PT-PT: Particularidades do Linux.
 
-       Esta e a versao para Linux do PDF Suite. Nao ha aqui nenhuma
-       ramificacao por sistema operativo: o codigo sabe onde esta e diz apenas
-       o que e verdade nesta maquina. As outras duas versoes vivem nas pastas
+       Esta e a versão para Linux do PDF Suite. Não há aqui nenhuma
+       ramificação por sistema operativo: o código sabe onde esta e diz apenas
+       o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
 
-       O que ha aqui, e as outras nao tem, e a unica coisa que em Linux nao
-       se pode assumir: **qual e a distribuicao**. Cada familia chama aos
+       O que há aqui, e as outras não tem, e a única coisa que em Linux não
+       se pode assumir: **qual é a distribuição**. Cada família chama aos
        pacotes coisas diferentes e instala-os com um comando diferente, e
-       dizer `sudo apt install` a quem esta numa Fedora nao e um erro
-       estetico — e o utilizador a concluir que a aplicacao nao foi pensada
+       dizer `sudo apt install` a quem esta numa Fedora não é um erro
+       estético — e o utilizador a concluir que a aplicação não foi pensada
        para o sistema dele.
 
 EN-UK: Linux specifics.
@@ -45,9 +45,9 @@ class Requirement:
     """
     PT-PT: Um requisito de sistema e o seu estado.
 
-           `essential` separa o que impede a aplicacao de funcionar do que
+           `essential` separa o que impede a aplicação de funcionar do que
            apenas desliga uma funcionalidade. Apresentar os dois com a mesma
-           gravidade levaria alguem a instalar coisas de que nao precisa.
+           gravidade levaria alguém a instalar coisas de que não precisa.
 
     EN-UK: A system requirement and its state. `essential` separates what stops
            the application working from what merely switches a feature off.
@@ -68,7 +68,7 @@ class Requirement:
 
 
 def tkinter_present() -> bool:
-    """PT-PT: Se o Tkinter e importavel. / EN-UK: Whether Tkinter is importable."""
+    """PT-PT: Se o Tkinter e importável. / EN-UK: Whether Tkinter is importable."""
     try:
         import tkinter  # noqa: F401
     except Exception:  # noqa: BLE001
@@ -78,11 +78,11 @@ def tkinter_present() -> bool:
 
 def poppler_present() -> bool:
     """
-    PT-PT: Se o poppler esta disponivel.
+    PT-PT: Se o poppler esta disponível.
 
-           E o que desenha a pagina no editor visual de campos. Sem ele o editor
+           E o que desenha a página no editor visual de campos. Sem ele o editor
            abre em modo de lista e tudo o resto funciona — daí ser opcional e
-           nao essencial.
+           não essencial.
 
     EN-UK: Whether poppler is available. It is what draws the page in the visual
            field editor. Without it the editor opens in list mode and everything
@@ -93,8 +93,8 @@ def poppler_present() -> bool:
 
 class Distro(str, Enum):
     """
-    PT-PT: Familia de distribuicao, que e o que decide o gestor de pacotes.
-           Nao interessa se e Ubuntu ou Linux Mint — interessa que ambas usam
+    PT-PT: Família de distribuição, que é o que decide o gestor de pacotes.
+           Não interessa se e Ubuntu ou Linux Mint — interessa que ambas usam
            `apt`.
     EN-UK: Distribution family, which is what decides the package manager.
     """
@@ -154,15 +154,15 @@ _GENERIC: dict[str, str] = {
 
 def detect_distro(os_release: str | None = None) -> Distro:
     """
-    PT-PT: Identifica a familia da distribuicao, a partir do `/etc/os-release`.
+    PT-PT: Identifica a família da distribuição, a partir do `/etc/os-release`.
 
-           Usa o `ID` e, se ele nao for reconhecido, o `ID_LIKE` — que e o campo
-           que uma distribuicao derivada preenche precisamente para dizer
+           Usa o `ID` e, se ele não for reconhecido, o `ID_LIKE` — que é o campo
+           que uma distribuição derivada preenche precisamente para dizer
            «trate-me como uma Debian». E o que faz o Linux Mint e o Pop!_OS
            funcionarem sem estarem em lista nenhuma.
 
-           Se nao for possivel decidir, devolve `UNKNOWN` e as instrucoes passam
-           a ser genericas: sugerir `apt` a quem nao o tem e pior do que dizer
+           Se não for possível decidir, devolve `UNKNOWN` e as instruções passam
+           a ser genéricas: sugerir `apt` a quem não o tem é pior do que dizer
            «instale o pacote».
 
     EN-UK: Identifies the distribution family from `/etc/os-release`, falling
@@ -190,7 +190,7 @@ def detect_distro(os_release: str | None = None) -> Distro:
 
 
 def distro_name(os_release: str | None = None) -> str:
-    """PT-PT: O nome bonito da distribuicao. / EN-UK: The distribution's pretty name."""
+    """PT-PT: O nome bonito da distribuição. / EN-UK: The distribution's pretty name."""
     texto = os_release
     if texto is None:
         try:
@@ -205,7 +205,7 @@ def distro_name(os_release: str | None = None) -> str:
 
 def install_command(component: str, distro: Distro | None = None) -> str:
     """
-    PT-PT: O comando que instala um componente nesta distribuicao.
+    PT-PT: O comando que instala um componente nesta distribuição.
     EN-UK: The command that installs a component on this distribution.
     """
     familia = distro or detect_distro()
@@ -217,9 +217,9 @@ def install_command(component: str, distro: Distro | None = None) -> str:
 
 def display_server(environ: dict[str, str] | None = None) -> str:
     """
-    PT-PT: Que servidor grafico esta a correr.
+    PT-PT: Que servidor gráfico esta a correr.
 
-           Interessa porque o Tk ainda nao fala Wayland nativamente: corre por
+           Interessa porque o Tk ainda não fala Wayland nativamente: corre por
            XWayland, e e isso que explica janelas que abrem com tamanhos
            estranhos ou que ignoram o factor de escala.
 
@@ -238,10 +238,10 @@ def display_server(environ: dict[str, str] | None = None) -> str:
 
 def app_data_dir(app_name: str, home: Path | None = None) -> Path:
     """
-    PT-PT: A pasta de dados da aplicacao, segundo a norma XDG.
+    PT-PT: A pasta de dados da aplicação, segundo a norma XDG.
 
            O `XDG_CONFIG_HOME` e respeitado se estiver definido, porque quem o
-           define fe-lo de proposito.
+           define fe-lo de propósito.
 
     EN-UK: The application's data folder, per XDG. `XDG_CONFIG_HOME` is honoured
            when set, because whoever sets it meant to.
@@ -278,12 +278,12 @@ def check_requirements(distro: Distro | None = None) -> list[Requirement]:
 
 
 def missing_essentials(distro: Distro | None = None) -> list[Requirement]:
-    """PT-PT: So os essenciais que faltam. / EN-UK: Only the missing essentials."""
+    """PT-PT: Só os essenciais que faltam. / EN-UK: Only the missing essentials."""
     return [r for r in check_requirements(distro) if r.essential and not r.present]
 
 
 def report(distro: Distro | None = None) -> str:
-    """PT-PT: Relatorio do estado dos requisitos. / EN-UK: Requirements report."""
+    """PT-PT: Relatório do estado dos requisitos. / EN-UK: Requirements report."""
     familia = distro or detect_distro()
     linhas = [
         f"Sistema: {SYSTEM_NAME} {platform.release()} ({platform.machine()})",

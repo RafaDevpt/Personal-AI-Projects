@@ -1,23 +1,23 @@
 """
-PT-PT: Matriz de decisao ponderada.
+PT-PT: Matriz de decisão ponderada.
 
-       Cada criterio e normalizado para uma escala de 0 a 100 dentro do
+       Cada critério e normalizado para uma escala de 0 a 100 dentro do
        conjunto de propostas, e o resultado e a media pesada. Normalizar dentro
-       do conjunto — e nao contra uma escala absoluta — e o que faz sentido
-       aqui: nao existe um preco «bom» em abstracto, existe o mais barato das
-       propostas que estao em cima da mesa.
+       do conjunto — e não contra uma escala absoluta — e o que faz sentido
+       aqui: não existe um preço «bom» em abstracto, existe o mais barato das
+       propostas que estão em cima da mesa.
 
-       Duas coisas que este modulo faz questao de nao fazer.
+       Duas coisas que este módulo faz questão de não fazer.
 
-       Nao inventa valores em falta. Uma proposta sem garantia declarada nao
-       recebe zero nem recebe a media: fica de fora daquele criterio e o peso
-       e redistribuido pelos restantes. Dar zero castigava quem simplesmente
-       nao escreveu; dar a media premiava. Nenhuma das duas e verdade, e a
-       unica resposta honesta e dizer que falta e mostrar a completude ao lado
-       da pontuacao.
+       Não inventa valores em falta. Uma proposta sem garantia declarada não
+       recebe zero nem recebe a media: fica de fora daquele critério e o peso
+       e redistribuído pelos restantes. Dar zero castigava quem simplesmente
+       não escreveu; dar a media premiava. Nenhuma das duas é verdade, e a
+       única resposta honesta e dizer que falta e mostrar a completude ao lado
+       da pontuação.
 
-       Nao declara vencedor por margens pequenas. Cinco pontos numa escala de
-       cem estao dentro do erro de uma extraccao automatica.
+       Não declara vencedor por margens pequenas. Cinco pontos numa escala de
+       cem estão dentro do erro de uma extracção automática.
 
 EN-UK: Weighted decision matrix.
 
@@ -46,14 +46,14 @@ from .models import Comparacao, Criterio, Pontuacao, Proposta
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Criterios por omissao, com os pesos que fazem sentido numa compra de
-#        equipamento com instalacao. O preco pesa mais do que tudo o resto
-#        junto mas nao decide sozinho — se decidisse, esta ferramenta seria uma
-#        folha de calculo com uma coluna.
+# PT-PT: Critérios por omissão, com os pesos que fazem sentido numa compra de
+#        equipamento com instalação. O preço pesa mais do que tudo o resto
+#        junto mas não decide sozinho — se decidisse, esta ferramenta seria uma
+#        folha de cálculo com uma coluna.
 #
-#        Os pesos sao editaveis na interface, e devem ser editados: numa compra
+#        Os pesos são editaveis na interface, e devem ser editados: numa compra
 #        urgente o prazo de entrega vale mais do que a garantia, e numa compra
-#        de infraestrutura que vai ficar cinco anos no sitio e ao contrario.
+#        de infraestrutura que vai ficar cinco anos no sítio e ao contrário.
 #
 # EN-UK: Default criteria, with weights that make sense for an equipment
 #        purchase with installation. Price outweighs everything else together
@@ -94,14 +94,14 @@ def valor_do_criterio(
 
 def normalizar(valores: list[float], maior_melhor: bool) -> list[float]:
     """
-    PT-PT: Converte uma lista de valores em pontuacoes de 0 a 100.
+    PT-PT: Converte uma lista de valores em pontuações de 0 a 100.
 
-           Quando todos os valores sao iguais, todos recebem 100. E a resposta
-           certa: se as seis propostas dao 24 meses de garantia, a garantia nao
-           distingue nenhuma e nao deve penalizar ninguem. Dar zero a todos —
-           que e o que uma divisao pela amplitude nula produziria — anulava o
-           criterio de forma silenciosa e deslocava o peso para os outros sem
-           ninguem perceber.
+           Quando todos os valores são iguais, todos recebem 100. E a resposta
+           certa: se as seis propostas dão 24 meses de garantia, a garantia não
+           distingue nenhuma e não deve penalizar ninguém. Dar zero a todos —
+           que é o que uma divisão pela amplitude nula produziria — anulava o
+           critério de forma silenciosa e deslocava o peso para os outros sem
+           ninguém perceber.
 
     EN-UK: Converts a list of values into 0-100 scores. When every value is
            equal, all get 100. That is the right answer: if all six quotes give
@@ -181,12 +181,12 @@ def comparar(
             f"{proposta.documento.erro or 'sem texto legível'}."
         )
 
-    # PT-PT: Documentos que nao tem valor nenhum em criterio nenhum nao sao
-    #        propostas — sao o formulario, a especificacao tecnica ou o email
+    # PT-PT: Documentos que não tem valor nenhum em critério nenhum não são
+    #        propostas — são o formulário, a especificacao técnica ou o email
     #        que estavam na mesma pasta. Pontua-los a zero enchia a tabela de
     #        linhas vazias e, pior, arrastava a normalizacao: um documento sem
-    #        preco nao afecta a escala, mas um com um numero mal lido afecta, e
-    #        a distincao nao e obvia a olhar para a tabela. Ficam de fora com
+    #        preço não afecta a escala, mas um com um número mal lido afecta, e
+    #        a distinção não é óbvia a olhar para a tabela. Ficam de fora com
     #        uma linha a dizer porque.
     # EN-UK: Documents with no value on any criterion are not proposals — they
     #        are the form, the technical spec or the email that happened to be
@@ -213,8 +213,8 @@ def comparar(
 
     pontuacoes = [Pontuacao(proposta=p) for p in utilizaveis]
 
-    # PT-PT: Uma passagem por criterio: recolhe os valores conhecidos,
-    #        normaliza-os entre si e distribui as pontuacoes.
+    # PT-PT: Uma passagem por critério: recolhe os valores conhecidos,
+    #        normaliza-os entre si e distribui as pontuações.
     # EN-UK: One pass per criterion: gather the known values, normalise them
     #        against each other and hand out the scores.
     for criterio in criterios:
@@ -242,10 +242,10 @@ def comparar(
             if valor is not None:
                 pontuacao.por_criterio[criterio.chave] = mapa[valor]
 
-    # PT-PT: O total e a media pesada apenas sobre os criterios em que a
-    #        proposta tem valor. E aqui que o peso dos criterios em falta e
-    #        redistribuido, sem precisar de codigo especial: o divisor e a soma
-    #        dos pesos usados, nao a soma de todos.
+    # PT-PT: O total e a media pesada apenas sobre os critérios em que a
+    #        proposta tem valor. E aqui que o peso dos critérios em falta e
+    #        redistribuído, sem precisar de código especial: o divisor e a soma
+    #        dos pesos usados, não a soma de todos.
     # EN-UK: The total is the weighted mean over only the criteria the proposal
     #        has a value for. This is where the missing criteria's weight is
     #        redistributed, with no special-case code: the divisor is the sum of
@@ -307,10 +307,10 @@ def comparar(
 
 def poupanca(comparacao: Comparacao) -> tuple[float, str, str] | None:
     """
-    PT-PT: Diferenca de preco entre a mais barata e a mais cara.
+    PT-PT: Diferença de preço entre a mais barata e a mais cara.
 
-           E o numero que se leva a reuniao. A pontuacao explica a escolha; a
-           poupanca explica-a a quem so vai olhar para uma linha.
+           E o número que se leva a reunião. A pontuação explica a escolha; a
+           poupanca explica-a a quem só vai olhar para uma linha.
 
     EN-UK: The price gap between cheapest and dearest. It is the figure taken
            to the meeting: the score explains the choice, the saving explains it

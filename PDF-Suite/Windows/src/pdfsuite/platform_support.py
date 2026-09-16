@@ -2,14 +2,14 @@
 """
 PT-PT: Particularidades do Windows.
 
-       Esta e a versao para Windows do PDF Suite. Nao ha aqui nenhuma
-       ramificacao por sistema operativo: o codigo sabe onde esta e diz apenas
-       o que e verdade nesta maquina. As outras duas versoes vivem nas pastas
+       Esta e a versão para Windows do PDF Suite. Não há aqui nenhuma
+       ramificação por sistema operativo: o código sabe onde esta e diz apenas
+       o que é verdade nesta máquina. As outras duas versões vivem nas pastas
        ao lado, cada uma com o seu equivalente deste ficheiro.
 
-       O que e especifico do Windows, e esta tratado aqui, e o `python.exe`
+       O que é específico do Windows, e esta tratado aqui, e o `python.exe`
        falso: o Windows instala um atalho para a Microsoft Store que responde
-       ao comando `python`, nao e um interpretador, e abre a loja em vez de
+       ao comando `python`, não é um interpretador, e abre a loja em vez de
        correr o programa.
 
 EN-UK: Windows specifics.
@@ -42,9 +42,9 @@ class Requirement:
     """
     PT-PT: Um requisito de sistema e o seu estado.
 
-           `essential` separa o que impede a aplicacao de funcionar do que
+           `essential` separa o que impede a aplicação de funcionar do que
            apenas desliga uma funcionalidade. Apresentar os dois com a mesma
-           gravidade levaria alguem a instalar coisas de que nao precisa.
+           gravidade levaria alguém a instalar coisas de que não precisa.
 
     EN-UK: A system requirement and its state. `essential` separates what stops
            the application working from what merely switches a feature off.
@@ -65,7 +65,7 @@ class Requirement:
 
 
 def tkinter_present() -> bool:
-    """PT-PT: Se o Tkinter e importavel. / EN-UK: Whether Tkinter is importable."""
+    """PT-PT: Se o Tkinter e importável. / EN-UK: Whether Tkinter is importable."""
     try:
         import tkinter  # noqa: F401
     except Exception:  # noqa: BLE001
@@ -75,11 +75,11 @@ def tkinter_present() -> bool:
 
 def poppler_present() -> bool:
     """
-    PT-PT: Se o poppler esta disponivel.
+    PT-PT: Se o poppler esta disponível.
 
-           E o que desenha a pagina no editor visual de campos. Sem ele o editor
+           E o que desenha a página no editor visual de campos. Sem ele o editor
            abre em modo de lista e tudo o resto funciona — daí ser opcional e
-           nao essencial.
+           não essencial.
 
     EN-UK: Whether poppler is available. It is what draws the page in the visual
            field editor. Without it the editor opens in list mode and everything
@@ -87,7 +87,7 @@ def poppler_present() -> bool:
     """
     return shutil.which("pdftoppm") is not None
 
-# PT-PT: Como se instala cada coisa em Windows. Ha pouco a instalar: o Tkinter
+# PT-PT: Como se instala cada coisa em Windows. Há pouco a instalar: o Tkinter
 #        vem com o instalador oficial do Python.
 # EN-UK: How each thing is installed on Windows. There is little to install:
 #        Tkinter ships with the official Python installer.
@@ -110,8 +110,8 @@ def is_store_alias(executable: str | None = None) -> bool:
     PT-PT: Se o Python que esta a correr e o atalho da Microsoft Store.
 
            O Windows instala em `WindowsApps` um `python.exe` de zero bytes que
-           so serve para abrir a loja. Se a aplicacao for lancada por ele, nao
-           ha erro nenhum — abre-se a Store e mais nada acontece.
+           só serve para abrir a loja. Se a aplicação for lançada por ele, não
+           há erro nenhum — abre-se a Store e mais nada acontece.
 
     EN-UK: Whether the running Python is the Microsoft Store alias — a zero-byte
            executable whose only purpose is to open the Store.
@@ -122,10 +122,10 @@ def is_store_alias(executable: str | None = None) -> bool:
 
 def app_data_dir(app_name: str, home: Path | None = None) -> Path:
     """
-    PT-PT: A pasta de dados da aplicacao, em `%APPDATA%`.
+    PT-PT: A pasta de dados da aplicação, em `%APPDATA%`.
 
-           E a convencao do Windows, e e onde um utilizador — ou um perfil movel
-           de dominio — espera encontra-la.
+           E a convenção do Windows, e e onde um utilizador — ou um perfil móvel
+           de domínio — espera encontra-la.
 
     EN-UK: The application's data folder, under `%APPDATA%`. It is the Windows
            convention, and where a user, or a roaming domain profile, expects it.
@@ -161,12 +161,12 @@ def check_requirements() -> list[Requirement]:
 
 
 def missing_essentials() -> list[Requirement]:
-    """PT-PT: So os essenciais que faltam. / EN-UK: Only the missing essentials."""
+    """PT-PT: Só os essenciais que faltam. / EN-UK: Only the missing essentials."""
     return [r for r in check_requirements() if r.essential and not r.present]
 
 
 def report() -> str:
-    """PT-PT: Relatorio do estado dos requisitos. / EN-UK: Requirements report."""
+    """PT-PT: Relatório do estado dos requisitos. / EN-UK: Requirements report."""
     linhas = [
         f"Sistema: {SYSTEM_NAME} {platform.release()} ({platform.machine()})",
         f"Python: {sys.version.split()[0]}  —  {sys.executable}",

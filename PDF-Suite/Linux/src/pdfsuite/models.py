@@ -1,7 +1,7 @@
 """
-PT-PT: Estruturas de dados partilhadas pelos dois modulos.
-       Sem dependencias de GUI, de PDF ou de rede — e o que torna a logica
-       testavel sem abrir um ficheiro sequer.
+PT-PT: Estruturas de dados partilhadas pelos dois módulos.
+       Sem dependências de GUI, de PDF ou de rede — e o que torna a lógica
+       testável sem abrir um ficheiro sequer.
 
 EN-UK: Data structures shared by both modules. No GUI, PDF or network
        dependencies — which is what makes the logic testable without opening a
@@ -24,9 +24,9 @@ class TipoCampo(Enum):
     PT-PT: Tipos de campo que sabemos escrever num AcroForm.
 
            Deliberadamente poucos. Cada tipo extra e mais uma forma de o
-           formulario abrir mal num leitor de PDF menos comum, e a maioria dos
-           formularios em papel de uma empresa e feita de caixas de texto,
-           caixas de seleccao e uma assinatura no fim.
+           formulário abrir mal num leitor de PDF menos comum, e a maioria dos
+           formulários em papel de uma empresa e feita de caixas de texto,
+           caixas de selecção e uma assinatura no fim.
 
     EN-UK: Field types we know how to write into an AcroForm. Deliberately few:
            each extra type is another way for the form to open badly in a less
@@ -56,9 +56,9 @@ class TipoCampo(Enum):
 
 class Origem(Enum):
     """
-    PT-PT: Como o campo foi encontrado. Guardado porque a confianca a dar a
-           cada deteccao nao e a mesma: uma linha desenhada e um sinal muito
-           mais fiavel do que um espaco em branco depois de dois pontos.
+    PT-PT: Como o campo foi encontrado. Guardado porque a confiança a dar a
+           cada detecção não é a mesma: uma linha desenhada e um sinal muito
+           mais fiável do que um espaço em branco depois de dois pontos.
     EN-UK: How the field was found. Kept because the confidence each detection
            deserves differs: a drawn line is a far more reliable signal than
            blank space after a colon.
@@ -76,13 +76,13 @@ class Origem(Enum):
 @dataclass(slots=True)
 class Campo:
     """
-    PT-PT: Um campo de formulario, em coordenadas PDF.
+    PT-PT: Um campo de formulário, em coordenadas PDF.
 
-           As coordenadas seguem a convencao do PDF: origem no canto inferior
+           As coordenadas seguem a convenção do PDF: origem no canto inferior
            esquerdo, unidade em pontos (1/72 de polegada). E diferente da
-           convencao do pdfplumber, que conta de cima para baixo — a conversao
-           faz-se uma unica vez, no detector, e nao anda espalhada pelo codigo.
-           Misturar as duas convencoes e o erro classico neste tipo de
+           convenção do pdfplumber, que conta de cima para baixo — a conversão
+           faz-se uma única vez, no detector, e não anda espalhada pelo código.
+           Misturar as duas convenções e o erro clássico neste tipo de
            ferramenta e produz campos correctos na horizontal e invertidos na
            vertical.
 
@@ -105,7 +105,7 @@ class Campo:
     etiqueta: str = ""
     obrigatorio: bool = False
     opcoes: tuple[str, ...] = ()
-    #: PT-PT: 0 a 1. Abaixo de 0,5 a interface assinala para revisao.
+    #: PT-PT: 0 a 1. Abaixo de 0,5 a interface assinala para revisão.
     #: EN-UK: 0 to 1. Below 0.5 the interface flags it for review.
     confianca: float = 1.0
 
@@ -119,9 +119,9 @@ class Campo:
 
     def valido(self) -> bool:
         """
-        PT-PT: Um campo com area nula ou negativa nao e escrevivel. Acontece
-               quando a deteccao encontra uma linha de comprimento zero ou
-               quando o utilizador arrasta um rectangulo ao contrario no editor.
+        PT-PT: Um campo com área nula ou negativa não é escrevível. Acontece
+               quando a detecção encontra uma linha de comprimento zero ou
+               quando o utilizador arrasta um rectângulo ao contrário no editor.
         EN-UK: A field with zero or negative area cannot be written. It happens
                when detection finds a zero-length line, or when the user drags a
                rectangle backwards in the editor.
@@ -141,16 +141,16 @@ class Campo:
 
 def nome_seguro_campo(bruto: str, usados: set[str]) -> str:
     """
-    PT-PT: Converte uma etiqueta num nome de campo utilizavel e unico.
+    PT-PT: Converte uma etiqueta num nome de campo utilizável e único.
 
-           Os nomes de campo de um AcroForm sao o que aparece na exportacao
+           Os nomes de campo de um AcroForm são o que aparece na exportação
            para FDF e o que qualquer automatismo posterior vai usar como chave.
-           Espacos e acentos funcionam na maioria dos leitores, mas partem
-           assim que alguem tente ler o formulario com um script — e a razao de
+           Espaços e acentos funcionam na maioria dos leitores, mas partem
+           assim que alguém tente ler o formulário com um script — e a razão de
            serem normalizados aqui.
 
            O ponto e reservado: no PDF separa campo de campo-pai numa
-           hierarquia, portanto «Data.Nascimento» criaria uma arvore em vez de
+           hierarquia, portanto «Data.Nascimento» criaria uma árvore em vez de
            um campo chamado assim.
 
     EN-UK: Turns a label into a usable, unique field name. AcroForm field names
@@ -175,10 +175,10 @@ def nome_seguro_campo(bruto: str, usados: set[str]) -> str:
         usados.add(texto)
         return texto
 
-    # PT-PT: Dois campos com o mesmo nome num AcroForm nao sao dois campos: sao
-    #        o mesmo campo em dois sitios, e escrever num escreve no outro. Num
-    #        formulario com «Nome» em tres paginas, isso e um bug que so aparece
-    #        depois de alguem o preencher.
+    # PT-PT: Dois campos com o mesmo nome num AcroForm não são dois campos: são
+    #        o mesmo campo em dois sítios, e escrever num escreve no outro. Num
+    #        formulário com «Nome» em três páginas, isso é um bug que só aparece
+    #        depois de alguém o preencher.
     # EN-UK: Two fields with the same name in an AcroForm are not two fields:
     #        they are one field in two places, and typing in one types in the
     #        other. On a form with "Name" on three pages, that is a bug that
@@ -194,7 +194,7 @@ def nome_seguro_campo(bruto: str, usados: set[str]) -> str:
 @dataclass(slots=True)
 class Documento:
     """
-    PT-PT: Um documento lido, com o texto ja extraido.
+    PT-PT: Um documento lido, com o texto já extraído.
     EN-UK: A document that has been read, with the text already extracted.
     """
 
@@ -204,7 +204,7 @@ class Documento:
     formato: str = ""
     #: PT-PT: PDF digitalizado sem camada de texto. Distinguir isto de um PDF
     #:        vazio importa: um diz «preciso de OCR», o outro diz «o ficheiro
-    #:        nao tem nada». A v anterior devolvia string vazia nos dois casos.
+    #:        não tem nada». A v anterior devolvia string vazia nos dois casos.
     #: EN-UK: A scanned PDF with no text layer. Telling this apart from an empty
     #:        PDF matters: one says "needs OCR", the other says "the file has
     #:        nothing in it".
@@ -217,7 +217,7 @@ class Documento:
 
     @property
     def rotulo(self) -> str:
-        """PT-PT: Nome sem extensao, para tabelas. / EN-UK: Stem, for tables."""
+        """PT-PT: Nome sem extensão, para tabelas. / EN-UK: Stem, for tables."""
         return self.caminho.stem
 
     @property
@@ -232,13 +232,13 @@ class Documento:
 @dataclass(slots=True)
 class Valor:
     """
-    PT-PT: Um valor extraido de um documento, com o contexto onde foi
+    PT-PT: Um valor extraído de um documento, com o contexto onde foi
            encontrado.
 
-           O contexto nao e decorativo. A extracao automatica erra, e quando
+           O contexto não é decorativo. A extracção automática erra, e quando
            erra o utilizador precisa de ver a frase original para perceber
-           porque — sem isso, o unico caminho e abrir o PDF e procurar a olho,
-           que e exactamente o trabalho que esta ferramenta devia poupar.
+           porque — sem isso, o único caminho e abrir o PDF e procurar a olho,
+           que é exactamente o trabalho que esta ferramenta devia poupar.
 
     EN-UK: A value extracted from a document, with the context it was found in.
            The context is not decorative: automatic extraction gets things
@@ -262,12 +262,12 @@ class Valor:
 @dataclass(slots=True)
 class Proposta:
     """
-    PT-PT: Uma proposta de fornecedor, com os sinais extraidos do documento.
+    PT-PT: Uma proposta de fornecedor, com os sinais extraídos do documento.
 
-           Todos os campos sao `Valor`, e todos podem ser desconhecidos. Uma
-           proposta sem prazo de garantia declarado nao vale zero em garantia:
-           vale «nao diz», que e informacao diferente e tem de aparecer como
-           tal no relatorio.
+           Todos os campos são `Valor`, e todos podem ser desconhecidos. Uma
+           proposta sem prazo de garantia declarado não vale zero em garantia:
+           vale «não diz», que é informação diferente e tem de aparecer como
+           tal no relatório.
 
     EN-UK: A vendor proposal, with the signals extracted from the document.
            Every field is a `Valor` and every one may be unknown. A proposal
@@ -280,7 +280,7 @@ class Proposta:
     fornecedor: Valor = field(default_factory=Valor)
     total: Valor = field(default_factory=Valor)
     moeda: str = ""
-    #: PT-PT: True se o total ja inclui IVA, False se acresce, None se nao diz.
+    #: PT-PT: True se o total já inclui IVA, False se acresce, None se não diz.
     #: EN-UK: True if the total already includes VAT, False if it is added,
     #:        None if the document does not say.
     iva_incluido: bool | None = None
@@ -290,7 +290,7 @@ class Proposta:
     garantia_meses: Valor = field(default_factory=Valor)
     validade: Valor = field(default_factory=Valor)
     referencia: Valor = field(default_factory=Valor)
-    #: PT-PT: Notas geradas pela analise — avisos, ambiguidades, coisas a
+    #: PT-PT: Notas geradas pela análise — avisos, ambiguidades, coisas a
     #:        confirmar antes de decidir.
     #: EN-UK: Notes produced by the analysis — warnings and ambiguities.
     notas: list[str] = field(default_factory=list)
@@ -298,9 +298,9 @@ class Proposta:
     @property
     def rotulo(self) -> str:
         """
-        PT-PT: Nome a mostrar: o fornecedor se foi identificado, senao o nome
-               do ficheiro. Numa comparacao de seis propostas, «Proposta_2.pdf»
-               nao ajuda ninguem a decidir.
+        PT-PT: Nome a mostrar: o fornecedor se foi identificado, senão o nome
+               do ficheiro. Numa comparação de seis propostas, «Proposta_2.pdf»
+               não ajuda ninguém a decidir.
         EN-UK: Name to display: the vendor if identified, otherwise the file
                name. In a six-way comparison, "Quote_2.pdf" helps nobody decide.
         """
@@ -310,13 +310,13 @@ class Proposta:
 
     def total_com_iva(self, taxa_omissao: float = 23.0) -> float | None:
         """
-        PT-PT: Total com IVA, para os totais serem comparaveis entre si.
+        PT-PT: Total com IVA, para os totais serem comparáveis entre si.
 
-               E o calculo mais importante do modulo e a armadilha classica
-               destas comparacoes: uma proposta a 10.000 EUR com IVA incluido e
+               E o cálculo mais importante do módulo e a armadilha classica
+               destas comparações: uma proposta a 10.000 EUR com IVA incluído e
                mais barata do que uma a 9.000 EUR mais IVA, e quem compara os
-               numeros da capa escolhe a errada. Quando o documento nao diz, a
-               proposta e marcada e o relatorio avisa em vez de adivinhar.
+               números da capa escolhe a errada. Quando o documento não diz, a
+               proposta e marcada e o relatório avisa em vez de adivinhar.
 
         EN-UK: Total including VAT, so totals become comparable. This is the
                most important calculation here and the classic trap: a quote at
@@ -341,13 +341,13 @@ class Proposta:
 @dataclass(slots=True)
 class Criterio:
     """
-    PT-PT: Um criterio da matriz de decisao.
+    PT-PT: Um critério da matriz de decisão.
 
     EN-UK: One criterion of the decision matrix.
 
     :param maior_melhor:
         PT-PT: True quando mais e melhor (garantia); False quando menos e
-               melhor (preco, prazo de entrega).
+               melhor (preço, prazo de entrega).
         EN-UK: True when more is better (warranty); False when less is better
                (price, delivery time).
     """
@@ -364,22 +364,22 @@ class Criterio:
 
 @dataclass(slots=True)
 class Pontuacao:
-    """PT-PT: Pontuacao de uma proposta. / EN-UK: One proposal's score."""
+    """PT-PT: Pontuação de uma proposta. / EN-UK: One proposal's score."""
 
     proposta: Proposta
     total: float = 0.0
     por_criterio: dict[str, float] = field(default_factory=dict)
     valores: dict[str, float | None] = field(default_factory=dict)
-    #: PT-PT: Criterios em que o documento nao diz nada.
+    #: PT-PT: Critérios em que o documento não diz nada.
     #: EN-UK: Criteria on which the document says nothing.
     em_falta: list[str] = field(default_factory=list)
 
     @property
     def completude(self) -> float:
         """
-        PT-PT: Percentagem de criterios com valor conhecido. Uma proposta que
-               ganha por ter dados em dois criterios e falhar quatro nao ganhou
-               nada, e isto e o numero que torna isso visivel.
+        PT-PT: Percentagem de critérios com valor conhecido. Uma proposta que
+               ganha por ter dados em dois critérios e falhar quatro não ganhou
+               nada, e isto é o número que torna isso visível.
         EN-UK: Percentage of criteria with a known value. A proposal that wins
                on two criteria while missing four has not won anything, and this
                is the number that makes that visible.
@@ -393,7 +393,7 @@ class Pontuacao:
 
 @dataclass(slots=True)
 class Comparacao:
-    """PT-PT: Resultado completo de uma comparacao. / EN-UK: A full comparison."""
+    """PT-PT: Resultado completo de uma comparação. / EN-UK: A full comparison."""
 
     pontuacoes: list[Pontuacao]
     criterios: list[Criterio]
@@ -414,12 +414,12 @@ class Comparacao:
     @property
     def decisao_segura(self) -> bool:
         """
-        PT-PT: A diferenca entre o primeiro e o segundo justifica a escolha?
+        PT-PT: A diferença entre o primeiro e o segundo justifica a escolha?
 
-               Cinco pontos numa escala de cem estao dentro da margem de erro
-               de uma extracao automatica. Dizer «A vence» quando A e B estao
-               empatados e pior do que nao dizer nada, porque da a uma
-               estimativa a aparencia de um facto.
+               Cinco pontos numa escala de cem estão dentro da margem de erro
+               de uma extracção automática. Dizer «A vence» quando A e B estão
+               empatados é pior do que não dizer nada, porque da a uma
+               estimativa a aparência de um facto.
 
         EN-UK: Does the gap between first and second justify the choice? Five
                points on a hundred-point scale sit inside the error margin of
@@ -442,7 +442,7 @@ class Resumo:
     palavras_chave: list[tuple[str, int]] = field(default_factory=list)
     numeros: list[str] = field(default_factory=list)
     datas: list[str] = field(default_factory=list)
-    #: PT-PT: Texto devolvido pelo modelo, quando a analise assistida e usada.
+    #: PT-PT: Texto devolvido pelo modelo, quando a análise assistida e usada.
     #: EN-UK: Text returned by the model, when assisted analysis is used.
     texto_ia: str = ""
 

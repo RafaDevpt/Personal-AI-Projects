@@ -1,14 +1,14 @@
 """
 PT-PT: Tema visual da interface.
 
-       Todos os valores de cor, tipo de letra e espacamento vivem aqui.
+       Todos os valores de cor, tipo de letra e espaçamento vivem aqui.
 
-PT-PT: Sobre as cores. O indigo e o acento. As cores de confianca — verde,
-       ambar, vermelho — sao usadas exclusivamente nos campos detectados e nos
+PT-PT: Sobre as cores. O índigo e o acento. As cores de confiança — verde,
+       âmbar, vermelho — são usadas exclusivamente nos campos detectados e nos
        avisos, e em mais nada. E uma disciplina que importa numa ferramenta que
-       pede revisao: se o vermelho aparecer em botoes ou titulos, deixa de
-       saltar a vista no unico sitio onde interessa, que e o campo que a
-       deteccao inventou e o utilizador tem de apagar.
+       pede revisão: se o vermelho aparecer em botões ou títulos, deixa de
+       saltar a vista no único sítio onde interessa, que é o campo que a
+       detecção inventou e o utilizador tem de apagar.
 
 EN-UK: Visual theme. Every colour, font and spacing value lives here.
 
@@ -38,14 +38,14 @@ TEXT_PRIMARY: tuple[str, str] = ("#1A1D21", "#E9EBEE")
 TEXT_MUTED: tuple[str, str] = ("#5C646E", "#98A0AB")
 TEXT_ON_ACCENT: tuple[str, str] = ("#FFFFFF", "#FFFFFF")
 
-# PT-PT: Confianca da deteccao. Nao usadas em mais nada.
+# PT-PT: Confiança da detecção. Não usadas em mais nada.
 # EN-UK: Detection confidence. Used for nothing else.
 ALTA: tuple[str, str] = ("#1D7A4C", "#41BE83")
 MEDIA: tuple[str, str] = ("#A8620C", "#E39A47")
 BAIXA: tuple[str, str] = ("#B22B21", "#F0837B")
 
-# PT-PT: Cores do editor visual, em hexadecimal simples porque sao desenhadas
-#        numa tela Tk e nao passam pelo CustomTkinter.
+# PT-PT: Cores do editor visual, em hexadecimal simples porque são desenhadas
+#        numa tela Tk e não passam pelo CustomTkinter.
 # EN-UK: Visual editor colours, as plain hex because they are drawn on a Tk
 #        canvas and do not go through CustomTkinter.
 EDITOR_CAMPO = "#33477A"
@@ -61,11 +61,11 @@ EDITOR_FUNDO = "#8A9099"
 FONT_UI: str = "Segoe UI"
 FONT_UI_FALLBACKS: tuple[str, ...] = ("SF Pro Text", "Inter", "DejaVu Sans")
 
-# PT-PT: Monoespacado para nomes de campo e para os totais nas tabelas. Os
-#        digitos alinhados em coluna ficam comparaveis de relance; com uma
+# PT-PT: Monoespaçado para nomes de campo e para os totais nas tabelas. Os
+#        dígitos alinhados em coluna ficam comparáveis de relance; com uma
 #        proporcional, «11.485,28 €» e «9.234,84 €» ocupam larguras diferentes
-#        e a leitura da coluna de precos fica confusa — que e precisamente a
-#        coluna que se le mais.
+#        e a leitura da coluna de preços fica confusa — que é precisamente a
+#        coluna que se lê mais.
 # EN-UK: Monospaced for field names and table totals. Aligned digits become
 #        comparable at a glance; with a proportional face the price column, the
 #        one people read most, becomes hard to scan.
@@ -79,7 +79,7 @@ SIZE_SMALL: int = 11
 SIZE_TINY: int = 10
 
 # ---------------------------------------------------------------------------
-# PT-PT: Espacamentos e dimensoes / EN-UK: Spacing and dimensions
+# PT-PT: Espaçamentos e dimensões / EN-UK: Spacing and dimensions
 # ---------------------------------------------------------------------------
 
 PAD_XS: int = 4
@@ -94,10 +94,10 @@ SIDEBAR_WIDTH: int = 208
 WINDOW_MIN_WIDTH: int = 1120
 WINDOW_MIN_HEIGHT: int = 720
 
-# PT-PT: Resolucao a que as paginas sao rasterizadas no editor. 110 DPI e o
-#        compromisso: legivel para se perceber onde ficam os campos, e leve o
-#        suficiente para uma pagina A4 nao ocupar dezenas de megabytes em
-#        memoria num documento de trinta paginas.
+# PT-PT: Resolução a que as páginas são rasterizadas no editor. 110 DPI e o
+#        compromisso: legível para se perceber onde ficam os campos, e leve o
+#        suficiente para uma página A4 não ocupar dezenas de megabytes em
+#        memória num documento de trinta páginas.
 # EN-UK: Resolution at which pages are rasterised in the editor. 110 DPI is the
 #        compromise: legible enough to see where the fields go, light enough
 #        that an A4 page does not take tens of megabytes on a thirty-page
@@ -107,11 +107,11 @@ EDITOR_DPI: int = 110
 
 def resolve_font(preferido: str, alternativas: tuple[str, ...]) -> str:
     """
-    PT-PT: Devolve o primeiro tipo de letra disponivel no sistema.
+    PT-PT: Devolve o primeiro tipo de letra disponível no sistema.
 
-           O Tk substitui em silencio um tipo de letra em falta por um generico,
+           O Tk substitui em silêncio um tipo de letra em falta por um genérico,
            muitas vezes feio e de largura errada. Verificar antes evita que a
-           aplicacao fique com aspecto diferente conforme a maquina.
+           aplicação fique com aspecto diferente conforme a máquina.
 
     EN-UK: Returns the first font family available on the system. Tk silently
            substitutes a missing font with a generic one.
@@ -131,10 +131,10 @@ def resolve_font(preferido: str, alternativas: tuple[str, ...]) -> str:
 
 def cor_confianca(confianca: float) -> tuple[str, str]:
     """
-    PT-PT: Cor para uma confianca de deteccao.
+    PT-PT: Cor para uma confiança de detecção.
 
-           Tres faixas. Acima de 0,75 e um sinal forte — um sublinhado, uma
-           caixa desenhada. Entre 0,5 e 0,75 e provavel. Abaixo de 0,5 e um
+           Três faixas. Acima de 0,75 e um sinal forte — um sublinhado, uma
+           caixa desenhada. Entre 0,5 e 0,75 e provável. Abaixo de 0,5 e um
            palpite e o utilizador deve olhar para ele antes de gravar.
 
     EN-UK: Colour for a detection confidence. Three bands: above 0.75 is a

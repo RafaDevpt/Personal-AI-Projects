@@ -1,11 +1,11 @@
 """
-PT-PT: Testes da deteccao de campos, da escrita do AcroForm, da leitura de
-       documentos e dos relatorios.
+PT-PT: Testes da detecção de campos, da escrita do AcroForm, da leitura de
+       documentos e dos relatórios.
 
-       Ao contrario dos outros ficheiros de teste, este cria PDF a serio e
-       volta a le-los. E a unica forma de verificar que um formulario gerado
-       abre mesmo: um AcroForm mal formado nao levanta excepcao nenhuma ao ser
-       escrito — so nao funciona quando alguem o abre, que ja e tarde.
+       Ao contrário dos outros ficheiros de teste, este cria PDF a sério e
+       volta a lê-los. E a única forma de verificar que um formulário gerado
+       abre mesmo: um AcroForm mal formado não levanta excepção nenhuma ao ser
+       escrito — só não funciona quando alguém o abre, que já e tarde.
 
 EN-UK: Tests for field detection, AcroForm writing, document reading and
        reports.
@@ -31,7 +31,7 @@ from pdfsuite.models import Campo, Documento, TipoCampo, nome_seguro_campo
 @pytest.fixture
 def formulario_pdf(tmp_path: Path) -> Path:
     """
-    PT-PT: Um formulario em papel, com linha, sublinhado, quadrado e caixa.
+    PT-PT: Um formulário em papel, com linha, sublinhado, quadrado e caixa.
     EN-UK: A paper form with a rule, an underscore run, a square and a box.
     """
     from reportlab.lib.pagesizes import A4

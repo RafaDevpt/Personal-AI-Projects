@@ -1,15 +1,15 @@
 """
 PT-PT: Leitura de documentos.
 
-       Um formato, uma funcao, e uma unica saida: um `Documento` com o texto
-       ja extraido. Quem compara ou resume nao precisa de saber se aquilo veio
+       Um formato, uma função, e uma única saída: um `Documento` com o texto
+       já extraído. Quem compara ou resume não precisa de saber se aquilo veio
        de um PDF ou de um Word.
 
-       A distincao que este modulo faz questao de nao perder e entre um
-       documento vazio e um PDF digitalizado. Sao os dois «sem texto», mas o
-       primeiro nao tem nada la dentro e o segundo tem tudo — em imagem. Dizer
+       A distinção que este módulo faz questão de não perder e entre um
+       documento vazio e um PDF digitalizado. São os dois «sem texto», mas o
+       primeiro não tem nada la dentro e o segundo tem tudo — em imagem. Dizer
        ao utilizador «o ficheiro esta vazio» quando o problema e falta de OCR
-       manda-o procurar no sitio errado.
+       manda-o procurar no sítio errado.
 
 EN-UK: Document reading.
 
@@ -35,7 +35,7 @@ from .models import Documento
 log = logging.getLogger(__name__)
 
 # PT-PT: Formatos que sabemos ler. A interface usa isto para o filtro do
-#        selector de ficheiros, para nao haver duas listas a divergir.
+#        selector de ficheiros, para não haver duas listas a divergir.
 # EN-UK: Formats we can read. The interface uses this for the file dialog
 #        filter, so there are not two lists drifting apart.
 EXTENSOES_PDF: tuple[str, ...] = (".pdf",)
@@ -43,10 +43,10 @@ EXTENSOES_WORD: tuple[str, ...] = (".docx",)
 EXTENSOES_TEXTO: tuple[str, ...] = (".txt", ".md", ".csv", ".log", ".rtf", ".json")
 EXTENSOES = EXTENSOES_PDF + EXTENSOES_WORD + EXTENSOES_TEXTO
 
-# PT-PT: Abaixo disto por pagina, um PDF e quase de certeza digitalizado. O
-#        valor nao e zero de proposito: paginas digitalizadas trazem muitas
-#        vezes um cabecalho ou um numero de pagina em texto real, vindos do
-#        proprio scanner. Zero como limite deixava-os passar por bons.
+# PT-PT: Abaixo disto por página, um PDF e quase de certeza digitalizado. O
+#        valor não é zero de propósito: páginas digitalizadas trazem muitas
+#        vezes um cabeçalho ou um número de página em texto real, vindos do
+#        próprio scanner. Zero como limite deixava-os passar por bons.
 # EN-UK: Below this per page, a PDF is almost certainly scanned. The value is
 #        deliberately not zero: scanned pages often carry a header or page
 #        number as real text, produced by the scanner itself.
@@ -54,18 +54,18 @@ CARACTERES_MINIMOS_POR_PAGINA = 60
 
 
 def formatos_suportados() -> str:
-    """PT-PT: Lista legivel para mensagens. / EN-UK: Readable list for messages."""
+    """PT-PT: Lista legível para mensagens. / EN-UK: Readable list for messages."""
     return ", ".join(sorted(EXTENSOES))
 
 
 def _limpar(texto: str) -> str:
     """
-    PT-PT: Normaliza o texto extraido.
+    PT-PT: Normaliza o texto extraído.
 
-           A juncao de palavras cortadas no fim da linha («fornece-\ndor») nao
-           e cosmetica: sem ela, procurar «fornecedor» no texto de um PDF
-           justificado falha exactamente nas paginas onde a palavra e mais
-           provavel de aparecer.
+           A junção de palavras cortadas no fim da linha («fornece-\ndor») não
+           e cosmética: sem ela, procurar «fornecedor» no texto de um PDF
+           justificado falha exactamente nas páginas onde a palavra e mais
+           provável de aparecer.
 
     EN-UK: Normalises extracted text. Rejoining words hyphenated across line
            breaks is not cosmetic: without it, searching for a word in a
@@ -86,12 +86,12 @@ def _limpar(texto: str) -> str:
 
 def ler_pdf(caminho: Path) -> Documento:
     """
-    PT-PT: Le um PDF, com duas estrategias em cascata.
+    PT-PT: Lê um PDF, com duas estratégias em cascata.
 
-           Primeiro o pdfplumber, que respeita a disposicao das colunas — numa
-           tabela de precos, e a diferenca entre ler «Artigo A 250,00» e ler a
-           coluna dos artigos toda seguida da coluna dos precos toda. Se
-           falhar, o pypdf, que e mais tolerante a PDF mal formados.
+           Primeiro o pdfplumber, que respeita a disposição das colunas — numa
+           tabela de preços, e a diferença entre ler «Artigo A 250,00» e ler a
+           coluna dos artigos toda seguida da coluna dos preços toda. Se
+           falhar, o pypdf, que é mais tolerante a PDF mal formados.
 
     EN-UK: Reads a PDF with two strategies in cascade. First pdfplumber, which
            respects column layout — on a price table, that is the difference
@@ -111,9 +111,9 @@ def ler_pdf(caminho: Path) -> Documento:
                 try:
                     partes.append(pagina.extract_text() or "")
                 except Exception as exc:  # noqa: BLE001
-                    # PT-PT: Uma pagina ilegivel nao pode custar o documento
-                    #        inteiro. Numa proposta de 40 paginas, perder a
-                    #        pagina 12 e mau; perder as 40 e inutilizavel.
+                    # PT-PT: Uma página ilegível não pode custar o documento
+                    #        inteiro. Numa proposta de 40 páginas, perder a
+                    #        página 12 e mau; perder as 40 e inutilizavel.
                     # EN-UK: One unreadable page must not cost the whole
                     #        document.
                     log.warning("Página ilegível em %s: %s", caminho.name, exc)
@@ -147,11 +147,11 @@ def ler_pdf(caminho: Path) -> Documento:
 
 def ler_docx(caminho: Path) -> Documento:
     """
-    PT-PT: Le um documento Word.
+    PT-PT: Lê um documento Word.
 
-           Le tambem as tabelas, e nao so os paragrafos. Numa proposta
-           comercial, os precos estao quase sempre numa tabela: ignora-las
-           deixava o documento com o texto de cortesia e sem um unico numero.
+           Lê também as tabelas, e não só os parágrafos. Numa proposta
+           comercial, os preços estão quase sempre numa tabela: ignora-las
+           deixava o documento com o texto de cortesia e sem um único número.
 
     EN-UK: Reads a Word document, including tables and not just paragraphs. In
            a commercial quote the prices are almost always in a table; ignoring
@@ -175,8 +175,8 @@ def ler_docx(caminho: Path) -> Documento:
         for linha in tabela.rows:
             celulas = [c.text.strip() for c in linha.cells]
             if any(celulas):
-                # PT-PT: As celulas sao separadas por tabulacao para a linha
-                #        continuar a ler-se como uma linha de tabela e nao como
+                # PT-PT: As células são separadas por tabulação para a linha
+                #        continuar a ler-se como uma linha de tabela e não como
                 #        prosa colada.
                 # EN-UK: Cells joined by tabs so the row still reads as a table
                 #        row rather than run-together prose.
@@ -189,13 +189,13 @@ def ler_docx(caminho: Path) -> Documento:
 
 def ler_texto(caminho: Path) -> Documento:
     """
-    PT-PT: Le um ficheiro de texto.
+    PT-PT: Lê um ficheiro de texto.
 
            Tenta UTF-8 e depois cp1252. E a ordem certa para Portugal: os
-           ficheiros novos sao UTF-8, e os antigos, exportados por aplicacoes
-           de gestao em Windows, sao cp1252. Ler cp1252 como UTF-8 rebenta;
-           ler UTF-8 como cp1252 nao rebenta, mas estraga todos os acentos em
-           silencio, que e pior. Por isso o UTF-8 vem primeiro.
+           ficheiros novos são UTF-8, e os antigos, exportados por aplicações
+           de gestão em Windows, são cp1252. Ler cp1252 como UTF-8 rebenta;
+           ler UTF-8 como cp1252 não rebenta, mas estraga todos os acentos em
+           silêncio, que é pior. Por isso o UTF-8 vem primeiro.
 
     EN-UK: Reads a text file. Tries UTF-8 then cp1252 — the right order:
            reading cp1252 as UTF-8 raises, while reading UTF-8 as cp1252 does
@@ -227,10 +227,10 @@ def _rtf_para_texto(bruto: str) -> str:
     """
     PT-PT: Extrai o texto de um RTF sem bibliotecas externas.
 
-           E uma aproximacao, nao um interpretador de RTF: tira os grupos de
+           E uma aproximação, não um interpretador de RTF: tira os grupos de
            controlo e converte os escapes hexadecimais. Chega para um documento
-           de texto corrido exportado do Word, que e o caso em que estes
-           ficheiros ainda aparecem, e nao chega para um RTF com tabelas ou
+           de texto corrido exportado do Word, que é o caso em que estes
+           ficheiros ainda aparecem, e não chega para um RTF com tabelas ou
            imagens — o utilizador e avisado disso na interface.
 
     EN-UK: Extracts text from RTF without external libraries. An approximation,
@@ -247,7 +247,7 @@ def _rtf_para_texto(bruto: str) -> str:
 
 def ler(caminho: Path | str) -> Documento:
     """
-    PT-PT: Le um documento, escolhendo a estrategia pela extensao.
+    PT-PT: Lê um documento, escolhendo a estratégia pela extensão.
     EN-UK: Reads a document, picking the strategy from the extension.
     """
     caminho = Path(caminho)
@@ -272,9 +272,9 @@ def ler(caminho: Path | str) -> Documento:
         return ler_texto(caminho)
 
     if sufixo == ".doc":
-        # PT-PT: O .doc antigo e um formato binario diferente do .docx e nao ha
+        # PT-PT: O .doc antigo e um formato binário diferente do .docx e não há
         #        forma de o ler sem o Word ou o LibreOffice instalados. Dizer
-        #        isto e o que fazer a seguir vale mais do que um erro generico.
+        #        isto e o que fazer a seguir vale mais do que um erro genérico.
         # EN-UK: The old .doc is a different binary format and cannot be read
         #        without Word or LibreOffice installed.
         return Documento(
@@ -294,10 +294,10 @@ def ler(caminho: Path | str) -> Documento:
 
 def ler_varios(caminhos: list[Path | str]) -> list[Documento]:
     """
-    PT-PT: Le varios documentos. Os que falharem vem na lista com o erro
-           preenchido, em vez de desaparecerem — numa comparacao de seis
-           propostas, ficar com cinco sem perceber qual faltou e pior do que
-           nao ter nenhuma.
+    PT-PT: Lê vários documentos. Os que falharem vem na lista com o erro
+           preenchido, em vez de desaparecerem — numa comparação de seis
+           propostas, ficar com cinco sem perceber qual faltou é pior do que
+           não ter nenhuma.
     EN-UK: Reads several documents. Failures come back in the list with the
            error filled in rather than vanishing: in a six-way comparison,
            ending up with five and not knowing which one dropped out is worse

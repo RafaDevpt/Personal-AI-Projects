@@ -1,19 +1,19 @@
 """
-PT-PT: Interpretacao de numeros, moeda e IVA.
+PT-PT: Interpretação de números, moeda e IVA.
 
-       Este modulo existe por causa de uma unica ambiguidade que estraga
-       comparacoes de propostas: `1.234` sao mil duzentos e trinta e quatro em
-       Portugal e um virgula dois tres quatro em Inglaterra. Numa proposta em
-       euros vinda de um fornecedor britanico, adivinhar mal por mil vezes
-       inverte a decisao de compra.
+       Este módulo existe por causa de uma única ambiguidade que estraga
+       comparações de propostas: `1.234` são mil duzentos e trinta e quatro em
+       Portugal e um vírgula dois três quatro em Inglaterra. Numa proposta em
+       euros vinda de um fornecedor britânico, adivinhar mal por mil vezes
+       inverte a decisão de compra.
 
-       A regra usada e a do ultimo separador: o separador decimal e o que
-       aparece mais a direita, desde que tenha um a tres digitos a seguir. E a
+       A regra usada e a do último separador: o separador decimal e o que
+       aparece mais a direita, desde que tenha um a três dígitos a seguir. E a
        regra que funciona nos dois formatos sem precisar de saber a origem do
-       documento. Os casos que continuam ambiguos — `1.234` sozinho — sao
-       resolvidos pela convencao dos milhares, porque um valor com exactamente
-       tres digitos a seguir ao ponto e quase sempre milhares, e assinalados
-       com confianca mais baixa para o utilizador confirmar.
+       documento. Os casos que continuam ambíguos — `1.234` sozinho — são
+       resolvidos pela convenção dos milhares, porque um valor com exactamente
+       três dígitos a seguir ao ponto e quase sempre milhares, e assinalados
+       com confiança mais baixa para o utilizador confirmar.
 
 EN-UK: Number, currency and VAT parsing.
 
@@ -36,9 +36,9 @@ import re
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Simbolos e codigos reconhecidos. A ordem importa na alternancia da
-#        expressao regular: os codigos de tres letras vem primeiro para «EUR»
-#        nao ser lido como «E» seguido de «UR».
+# PT-PT: Símbolos e códigos reconhecidos. A ordem importa na alternância da
+#        expressão regular: os códigos de três letras vem primeiro para «EUR»
+#        não ser lido como «E» seguido de «UR».
 # EN-UK: Recognised symbols and codes. Order matters in the regex alternation:
 #        three-letter codes come first so "EUR" is not read as "E" then "UR".
 MOEDAS: dict[str, str] = {
@@ -55,16 +55,16 @@ MOEDAS: dict[str, str] = {
 
 _SIMBOLOS = "|".join(re.escape(s) for s in sorted(MOEDAS, key=len, reverse=True))
 
-# PT-PT: Um numero com separadores, em duas alternativas.
+# PT-PT: Um número com separadores, em duas alternativas.
 #
-#        A primeira aceita o espaco como separador de milhares — `1 234,56` —
-#        mas so quando cada grupo tem exactamente tres digitos. Sem essa
-#        exigencia, o espaco engolia a coluna do lado numa tabela de precos:
-#        numa linha `Switch 4 1.180,00 €`, a quantidade e o preco colavam-se e
-#        saía o montante 41.180,00 €. Numa proposta comercial isso nao e um
-#        erro de leitura, e uma decisao de compra errada.
+#        A primeira aceita o espaço como separador de milhares — `1 234,56` —
+#        mas só quando cada grupo tem exactamente três dígitos. Sem essa
+#        exigencia, o espaço engolia a coluna do lado numa tabela de preços:
+#        numa linha `Switch 4 1.180,00 €`, a quantidade e o preço colavam-se e
+#        saía o montante 41.180,00 €. Numa proposta comercial isso não é um
+#        erro de leitura, e uma decisão de compra errada.
 #
-#        A segunda cobre tudo o resto sem espaco nenhum: `1.180,00`,
+#        A segunda cobre tudo o resto sem espaço nenhum: `1.180,00`,
 #        `1,234.56`, `1234`, `1234.5`.
 #
 # EN-UK: A number with separators, in two alternatives.
@@ -79,9 +79,9 @@ _NUMERO = (
     r"|\d+(?:[.,]\d+)*"
 )
 
-# PT-PT: Moeda antes ou depois do numero. Sao dois padroes porque `€ 1.000` e
-#        `1.000 €` sao ambos correntes e um so padrao com moeda opcional dos
-#        dois lados apanharia texto que nao e dinheiro nenhum.
+# PT-PT: Moeda antes ou depois do número. São dois padrões porque `€ 1.000` e
+#        `1.000 €` são ambos correntes e um só padrão com moeda opcional dos
+#        dois lados apanharia texto que não é dinheiro nenhum.
 # EN-UK: Currency before or after the number.
 RE_MOEDA_ANTES = re.compile(rf"(?P<moeda>{_SIMBOLOS})\s*(?P<numero>{_NUMERO})", re.IGNORECASE)
 RE_MOEDA_DEPOIS = re.compile(rf"(?P<numero>{_NUMERO})\s*(?P<moeda>{_SIMBOLOS})", re.IGNORECASE)
@@ -130,8 +130,8 @@ MARCAS_IVA_ACRESCE: tuple[str, ...] = (
     "net total",
 )
 
-# PT-PT: Isencao de IVA. Nao e o mesmo que «incluido» nem que «acresce»: o
-#        total ja e o total e nao ha nada a somar. Tratar isto como «acresce»
+# PT-PT: Isenção de IVA. Não e o mesmo que «incluído» nem que «acresce»: o
+#        total já e o total e não há nada a somar. Tratar isto como «acresce»
 #        inflacionava a proposta em 23% e podia eliminar a melhor.
 # EN-UK: VAT exemption. Not the same as included or added: the total is already
 #        the total. Treating it as "added" inflated the quote by 23% and could
@@ -152,20 +152,20 @@ MARCAS_IVA_ISENTO: tuple[str, ...] = (
 
 def limpar_numero(bruto: str) -> tuple[float | None, float]:
     """
-    PT-PT: Converte um numero escrito em texto para float.
+    PT-PT: Converte um número escrito em texto para float.
 
     EN-UK: Converts a number written as text into a float.
 
     :return:
-        PT-PT: (valor, confianca). A confianca desce quando o formato e
-               ambiguo, para o relatorio poder assinalar o que vale a pena
-               confirmar a mao.
+        PT-PT: (valor, confiança). A confiança desce quando o formato e
+               ambíguo, para o relatório poder assinalar o que vale a pena
+               confirmar a mão.
         EN-UK: (value, confidence). Confidence drops on ambiguous formats.
     """
     if not bruto:
         return None, 0.0
 
-    # PT-PT: Espacos de todos os tipos fora — sao sempre separadores de
+    # PT-PT: Espaços de todos os tipos fora — são sempre separadores de
     #        milhares, nunca decimais.
     # EN-UK: Spaces of every kind out — always thousands separators.
     texto = re.sub(r"[\s\u00a0\u202f]", "", str(bruto).strip())
@@ -196,10 +196,10 @@ def limpar_numero(bruto: str) -> tuple[float | None, float]:
     elif virgulas:
         partes = texto.split(",")
         if virgulas == 1 and 1 <= len(partes[1]) <= 2:
-            # PT-PT: `1234,56` — decimal em formato portugues.
+            # PT-PT: `1234,56` — decimal em formato português.
             texto = texto.replace(",", ".")
         elif all(len(p) == 3 for p in partes[1:]):
-            # PT-PT: `1,234,567` — milhares em formato ingles.
+            # PT-PT: `1,234,567` — milhares em formato inglês.
             texto = texto.replace(",", "")
         else:
             texto = texto.replace(",", ".")
@@ -207,13 +207,13 @@ def limpar_numero(bruto: str) -> tuple[float | None, float]:
     elif pontos:
         partes = texto.split(".")
         if pontos == 1 and 1 <= len(partes[1]) <= 2:
-            # PT-PT: `1234.56` — decimal em formato ingles.
+            # PT-PT: `1234.56` — decimal em formato inglês.
             pass
         elif all(len(p) == 3 for p in partes[1:]):
-            # PT-PT: `1.234` ou `1.234.567` — milhares em formato portugues.
-            #        Fica com confianca mais baixa porque `1.234` tambem pode
-            #        ser um decimal ingles de tres casas, e nao ha no proprio
-            #        numero forma de distinguir. Cabe ao utilizador confirmar.
+            # PT-PT: `1.234` ou `1.234.567` — milhares em formato português.
+            #        Fica com confiança mais baixa porque `1.234` também pode
+            #        ser um decimal inglês de três casas, e não há no próprio
+            #        número forma de distinguir. Cabe ao utilizador confirmar.
             # EN-UK: Thousands in Portuguese format. Lower confidence, because
             #        `1.234` could also be a three-decimal English number and
             #        nothing in the number itself tells them apart.
@@ -235,13 +235,13 @@ def encontrar_montantes(texto: str) -> list[tuple[float, str, str, float]]:
     """
     PT-PT: Todos os montantes com moeda encontrados no texto.
 
-           Os dois padroes sao recolhidos primeiro e so depois se decide quais
-           ficam, porque competem pelo mesmo simbolo. Em `1.180,00 € 4.720,00 €`
-           — duas celulas de uma tabela — o padrao «moeda depois» le os dois
-           montantes correctamente, e o padrao «moeda antes» agarra o euro da
-           primeira celula e junta-o ao numero da segunda. Como o simbolo so
+           Os dois padrões são recolhidos primeiro e só depois se decide quais
+           ficam, porque competem pelo mesmo símbolo. Em `1.180,00 € 4.720,00 €`
+           — duas células de uma tabela — o padrão «moeda depois» lê os dois
+           montantes correctamente, e o padrão «moeda antes» agarra o euro da
+           primeira célula e junta-o ao número da segunda. Como o símbolo só
            pode pertencer a um montante, aceitam-se os candidatos por ordem de
-           posicao e rejeita-se quem se sobreponha a um ja aceite.
+           posição e rejeita-se quem se sobreponha a um já aceite.
 
     EN-UK: Every currency amount found in the text. Both patterns are collected
            first and only then filtered, because they compete for the same
@@ -250,7 +250,7 @@ def encontrar_montantes(texto: str) -> list[tuple[float, str, str, float]]:
            euro sign and pairs it with the second cell's number.
 
     :return:
-        PT-PT: Lista de (valor, moeda, texto original, confianca).
+        PT-PT: Lista de (valor, moeda, texto original, confiança).
         EN-UK: List of (value, currency, original text, confidence).
     """
     candidatos: list[tuple[int, int, float, str, str, float]] = []
@@ -272,7 +272,7 @@ def encontrar_montantes(texto: str) -> list[tuple[float, str, str, float]]:
                 )
             )
 
-    # PT-PT: Por posicao, e a maior primeiro em caso de empate no inicio.
+    # PT-PT: Por posição, e a maior primeiro em caso de empate no inicio.
     # EN-UK: By position, longest first when two start at the same place.
     candidatos.sort(key=lambda c: (c[0], -(c[1] - c[0])))
 
@@ -295,14 +295,14 @@ def detectar_iva(texto: str) -> tuple[bool | None, str]:
     EN-UK: Determines whether a total includes VAT.
 
     :return:
-        PT-PT: (incluido, marca encontrada). `incluido` e None quando o
-               documento nao diz — que e diferente de dizer que nao inclui.
+        PT-PT: (incluído, marca encontrada). `incluido` e None quando o
+               documento não diz — que é diferente de dizer que não inclui.
         EN-UK: (included, marker found). `incluido` is None when the document
                does not say, which differs from saying it does not include it.
     """
     minusculas = texto.lower()
 
-    # PT-PT: A isencao e verificada primeiro. «Isento de IVA» contem «iva» e
+    # PT-PT: A isenção e verificada primeiro. «Isento de IVA» contém «iva» e
     #        seria apanhado por qualquer das outras listas se elas viessem
     #        antes, dando a resposta oposta a correcta.
     # EN-UK: Exemption is checked first: "exempt from VAT" contains "VAT" and
@@ -325,9 +325,9 @@ def detectar_iva(texto: str) -> tuple[bool | None, str]:
     if posicao_inc == -1:
         return False, _marca_em(minusculas, MARCAS_IVA_ACRESCE)
 
-    # PT-PT: As duas marcas presentes acontece em propostas que decompoem o
+    # PT-PT: As duas marcas presentes acontece em propostas que decompõem o
     #        valor liquido e o ilíquido. A que aparece mais tarde no documento
-    #        e normalmente a do total final, que e a que interessa.
+    #        e normalmente a do total final, que é a que interessa.
     # EN-UK: Both markers appear in quotes that break out net and gross. The one
     #        appearing later is usually the final total, which is the one that
     #        matters.
@@ -348,10 +348,10 @@ def detectar_taxa_iva(texto: str) -> float | None:
     """
     PT-PT: Taxa de IVA declarada no documento.
 
-           So aceita as taxas que existem em Portugal continental e nas regioes
-           autonomas. Sem essa restricao, qualquer «desconto de 10%» na proposta
+           Só aceita as taxas que existem em Portugal continental e nas regioes
+           autonomas. Sem essa restrição, qualquer «desconto de 10%» na proposta
            era lido como taxa de IVA — e um desconto aparece com muito mais
-           frequencia do que a taxa numa proposta comercial.
+           frequência do que a taxa numa proposta comercial.
 
     EN-UK: The VAT rate stated in the document. Only accepts rates that exist in
            mainland Portugal and the autonomous regions: without that
@@ -373,8 +373,8 @@ def detectar_taxa_iva(texto: str) -> float | None:
 
 def formatar_moeda(valor: float | None, moeda: str = "EUR") -> str:
     """
-    PT-PT: Formata um montante em convencao portuguesa: milhares com ponto,
-           decimais com virgula, simbolo depois do numero.
+    PT-PT: Formata um montante em convenção portuguesa: milhares com ponto,
+           decimais com vírgula, símbolo depois do número.
     EN-UK: Formats an amount in Portuguese convention: full stop for thousands,
            comma for decimals, symbol after the number.
     """

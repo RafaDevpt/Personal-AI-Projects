@@ -1,25 +1,25 @@
 """
 PT-PT: Escrita dos campos no PDF.
 
-       Um PDF preenchivel e um PDF normal com duas coisas a mais: anotacoes do
-       tipo Widget em cada pagina, e um dicionario AcroForm no catalogo a
-       listar todos os campos. Este modulo escreve as duas, com o pypdf.
+       Um PDF preenchível e um PDF normal com duas coisas a mais: anotações do
+       tipo Widget em cada página, e um dicionário AcroForm no catálogo a
+       listar todos os campos. Este módulo escreve as duas, com o pypdf.
 
-       Duas decisoes que valem explicacao.
+       Duas decisões que valem explicação.
 
        `NeedAppearances` fica a verdadeiro. E uma bandeira que diz ao leitor de
-       PDF «gera tu o aspecto dos campos». A alternativa era desenhar a mao o
-       fluxo de aparencia de cada campo em cada estado, o que significa
-       reimplementar a composicao de texto — quebra de linha, alinhamento,
+       PDF «gera tu o aspecto dos campos». A alternativa era desenhar a mão o
+       fluxo de aparência de cada campo em cada estado, o que significa
+       reimplementar a composição de texto — quebra de linha, alinhamento,
        recorte — e obter um resultado pior do que o do Acrobat. Com a bandeira,
        o leitor faz isso e faz melhor. O custo esta assinalado no README: alguns
-       visualizadores muito simples ignoram-na e mostram o campo vazio ate lhe
+       visualizadores muito simples ignoram-na e mostram o campo vazio até lhe
        tocarem.
 
-       As caixas de seleccao sao a excepcao. Essas levam fluxo de aparencia
-       escrito a mao, porque um leitor que ignore o `NeedAppearances` numa
-       caixa de texto mostra-a vazia — que e o estado correcto — mas numa caixa
-       de seleccao mostra-a sem sequer a moldura, e o utilizador nao ve que ha
+       As caixas de selecção são a excepção. Essas levam fluxo de aparência
+       escrito a mão, porque um leitor que ignore o `NeedAppearances` numa
+       caixa de texto mostra-a vazia — que é o estado correcto — mas numa caixa
+       de selecção mostra-a sem sequer a moldura, e o utilizador não vê que há
        ali algo para clicar.
 
 EN-UK: Writing the fields into the PDF.
@@ -71,9 +71,9 @@ FF_OBRIGATORIO = 1 << 1
 FF_MULTILINHA = 1 << 12
 FF_COMBO = 1 << 17
 
-# PT-PT: Bandeiras da anotacao (`/F`). 4 = imprimivel. Sem esta bandeira o
-#        campo aparece no ecra e desaparece na impressao — o que num formulario
-#        preenchido e a pior falha possivel, porque so se descobre depois de
+# PT-PT: Bandeiras da anotação (`/F`). 4 = imprimível. Sem esta bandeira o
+#        campo aparece no ecrã e desaparece na impressão — o que num formulário
+#        preenchido e a pior falha possível, porque só se descobre depois de
 #        estar assinado e entregue em papel.
 # EN-UK: Annotation flags (`/F`). 4 = printable. Without it the field shows on
 #        screen and vanishes when printed, which on a completed form is the
@@ -87,7 +87,7 @@ TAMANHO_LETRA = 10
 
 
 def _rect(campo: Campo) -> ArrayObject:
-    """PT-PT: Rectangulo da anotacao. / EN-UK: The annotation rectangle."""
+    """PT-PT: Rectângulo da anotação. / EN-UK: The annotation rectangle."""
     return ArrayObject(
         [FloatObject(campo.x0), FloatObject(campo.y0), FloatObject(campo.x1), FloatObject(campo.y1)]
     )
@@ -95,13 +95,13 @@ def _rect(campo: Campo) -> ArrayObject:
 
 def _aparencia_marca(escrita: PdfWriter, largura: float, altura: float, marcada: bool):
     """
-    PT-PT: Fluxo de aparencia de uma caixa de seleccao.
+    PT-PT: Fluxo de aparência de uma caixa de selecção.
 
-           Desenha a moldura sempre e a cruz so no estado marcado. A cruz e
-           feita com dois tracos em vez do caracter de visto da ZapfDingbats:
+           Desenha a moldura sempre e a cruz só no estado marcado. A cruz e
+           feita com dois traços em vez do caracter de visto da ZapfDingbats:
            o visto obriga a declarar essa letra nos recursos do documento e,
-           quando o leitor nao a tem, aparece um rectangulo vazio no lugar.
-           Dois tracos desenhados nao dependem de letra nenhuma.
+           quando o leitor não a tem, aparece um rectângulo vazio no lugar.
+           Dois traços desenhados não dependem de letra nenhuma.
 
     EN-UK: A tick box's appearance stream. Draws the frame always and the cross
            only in the checked state. The cross is two strokes rather than the
@@ -155,9 +155,9 @@ def _widget_base(campo: Campo, referencia_pagina) -> DictionaryObject:
 
     if campo.etiqueta:
         # PT-PT: `/TU` e o texto que aparece ao passar o rato e o que os
-        #        leitores de ecra anunciam. Custa uma linha e e a diferenca
-        #        entre um formulario acessivel e um formulario que so faz
-        #        sentido a quem esta a ver a pagina.
+        #        leitores de ecrã anunciam. Custa uma linha e e a diferença
+        #        entre um formulário acessivel e um formulário que só faz
+        #        sentido a quem esta a ver a página.
         # EN-UK: `/TU` is the tooltip and what screen readers announce. It costs
         #        one line and is the difference between an accessible form and
         #        one that only makes sense to somebody looking at the page.
@@ -186,8 +186,8 @@ def _widget_texto(escrita: PdfWriter, campo: Campo, referencia_pagina) -> Dictio
     widget[NameObject("/Ff")] = NumberObject(bandeiras)
 
     if campo.tipo is TipoCampo.DATA:
-        # PT-PT: Formato imposto pelo proprio PDF, em JavaScript. Sem isto, num
-        #        formulario preenchido por vinte pessoas aparecem seis formatos
+        # PT-PT: Formato imposto pelo próprio PDF, em JavaScript. Sem isto, num
+        #        formulário preenchido por vinte pessoas aparecem seis formatos
         #        de data diferentes e a coluna deixa de ser ordenavel.
         # EN-UK: Format enforced by the PDF itself, in JavaScript. Without it, a
         #        form filled in by twenty people comes back with six different
@@ -215,7 +215,7 @@ def _widget_texto(escrita: PdfWriter, campo: Campo, referencia_pagina) -> Dictio
 
 
 def _widget_caixa(escrita: PdfWriter, campo: Campo, referencia_pagina) -> DictionaryObject:
-    """PT-PT: Caixa de seleccao. / EN-UK: Tick box."""
+    """PT-PT: Caixa de selecção. / EN-UK: Tick box."""
     widget = _widget_base(campo, referencia_pagina)
     widget[NameObject("/FT")] = NameObject("/Btn")
     widget[NameObject("/V")] = NameObject("/Off")
@@ -238,7 +238,7 @@ def _widget_caixa(escrita: PdfWriter, campo: Campo, referencia_pagina) -> Dictio
 
 
 def _widget_escolha(escrita: PdfWriter, campo: Campo, referencia_pagina) -> DictionaryObject:
-    """PT-PT: Lista de opcoes. / EN-UK: Dropdown list."""
+    """PT-PT: Lista de opções. / EN-UK: Dropdown list."""
     widget = _widget_base(campo, referencia_pagina)
     widget[NameObject("/FT")] = NameObject("/Ch")
     widget[NameObject("/V")] = TextStringObject("")
@@ -256,11 +256,11 @@ def _recursos_do_formulario() -> DictionaryObject:
     """
     PT-PT: Recursos partilhados pelos campos: a letra Helvetica.
 
-           Tem de estar declarada aqui, no `/DR` do AcroForm, e nao apenas
+           Tem de estar declarada aqui, no `/DR` do AcroForm, e não apenas
            referida no `/DA` de cada campo. Um leitor que encontre `/Helv` sem
-           a encontrar nos recursos ou nao mostra o texto ou escolhe uma letra
-           ao acaso — e ai o formulario abre com aspectos diferentes em cada
-           maquina.
+           a encontrar nos recursos ou não mostra o texto ou escolhe uma letra
+           ao acaso — e aí o formulário abre com aspectos diferentes em cada
+           máquina.
 
     EN-UK: Resources shared by the fields: the Helvetica font. It must be
            declared here, in the AcroForm's `/DR`, not merely referenced in each
@@ -273,11 +273,11 @@ def _recursos_do_formulario() -> DictionaryObject:
     letra[NameObject("/BaseFont")] = NameObject("/Helvetica")
     letra[NameObject("/Encoding")] = NameObject("/WinAnsiEncoding")
 
-    # PT-PT: A ZapfDingbats e a letra dos simbolos de visto. Nao a usamos para
-    #        desenhar — as caixas levam fluxo de aparencia proprio — mas os
-    #        leitores que regeneram as aparencias das caixas de seleccao
+    # PT-PT: A ZapfDingbats e a letra dos símbolos de visto. Não a usamos para
+    #        desenhar — as caixas levam fluxo de aparência próprio — mas os
+    #        leitores que regeneram as aparencias das caixas de selecção
     #        procuram-na por reflexo. Sem ela declarada, o poppler avisa
-    #        «Unknown font tag ZaDb» e o Acrobat mostra um rectangulo vazio no
+    #        «Unknown font tag ZaDb» e o Acrobat mostra um rectângulo vazio no
     #        lugar do visto. Declara-la custa quatro linhas.
     # EN-UK: ZapfDingbats is the tick symbol font. We do not draw with it — tick
     #        boxes carry their own appearance streams — but readers that
@@ -300,11 +300,11 @@ def _recursos_do_formulario() -> DictionaryObject:
 
 def tem_formulario(caminho: Path | str) -> int:
     """
-    PT-PT: Quantos campos ja existem no PDF.
+    PT-PT: Quantos campos já existem no PDF.
 
-           Vale a pena verificar antes de acrescentar: um PDF que ja e
-           preenchivel nao precisa de ser convertido, e sobrepor campos novos
-           aos antigos produz um formulario onde metade dos campos nao grava.
+           Vale a pena verificar antes de acrescentar: um PDF que já e
+           preenchível não precisa de ser convertido, e sobrepor campos novos
+           aos antigos produz um formulário onde metade dos campos não grava.
 
     EN-UK: How many fields the PDF already has. Worth checking before adding:
            a PDF that is already fillable does not need converting, and layering
@@ -348,9 +348,9 @@ def criar_formulario(
     escrita = PdfWriter()
 
     if leitor.is_encrypted:
-        # PT-PT: Um PDF protegido so por dono abre sem password mas nao se
+        # PT-PT: Um PDF protegido só por dono abre sem password mas não se
         #        deixa modificar. Tentar com password vazia resolve esse caso,
-        #        que e o mais comum em documentos de fornecedores.
+        #        que é o mais comum em documentos de fornecedores.
         # EN-UK: An owner-protected PDF opens without a password but refuses
         #        modification. Trying an empty password covers that case.
         try:
@@ -440,14 +440,14 @@ def criar_formulario(
     formulario[NameObject("/DR")] = _recursos_do_formulario()
     formulario[NameObject("/DA")] = TextStringObject(f"/Helv {TAMANHO_LETRA} Tf 0 g")
     formulario[NameObject("/NeedAppearances")] = BooleanObject(True)
-    # PT-PT: 3 significa «campos e anotacoes visiveis e imprimiveis».
+    # PT-PT: 3 significa «campos e anotações visíveis e imprimíveis».
     # EN-UK: 3 means "fields and annotations visible and printable".
     formulario[NameObject("/SigFlags")] = NumberObject(0)
 
     catalogo = escrita._root_object
     if "/AcroForm" in catalogo and not substituir_existentes:
-        # PT-PT: Ja havia formulario: juntar os campos novos a lista existente
-        #        em vez de a substituir, senao os campos antigos deixam de estar
+        # PT-PT: Já havia formulário: juntar os campos novos a lista existente
+        #        em vez de a substituir, senão os campos antigos deixam de estar
         #        listados e a maioria dos leitores para de os gravar.
         # EN-UK: A form already existed: append to the list rather than replace
         #        it, or the old fields stop being listed and most readers stop
@@ -511,12 +511,12 @@ def preencher(
         )
 
     if achatar:
-        # PT-PT: Achatar a serio — converter cada campo em conteudo da pagina —
-        #        obriga a gerar o fluxo de aparencia de cada valor, o que e o
+        # PT-PT: Achatar a sério — converter cada campo em conteúdo da página —
+        #        obriga a gerar o fluxo de aparência de cada valor, o que é o
         #        trabalho que o NeedAppearances existe para evitar. A alternativa
-        #        honesta e marcar os campos como so-leitura: o resultado visivel
-        #        e o mesmo, ninguem altera o documento, e nao ha risco de o
-        #        texto sair diferente do que estava no ecra.
+        #        honesta e marcar os campos como só-leitura: o resultado visível
+        #        e o mesmo, ninguém altera o documento, e não há risco de o
+        #        texto sair diferente do que estava no ecrã.
         # EN-UK: Genuine flattening requires generating an appearance stream per
         #        value, which is the work NeedAppearances exists to avoid. The
         #        honest alternative is marking the fields read-only: the visible
@@ -542,9 +542,9 @@ def preencher(
 
 def listar_campos(caminho: Path | str) -> list[tuple[str, str, str]]:
     """
-    PT-PT: Campos de um PDF preenchivel: (nome, tipo, valor).
+    PT-PT: Campos de um PDF preenchível: (nome, tipo, valor).
            Usado para verificar o resultado e para exportar os dados de
-           formularios ja preenchidos.
+           formulários já preenchidos.
     EN-UK: A fillable PDF's fields: (name, type, value). Used to check the
            result and to export data from forms already filled in.
     """

@@ -1,21 +1,21 @@
 """
 PT-PT: Editor visual dos campos.
 
-       Mostra a pagina do PDF como imagem e desenha os campos por cima. O
+       Mostra a página do PDF como imagem e desenha os campos por cima. O
        utilizador arrasta para criar, clica para seleccionar, arrasta as pegas
        para redimensionar e apaga com o teclado.
 
-       Porque e que isto existe em vez de uma tabela de coordenadas: a deteccao
-       automatica acerta na maioria dos campos e falha em alguns, e corrigir um
-       campo mal colocado numa tabela de numeros e impossivel na pratica —
-       ninguem sabe o que significa mudar y0 de 472 para 468 sem ver a pagina.
-       Com a pagina a vista, e obvio.
+       Porque e que isto existe em vez de uma tabela de coordenadas: a detecção
+       automática acerta na maioria dos campos e falha em alguns, e corrigir um
+       campo mal colocado numa tabela de números e impossível na prática —
+       ninguém sabe o que significa mudar y0 de 472 para 468 sem ver a página.
+       Com a página a vista, e óbvio.
 
-       A rasterizacao usa o `pdftoppm` do poppler, que ja e uma dependencia
+       A rasterização usa o `pdftoppm` do poppler, que já e uma dependência
        indirecta do pdfplumber, ou o `pypdfium2` se estiver instalado. Se
-       nenhum estiver disponivel, o editor abre na mesma sem a imagem de fundo
+       nenhum estiver disponível, o editor abre na mesma sem a imagem de fundo
        e diz porque — os campos continuam a poder ser corrigidos pelas
-       coordenadas, o que e pior mas nao e nada.
+       coordenadas, o que é pior mas não é nada.
 
 EN-UK: Visual field editor.
 
@@ -46,11 +46,11 @@ from . import theme
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Tamanho das pegas de redimensionamento, em pixeis do ecra.
+# PT-PT: Tamanho das pegas de redimensionamento, em pixeis do ecrã.
 # EN-UK: Size of the resize handles, in screen pixels.
 PEGA = 7
 
-# PT-PT: Abaixo disto, um arrasto e considerado um clique e nao cria campo.
+# PT-PT: Abaixo disto, um arrasto e considerado um clique e não cria campo.
 #        Sem esta margem, cada clique para seleccionar criava um campo de dois
 #        pixeis por cima do que se queria seleccionar.
 # EN-UK: Below this, a drag counts as a click and creates no field. Without the
@@ -61,12 +61,12 @@ ARRASTO_MINIMO = 8
 
 def rasterizar(caminho: Path, pagina: int, dpi: int = theme.EDITOR_DPI):
     """
-    PT-PT: Converte uma pagina do PDF numa imagem.
+    PT-PT: Converte uma página do PDF numa imagem.
 
     EN-UK: Renders one PDF page as an image.
 
     :return:
-        PT-PT: (imagem PIL, escala) ou (None, motivo) se nao for possivel.
+        PT-PT: (imagem PIL, escala) ou (None, motivo) se não for possível.
         EN-UK: (PIL image, scale) or (None, reason) when not possible.
     """
     try:
@@ -77,8 +77,8 @@ def rasterizar(caminho: Path, pagina: int, dpi: int = theme.EDITOR_DPI):
             "mostrar a página. Instale com: pip install pillow"
         )
 
-    # PT-PT: Primeiro o pypdfium2, se existir: nao depende de nada instalado
-    #        fora do Python, o que numa maquina de dominio e uma vantagem
+    # PT-PT: Primeiro o pypdfium2, se existir: não depende de nada instalado
+    #        fora do Python, o que numa máquina de domínio e uma vantagem
     #        decisiva.
     # EN-UK: pypdfium2 first, if present: it depends on nothing installed
     #        outside Python, which on a domain machine is decisive.
@@ -121,9 +121,9 @@ def rasterizar(caminho: Path, pagina: int, dpi: int = theme.EDITOR_DPI):
             geradas = sorted(Path(pasta).glob("pagina*.png"))
             if not geradas:
                 return None, "O pdftoppm não produziu nenhuma imagem."
-            # PT-PT: A imagem e copiada para memoria antes de a pasta temporaria
-            #        desaparecer — o Pillow le em modo preguicoso e devolveria um
-            #        ficheiro ja apagado.
+            # PT-PT: A imagem e copiada para memória antes de a pasta temporária
+            #        desaparecer — o Pillow lê em modo preguicoso e devolveria um
+            #        ficheiro já apagado.
             # EN-UK: The image is copied into memory before the temp folder goes
             #        away — Pillow reads lazily and would return a deleted file.
             with Image.open(geradas[0]) as aberta:
@@ -139,9 +139,9 @@ class EditorCampos(ctk.CTkToplevel):
     PT-PT: Janela do editor visual.
 
            As coordenadas do PDF contam de baixo para cima; as da tela contam
-           de cima para baixo. A conversao esta em `_para_tela` e `_para_pdf` e
-           nao aparece em mais lado nenhum — misturar as duas convencoes e o
-           erro classico deste tipo de editor e produz campos correctos na
+           de cima para baixo. A conversão esta em `_para_tela` e `_para_pdf` e
+           não aparece em mais lado nenhum — misturar as duas convenções e o
+           erro clássico deste tipo de editor e produz campos correctos na
            horizontal e invertidos na vertical.
 
     EN-UK: The visual editor window. PDF coordinates count from the bottom,
@@ -179,10 +179,10 @@ class EditorCampos(ctk.CTkToplevel):
 
     def _focar(self) -> None:
         """
-        PT-PT: O `grab_set` esta num `after` de proposito: chamado logo a seguir
-               ao construtor, em Windows o CustomTkinter ainda nao terminou de
-               desenhar e o pedido de foco falha em silencio — a janela abre
-               atras da principal e o utilizador conclui que o botao nao fez
+        PT-PT: O `grab_set` esta num `after` de propósito: chamado logo a seguir
+               ao construtor, em Windows o CustomTkinter ainda não terminou de
+               desenhar e o pedido de foco falha em silêncio — a janela abre
+               atrás da principal e o utilizador conclui que o botão não fez
                nada.
         EN-UK: The `grab_set` sits in an `after` deliberately: called right after
                the constructor on Windows, the focus request fails silently and
@@ -205,7 +205,7 @@ class EditorCampos(ctk.CTkToplevel):
             return 1
 
     # ------------------------------------------------------------------
-    # PT-PT: Construcao / EN-UK: Construction
+    # PT-PT: Construção / EN-UK: Construction
     # ------------------------------------------------------------------
 
     def _construir(self) -> None:
@@ -273,8 +273,8 @@ class EditorCampos(ctk.CTkToplevel):
         self.tela.bind("<Motion>", self._mover_rato)
 
         # PT-PT: O foco no clique e o que faz o teclado funcionar. Uma tela Tk
-        #        sem foco ignora as teclas em silencio, e o utilizador conclui
-        #        que a tecla Delete nao esta implementada.
+        #        sem foco ignora as teclas em silêncio, e o utilizador conclui
+        #        que a tecla Delete não esta implementada.
         # EN-UK: Taking focus on click is what makes the keyboard work. A Tk
         #        canvas without focus ignores keys silently.
         self.tela.bind("<Button-1>", lambda _: self.tela.focus_set(), add="+")
@@ -351,7 +351,7 @@ class EditorCampos(ctk.CTkToplevel):
     # ------------------------------------------------------------------
 
     def carregar_pagina(self) -> None:
-        """PT-PT: Desenha a pagina actual. / EN-UK: Renders the current page."""
+        """PT-PT: Desenha a página actual. / EN-UK: Renders the current page."""
         self.tela.delete("all")
         self.lbl_pagina.configure(text=f"Página {self.pagina_actual + 1} de {self.total_paginas}")
         self.btn_anterior.configure(state="normal" if self.pagina_actual > 0 else "disabled")
@@ -378,10 +378,10 @@ class EditorCampos(ctk.CTkToplevel):
         try:
             from PIL import ImageTk
 
-            # PT-PT: A referencia tem de ficar guardada no objecto. O Tk nao
-            #        mantem referencia as imagens que desenha, e sem esta linha
+            # PT-PT: A referência tem de ficar guardada no objecto. O Tk não
+            #        mantém referência as imagens que desenha, e sem esta linha
             #        o recolector de lixo do Python leva a imagem uns
-            #        milissegundos depois — o efeito visivel e uma tela em
+            #        milissegundos depois — o efeito visível e uma tela em
             #        branco, sem erro nenhum.
             # EN-UK: The reference must be held on the object. Tk keeps no
             #        reference to the images it draws, and without this line
@@ -397,7 +397,7 @@ class EditorCampos(ctk.CTkToplevel):
         self._desenhar_campos()
 
     def _desenhar_campos(self) -> None:
-        """PT-PT: Desenha os campos da pagina. / EN-UK: Draws the page's fields."""
+        """PT-PT: Desenha os campos da página. / EN-UK: Draws the page's fields."""
         self.tela.delete("campo")
 
         for campo in self.campos:
@@ -436,7 +436,7 @@ class EditorCampos(ctk.CTkToplevel):
 
     @staticmethod
     def _pegas(x0: float, y0: float, x1: float, y1: float) -> dict[str, tuple[float, float]]:
-        """PT-PT: Posicao das oito pegas. / EN-UK: The eight handles' positions."""
+        """PT-PT: Posição das oito pegas. / EN-UK: The eight handles' positions."""
         mx, my = (x0 + x1) / 2, (y0 + y1) / 2
         return {
             "nw": (x0, y0), "n": (mx, y0), "ne": (x1, y0),
@@ -445,16 +445,16 @@ class EditorCampos(ctk.CTkToplevel):
         }
 
     # ------------------------------------------------------------------
-    # PT-PT: Interaccao / EN-UK: Interaction
+    # PT-PT: Interacção / EN-UK: Interaction
     # ------------------------------------------------------------------
 
     def _coordenadas(self, evento) -> tuple[float, float]:
         """
-        PT-PT: Coordenadas do evento na tela, ja com o deslocamento aplicado.
+        PT-PT: Coordenadas do evento na tela, já com o deslocamento aplicado.
 
-               O `canvasx` e obrigatorio: sem ele, os cliques ficam certos no
-               topo da pagina e cada vez mais desalinhados a medida que se
-               desce, porque o evento traz a posicao na janela e nao na tela.
+               O `canvasx` e obrigatório: sem ele, os cliques ficam certos no
+               topo da página e cada vez mais desalinhados a medida que se
+               desce, porque o evento traz a posição na janela e não na tela.
 
         EN-UK: The event's canvas coordinates, with scrolling applied. `canvasx`
                is mandatory: without it clicks are right at the top of the page
@@ -464,7 +464,7 @@ class EditorCampos(ctk.CTkToplevel):
 
     def _campo_em(self, x: float, y: float) -> Campo | None:
         """PT-PT: Campo debaixo do ponto. / EN-UK: The field under the point."""
-        # PT-PT: Ao contrario, para o campo desenhado por cima ganhar o clique.
+        # PT-PT: Ao contrário, para o campo desenhado por cima ganhar o clique.
         # EN-UK: Reversed, so the field drawn on top wins the click.
         for campo in reversed(self.campos):
             if campo.pagina != self.pagina_actual:
@@ -604,7 +604,7 @@ class EditorCampos(ctk.CTkToplevel):
         self.seleccionar(campo)
 
     # ------------------------------------------------------------------
-    # PT-PT: Seleccao e edicao / EN-UK: Selection and editing
+    # PT-PT: Selecção e edição / EN-UK: Selection and editing
     # ------------------------------------------------------------------
 
     def seleccionar(self, campo: Campo) -> None:
@@ -631,7 +631,7 @@ class EditorCampos(ctk.CTkToplevel):
             return
         # PT-PT: O nome e normalizado a medida que se escreve, mas sem o
         #        contador de duplicados: acrescentar «_2» enquanto a pessoa
-        #        ainda esta a escrever seria enlouquecedor. A verificacao de
+        #        ainda esta a escrever seria enlouquecedor. A verificação de
         #        duplicados fica para o momento de gravar.
         # EN-UK: The name is normalised as it is typed, but without the
         #        duplicate counter: appending "_2" mid-typing would be maddening.
@@ -672,11 +672,11 @@ class EditorCampos(ctk.CTkToplevel):
         """
         PT-PT: Resolve nomes duplicados e devolve os campos.
 
-               A resolucao acontece aqui e nao a medida que se escreve porque
-               dois campos com o mesmo nome num AcroForm nao sao dois campos:
-               sao o mesmo campo em dois sitios, e escrever num escreve no
-               outro. Num formulario com «Nome» em tres paginas, e um bug que
-               so aparece depois de alguem o preencher.
+               A resolução acontece aqui e não a medida que se escreve porque
+               dois campos com o mesmo nome num AcroForm não são dois campos:
+               são o mesmo campo em dois sítios, e escrever num escreve no
+               outro. Num formulário com «Nome» em três páginas, e um bug que
+               só aparece depois de alguém o preencher.
 
         EN-UK: Resolves duplicate names and hands the fields back. Two fields
                with the same name in an AcroForm are not two fields: they are

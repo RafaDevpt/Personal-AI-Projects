@@ -2,20 +2,20 @@
 PT-PT: Resumo de documentos.
 
        O resumo aqui e extractivo: escolhe as frases mais representativas do
-       documento e apresenta-as por ordem de leitura. Nao gera texto novo.
+       documento e apresenta-as por ordem de leitura. Não gera texto novo.
 
        A escolha e deliberada e vale a pena ser explicita sobre ela. Um resumo
-       gerado inventa a formulacao, e num relatorio tecnico ou num contrato uma
-       formulacao inventada e um risco: quem le assume que aquilo esta escrito
+       gerado inventa a formulação, e num relatório técnico ou num contrato uma
+       formulação inventada e um risco: quem lê assume que aquilo esta escrito
        no documento. Um resumo extractivo pode ser incompleto, mas cada frase
-       que apresenta esta la, tal e qual. Para quem quiser o outro tipo, ha o
-       modulo `ai`, que e opcional, e o texto que ele devolve aparece sempre
+       que apresenta esta la, tal e qual. Para quem quiser o outro tipo, há o
+       módulo `ai`, que é opcional, e o texto que ele devolve aparece sempre
        identificado como tal.
 
-       O metodo e frequencia de termos com penalizacao das palavras vulgares —
-       o principio do TF-IDF sobre um documento so. Nao e o estado da arte; e
-       previsivel, nao precisa de rede, corre em milissegundos e nao envia o
-       documento para lado nenhum, o que num relatorio interno importa mais.
+       O método e frequência de termos com penalização das palavras vulgares —
+       o princípio do TF-IDF sobre um documento só. Não e o estado da arte; e
+       previsível, não precisa de rede, corre em milissegundos e não envia o
+       documento para lado nenhum, o que num relatório interno importa mais.
 
 EN-UK: Document summarisation.
 
@@ -41,16 +41,16 @@ from .models import Documento, Resumo
 
 log = logging.getLogger(__name__)
 
-# PT-PT: Palavras sem valor informativo, em portugues e ingles. Sem esta lista,
-#        as palavras-chave de qualquer documento sao «de», «a» e «para».
+# PT-PT: Palavras sem valor informativo, em português e inglês. Sem esta lista,
+#        as palavras-chave de qualquer documento são «de», «a» e «para».
 # EN-UK: Words with no informational value, in Portuguese and English.
 VAZIAS: frozenset[str] = frozenset(
     ["a", "o", "as", "os", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das", "em", "no", "na", "nos", "nas", "por", "para", "com", "sem", "sob", "sobre", "ao", "aos", "à", "às", "e", "ou", "mas", "que", "se", "como", "quando", "onde", "qual", "quais", "quem", "cujo", "cuja", "este", "esta", "estes", "estas", "esse", "essa", "esses", "essas", "aquele", "aquela", "isto", "isso", "aquilo", "seu", "sua", "seus", "suas", "meu", "minha", "nosso", "nossa", "dele", "dela", "deles", "delas", "lhe", "lhes", "me", "te", "nos", "vos", "já", "não", "sim", "também", "mais", "menos", "muito", "pouco", "todo", "toda", "todos", "todas", "outro", "outra", "outros", "outras", "mesmo", "mesma", "cada", "qualquer", "ser", "estar", "ter", "haver", "fazer", "poder", "dever", "ir", "vir", "dar", "ver", "saber", "é", "são", "foi", "foram", "era", "eram", "será", "serão", "tem", "têm", "tinha", "havia", "há", "está", "estão", "pode", "podem", "deve", "devem", "entre", "até", "desde", "após", "antes", "durante", "através", "bem", "mal", "assim", "então", "porque", "pois", "logo", "ainda", "apenas", "só", "mesmo", "enquanto", "embora", "caso", "conforme", "the", "of", "and", "to", "in", "for", "on", "with", "at", "by", "from", "as", "is", "are", "was", "were", "be", "been", "being", "this", "that", "these", "those", "it", "its", "he", "she", "they", "we", "you", "i", "not", "no", "yes", "but", "or", "if", "which", "who", "whom", "whose", "what", "when", "where", "how", "than", "then", "there", "here", "have", "has", "had", "do", "does", "did", "can", "could", "shall", "should", "will", "would", "may", "might", "must"]
 )
 
-# PT-PT: Fim de frase. O olhar para tras evita cortar em abreviaturas comuns e
-#        em iniciais — «Exmo. Sr.» e «S. A.» nao sao fim de frase, e sem esta
-#        precaucao um documento comercial ficava partido em fragmentos de tres
+# PT-PT: Fim de frase. O olhar para trás evita cortar em abreviaturas comuns e
+#        em iniciais — «Exmo. Sr.» e «S. A.» não são fim de frase, e sem esta
+#        precaucao um documento comercial ficava partido em fragmentos de três
 #        palavras.
 # EN-UK: Sentence end. The look-behind avoids splitting on common abbreviations
 #        and initials.
@@ -77,13 +77,13 @@ COMPRIMENTO_MAXIMO_FRASE = 420
 
 def dividir_frases(texto: str) -> list[str]:
     """
-    PT-PT: Divide o texto em frases utilizaveis.
+    PT-PT: Divide o texto em frases utilizáveis.
     EN-UK: Splits the text into usable sentences.
     """
-    # PT-PT: As mudancas de linha simples viram espaco: num PDF, uma frase
-    #        atravessa varias linhas e mante-las partia todas as frases pela
-    #        largura da coluna. As linhas em branco, essas, sao fim de
-    #        paragrafo a serio e ficam.
+    # PT-PT: As mudanças de linha simples viram espaço: num PDF, uma frase
+    #        atravessa várias linhas e mante-las partia todas as frases pela
+    #        largura da coluna. As linhas em branco, essas, são fim de
+    #        paragrafo a sério e ficam.
     # EN-UK: Single line breaks become spaces: in a PDF a sentence spans several
     #        lines, and keeping them split every sentence at column width.
     normalizado = re.sub(r"(?<![.!?:])\n(?!\n)", " ", texto)
@@ -114,9 +114,9 @@ def _pontuar_frases(frases: list[str], frequencias: Counter[str]) -> list[float]
     """
     PT-PT: Pontua cada frase pela densidade de termos importantes.
 
-           A divisao pelo numero de palavras e o que impede as frases longas de
-           ganharem so por serem longas. Sem ela, o resumo de qualquer contrato
-           era feito das tres clausulas mais compridas do documento, que sao
+           A divisão pelo número de palavras e o que impede as frases longas de
+           ganharem só por serem longas. Sem ela, o resumo de qualquer contrato
+           era feito das três clausulas mais compridas do documento, que são
            quase sempre as menos informativas.
 
     EN-UK: Scores each sentence by the density of important terms. Dividing by
@@ -140,8 +140,8 @@ def _pontuar_frases(frases: list[str], frequencias: Counter[str]) -> list[float]
         soma = sum(frequencias.get(p, 0) / maxima for p in uteis)
         pontuacao = soma / len(palavras) ** 0.5
 
-        # PT-PT: Uma frase com numeros e datas costuma ser onde estao os
-        #        compromissos: valores, prazos, percentagens. Num relatorio, e
+        # PT-PT: Uma frase com números e datas costuma ser onde estão os
+        #        compromissos: valores, prazos, percentagens. Num relatório, e
         #        o que interessa reter.
         # EN-UK: A sentence with figures and dates is usually where the
         #        commitments are: amounts, deadlines, percentages.
@@ -151,7 +151,7 @@ def _pontuar_frases(frases: list[str], frequencias: Counter[str]) -> list[float]
             pontuacao *= 1.15
 
         # PT-PT: As primeiras frases de um documento tem quase sempre o
-        #        assunto. As ultimas tem a conclusao. O meio e o
+        #        assunto. As últimas tem a conclusão. O meio e o
         #        desenvolvimento, e e onde e mais seguro cortar.
         # EN-UK: A document's first sentences almost always carry the subject
         #        and the last ones the conclusion; the middle is where it is
@@ -188,7 +188,7 @@ def resumir(documento: Documento, frases_desejadas: int = 6) -> Resumo:
     resumo.datas = list(dict.fromkeys(RE_DATA.findall(documento.texto)))[:12]
 
     if not frases:
-        # PT-PT: Documento sem frases reconheciveis — uma tabela, uma lista de
+        # PT-PT: Documento sem frases reconhecíveis — uma tabela, uma lista de
         #        artigos. Devolver as linhas mais densas e melhor do que
         #        devolver nada, e a interface diz de onde vieram.
         # EN-UK: A document with no recognisable sentences — a table, a parts
@@ -205,9 +205,9 @@ def resumir(documento: Documento, frases_desejadas: int = 6) -> Resumo:
     pontuacoes = _pontuar_frases(frases, frequencias)
 
     melhores = sorted(range(len(frases)), key=lambda i: -pontuacoes[i])[:frases_desejadas]
-    # PT-PT: A ordem final e a do documento, nao a da pontuacao. Um resumo cujas
-    #        frases aparecem por ordem de relevancia le-se como uma lista solta;
-    #        por ordem de leitura, le-se como um texto.
+    # PT-PT: A ordem final e a do documento, não a da pontuação. Um resumo cujas
+    #        frases aparecem por ordem de relevancia lê-se como uma lista solta;
+    #        por ordem de leitura, lê-se como um texto.
     # EN-UK: The final order is the document's, not the score's. A summary whose
     #        sentences come in relevance order reads as a loose list; in reading
     #        order, it reads as a text.
@@ -221,9 +221,9 @@ def comparar_textos(documentos: list[Documento]) -> dict[str, list[str]]:
     """
     PT-PT: Termos comuns e termos exclusivos de cada documento.
 
-           Serve para o caso em que a comparacao nao e de precos: seis
-           relatorios sobre o mesmo assunto, e a pergunta e o que um diz que os
-           outros nao dizem. Os termos exclusivos sao o caminho mais curto para
+           Serve para o caso em que a comparação não é de preços: seis
+           relatórios sobre o mesmo assunto, e a pergunta e o que um diz que os
+           outros não dizem. Os termos exclusivos são o caminho mais curto para
            essa resposta.
 
     EN-UK: Terms shared by all documents and terms exclusive to each. For the
