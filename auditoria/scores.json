@@ -1,0 +1,134 @@
+{
+  "reports": [
+    {
+      "file": "triage_v2_qwen2_5-coder_3b.json",
+      "model": "qwen2.5-coder:3b",
+      "stage1": "v2",
+      "wall_minutes": 15.4,
+      "verdicts": {
+        "FALSE_POSITIVE": 26,
+        "REAL": 124
+      },
+      "unparsed_rate": 0.0,
+      "known_fp_candidates": 80,
+      "known_fp_called_real": 80,
+      "over_claim_rate": 1.0,
+      "un_adjudicated": 70,
+      "extra_findings": 7,
+      "ground_truth_recall": [
+        {
+          "id": "GT-1",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-Linux",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-Windows",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-macOS",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-3",
+          "status": "adjacent_candidate_flagged_defect_not_identified",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-4",
+          "status": "adjacent_candidate_flagged_defect_not_identified",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        }
+      ]
+    },
+    {
+      "file": "triage_qwen2_5-coder_3b.json",
+      "model": "qwen2.5-coder:3b",
+      "stage1": "v1",
+      "wall_minutes": 11.6,
+      "verdicts": {
+        "FALSE_POSITIVE": 41,
+        "REAL": 82,
+        "UNPARSED": 13
+      },
+      "unparsed_rate": 0.096,
+      "known_fp_candidates": 80,
+      "known_fp_called_real": 58,
+      "over_claim_rate": 0.725,
+      "un_adjudicated": 43,
+      "extra_findings": 0,
+      "ground_truth_recall": [
+        {
+          "id": "GT-1",
+          "status": "not_shown_to_model",
+          "detail": "absent from this stage-1 candidate set"
+        },
+        {
+          "id": "GT-2-Linux",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-Windows",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-macOS",
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-3",
+          "status": "adjacent_candidate_flagged_defect_not_identified",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-4",
+          "status": "adjacent_candidate_flagged_defect_not_identified",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        }
+      ]
+    }
+  ]
+}

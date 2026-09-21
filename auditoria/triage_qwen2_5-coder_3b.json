@@ -1,0 +1,1375 @@
+{
+  "model": "qwen2.5-coder:3b",
+  "wall_seconds": 697.1,
+  "files": 40,
+  "candidates": 136,
+  "prompt_tok_s": 72.4,
+  "gen_tok_s": 15.5,
+  "verdicts": {
+    "FALSE_POSITIVE": 41,
+    "REAL": 82,
+    "UNPARSED": 13
+  },
+  "results": [
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Linux/src/netconfig/__main__.py",
+      "line": 67,
+      "code": "ENV_PASSWORD = \"NETCONFIG_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Linux/tests/test_models.py",
+      "line": 127,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Linux/tests/test_models.py",
+      "line": 134,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Windows/src/netconfig/__main__.py",
+      "line": 67,
+      "code": "ENV_PASSWORD = \"NETCONFIG_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Windows/tests/test_models.py",
+      "line": 127,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/Windows/tests/test_models.py",
+      "line": 134,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/macOS/src/netconfig/__main__.py",
+      "line": 67,
+      "code": "ENV_PASSWORD = \"NETCONFIG_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials identified."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/macOS/tests/test_models.py",
+      "line": 127,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Config-Builder/Network-Config-Builder/macOS/tests/test_models.py",
+      "line": 134,
+      "code": "credenciais = Credentials(username=\"admin\", password=\"segredo-mesmo\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Linux/src/netmap/__main__.py",
+      "line": 68,
+      "code": "ENV_PASSWORD = \"NETMAP_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Linux/src/netmap/__main__.py",
+      "line": 70,
+      "code": "ENV_UNIFI_PASSWORD = \"NETMAP_UNIFI_PALAVRA_PASSE\"",
+      "verdict": "REAL",
+      "reason": "Hardcoded credentials found in environment variables."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Linux/tests/test_crawl_topology.py",
+      "line": 49,
+      "code": "CREDENCIAIS = Credentials(username=\"leitura\", password=\"nao-importa\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Windows/src/netmap/__main__.py",
+      "line": 68,
+      "code": "ENV_PASSWORD = \"NETMAP_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Windows/src/netmap/__main__.py",
+      "line": 70,
+      "code": "ENV_UNIFI_PASSWORD = \"NETMAP_UNIFI_PALAVRA_PASSE\"",
+      "verdict": "REAL",
+      "reason": "Hardcoded credentials found in `ENV_USER` and `ENV_PASSWORD`."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/Windows/tests/test_crawl_topology.py",
+      "line": 49,
+      "code": "CREDENCIAIS = Credentials(username=\"leitura\", password=\"nao-importa\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/macOS/src/netmap/__main__.py",
+      "line": 68,
+      "code": "ENV_PASSWORD = \"NETMAP_PALAVRA_PASSE\"",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/macOS/src/netmap/__main__.py",
+      "line": 70,
+      "code": "ENV_UNIFI_PASSWORD = \"NETMAP_UNIFI_PALAVRA_PASSE\"",
+      "verdict": "REAL",
+      "reason": "Hardcoded credentials found in `ENV_USER` and `ENV_PASSWORD`."
+    },
+    {
+      "rule": "hardcoded-secret",
+      "severity": "high",
+      "desc": "possible hardcoded credential",
+      "file": "Network-Topology-Mapper/Network-Topology-Mapper/macOS/tests/test_crawl_topology.py",
+      "line": 49,
+      "code": "CREDENCIAIS = Credentials(username=\"leitura\", password=\"nao-importa\")",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No hardcoded credentials found."
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "Printer-Remote-Toner-Monitor/Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/src/tonermon/collectors.py",
+      "line": 108,
+      "code": "context.verify_mode = ssl.CERT_NONE",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SSL context verification in production code."
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "Printer-Remote-Toner-Monitor/Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Windows/src/tonermon/collectors.py",
+      "line": 108,
+      "code": "context.verify_mode = ssl.CERT_NONE",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SSL context verification in production code."
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "Printer-Remote-Toner-Monitor/Monitor-de-Toners-v2.0.0/Monitor-de-Toners/macOS/src/tonermon/collectors.py",
+      "line": 108,
+      "code": "context.verify_mode = ssl.CERT_NONE",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SSL context verification in production code."
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/Carrinho.php",
+      "line": 57,
+      "code": "$sql_carrinho = 'SELECT * FROM compra_temporaria temp JOIN artigos prod ON temp.id_artigo = prod.id_artigo WHERE sessao=\"'.$sessao.'\"ORDER BY temp.id_artigo ASC';",
+      "verdict": "REAL",
+      "reason": "SQL injection via session variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/Carrinho.php",
+      "line": 58,
+      "code": "$consulta = mysql_query($sql_carrinho);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/Carrinho.php",
+      "line": 59,
+      "code": "$resultado = mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/Carrinho.php",
+      "line": 65,
+      "code": "while($mostrar = mysql_fetch_array($consulta))",
+      "verdict": "REAL",
+      "reason": "SQL injection via session variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/Produtos.php",
+      "line": 50,
+      "code": "$consulta = mysql_query($sql_artigo);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No mysql_* usage"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/Produtos.php",
+      "line": 53,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "REAL",
+      "reason": "mysql_* usage"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/adicionar_artigo.php",
+      "line": 30,
+      "code": "$consulta = mysql_query($sql);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No vulnerability in this code snippet."
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/adicionar_artigo.php",
+      "line": 33,
+      "code": "while ($mostrar = mysql_fetch_assoc($consulta)) {",
+      "verdict": "REAL",
+      "reason": "The use of `mysql_query` is deprecated and removed in PHP 7.0."
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/adicionar_categoria.php",
+      "line": 17,
+      "code": "$sql_nova_cat= \"INSERT INTO categorias(nome_categoria) VALUES('\".$_POST['nome_cat'].\"')\";",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/adicionar_categoria.php",
+      "line": 8,
+      "code": "$consulta1 = mysql_query($sql_categoria);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/adicionar_categoria.php",
+      "line": 9,
+      "code": "$resultado = mysql_fetch_array($consulta1);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/adicionar_categoria.php",
+      "line": 19,
+      "code": "$consulta2 = mysql_query($sql_nova_cat);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/artigos_categoria.php",
+      "line": 7,
+      "code": "$sql_cat='SELECT * FROM artigos WHERE id_categoria=\"'.$id_cat.'\"ORDER BY nome_artigo ASC';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/artigos_categoria.php",
+      "line": 8,
+      "code": "$consulta=mysql_query(sql_cat);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/artigos_categoria.php",
+      "line": 14,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 16,
+      "code": "$sql_adicionar = \"INSERT INTO compra_temporaria(sessao, id_artigo, quantidade) VALUES ('$sessao', '$id_artigo', '$quantidade')\";",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_adicionar"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 24,
+      "code": "$sql_alterar1 = \"UPDATE compra_temporaria SET quantidade = 'quantidade' WHERE sessao='$sessao' AND id_artigo='$id_artigo'\";",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar1"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 27,
+      "code": "$sql_alterar2= \"DELETE FROM compra_temporaria WHERE sessao ='$sessao' AND id_artigo='$id_artigo'\";",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar2"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 34,
+      "code": "$sql_remover=\"DELETE FROM compra_temporaria WHERE sessao = '$sessao' AND id_artigo='$id_artigo'\";",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar2"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 17,
+      "code": "$consulta = mysql_query($sql_adicionar);",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_adicionar"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 25,
+      "code": "$consulta1=mysql_query($sql_alterar1);\t}",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar1"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 28,
+      "code": "$consulta2=mysql_query($sql_alterar2);}",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar2"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/atualizar_compra.php",
+      "line": 35,
+      "code": "$consulta =mysql_query($sql_remover);",
+      "verdict": "REAL",
+      "reason": "SQL injection in $sql_alterar2"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 66,
+      "code": "//$sql_artigo = \"SELECT * FROM artigos WHERE id_artigo = \".$id_artigo;",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_artigo"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 67,
+      "code": "$sql_artigo = 'SELECT * FROM artigos WHERE id_artigo = \"'.$id_artigo.'\"';",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_artigo"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 77,
+      "code": "$sql_quantidade = 'SELECT quantidade FROM compra_temporaria WHERE sessao=\"'.$sessao.'\"AND id_artigo=\"'.$id_artigo.'\"';",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_quantidade"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 68,
+      "code": "$consulta1 = mysql_query($sql_artigo);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_artigo"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 69,
+      "code": "$mostrar = mysql_fetch_array($consulta1);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_artigo"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 78,
+      "code": "$consulta2 = mysql_query($sql_quantidade);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_quantidade"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 79,
+      "code": "$resultado = mysql_fetch_assoc($consulta2);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_quantidade"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/comprar.php",
+      "line": 81,
+      "code": "if (mysql_num_rows($consulta2)>0) { $quantidade =  $resultado['quantidade']; }",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_quantidade"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 19,
+      "code": "$sql_quantidade = 'SELECT quantidade FROM compra_temporaria WHERE sessao=\"'.$sessao.'\"AND id_artigo=\"'.$id_artigo.'\"';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 20,
+      "code": "//$sql_encomendas = \"SELECT * FROM compra_confirmada WHERE estado_compra=\"'.zero'\" AND id_cliente=\".$id_cliente;",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 22,
+      "code": "//$sql_encomendas = 'SELECT * FROM compra_confirmada WHERE estado_compra=\"'.$zero'\" AND id_cliente=\"'.$id_cliente.'\"';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 23,
+      "code": "//$sql_encomendas = 'SELECT * FROM compra_confirmada WHERE estado_compra IN (\"'.$zero.'\") AND id_cliente=\"'.$id_cliente.'\"';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 25,
+      "code": "$sql_encomendas = \"SELECT * FROM compra_confirmada WHERE estado_compra='0' AND id_cliente=\".$id_cliente;",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 28,
+      "code": "$consulta = mysql_query($sql_encomendas);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 29,
+      "code": "$resultado = mysql_num_rows($consulta);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/estado_encomenda.php",
+      "line": 34,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 60,
+      "code": "$sql_cliente = 'SELECT * FROM clientes WHERE id_cliente='.$id_cliente;",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 85,
+      "code": "$sql_carrinho = 'SELECT * FROM compra_temporaria temp JOIN artigos prod ON temp.id_artigo = prod.id_artigo WHERE sessao = \"'.$sessao . '\"ORDER BY temp.id_artigo ASC';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 61,
+      "code": "$consulta = mysql_query($sql_cliente);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 62,
+      "code": "$mostrar = mysql_fetch_array($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 86,
+      "code": "$consulta = mysql_query($sql_carrinho);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 87,
+      "code": "$resultado = mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra.php",
+      "line": 93,
+      "code": "while($mostrar = mysql_fetch_array($consulta)) {",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 57,
+      "code": "$sql_cliente = 'SELECT * FROM clientes WHERE id_cliente='.$id_cliente;",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 83,
+      "code": "$sql_carrinho = 'SELECT * FROM compra_temporaria temp JOIN artigos prod ON temp.id_artigo = prod.id_artigo WHERE sessao= \"'. $sessao.'\"ORDER BY temp.id_artigo ASC';",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 106,
+      "code": "$sql_regista_compra = \"INSERT INTO compra_confirmada(data_compra, id_cliente, total_pagar) VALUES (NOW(),'\".$id_cliente.\"','\".$total.\"')\";",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 109,
+      "code": "$sql_regista_detalhes_compra = 'INSERT INTO detalhes_compra(id_compra, quantidade_compra, id_artigo) SELECT '.$id_compra.', quantidade, id_artigo FROM compra_temporaria WHERE sessao = \"'.$sessao . '\"'",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 112,
+      "code": "$sql_elimina_temp = 'DELETE FROM compra_temporaria WHERE sessao=\"'.$sessao.'\"';",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 58,
+      "code": "$consulta1 = mysql_query($sql_cliente);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 59,
+      "code": "$mostrar = mysql_fetch_array($consulta1);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 84,
+      "code": "$consulta2 = mysql_query($sql_carrinho);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 85,
+      "code": "$resultado = mysql_num_rows($consulta2);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 91,
+      "code": "while ($mostrar = mysql_fetch_array($consulta2)) {",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 107,
+      "code": "$consulta3 = mysql_query($sql_regista_compra);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 110,
+      "code": "$consulta4 = mysql_query($sql_regista_detalhes_compra);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/finalizar_compra2.php",
+      "line": 113,
+      "code": "$consulta5 = mysql_query($sql_eliminia_temp);",
+      "verdict": "UNPARSED",
+      "reason": ""
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/historico_encomendas.php",
+      "line": 12,
+      "code": "$consulta = mysql_query($sql_encomendas);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No vulnerability found"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/historico_encomendas.php",
+      "line": 13,
+      "code": "$resultado = mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "Vulnerability: SQL injection due to direct use of user input in SQL query"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/historico_encomendas.php",
+      "line": 24,
+      "code": "while ($mostrar = mysql_fetch_array($consulta)) {",
+      "verdict": "REAL",
+      "reason": "Vulnerability: SQL injection due to direct use of user input in SQL query"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ligacao_db.php",
+      "line": 8,
+      "code": "$ligacao=mysql_connect($servidor, $nome_administrador, $password_administrador)or die('Erro de ligacao \u00e0 base de dados');",
+      "verdict": "REAL",
+      "reason": "mysql_* extension removed"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ligacao_db.php",
+      "line": 9,
+      "code": "mysql_select_db($base_dados, $ligacao);",
+      "verdict": "REAL",
+      "reason": "mysql_* extension removed"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/lista_compras.php",
+      "line": 10,
+      "code": "$sql_carrinho ='SELECT * FROM compra_temporaria temp JOIN artigos prod ON temp.id_artigo = prod.id_artigo WHERE sessao=\"'.$sessao.'\"ORDER BY temp.id_artigo ASC';",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/lista_compras.php",
+      "line": 11,
+      "code": "$consulta = mysql_query($sql_carrinho);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/lista_compras.php",
+      "line": 12,
+      "code": "$resultado=mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/lista_compras.php",
+      "line": 17,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/pesquisa_artigo.php",
+      "line": 68,
+      "code": "$sql_artigo = \"SELECT * FROM artigos WHERE nome_artigo LIKE'$termo_pesquisa'\";",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/pesquisa_artigo.php",
+      "line": 69,
+      "code": "$consulta = mysql_query($sql_artigo);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/pesquisa_artigo.php",
+      "line": 70,
+      "code": "$resultado = mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/pesquisa_artigo.php",
+      "line": 75,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 15,
+      "code": "$sql=\"SELECT nome_utilizador, palavra_passe FROM utilizadores WHERE nome_utilizador='$username' AND palavra_passe='$password'\";",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 8,
+      "code": "$ligacao = mysql_connect('localhost', 'root2', '') or die ('Nao foi possivel ligar a base de dados');",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 10,
+      "code": "mysql_select_db ('Epalte_ONLINE', $ligacao) or die (mysql_error($ligacao));",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 16,
+      "code": "$consulta = mysql_query($sql);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 18,
+      "code": "if(mysql_num_rows($consulta)==1){",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 29,
+      "code": "mysql_free_result();",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-db-creds",
+      "severity": "high",
+      "desc": "inline DB credentials",
+      "file": "Projecto-de-escola/processa_login.php",
+      "line": 8,
+      "code": "$ligacao = mysql_connect('localhost', 'root2', '') or die ('Nao foi possivel ligar a base de dados');",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/processa_registo_artigo.php",
+      "line": 19,
+      "code": "$sql_regista = \"INSERT INTO artigos(id_categoria, nome_artigo, descricao_artigo, preco_artigo, stock_artigo, imagem_artigo) VALUES ('$cat_prod', '$nome_prod', '$desc_prod', '$stock_prod', '$img_nome')",
+      "verdict": "REAL",
+      "reason": "SQL injection via user input"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processa_registo_artigo.php",
+      "line": 20,
+      "code": "$consulta = mysql_query($sql_regista);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/processar_registo.php",
+      "line": 28,
+      "code": "$sql=\"INSERT INTO Clientes (nome, password, email,  morada, codigo_postal, pais, telefone, localidade) VALUES '$username', '$password', '$email', '$morada', '$codigo_postal', '$pais', '$telefone', '$l",
+      "verdict": "REAL",
+      "reason": "SQL injection via $_POST['password']"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processar_registo.php",
+      "line": 17,
+      "code": "mysql_select_db($base_dados,  $ligacao) or die (mysql_error($ligacao));",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processar_registo.php",
+      "line": 29,
+      "code": "$consulta = mysql_query($sql);",
+      "verdict": "REAL",
+      "reason": "SQL injection via $_POST['password']"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/processar_registo_artigo.php",
+      "line": 20,
+      "code": "$sql_regista = \"INSERT INTO artigos (id_categoria, nome_artigo, descricao_artigo, preco_artigo, stock_artigo, imagem_artigo)VALUES ('$cat_prod', '$nome_prod', '$desc_prod', '$preco_prod', '$stock_prod",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_regista"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/processar_registo_artigo.php",
+      "line": 21,
+      "code": "//$sql_regista = \"INSERT INTO artigos (id_categoria, nome_artigo, descricao_artigo, preco_artigo, stock_artigo)VALUES ('$cat_prod', '$nome_prod', '$desc_prod', '$preco_prod', '$stock_prod')\";",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_regista"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/processar_registo_artigo.php",
+      "line": 22,
+      "code": "$consulta=mysql_query($sql_regista);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $sql_regista"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/registar_utilizador.php",
+      "line": 73,
+      "code": "$sql=\"SELECT * FROM utilizadores WHERE nome_utilizador='$nickname'\";",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $nickname variable"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/registar_utilizador.php",
+      "line": 83,
+      "code": "$sql2=\"INSERT INTO utilizadores(nome_utilizador, palavra_passe, email, nivel_utilizador) VALUES('\".$_POST['nickname'].\"','\".$_POST['password'].\"','\".$_POST['email'].\"','2')\";",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $nickname variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/registar_utilizador.php",
+      "line": 74,
+      "code": "$consulta=mysql_query($sql);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $nickname variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/registar_utilizador.php",
+      "line": 75,
+      "code": "$resultado=mysql_num_rows($consulta);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $nickname variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/registar_utilizador.php",
+      "line": 84,
+      "code": "$consulta2=mysql_query($sql2);",
+      "verdict": "REAL",
+      "reason": "SQL injection vulnerability in $nickname variable"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/registo_cliente.php",
+      "line": 78,
+      "code": "$consulta = mysql_query($sql_cliente);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No vulnerability found."
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 3,
+      "code": "$ligacao = mysql_connect('localhost', 'root', '') or die ('Nao foi possivel ligqar a base de dados');",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No direct DB credentials"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 5,
+      "code": "mysql_select_db('gestao_utilizadores', $ligacao) or die (mysql_error($ligacao));",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No direct DB credentials"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 9,
+      "code": "$consulta = mysql_query($sql);",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No direct DB credentials"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 20,
+      "code": "while($mostrar = mysql_fetch_array($consulta)){",
+      "verdict": "REAL",
+      "reason": "Direct DB credentials"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 31,
+      "code": "mysql_free_result($consulta);",
+      "verdict": "REAL",
+      "reason": "Direct DB credentials"
+    },
+    {
+      "rule": "php-db-creds",
+      "severity": "high",
+      "desc": "inline DB credentials",
+      "file": "Projecto-de-escola/ver_utilizador.php",
+      "line": 3,
+      "code": "$ligacao = mysql_connect('localhost', 'root', '') or die ('Nao foi possivel ligqar a base de dados');",
+      "verdict": "REAL",
+      "reason": "Direct DB credentials"
+    },
+    {
+      "rule": "php-sql-interp",
+      "severity": "high",
+      "desc": "SQL string built with an interpolated variable",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 15,
+      "code": "$sql=\"SELECT id_cliente, nome_login, palavra_passe, nivel_utilizador FROM clientes WHERE nome_login='$username' AND palavra_passe='$password'\";",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SQL injection risk"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 16,
+      "code": "$consulta = mysql_query($sql);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 17,
+      "code": "$resultado=mysql_fetch_assoc($consulta);",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "php-mysql-ext",
+      "severity": "med",
+      "desc": "removed mysql_* extension (dead on PHP>=7)",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 22,
+      "code": "if (mysql_num_rows($consulta)!=1) {",
+      "verdict": "REAL",
+      "reason": "Removed mysql_* extension"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Linux/src/vfc/connection.py",
+      "line": 11,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "FALSE_POSITIVE",
+      "reason": "No SSL context verification"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Linux/src/vfc/connection.py",
+      "line": 34,
+      "code": "A diferen\u00e7a pr\u00e1tica entre isto e `CERT_NONE` \u00e9 que aqui h\u00e1 uma janela de",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Linux/src/vfc/connection.py",
+      "line": 187,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Linux/src/vfc/connection.py",
+      "line": 627,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Windows/src/vfc/connection.py",
+      "line": 11,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Windows/src/vfc/connection.py",
+      "line": 34,
+      "code": "A diferen\u00e7a pr\u00e1tica entre isto e `CERT_NONE` \u00e9 que aqui h\u00e1 uma janela de",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Windows/src/vfc/connection.py",
+      "line": 187,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Windows/src/vfc/connection.py",
+      "line": 627,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/macOS/src/vfc/connection.py",
+      "line": 11,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/macOS/src/vfc/connection.py",
+      "line": 34,
+      "code": "A diferen\u00e7a pr\u00e1tica entre isto e `CERT_NONE` \u00e9 que aqui h\u00e1 uma janela de",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/macOS/src/vfc/connection.py",
+      "line": 187,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    },
+    {
+      "rule": "ssl-unverified",
+      "severity": "high",
+      "desc": "unverified SSL context",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/macOS/src/vfc/connection.py",
+      "line": 627,
+      "code": "contexto.verify_mode = ssl.CERT_NONE",
+      "verdict": "REAL",
+      "reason": "Unverified SSL context"
+    }
+  ]
+}

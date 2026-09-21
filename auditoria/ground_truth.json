@@ -1,0 +1,208 @@
+{
+  "purpose": "Hand-verified ground truth for scoring triage_<model>.json. The metric that matters is each model's hallucination rate on candidates it WAS shown, plus its recall on the findings it could reach.",
+  "established": "2026-09-21",
+  "corpus_note": "Python projects ship triplicated Linux/Windows/macOS trees, so ~615 scanned files are ~205 unique ones and each Python finding appears three times.",
+  "unique_findings": 4,
+  "records": 6,
+  "findings": [
+    {
+      "id": "GT-1",
+      "file": "Projecto-de-escola/menu_admin.php",
+      "line": 1,
+      "severity": "high",
+      "title": "admin panel has no session_start() and no auth check",
+      "detail": "menu_admin.php is 10 lines of pure HTML. It never calls session_start() and never tests $_SESSION['nivel_utilizador']. Anyone who types the URL gets the admin menu; login is bypassable outright.",
+      "evidence_kind": "absence",
+      "expect_text": null,
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok (absence)",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": false,
+          "prefilter_found_the_line": false,
+          "candidate_lines_within_context": [],
+          "reachable": false
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            1
+          ],
+          "reachable": true
+        }
+      }
+    },
+    {
+      "id": "GT-2-Linux",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Linux/src/vfc/connection.py",
+      "line": 627,
+      "severity": "high",
+      "title": "TOCTOU in certificate pinning: pin checked on one connection, credentials sent on another",
+      "detail": "fetch_certificate() (line 168) opens a connection with CERT_NONE at 186-187 to read the fingerprint, and evaluate_trust() (line 222) judges it. connect() (line 528) then opens a NEW connection via _build_context() (line 607), which sets CERT_NONE again at 626-627, and sends the password without re-checking the pin during the handshake. Fix: load_verify_locations(cadata=...) plus verify_mode=CERT_REQUIRED so OpenSSL enforces the pin in-handshake.",
+      "evidence_kind": "line",
+      "expect_text": "verify_mode = ssl.CERT_NONE",
+      "duplicate_of": "GT-2",
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        }
+      }
+    },
+    {
+      "id": "GT-2-Windows",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/Windows/src/vfc/connection.py",
+      "line": 627,
+      "severity": "high",
+      "title": "TOCTOU in certificate pinning: pin checked on one connection, credentials sent on another",
+      "detail": "fetch_certificate() (line 168) opens a connection with CERT_NONE at 186-187 to read the fingerprint, and evaluate_trust() (line 222) judges it. connect() (line 528) then opens a NEW connection via _build_context() (line 607), which sets CERT_NONE again at 626-627, and sends the password without re-checking the pin during the handshake. Fix: load_verify_locations(cadata=...) plus verify_mode=CERT_REQUIRED so OpenSSL enforces the pin in-handshake.",
+      "evidence_kind": "line",
+      "expect_text": "verify_mode = ssl.CERT_NONE",
+      "duplicate_of": "GT-2",
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        }
+      }
+    },
+    {
+      "id": "GT-2-macOS",
+      "file": "VMware-Fleet-Console/VMware-Fleet-Console/macOS/src/vfc/connection.py",
+      "line": 627,
+      "severity": "high",
+      "title": "TOCTOU in certificate pinning: pin checked on one connection, credentials sent on another",
+      "detail": "fetch_certificate() (line 168) opens a connection with CERT_NONE at 186-187 to read the fingerprint, and evaluate_trust() (line 222) judges it. connect() (line 528) then opens a NEW connection via _build_context() (line 607), which sets CERT_NONE again at 626-627, and sends the password without re-checking the pin during the handshake. Fix: load_verify_locations(cadata=...) plus verify_mode=CERT_REQUIRED so OpenSSL enforces the pin in-handshake.",
+      "evidence_kind": "line",
+      "expect_text": "verify_mode = ssl.CERT_NONE",
+      "duplicate_of": "GT-2",
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": true,
+          "candidate_lines_within_context": [
+            627
+          ],
+          "reachable": true
+        }
+      }
+    },
+    {
+      "id": "GT-3",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 19,
+      "severity": "high",
+      "title": "$_SESSION populated before the row-count guard",
+      "detail": "Lines 19-21 assign $_SESSION['id_cliente'], ['nome_cliente'] and ['nivel_utilizador'] before the mysql_num_rows($consulta)!=1 guard at line 22. A failed login has already written session state by the time the guard redirects.",
+      "evidence_kind": "line",
+      "expect_text": "$_SESSION['id_cliente']=$resultado['id_utilizador'];",
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": false,
+          "candidate_lines_within_context": [
+            15,
+            16,
+            17,
+            22
+          ],
+          "reachable": true
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": false,
+          "candidate_lines_within_context": [
+            15,
+            16,
+            17,
+            22
+          ],
+          "reachable": true
+        }
+      }
+    },
+    {
+      "id": "GT-4",
+      "file": "Projecto-de-escola/verifica_login.php",
+      "line": 19,
+      "severity": "med",
+      "title": "session read from column names the query never selects",
+      "detail": "Line 15 selects id_cliente, nome_login, palavra_passe, nivel_utilizador. Lines 19-20 read $resultado['id_utilizador'] and ['nome_utilizador'] -- keys that never exist in the row, so those session values are always NULL.",
+      "evidence_kind": "line",
+      "expect_text": "$resultado['id_utilizador']",
+      "verified": true,
+      "verified_by": "claude-read-the-code",
+      "anchor_check": "ok",
+      "reachability": {
+        "v1": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": false,
+          "candidate_lines_within_context": [
+            15,
+            16,
+            17,
+            22
+          ],
+          "reachable": true
+        },
+        "v2": {
+          "file_in_candidate_set": true,
+          "prefilter_found_the_line": false,
+          "candidate_lines_within_context": [
+            15,
+            16,
+            17,
+            22
+          ],
+          "reachable": true
+        }
+      }
+    }
+  ]
+}
