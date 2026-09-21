@@ -89,9 +89,23 @@ def _ssl_context() -> ssl.SSLContext:
            validar, e o firmware mais antigo só suporta TLS 1.0. Recusar
            qualquer um dos dois significa não conseguir ler metade do parque.
 
-           Este relaxamento é aceitável aqui e não seria aceitável na Internet:
-           os pedidos vão para endereços da rede interna, e o que se lê são
-           níveis de toner, não credenciais.
+           Este relaxamento é aceitável para ler estado e não seria aceitável na
+           Internet: os pedidos vão para endereços da rede interna.
+
+           **Ressalva, que aqui dizia o contrário.** Este docstring afirmava que
+           "o que se lê são níveis de toner, não credenciais". Não é verdade
+           quando está configurada uma palavra-passe do servidor web: nesse caso
+           `_obter` prende um HTTPBasicAuthHandler ao opener e a palavra-passe
+           viaja por esta mesma ligação — que, com `CERT_NONE`, aceita qualquer
+           certificado. Quem estiver no meio da rede de gestão pode apresentar-se
+           como a impressora e ficar com ela.
+
+           Isto não se resolve aqui dentro: as impressoras não têm certificado
+           que valide, e impor validação deixaria o parque por ler. O que se fez
+           foi tirar o pior caso — já não se desce para http com credenciais em
+           jogo (ver `_obter`). Fixar a impressão digital de cada impressora na
+           primeira leitura, à maneira do SSH, é o passo seguinte e é uma decisão
+           de quem gere o parque, não uma correcção a fazer de repente.
 
     EN-UK: Tolerant TLS context, unavoidable when talking to printers.
 
@@ -99,9 +113,24 @@ def _ssl_context() -> ssl.SSLContext:
            older firmware supports only TLS 1.0. Refusing either means being
            unable to read half the fleet.
 
-           This relaxation is acceptable here and would not be on the Internet:
-           the requests go to internal addresses, and what is read is toner
-           levels, not credentials.
+           This relaxation is acceptable for reading status and would not be on
+           the Internet: the requests go to internal addresses.
+
+           **A caveat, which this docstring previously got backwards.** It used
+           to claim "what is read is toner levels, not credentials". That is not
+           true when an embedded-web-server password is configured: `_obter` then
+           attaches an HTTPBasicAuthHandler to the opener and the password
+           travels over this very connection — which, with `CERT_NONE`, accepts
+           any certificate at all. Anyone in the middle of the management network
+           can present themselves as the printer and keep it.
+
+           This cannot be solved here: printers have no certificate that would
+           validate, and enforcing validation would leave the fleet unread. What
+           was done is to remove the worst case — there is no longer a step down
+           to http while credentials are in play (see `_obter`). Pinning each
+           printer's fingerprint on first reading, the SSH way, is the next step
+           and is a decision for whoever runs the fleet, not a fix to make on the
+           spot.
     """
     context = ssl.create_default_context()
     context.check_hostname = False
@@ -203,8 +232,49 @@ def _fetch(
         opener.add_handler(urllib.request.HTTPDigestAuthHandler(manager))
 
     # PT-PT: Protocolo do inventário primeiro, o outro como recurso.
+    #
+    #        **Com palavra-passe não se desce para http.** O recurso era
+    #        incondicional, e o gestor de credenciais acima fica agarrado ao
+    #        opener e não a um esquema: quando o https falhava, a tentativa
+    #        seguinte saía em http com o mesmo handler de autenticação atrás. O
+    #        Basic responde ao desafio 401 com utilizador e palavra-passe em
+    #        base64, que não é cifra nenhuma — a palavra-passe do servidor web da
+    #        impressora saía em claro pela rede de gestão. Bastava a impressora
+    #        recusar o https naquele instante.
+    #
     # EN-UK: The inventory's protocol first, the other as a fallback.
-    schemes = [printer.scheme, "https" if printer.scheme == "http" else "http"]
+    #
+    #        **With a password set there is no stepping down to http.** The
+    #        fallback was unconditional, and the password manager above attaches
+    #        to the opener rather than to a scheme: when https failed, the next
+    #        attempt went out over http with the same auth handler behind it.
+    #        Basic answers the 401 challenge with user and password in base64,
+    #        which is not encryption — the printer's web-server password left in
+    #        the clear over the management network. A printer refusing https at
+    #        that moment was enough to cause it.
+    alternativo = "https" if printer.scheme == "http" else "http"
+
+    if not password:
+        # PT-PT: Sem credenciais, o recurso é livre — só se lêem contadores.
+        # EN-UK: With no credentials the fallback is free — only counters are read.
+        schemes = [printer.scheme, alternativo]
+    else:
+        # PT-PT: Com credenciais, https primeiro e nunca descer para http. Uma
+        #        impressora inventariada como http continua a ser tentada em
+        #        http, porque bloqueá-la deixaria de se ler — mas fica avisado,
+        #        porque aí o Basic vai mesmo em claro.
+        # EN-UK: With credentials, https first and never step down to http. A
+        #        printer inventoried as http is still attempted over http,
+        #        because blocking it would stop the reading altogether — but it
+        #        is warned about, because there Basic really does go in clear.
+        schemes = ["https"]
+        if printer.scheme == "http":
+            _log.warning(
+                "%s está inventariada como http e há palavra-passe configurada: "
+                "se o https não responder, as credenciais seguem em claro.",
+                printer.ip,
+            )
+            schemes.append("http")
 
     for scheme in schemes:
         url = f"{scheme}://{printer.ip}{path}"
