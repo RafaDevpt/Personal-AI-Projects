@@ -189,6 +189,49 @@ class TestRedaccaoDeSegredos:
         SecretFilter().filter(registo)
         assert "segredo" not in registo.getMessage()
 
+    # PT-PT: Os casos abaixo passavam ao lado da versão anterior do filtro. Num
+    #        IOS o segredo quase nunca vem logo a seguir à palavra-chave, e era
+    #        o algarismo do tipo de cifra que acabava substituído, ficando o
+    #        resumo escrito no registo.
+    # EN-UK: The cases below slipped past the previous filter. On IOS the secret
+    #        almost never follows the keyword directly, and it was the
+    #        encryption-type digit that ended up replaced, leaving the hash
+    #        written to the log.
+
+    def test_secret_com_algarismo_de_tipo(self) -> None:
+        linha = "enable secret 5 $1$mERr$Xk3lQF9rT2vB8nC1dY7jS."
+        assert "$1$mERr$Xk3lQF9rT2vB8nC1dY7jS." not in redact(linha)
+
+    def test_palavra_passe_tipo_7(self) -> None:
+        # PT-PT: O tipo 7 é reversível, por isso não basta ser "cifrado".
+        # EN-UK: Type 7 is reversible, so "encrypted" is not good enough.
+        assert "0822455D0A16544541" not in redact("username admin password 7 0822455D0A16544541")
+
+    def test_o_algarismo_do_tipo_fica(self) -> None:
+        # PT-PT: O tipo é útil a quem lê o registo e não é segredo.
+        # EN-UK: The type helps whoever reads the log and is not a secret.
+        assert redact("enable secret 5 $1$abc$def").startswith("enable secret 5 ")
+
+    def test_separador_dois_pontos(self) -> None:
+        assert "hunter2" not in redact("password: hunter2")
+
+    def test_separador_igual(self) -> None:
+        assert "hunter2" not in redact("password=hunter2")
+
+    def test_separador_json(self) -> None:
+        assert "hunter2" not in redact('{"password": "hunter2"}')
+
+    def test_chave_pre_partilhada(self) -> None:
+        linha = "crypto isakmp key MyPreSharedKey99 address 10.0.0.1"
+        assert "MyPreSharedKey99" not in redact(linha)
+
+    def test_key_generate_nao_e_segredo(self) -> None:
+        # PT-PT: "key generate" não carrega segredo; não deve ser mexido.
+        # EN-UK: "key generate" carries no secret; it must be left alone.
+        assert redact("crypto key generate rsa modulus 2048") == (
+            "crypto key generate rsa modulus 2048"
+        )
+
 
 class TestPresets:
     """PT-PT: Os modelos de partida. / EN-UK: The starting templates."""
