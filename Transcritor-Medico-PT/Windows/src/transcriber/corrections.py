@@ -39,6 +39,7 @@ import re
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
+from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 from .languages import DEFAULT_CODE, LanguagePack, resolve
 
@@ -128,7 +129,7 @@ class CorrectionEngine:
         """
         self.stats["last_updated"] = datetime.now(timezone.utc).isoformat()
         try:
-            self.store_path.parent.mkdir(parents=True, exist_ok=True)
+            criar_pasta_restrita(self.store_path.parent)
             self.store_path.write_text(
                 json.dumps(
                     {"learned": self.learned, "stats": self.stats},
@@ -137,6 +138,9 @@ class CorrectionEngine:
                 ),
                 encoding="utf-8",
             )
+            # PT-PT: O dicionario acumula nomes e termos de consultas.
+            # EN-UK: The dictionary accumulates names and terms from consultations.
+            restringir_ao_dono(self.store_path)
             return True
         except OSError as exc:
             _log.error("Não foi possível gravar as correcções: %s", exc)

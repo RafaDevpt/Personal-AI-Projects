@@ -68,6 +68,7 @@ import wave
 from array import array
 from datetime import datetime
 from pathlib import Path
+from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 from . import platform_support
 
@@ -337,7 +338,7 @@ class AudioRecorder:
         import sounddevice
 
         try:
-            self.destination.parent.mkdir(parents=True, exist_ok=True)
+            criar_pasta_restrita(self.destination.parent)
             # PT-PT: O ficheiro fica aberto de propósito, e por isso não leva
             #        gestor de contexto: e escrito bloco a bloco pelo fio de
             #        audio, ao longo de toda a gravação, e só fecha em stop().
@@ -345,6 +346,9 @@ class AudioRecorder:
             #        manager: it is written block by block by the audio thread
             #        throughout the recording, and closes only in stop().
             self._wave = wave.open(str(self.destination), "wb")  # noqa: SIM115
+            # PT-PT: Restringir logo, antes de entrar audio da consulta.
+            # EN-UK: Restrict immediately, before consultation audio goes in.
+            restringir_ao_dono(self.destination)
             self._wave.setnchannels(CHANNELS)
             self._wave.setsampwidth(SAMPLE_WIDTH)
             self._wave.setframerate(SAMPLE_RATE)

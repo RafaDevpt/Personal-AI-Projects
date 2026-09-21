@@ -29,6 +29,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .engine import TranscriptionResult
+from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 _log = logging.getLogger(__name__)
 
@@ -155,7 +156,7 @@ def export_txt(
         PT-PT: Se a gravação falhar (sem permissões, disco cheio).
         EN-UK: If writing fails (no permission, disk full).
     """
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    criar_pasta_restrita(destination.parent)
     final = destination if overwrite else unique_path(destination)
 
     # PT-PT: newline="\r\n" força quebras de linha do Windows, para o texto
@@ -164,6 +165,9 @@ def export_txt(
     #        correctly in Notepad.
     with final.open("w", encoding=encoding, newline="\r\n") as handle:
         handle.write(header + text.rstrip() + "\n")
+    # PT-PT: Transcrição de consulta: só o dono a lê.
+    # EN-UK: A consultation transcription: owner-only.
+    restringir_ao_dono(final)
 
     _log.info("Transcrição exportada para %s (%d caracteres).", final, len(text))
     return final
@@ -182,7 +186,7 @@ def export_markdown(
     EN-UK: Writes the transcription as Markdown, with metadata in a YAML block.
            A useful format for anyone filing transcriptions in a notes system.
     """
-    destination.parent.mkdir(parents=True, exist_ok=True)
+    criar_pasta_restrita(destination.parent)
     final = destination if overwrite else unique_path(destination)
 
     lines = ["---"]
@@ -202,5 +206,6 @@ def export_markdown(
     ]
 
     final.write_text("\n".join(lines), encoding="utf-8")
+    restringir_ao_dono(final)
     _log.info("Transcrição exportada para %s.", final)
     return final
