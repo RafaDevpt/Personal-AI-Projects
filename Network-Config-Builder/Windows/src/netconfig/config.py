@@ -97,6 +97,37 @@ class Settings:
     # PT-PT: Rede.
     # EN-UK: Network.
     ssh_timeout: int = 30
+    # PT-PT: Verificar a chave de anfitrião SSH antes de enviar credenciais.
+    #
+    #        O Netmiko traz `ssh_strict=False` por omissão, e nessa altura o
+    #        paramiko fica com a `AutoAddPolicy`: **qualquer** chave de anfitrião
+    #        é aceite sem perguntar. Como o que segue logo a seguir é o
+    #        utilizador, a palavra-passe e o enable secret, quem estiver no meio
+    #        da rede de gestão recebe as credenciais do equipamento inteiras.
+    #
+    #        Com isto a True usa-se a `RejectPolicy` e o `~/.ssh/known_hosts`,
+    #        como faz o `ssh` da linha de comandos. Um equipamento novo tem de
+    #        ser aceite uma vez:
+    #
+    #            ssh-keyscan -H 10.0.0.1 >> ~/.ssh/known_hosts
+    #
+    #        Pôr a False volta ao comportamento antigo. Está aqui para quem
+    #        tenha mesmo de o fazer, não como ponto de partida.
+    #
+    # EN-UK: Verify the SSH host key before sending credentials.
+    #
+    #        Netmiko defaults to `ssh_strict=False`, and paramiko then uses
+    #        `AutoAddPolicy`: **any** host key is accepted without asking. Since
+    #        what follows immediately is the username, the password and the
+    #        enable secret, anyone in the middle of the management network
+    #        collects the device's credentials in full.
+    #
+    #        With this True it uses `RejectPolicy` and `~/.ssh/known_hosts`, the
+    #        way the command-line `ssh` does. A new device has to be accepted
+    #        once with `ssh-keyscan`. Setting it False restores the old
+    #        behaviour; it is here for whoever genuinely needs it, not as a
+    #        starting point.
+    verificar_chave_ssh: bool = True
     # PT-PT: A simulação por omissão não é configurável para False aqui de
     #        propósito: quem quer escrever tem de o dizer no momento, não uma
     #        vez numas definições que ninguém volta a ver.

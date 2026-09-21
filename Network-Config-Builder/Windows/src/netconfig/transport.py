@@ -194,7 +194,13 @@ class SwitchSession:
                    current = session.read_running_config()
     """
 
-    def __init__(self, device: Device, credentials: Credentials, timeout: int = 30) -> None:
+    def __init__(
+        self,
+        device: Device,
+        credentials: Credentials,
+        timeout: int = 30,
+        strict_host_keys: bool = True,
+    ) -> None:
         """
         :param device:
             PT-PT: Equipamento a contactar. / EN-UK: Device to contact.
@@ -203,10 +209,18 @@ class SwitchSession:
         :param timeout:
             PT-PT: Segundos até desistir da ligação.
             EN-UK: Seconds before giving up on the connection.
+        :param strict_host_keys:
+            PT-PT: Verificar a chave de anfitrião contra o `~/.ssh/known_hosts`
+                   antes de enviar credenciais. O valor por omissão é True, e é
+                   deliberado: o Netmiko sozinho aceitaria qualquer chave.
+            EN-UK: Verify the host key against `~/.ssh/known_hosts` before
+                   sending credentials. The default is True, deliberately:
+                   Netmiko on its own would accept any key.
         """
         self.device = device
         self._credentials = credentials
         self._timeout = timeout
+        self._strict_host_keys = strict_host_keys
         self._connection: Any = None
 
     def __enter__(self) -> SwitchSession:
@@ -231,6 +245,7 @@ class SwitchSession:
         try:
             from netmiko import ConnectHandler
             from netmiko.exceptions import NetmikoAuthenticationException, NetmikoTimeoutException
+            from paramiko.ssh_exception import SSHException
         except ImportError as exc:
             raise TransportError(
                 "O netmiko não está instalado. Instale com: pip install netmiko"
@@ -238,6 +253,16 @@ class SwitchSession:
 
         logger.info("A ligar a %s (%s)", self.device.name, self.device.host)
         try:
+            # PT-PT: `ssh_strict` e `system_host_keys` são passados sempre, e
+            #        não deixados ao Netmiko. A omissão dele é `ssh_strict=False`,
+            #        que põe o paramiko com `AutoAddPolicy` e aceita qualquer
+            #        chave de anfitrião -- com o utilizador, a palavra-passe e o
+            #        enable secret a seguir atrás.
+            # EN-UK: `ssh_strict` and `system_host_keys` are always passed
+            #        rather than left to Netmiko. Its default is
+            #        `ssh_strict=False`, which puts paramiko on `AutoAddPolicy`
+            #        and accepts any host key -- with the username, password and
+            #        enable secret following right behind it.
             self._connection = ConnectHandler(
                 device_type=self.device.platform.netmiko_device_type,
                 host=self.device.host,
@@ -247,6 +272,8 @@ class SwitchSession:
                 secret=self._credentials.enable_password or self._credentials.password,
                 conn_timeout=self._timeout,
                 fast_cli=False,
+                ssh_strict=self._strict_host_keys,
+                system_host_keys=self._strict_host_keys,
             )
         except NetmikoAuthenticationException as exc:
             raise TransportError(f"{self.device.name}: credenciais recusadas.") from exc
@@ -254,6 +281,22 @@ class SwitchSession:
             raise TransportError(
                 f"{self.device.name}: sem resposta em {self._timeout}s ({self.device.host})."
             ) from exc
+        except SSHException as exc:
+            # PT-PT: Chave desconhecida ou trocada. A mensagem tem de dizer o
+            #        que fazer, senão isto parece uma avaria.
+            # EN-UK: Unknown or changed key. The message has to say what to do,
+            #        otherwise this looks like a malfunction.
+            if self._strict_host_keys and "not found" in str(exc).lower():
+                raise TransportError(
+                    f"{self.device.name}: a chave de anfitrião de {self.device.host} não "
+                    f"está no ~/.ssh/known_hosts, e por isso não foram enviadas credenciais.\n"
+                    f"Confirme a chave e aceite-a uma vez:\n"
+                    f"    ssh-keyscan -H {self.device.host} >> ~/.ssh/known_hosts\n"
+                    f"Se a chave MUDOU num equipamento já conhecido, não a aceite sem "
+                    f"perceber porquê: ou alguém regenerou a chave, ou não está a falar "
+                    f"com o equipamento de sempre."
+                ) from exc
+            raise TransportError(f"{self.device.name}: {exc}") from exc
         except Exception as exc:  # noqa: BLE001 - PT-PT: o Netmiko lança de tudo / EN-UK: Netmiko raises anything
             raise TransportError(f"{self.device.name}: {exc}") from exc
 
