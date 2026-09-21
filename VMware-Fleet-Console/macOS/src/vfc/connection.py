@@ -165,6 +165,41 @@ def fingerprint_of(der_bytes: bytes) -> str:
     return ":".join(digest[i : i + 2] for i in range(0, len(digest), 2))
 
 
+def _fetch_peer(host: str, port: int, timeout: float) -> tuple[bytes, dict]:
+    """
+    PT-PT: Os bytes do certificado apresentado, sem o validar.
+
+           Isolado numa função só para isto porque há dois sítios que precisam
+           dos mesmos bytes: `fetch_certificate`, para mostrar a impressão
+           digital a quem decide, e `_build_context`, para a impor no aperto de
+           mão. Antes só o primeiro existia, e o segundo confiava no trabalho do
+           primeiro numa ligação diferente — que era precisamente a falha.
+
+    EN-UK: The bytes of the presented certificate, without validating it.
+
+           Pulled out into its own function because two places need the same
+           bytes: `fetch_certificate`, to show the fingerprint to whoever
+           decides, and `_build_context`, to enforce it in the handshake.
+           Previously only the first existed and the second trusted the first's
+           work on a different connection — which was exactly the flaw.
+    """
+    contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    contexto.check_hostname = False
+    contexto.verify_mode = ssl.CERT_NONE
+
+    with (
+        socket.create_connection((host, port), timeout=timeout) as bruto,
+        contexto.wrap_socket(bruto, server_hostname=host) as seguro,
+    ):
+        return seguro.getpeercert(binary_form=True) or b"", seguro.getpeercert() or {}
+
+
+def _fetch_der(host: str, port: int, timeout: float) -> bytes:
+    """PT-PT: Só os bytes. / EN-UK: The bytes alone."""
+    der, _ = _fetch_peer(host, port, timeout)
+    return der
+
+
 def fetch_certificate(host: str, port: int = DEFAULT_PORT, timeout: float = 10.0) -> CertificateInfo:
     """
     PT-PT: Vai buscar o certificado sem o validar, só para o poder mostrar.
@@ -182,16 +217,7 @@ def fetch_certificate(host: str, port: int = DEFAULT_PORT, timeout: float = 10.0
            the person will compare. Authentication happens afterwards, on
            another connection, with the decision already made.
     """
-    contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    contexto.check_hostname = False
-    contexto.verify_mode = ssl.CERT_NONE
-
-    with (
-        socket.create_connection((host, port), timeout=timeout) as bruto,
-        contexto.wrap_socket(bruto, server_hostname=host) as seguro,
-    ):
-        der = seguro.getpeercert(binary_form=True)
-        decodificado = seguro.getpeercert() or {}
+    der, decodificado = _fetch_peer(host, port, timeout)
 
     if not der:
         return CertificateInfo()
@@ -562,7 +588,7 @@ def connect(
             "    pip install -r requirements.txt"
         ) from erro
 
-    contexto = _build_context(endpoint, trusted_fingerprint)
+    contexto = _build_context(endpoint, trusted_fingerprint, timeout)
 
     try:
         instancia = SmartConnect(
@@ -604,31 +630,90 @@ def connect(
     return Session(instancia, endpoint)
 
 
-def _build_context(endpoint: Endpoint, trusted_fingerprint: str) -> ssl.SSLContext:
+def _build_context(
+    endpoint: Endpoint, trusted_fingerprint: str, timeout: float = 10.0
+) -> ssl.SSLContext:
     """
-    PT-PT: O contexto TLS para a ligação autenticada.
+    PT-PT: O contexto TLS para a ligação autenticada — a que leva a senha.
 
-           Com uma impressão digital aceite, a verificação de cadeia é desligada
-           — mas só porque a identidade do servidor já foi estabelecida de outra
-           maneira, e verificada em `evaluate_trust` antes de se chegar aqui.
-           Sem impressão digital, o contexto é o normal e o certificado tem de
-           validar sozinho.
+           **O que estava errado.** A impressão digital era comparada em
+           `evaluate_trust`, que abre uma ligação para ir buscar o certificado.
+           Depois `connect` abria **outra** ligação, e era nessa que a senha
+           seguia — com `CERT_NONE`, isto é, aceitando qualquer certificado.
+           Entre uma ligação e a outra não se voltava a verificar nada. Quem
+           estivesse no meio deixava passar a primeira, apresentava o
+           certificado que quisesse na segunda, e recebia a senha. A janela é
+           pequena mas o módulo inteiro existe para a fechar.
 
-    EN-UK: The TLS context for the authenticated connection. With an accepted
-           fingerprint, chain verification is switched off — but only because
-           the server's identity was established another way and checked in
-           `evaluate_trust` before reaching here. With no fingerprint the
-           context is the normal one and the certificate has to validate on its
-           own.
+           **O que se faz agora.** A impressão digital passa a ser imposta
+           durante o aperto de mão, pelo OpenSSL, e não por nós antes dele: o
+           certificado que corresponde à impressão digital aceite é entregue
+           como única âncora de confiança (`cadata`), com `CERT_REQUIRED`. Se o
+           servidor apresentar outro certificado, o aperto de mão falha e a
+           senha não chega a sair. Já não há intervalo entre verificar e usar.
+
+           `check_hostname` continua desligado de propósito: os certificados de
+           fábrica do ESXi raramente têm o nome certo, e quem autentica aqui é a
+           impressão digital, não o nome.
+
+    EN-UK: The TLS context for the authenticated connection — the one carrying
+           the password.
+
+           **What was wrong.** The fingerprint was compared in `evaluate_trust`,
+           which opens a connection to fetch the certificate. `connect` then
+           opened **another** connection, and that is the one the password
+           travelled on — with `CERT_NONE`, accepting any certificate at all.
+           Nothing was re-checked in between. Anyone in the middle could let the
+           first connection through, present whatever certificate they liked on
+           the second, and collect the password. The window is small, but
+           closing it is the entire reason this module exists.
+
+           **What happens now.** The pin is enforced during the handshake, by
+           OpenSSL, rather than by us beforehand: the certificate matching the
+           accepted fingerprint is handed over as the only trust anchor
+           (`cadata`), with `CERT_REQUIRED`. If the server presents a different
+           certificate the handshake fails and the password never leaves. There
+           is no longer a gap between checking and using.
+
+           `check_hostname` stays off deliberately: factory ESXi certificates
+           rarely carry the right name, and what authenticates here is the
+           fingerprint, not the name.
     """
-    if trusted_fingerprint:
-        contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        contexto.check_hostname = False
-        contexto.verify_mode = ssl.CERT_NONE
-        logger.info(
-            "A ligar a %s com a impressão digital aceite %s",
-            endpoint.host,
-            trusted_fingerprint[:17],
+    if not trusted_fingerprint:
+        return ssl.create_default_context()
+
+    esperada = trusted_fingerprint.strip().upper()
+
+    try:
+        der = _fetch_der(endpoint.host, endpoint.port, timeout)
+    except OSError as erro:
+        raise VSphereConnectionError(
+            f"Não foi possível chegar a {endpoint.host}:{endpoint.port} — {erro}."
+        ) from erro
+
+    if not der:
+        raise VSphereConnectionError(
+            f"{endpoint.host} não apresentou certificado nenhum."
         )
-        return contexto
-    return ssl.create_default_context()
+
+    actual = fingerprint_of(der)
+    if actual != esperada:
+        raise VSphereConnectionError(
+            "A IMPRESSÃO DIGITAL DO CERTIFICADO MUDOU ENTRETANTO.\n"
+            f"  Aceite antes: {esperada}\n"
+            f"  Agora:        {actual}\n"
+            "A ligação foi interrompida antes de enviar credenciais."
+        )
+
+    contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    contexto.check_hostname = False
+    contexto.verify_mode = ssl.CERT_REQUIRED
+    # PT-PT: O próprio certificado aceite é a âncora. Nada mais é aceite.
+    # EN-UK: The accepted certificate is itself the anchor. Nothing else passes.
+    contexto.load_verify_locations(cadata=ssl.DER_cert_to_PEM_cert(der))
+    logger.info(
+        "A ligar a %s com a impressão digital aceite %s, imposta no aperto de mão",
+        endpoint.host,
+        esperada[:17],
+    )
+    return contexto
