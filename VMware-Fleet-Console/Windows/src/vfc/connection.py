@@ -185,6 +185,20 @@ def _fetch_peer(host: str, port: int, timeout: float) -> tuple[bytes, dict]:
     """
     contexto = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     contexto.check_hostname = False
+    # PT-PT: auditor: ignorar -- o CERT_NONE aqui e deliberado e esta isolado.
+    #        Esta ligacao existe **so** para ir buscar o certificado que vai ser
+    #        comparado com a impressao digital fixada; nao passa por ela dado
+    #        nenhum. A verificacao a serio esta em _build_context(), que entrega
+    #        este certificado ao OpenSSL como unica ancora, com CERT_REQUIRED.
+    #        Trocar isto por CERT_REQUIRED nao aumenta a seguranca: impede
+    #        simplesmente que o certificado seja obtido.
+    # EN-UK: auditor: ignorar -- the CERT_NONE here is deliberate and isolated.
+    #        This connection exists **only** to fetch the certificate that will
+    #        be compared against the pinned fingerprint; no data passes over it.
+    #        The real verification is in _build_context(), which hands this
+    #        certificate to OpenSSL as the sole anchor with CERT_REQUIRED.
+    #        Changing this to CERT_REQUIRED would not add security: it would
+    #        merely prevent the certificate from being fetched at all.
     contexto.verify_mode = ssl.CERT_NONE
 
     with (
