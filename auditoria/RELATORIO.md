@@ -106,7 +106,39 @@ que sobreviveu. Acrescentados oito casos de regressão.
 O mesmo defeito existia nos dois projectos. No Topology-Mapper conta ainda mais,
 porque lida com comunidades SNMP e com a palavra-passe do UniFi.
 
-### 6. Dados de saúde legíveis por outras contas — `Medical-Audio-to-Text`
+### 6. Chave de anfitrião SSH não verificada — `Network-Config-Builder` e `Network-Topology-Mapper`
+
+> ⚠️ **Esta é a única correcção da noite que muda o comportamento.** Ver a
+> secção *Fica por decidir* antes de usar.
+
+O `ConnectHandler` era chamado sem `ssh_strict` nem `system_host_keys`. A
+omissão do Netmiko é `ssh_strict=False`, e nessa altura o paramiko fica com a
+`AutoAddPolicy`: **qualquer** chave de anfitrião é aceite sem perguntar.
+
+Logo a seguir seguem o utilizador, a palavra-passe **e o enable secret**. Quem
+estivesse no meio da rede de gestão recebia as credenciais do equipamento
+inteiras — a mesma classe de problema do TOCTOU do vSphere, com o agravante de
+levar o enable.
+
+Confirmado no código do netmiko 4.3.0, não de memória:
+
+```python
+# base_connection.py
+ssh_strict: bool = False,        # ":param ssh_strict: ... (default: False, which
+                                 #  means unknown SSH host keys will be accepted)"
+if not ssh_strict:
+    self.key_policy = paramiko.AutoAddPolicy()
+```
+
+Repare-se em como isto escapou ao prefiltro: existia uma regra à procura de
+`AutoAddPolicy` no código, e não encontrou nada — porque a palavra não está lá
+escrita. É uma omissão de biblioteca, e **uma expressão regular não vê
+omissões**. É o mesmo ponto cego que deixava passar o `menu_admin.php`.
+
+Passa a usar-se `RejectPolicy` com o `~/.ssh/known_hosts`, como o `ssh` da linha
+de comandos, com uma definição nova `verificar_chave_ssh` (por omissão `True`).
+
+### 7. Dados de saúde legíveis por outras contas — `Medical-Audio-to-Text`
 
 O programa faz bem a parte difícil: a transcrição é local e **confirmou-se que
 não há saída para rede nenhuma**. O que faltava era o passo pequeno — os
@@ -158,6 +190,31 @@ revalidada a cada salto e soma de verificação obrigatória, é o exemplo claro
 
 ## Fica por decidir / Left for you to decide
 
+### ⚠️ Primeiro, a única alteração que muda o comportamento
+
+`Network-Config-Builder` e `Network-Topology-Mapper` passam a **recusar**
+equipamentos cuja chave de anfitrião não esteja no `~/.ssh/known_hosts`. Antes
+ligavam a tudo.
+
+Se na segunda-feira nenhum switch responder, é isto — e resolve-se com uma linha
+por equipamento, depois de confirmar a chave:
+
+```bash
+ssh-keyscan -H 10.0.0.1 >> ~/.ssh/known_hosts
+```
+
+A mensagem de erro já diz isto, não fica só aqui. Para voltar ao comportamento
+antigo, `verificar_chave_ssh: false` no ficheiro de definições.
+
+Escolhi falhar fechado em vez de aberto, porque o que seguia na ligação era o
+enable secret. Se preferir o contrário até ter o `known_hosts` povoado, é mudar
+uma linha — mas é decisão sua, e é por isso que está no topo desta secção.
+
+Verificado que um ficheiro de definições escrito antes desta alteração carrega
+na mesma e fica com `True`, em vez de herdar o comportamento antigo por omissão.
+
+### Depois, o que não foi tocado
+
 1. **Palavras-passe em texto simples** na base de dados do `Projecto-de-escola`
    (`clientes.palavra_passe`, `utilizadores.palavra_passe`). Corrigir obriga a
    migrar os registos existentes com `password_hash()`/`password_verify()`, o
@@ -179,59 +236,89 @@ revalidada a cada salto e soma de verificação obrigatória, é o exemplo claro
 
 ## O que os modelos locais fizeram / What the local models did
 
-Esta era a pergunta de fundo da corrida. A resposta é clara e não é boa.
+Esta era a pergunta de fundo da corrida. As três passagens terminaram.
 
-### `qwen2.5-coder:3b`, corrida v2 (150 candidatos)
+| modelo | tempo | REAL | FALSE_POSITIVE | não interpretado | excesso¹ | apanhou o GT-1? |
+|---|---:|---:|---:|---:|---:|---|
+| `qwen2.5-coder:3b` | 15 min | 124 | 26 | 0% | **100%** | não — disse FALSE_POSITIVE |
+| `qwen2.5-coder:7b` | 34 min | 122 | 28 | 0% | **66%** | **sim** |
+| `qwen3:8b` | 118 min | 48 | 23 | **53%** | 76%² | não — não respondeu |
 
-| medida | valor |
-|---|---|
-| veredictos REAL | 124 de 150 (82,7%) |
-| candidatos objectivamente não exploráveis chamados REAL | **80 de 80 — 100%** |
-| não interpretados | 0 (eram 13 na v1) |
-| veredictos previsíveis **só a partir do nome da regra** | **96%** |
+¹ Percentagem de candidatos **objectivamente não exploráveis** (API `mysql_*`
+morta, casamentos dentro de comentários) a que o modelo chamou REAL, contada
+apenas sobre os que chegou a julgar.
 
-A última linha é a que interessa. Cinco das seis regras têm veredicto unânime:
-todos os 69 `php-mysql-ext` → REAL, todos os 15 `ssl-unverified` → REAL, todos os
-18 `hardcoded-secret` → FALSE_POSITIVE. O modelo não está a ler o código — está a
-devolver a descrição da regra. Como filtro sobre o prefiltro de expressões
-regulares que o alimenta, acrescenta cerca de 4%.
+² Ver a ressalva sobre o `qwen3:8b` mais abaixo — este número não mede o modelo.
 
-### E errou o achado mais grave que lhe foi mostrado
+### O 7b é o único que serve para alguma coisa
 
-A v2 do prefiltro passou a apanhar o `menu_admin.php` — o painel de administração
-sem `session_start()` nem verificação, que era o achado GT-1. Foi entregue ao
-modelo com a regra escrita à frente. Veredicto:
+Foi o único que, perante o `menu_admin.php` — o painel de administração sem
+`session_start()` nem verificação — respondeu REAL. E tem quase metade do
+excesso do 3b. Se este funil for para continuar, é o 7b, e não o 3b, que deve
+estar na etapa 2.
+
+### O 3b não está a ler o código
+
+**96% dos veredictos do 3b são previsíveis só a partir do nome da regra.** Cinco
+das seis regras vieram unânimes: todos os 69 `php-mysql-ext` → REAL, todos os 15
+`ssl-unverified` → REAL, todos os 18 `hardcoded-secret` → FALSE_POSITIVE. Está a
+devolver a descrição da regra, não a julgar o código. Como filtro sobre o
+prefiltro que o alimenta, acrescenta cerca de 4%.
+
+E o achado mais grave que lhe foi mostrado, com a regra escrita à frente:
 
 > `FALSE_POSITIVE` — *"No session_start() or authorisation check is needed for a
 > simple menu."*
 
-A página tem "Menu de administrador" escrito na primeira linha. Na v1 este achado
-nem sequer chegava ao modelo; na v2 chegou, e foi descartado.
+A página tem "Menu de administrador" na primeira linha.
+
+### Ressalva: o número do `qwen3:8b` é culpa do banco de ensaio, não do modelo
+
+O `qwen3` é um modelo de raciocínio. O orçamento de tokens que eu lhe dei
+(`num_predict = 80 × candidatos + 120`) chega para um modelo que responde
+directamente e **não chega** para um que pensa primeiro:
+
+- 70 das 99 chamadas terminaram com `done_reason=length` — ficaram sem
+  orçamento a meio;
+- 64 devolveram resposta **vazia**: gastaram tudo no raciocínio e nunca chegaram
+  ao veredicto;
+- as 29 que terminaram em `stop` responderam bem, e no formato certo.
+
+Portanto os 53% de não interpretado medem a minha configuração, não a
+capacidade do modelo. **Não o classifique como o pior dos três com base nesta
+tabela.** Uma medição justa precisa de repetir a passagem com o orçamento muito
+maior, ou com o raciocínio desligado — são cerca de duas horas de máquina, e não
+cabiam antes das 07:30.
 
 ### Resumo honesto
 
-O modelo diz REAL a 100% das coisas inofensivas e FALSE_POSITIVE ao único
-contorno de autenticação genuíno que viu. O sinal está praticamente invertido.
-Isto confirma, com números, a regra que já seguíamos: **estes modelos sinalizam,
-não decidem** — e nesta configuração nem a sinalizar acrescentam muito.
+A regra que já seguíamos fica confirmada com números: **estes modelos sinalizam,
+não decidem.** O 3b, nesta configuração, nem a sinalizar acrescenta. O 7b é
+utilizável como primeira peneira desde que alguém leia o que ele marca — que foi
+exactamente o que se fez esta noite: **nenhuma das correcções deste relatório
+saiu do veredicto de um modelo.** Todas saíram de ler o código.
 
-O canal `EXTRA` novo funciona mecanicamente (sete achados voluntários), mas o
-conteúdo é fraco: três notas quase iguais sobre credenciais de teste, e um erro
-de sintaxe inventado em `historico_encomendas.php`.
-
-As corridas do `7b` e do `8b` continuam. Os números acima são do `3b`; os
-ficheiros `triage_v2_*.json` e `scores.json` ficam com o resto.
+O canal `EXTRA` funciona mecanicamente (7 achados no 3b, 4 no 8b), mas o
+conteúdo é fraco: notas repetidas sobre credenciais de teste e um erro de
+sintaxe inventado em `historico_encomendas.php`.
 
 ### Notas sobre o próprio banco de ensaio
 
 - A v1 tinha um defeito que só se viu por acaso: com 13 candidatos num prompt, o
   `3b` entrava em ciclo de repetição e devolvia 13 linhas iguais, sem veredicto
-  nenhum. Corrigido com lotes de 6 — a v2 teve 0 não interpretados.
+  nenhum. Corrigido com lotes de 6 — a v2 teve 0 não interpretados no 3b e no 7b.
 - A v1 não guardava a resposta em bruto, pelo que diagnosticar obrigava a repetir
-  a corrida. A v2 guarda `triage_<modelo>_raw.jsonl`.
+  a corrida. A v2 guarda `triage_<modelo>_raw.jsonl` — e foi só por causa disso
+  que o problema do `qwen3` se percebeu em minutos em vez de ficar por explicar.
 - Um prefiltro de linhas **não consegue** encontrar um defeito que é uma
-  *ausência*. O `menu_admin.php` não tinha texto nenhum para casar. Daí as regras
-  de ficheiro inteiro na v2.
+  *ausência*. Isso apanhou-nos duas vezes: o `menu_admin.php`, que não tinha
+  texto para casar, e o `ssh_strict` do Netmiko, onde a regra procurava
+  `AutoAddPolicy` e a palavra não está escrita em lado nenhum — é uma omissão.
+- O próprio `score_triage.py` tinha um erro que dava jeito não ter: calculava o
+  excesso sobre **todos** os candidatos não exploráveis, incluindo os que o
+  modelo nunca respondeu. Com isso o `qwen3:8b` aparecia com 40% e parecia o
+  mais prudente dos três, quando apenas não tinha respondido. Corrigido para
+  contar só sobre os julgados, o que o põe em 76%.
 
 ---
 

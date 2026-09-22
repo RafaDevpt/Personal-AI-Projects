@@ -11,6 +11,7 @@
       },
       "unparsed_rate": 0.0,
       "known_fp_candidates": 80,
+      "known_fp_judged": 80,
       "known_fp_called_real": 80,
       "over_claim_rate": 1.0,
       "un_adjudicated": 70,
@@ -67,26 +68,29 @@
       ]
     },
     {
-      "file": "triage_qwen2_5-coder_3b.json",
-      "model": "qwen2.5-coder:3b",
-      "stage1": "v1",
-      "wall_minutes": 11.6,
+      "file": "triage_v2_qwen2_5-coder_7b.json",
+      "model": "qwen2.5-coder:7b",
+      "stage1": "v2",
+      "wall_minutes": 33.5,
       "verdicts": {
-        "FALSE_POSITIVE": 41,
-        "REAL": 82,
-        "UNPARSED": 13
+        "REAL": 122,
+        "FALSE_POSITIVE": 28
       },
-      "unparsed_rate": 0.096,
+      "unparsed_rate": 0.0,
       "known_fp_candidates": 80,
-      "known_fp_called_real": 58,
-      "over_claim_rate": 0.725,
-      "un_adjudicated": 43,
+      "known_fp_judged": 80,
+      "known_fp_called_real": 53,
+      "over_claim_rate": 0.662,
+      "un_adjudicated": 70,
       "extra_findings": 0,
       "ground_truth_recall": [
         {
           "id": "GT-1",
-          "status": "not_shown_to_model",
-          "detail": "absent from this stage-1 candidate set"
+          "status": "flagged_real_on_exact_line",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
         },
         {
           "id": "GT-2-Linux",
@@ -123,6 +127,74 @@
         {
           "id": "GT-4",
           "status": "adjacent_candidate_flagged_defect_not_identified",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        }
+      ]
+    },
+    {
+      "file": "triage_v2_qwen3_8b.json",
+      "model": "qwen3:8b",
+      "stage1": "v2",
+      "wall_minutes": 117.8,
+      "verdicts": {
+        "FALSE_POSITIVE": 23,
+        "UNPARSED": 79,
+        "REAL": 48
+      },
+      "unparsed_rate": 0.527,
+      "known_fp_candidates": 80,
+      "known_fp_judged": 42,
+      "known_fp_called_real": 32,
+      "over_claim_rate": 0.762,
+      "un_adjudicated": 29,
+      "extra_findings": 4,
+      "ground_truth_recall": [
+        {
+          "id": "GT-1",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-Linux",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-Windows",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-2-macOS",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": true,
+          "candidates_covering_it": 1,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-3",
+          "status": "missed",
+          "gt_line_is_itself_a_candidate": false,
+          "candidates_covering_it": 4,
+          "reported_via_extra_channel": 0,
+          "extra_notes": []
+        },
+        {
+          "id": "GT-4",
+          "status": "missed",
           "gt_line_is_itself_a_candidate": false,
           "candidates_covering_it": 4,
           "reported_via_extra_channel": 0,

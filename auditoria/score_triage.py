@@ -74,9 +74,16 @@ def score(path: Path, gt_records: list) -> dict:
     judged = counts.get("REAL", 0) + counts.get("FALSE_POSITIVE", 0)
 
     # --- 2. over-claiming on candidates that are objectively not exploitable --
+    #
+    # The rate is computed over the known-FP candidates the model actually
+    # JUDGED, not over all of them. Counting unparsed ones in the denominator
+    # rewards a model for failing to answer: qwen3:8b left 79 of 150 unparsed,
+    # and on the raw denominator that flattered it into looking the most
+    # cautious of the three when it had simply not replied.
     known_fp = [r for r in results
                 if r["rule"] in NON_EXPLOITABLE_RULES or in_comment(r["file"], r["line"])]
-    fp_real = [r for r in known_fp if r["verdict"] == "REAL"]
+    known_fp_judged = [r for r in known_fp if r["verdict"] != "UNPARSED"]
+    fp_real = [r for r in known_fp_judged if r["verdict"] == "REAL"]
 
     # --- 1. recall on the hand-verified findings -----------------------------
     recall = []
@@ -123,9 +130,10 @@ def score(path: Path, gt_records: list) -> dict:
         "verdicts": counts,
         "unparsed_rate": round(counts.get("UNPARSED", 0) / max(len(results), 1), 3),
         "known_fp_candidates": len(known_fp),
+        "known_fp_judged": len(known_fp_judged),
         "known_fp_called_real": len(fp_real),
-        "over_claim_rate": round(len(fp_real) / max(len(known_fp), 1), 3),
-        "un_adjudicated": judged - len(known_fp),
+        "over_claim_rate": round(len(fp_real) / max(len(known_fp_judged), 1), 3),
+        "un_adjudicated": max(judged - len(known_fp_judged), 0),
         "extra_findings": len(d.get("extra_findings", [])),
         "ground_truth_recall": recall,
     }
@@ -148,9 +156,10 @@ for r in reports:
     print(f"\n=== {r['model']}  (stage1 {r['stage1']}, {r['wall_minutes']} min) ===")
     print(f"  verdicts            : {r['verdicts']}")
     print(f"  unparsed rate       : {r['unparsed_rate']:.1%}")
-    print(f"  known-FP candidates : {r['known_fp_candidates']}  "
+    print(f"  known-FP candidates : {r['known_fp_candidates']} "
+          f"({r['known_fp_judged']} judged)  "
           f"called REAL: {r['known_fp_called_real']}  "
-          f"over-claim: {r['over_claim_rate']:.1%}")
+          f"over-claim: {r['over_claim_rate']:.1%} of judged")
     print(f"  un-adjudicated      : {r['un_adjudicated']} verdicts need a human")
     if r["extra_findings"]:
         print(f"  EXTRA channel       : {r['extra_findings']} volunteered findings")
