@@ -1,4 +1,4 @@
-# Created by Redfox using Claude
+# Created by Redfox
 #
 # PT-PT: Imagem de linha de comandos do Network-Config-Builder. A interface gráfica não
 #        corre aqui: num contentor não há ecrã, e é a linha de comandos que
