@@ -13,6 +13,14 @@
 #        Replaces version 3's openai-whisper, which dragged in ~2.5 GB.
 faster-whisper>=1.0.3,<2.0
 
+# PT-PT: O PyAV fica abaixo do 19: o faster-whisper 1.2 chama
+#        `av.open(..., metadata_errors=...)` e o PyAV 19 retirou esse
+#        argumento. Com o 19, toda a descodificação de áudio falha.
+# EN-UK: PyAV stays below 19: faster-whisper 1.2 calls
+#        `av.open(..., metadata_errors=...)` and PyAV 19 removed that
+#        argument. With 19, every audio decode fails.
+av>=15.1,<19
+
 # PT-PT: Interface gráfica. Assenta no Tkinter da biblioteca padrão, pelo que
 #        não traz nenhum motor gráfico próprio. Licença MIT.
 # EN-UK: Graphical interface. Sits on the standard library's Tkinter, so it
