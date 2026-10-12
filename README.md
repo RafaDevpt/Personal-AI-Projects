@@ -128,3 +128,42 @@ Full documentation — including how to prepare the network so the map comes out
 MIT — see [`LICENSE`](LICENSE).
 
 <sub>Created by Redfox using Claude</sub>
+
+
+## 🐳 Docker & Terraform
+
+The graphical interface stays a desktop app: a container has no screen. Docker runs the command line, which is the part worth automating. / A interface gráfica continua a ser uma aplicação de secretária: num contentor não há ecrã. O Docker corre a linha de comandos, que é a parte que vale a pena automatizar.
+
+Files / Ficheiros: [`Network-Topology-Mapper/Linux/Dockerfile`](Network-Topology-Mapper/Linux/Dockerfile) · [`Network-Topology-Mapper/Linux/terraform/`](Network-Topology-Mapper/Linux/terraform/)
+
+### Docker
+
+```bash
+cd Network-Topology-Mapper/Linux
+docker build -t local/network-topology-mapper .
+docker run --rm local/network-topology-mapper --help
+```
+
+Everything the app reads or writes lives in `/dados`; mount a folder there and run as your own user (`--user`) so the files it writes are yours. / Tudo o que a aplicação lê ou escreve vive em `/dados`; monte lá uma pasta e corra com o seu utilizador (`--user`) para os ficheiros escritos serem seus.
+
+Map from a UniFi controller (asks for the password) / Mapear a partir de um controlador UniFi (pede a palavra-passe):
+
+```bash
+docker run --rm -it --user "$(id -u):$(id -g)" --network host -v "$PWD:/dados" local/network-topology-mapper mapear --unifi https://192.0.2.10:8443 --site default --excel mapa.xlsx --pdf mapa.pdf
+```
+
+### Terraform
+
+Builds the image and creates a container with the same hardening (read-only filesystem, no capabilities, unprivileged user). / Constrói a imagem e cria um contentor com o mesmo endurecimento (sistema de ficheiros só de leitura, sem capacidades, utilizador sem privilégios).
+
+```bash
+cd Network-Topology-Mapper/Linux/terraform
+mkdir -p dados
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)"
+docker logs network-topology-mapper            # output / resultado
+docker start -a network-topology-mapper        # run again with the same settings / correr de novo
+terraform destroy
+```
+
+Change what it runs with `-var 'comando=[...]'` (default: `["--diagnostico"]`). Secrets go in `TF_VAR_ambiente`, never in the `.tf` files. / Mude o que corre com `-var 'comando=[...]'`. Os segredos vão em `TF_VAR_ambiente`, nunca nos ficheiros `.tf`.
