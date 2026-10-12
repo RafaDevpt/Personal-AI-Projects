@@ -162,3 +162,44 @@ GPL-3.0 — see [`LICENSE`](LICENSE) in the repository root.
 <div align="center">
 <sub>Created by Redfox using Claude</sub>
 </div>
+
+
+## 🐳 Docker & Terraform
+
+The graphical interface stays a desktop app: a container has no screen. Docker runs the command line, which is the part worth automating. / A interface gráfica continua a ser uma aplicação de secretária: num contentor não há ecrã. O Docker corre a linha de comandos, que é a parte que vale a pena automatizar.
+
+Files / Ficheiros: [`Transcritor-Medico-PT/Linux/Dockerfile`](Transcritor-Medico-PT/Linux/Dockerfile) · [`Transcritor-Medico-PT/Linux/terraform/`](Transcritor-Medico-PT/Linux/terraform/)
+
+### Docker
+
+```bash
+cd Transcritor-Medico-PT/Linux
+docker build -t local/transcritor-medico .
+docker run --rm local/transcritor-medico --help
+```
+
+Everything the app reads or writes lives in `/dados`; mount a folder there and run as your own user (`--user`) so the files it writes are yours. / Tudo o que a aplicação lê ou escreve vive em `/dados`; monte lá uma pasta e corra com o seu utilizador (`--user`) para os ficheiros escritos serem seus.
+
+Transcribe every file in ./audio / Transcrever todos os ficheiros de ./audio:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/transcritor-medico --batch --audio-dir audio --output-dir transcricoes --model small
+```
+
+The first run downloads the model, so it needs network; it is kept in `.cache/` inside the mounted folder, and later runs can use `--network none`. / A primeira execução descarrega o modelo e precisa de rede; fica guardado em `.cache/` dentro da pasta montada, e as seguintes podem correr com `--network none`.
+
+### Terraform
+
+Builds the image and creates a container with the same hardening (read-only filesystem, no capabilities, unprivileged user). / Constrói a imagem e cria um contentor com o mesmo endurecimento (sistema de ficheiros só de leitura, sem capacidades, utilizador sem privilégios).
+
+```bash
+cd Transcritor-Medico-PT/Linux/terraform
+mkdir -p dados
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)"
+docker logs transcritor-medico            # output / resultado
+docker start -a transcritor-medico        # run again with the same settings / correr de novo
+terraform destroy
+```
+
+Change what it runs with `-var 'comando=[...]'` (default: `["--batch", "--audio-dir", "audio", "--output-dir", "transcricoes", "--model", "small"]`). Secrets go in `TF_VAR_ambiente`, never in the `.tf` files. / Mude o que corre com `-var 'comando=[...]'`. Os segredos vão em `TF_VAR_ambiente`, nunca nos ficheiros `.tf`.
