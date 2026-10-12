@@ -1,4 +1,4 @@
-# Created by Redfox using Claude
+# Created by Redfox
 
 variable "docker_host" {
   description = "Endereço do Docker / Docker endpoint"
