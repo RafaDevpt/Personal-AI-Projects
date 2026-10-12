@@ -1,4 +1,4 @@
-# Created by Redfox using Claude
+# Created by Redfox
 .terraform/
 *.tfstate
 *.tfstate.*

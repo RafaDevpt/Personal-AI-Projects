@@ -1,4 +1,4 @@
-# Created by Redfox using Claude
+# Created by Redfox
 #
 # PT-PT: Exemplo de como correr o Medical-Audio-to-Text com Terraform e Docker. O Terraform
 #        constrói a imagem a partir de ../Dockerfile e cria um contentor com o
