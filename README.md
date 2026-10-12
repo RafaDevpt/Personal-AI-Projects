@@ -172,3 +172,48 @@ GPL-3.0 — see [`LICENSE`](LICENSE) in the repository root.
 <div align="center">
 <sub>Created by Redfox using Claude</sub>
 </div>
+
+
+## 🐳 Docker & Terraform
+
+The graphical interface stays a desktop app: a container has no screen. Docker runs the command line, which is the part worth automating. / A interface gráfica continua a ser uma aplicação de secretária: num contentor não há ecrã. O Docker corre a linha de comandos, que é a parte que vale a pena automatizar.
+
+Files / Ficheiros: [`Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/Dockerfile`](Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/Dockerfile) · [`Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/terraform/`](Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/terraform/)
+
+### Docker
+
+```bash
+cd Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux
+docker build -t local/toner-monitor .
+docker run --rm local/toner-monitor --help
+```
+
+Everything the app reads or writes lives in `/dados`; mount a folder there and run as your own user (`--user`) so the files it writes are yours. / Tudo o que a aplicação lê ou escreve vive em `/dados`; monte lá uma pasta e corra com o seu utilizador (`--user`) para os ficheiros escritos serem seus.
+
+Create an empty inventory / Criar um inventário vazio:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/toner-monitor --criar-modelo impressoras.xlsx
+```
+
+Check levels without the GUI / Verificar níveis sem interface:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" --network host -v "$PWD:/dados" local/toner-monitor --cli --inventory impressoras.xlsx --output-dir relatorios
+```
+
+### Terraform
+
+Builds the image and creates a container with the same hardening (read-only filesystem, no capabilities, unprivileged user). / Constrói a imagem e cria um contentor com o mesmo endurecimento (sistema de ficheiros só de leitura, sem capacidades, utilizador sem privilégios).
+
+```bash
+cd Monitor-de-Toners-v2.0.0/Monitor-de-Toners/Linux/terraform
+mkdir -p dados
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)"
+docker logs toner-monitor            # output / resultado
+docker start -a toner-monitor        # run again with the same settings / correr de novo
+terraform destroy
+```
+
+Change what it runs with `-var 'comando=[...]'` (default: `["--cli", "--inventory", "impressoras.xlsx", "--output-dir", "relatorios"]`). Secrets go in `TF_VAR_ambiente`, never in the `.tf` files. / Mude o que corre com `-var 'comando=[...]'`. Os segredos vão em `TF_VAR_ambiente`, nunca nos ficheiros `.tf`.
