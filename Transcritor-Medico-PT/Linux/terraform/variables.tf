@@ -27,7 +27,7 @@ variable "utilizador" {
 variable "rede" {
   description = "Rede do contentor: bridge, host ou none / Container network: bridge, host or none"
   type        = string
-  default     = "none"
+  default     = "bridge"
 }
 
 variable "ambiente" {
