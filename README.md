@@ -130,3 +130,54 @@ Full documentation, including the per-vendor quirks that each generator exists t
 MIT — see [`LICENSE`](LICENSE).
 
 <sub>Created by Redfox using Claude</sub>
+
+
+## 🐳 Docker & Terraform
+
+The graphical interface stays a desktop app: a container has no screen. Docker runs the command line, which is the part worth automating. / A interface gráfica continua a ser uma aplicação de secretária: num contentor não há ecrã. O Docker corre a linha de comandos, que é a parte que vale a pena automatizar.
+
+Files / Ficheiros: [`Network-Config-Builder/Linux/Dockerfile`](Network-Config-Builder/Linux/Dockerfile) · [`Network-Config-Builder/Linux/terraform/`](Network-Config-Builder/Linux/terraform/)
+
+### Docker
+
+```bash
+cd Network-Config-Builder/Linux
+docker build -t local/network-config-builder .
+docker run --rm local/network-config-builder --help
+```
+
+Everything the app reads or writes lives in `/dados`; mount a folder there and run as your own user (`--user`) so the files it writes are yours. / Tudo o que a aplicação lê ou escreve vive em `/dados`; monte lá uma pasta e corra com o seu utilizador (`--user`) para os ficheiros escritos serem seus.
+
+Write a starting profile / Escrever um perfil de partida:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/network-config-builder modelo acesso --saida perfil.json
+```
+
+Generate the configuration file / Gerar o ficheiro de configuração:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/network-config-builder gerar perfil.json --saida switch.cfg
+```
+
+Back up a device (asks for the password) / Cópia de um equipamento (pede a palavra-passe):
+
+```bash
+docker run --rm -it --user "$(id -u):$(id -g)" --network host -v "$PWD:/dados" local/network-config-builder --inventario inventario.xlsx backup --equipamento SW-EXEMPLO-01
+```
+
+### Terraform
+
+Builds the image and creates a container with the same hardening (read-only filesystem, no capabilities, unprivileged user). / Constrói a imagem e cria um contentor com o mesmo endurecimento (sistema de ficheiros só de leitura, sem capacidades, utilizador sem privilégios).
+
+```bash
+cd Network-Config-Builder/Linux/terraform
+mkdir -p dados
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)"
+docker logs network-config-builder            # output / resultado
+docker start -a network-config-builder        # run again with the same settings / correr de novo
+terraform destroy
+```
+
+Change what it runs with `-var 'comando=[...]'` (default: `["gerar", "perfil.json", "--saida", "switch.cfg"]`). Secrets go in `TF_VAR_ambiente`, never in the `.tf` files. / Mude o que corre com `-var 'comando=[...]'`. Os segredos vão em `TF_VAR_ambiente`, nunca nos ficheiros `.tf`.
