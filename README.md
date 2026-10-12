@@ -165,3 +165,50 @@ GPL-3.0 — see [`LICENSE`](LICENSE) in the repository root.
 <div align="center">
 <sub>Created by Redfox using Claude</sub>
 </div>
+
+
+## 🐳 Docker & Terraform
+
+The graphical interface stays a desktop app: a container has no screen. Docker runs the command line, which is the part worth automating. / A interface gráfica continua a ser uma aplicação de secretária: num contentor não há ecrã. O Docker corre a linha de comandos, que é a parte que vale a pena automatizar.
+
+Files / Ficheiros: [`PDF-Suite/Linux/Dockerfile`](PDF-Suite/Linux/Dockerfile) · [`PDF-Suite/Linux/terraform/`](PDF-Suite/Linux/terraform/)
+
+### Docker
+
+```bash
+cd PDF-Suite/Linux
+docker build -t local/pdf-suite .
+docker run --rm local/pdf-suite --help
+```
+
+Everything the app reads or writes lives in `/dados`; mount a folder there and run as your own user (`--user`) so the files it writes are yours. / Tudo o que a aplicação lê ou escreve vive em `/dados`; monte lá uma pasta e corra com o seu utilizador (`--user`) para os ficheiros escritos serem seus.
+
+Compare two quotes and export to Excel / Comparar duas propostas e exportar para Excel:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/pdf-suite comparar proposta-a.pdf proposta-b.pdf --excel
+```
+
+Make a PDF fillable / Tornar um PDF preenchível:
+
+```bash
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/dados" local/pdf-suite formulario formulario.pdf
+```
+
+Environment variables / Variáveis de ambiente: `ANTHROPIC_API_KEY` (optional, only for the model-assisted summary / opcional, só para o resumo assistido).
+
+### Terraform
+
+Builds the image and creates a container with the same hardening (read-only filesystem, no capabilities, unprivileged user). / Constrói a imagem e cria um contentor com o mesmo endurecimento (sistema de ficheiros só de leitura, sem capacidades, utilizador sem privilégios).
+
+```bash
+cd PDF-Suite/Linux/terraform
+mkdir -p dados
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)"
+docker logs pdf-suite            # output / resultado
+docker start -a pdf-suite        # run again with the same settings / correr de novo
+terraform destroy
+```
+
+Change what it runs with `-var 'comando=[...]'` (default: `["comparar", "proposta-a.pdf", "proposta-b.pdf", "--excel"]`). Secrets go in `TF_VAR_ambiente`, never in the `.tf` files. / Mude o que corre com `-var 'comando=[...]'`. Os segredos vão em `TF_VAR_ambiente`, nunca nos ficheiros `.tf`.
