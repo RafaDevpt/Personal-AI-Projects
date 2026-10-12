@@ -460,6 +460,49 @@ Each project branch is checked on every push by GitHub Actions — see `.github/
 
 </details>
 
+<details>
+<summary><b>Run in Docker, or with Terraform</b></summary>
+
+Six projects ship a `Dockerfile` and a Terraform example in their `Linux/` folder. The container runs the **command line**; the graphical interface stays a desktop app, because a container has no screen.
+
+| Branch | Image | Network it needs |
+| :--- | :--- | :--- |
+| `PDF-Suite` | `local/pdf-suite` | none |
+| `Printer-Remote-Toner-Monitor` | `local/toner-monitor` | `host` (SNMP to the printers) |
+| `Medical-Audio-to-Text` | `local/transcritor-medico` | only to download the model the first time |
+| `Network-Config-Builder` | `local/network-config-builder` | `host` (SSH to the switches) |
+| `Network-Topology-Mapper` | `local/network-topology-mapper` | `host` (controller and switches) |
+| `VMware-Fleet-Console` | `local/vmware-fleet-console` | reach to vCenter / ESXi |
+
+`IT-Tool-Kit` and `Virtual-Lab-Builder` have no container on purpose: one diagnoses the machine it runs on, the other drives the machine's hypervisor, and inside a container both would see the container instead.
+
+The same pattern in every project:
+
+```bash
+cd <Project>/Linux
+docker build -t local/<image> .
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/dados:/dados" local/<image> --help
+```
+
+- Everything the app reads or writes lives in `/dados`; mount a folder there.
+- `--user` makes the files it writes yours, not the container's.
+- The image is hardened by default in the Terraform example: read-only filesystem, no Linux capabilities, `no-new-privileges`, unprivileged user.
+- Nothing personal goes into an image or a `.tf` file: inventories are files in `/dados`, passwords are typed at the prompt (`-it`) or passed as environment variables at run time.
+
+With Terraform (≥ 1.6, provider `kreuzwerker/docker`):
+
+```bash
+cd <Project>/Linux/terraform
+terraform init
+terraform apply -var "pasta_dados=./dados" -var "utilizador=$(id -u):$(id -g)" -var 'comando=["--help"]'
+docker start -a <image>      # run again with the same settings
+terraform destroy
+```
+
+Terraform builds the image, rebuilding only when the code or dependencies change, and creates a container that runs once and stops. Each branch's README has the commands for that project.
+
+</details>
+
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
 ## 👤 About
