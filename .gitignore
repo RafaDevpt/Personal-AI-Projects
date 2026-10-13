@@ -44,3 +44,4 @@ Thumbs.db
 desktop.ini
 *.swp
 *~
+__pycache__/
