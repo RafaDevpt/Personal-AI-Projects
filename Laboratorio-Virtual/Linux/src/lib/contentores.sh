@@ -274,11 +274,24 @@ nome_contentor() {
 # EN-UK: Random password from /dev/urandom, not $RANDOM. The alphabet holds
 #        nothing a shell interprets and nothing that misreads: no I, l, 1, O, o
 #        or 0.
+#
+# PT-PT: Lê do /dev/urandom em blocos de tamanho fixo, e não com um `tr` a ler
+#        o dispositivo sem fim. Esse `tr` só pára quando o `head` fecha o cano
+#        e o SIGPIPE o mata; se o SIGPIPE vier ignorado do processo pai (como
+#        no runner do GitHub Actions), o `tr` do macOS não verifica o erro de
+#        escrita e fica a ler para sempre.
+# EN-UK: Reads /dev/urandom in fixed-size blocks rather than through a `tr`
+#        reading the device forever. That `tr` only stops when `head` closes
+#        the pipe and SIGPIPE kills it; if SIGPIPE comes in ignored from the
+#        parent (as on the GitHub Actions runner), macOS `tr` does not check
+#        the write error and keeps reading forever.
 # ---------------------------------------------------------------------------
 gerar_palavra_passe() {
-    local n="${1:-24}"
-    LC_ALL=C tr -dc 'A-HJ-NP-Za-hjkmnp-z2-9' < /dev/urandom | head -c "$n"
-    printf '\n'
+    local n="${1:-24}" senha=''
+    while [ "${#senha}" -lt "$n" ]; do
+        senha="${senha}$(head -c 512 /dev/urandom | LC_ALL=C tr -dc 'A-HJ-NP-Za-hjkmnp-z2-9')"
+    done
+    printf '%s\n' "${senha:0:$n}"
 }
 
 

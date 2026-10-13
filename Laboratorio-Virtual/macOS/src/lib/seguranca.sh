@@ -163,7 +163,19 @@ descarregar_seguro() {
             curl --silent --show-error --fail --proto '=https' --tlsv1.2 \
                 --max-redirs 0 --user-agent "$AGENTE" "$endereco"
         else
-            curl --location-trusted --silent --show-error --fail --proto '=https' --tlsv1.2 \
+            # PT-PT: Sem `--location-trusted`. Os saltos são seguidos a mão neste
+            #        ciclo, com o domínio revalidado a cada um; essa opção manda
+            #        o curl seguir redireccionamentos por sua conta e entregar
+            #        credenciais ao destino do salto. Hoje o `--max-redirs 0`
+            #        trava-a, mas era uma opção perigosa a aguardar que alguém
+            #        mexesse na linha ao lado.
+            # EN-UK: No `--location-trusted`. Hops are followed by hand in this
+            #        loop with the domain revalidated at each one; that option
+            #        tells curl to follow redirects itself and hand credentials
+            #        to the hop's target. `--max-redirs 0` stops it today, but it
+            #        was a dangerous option waiting for someone to edit the line
+            #        next to it.
+            curl --silent --show-error --fail --proto '=https' --tlsv1.2 \
                 --max-redirs 0 --user-agent "$AGENTE" --output "$destino" "$endereco"
         fi
         return $?
