@@ -58,6 +58,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import partial
 
 from . import collector
 from .collector import CollectionResult, CollectorError
@@ -84,6 +85,7 @@ class CrawlOptions:
     max_devices: int = 150
     timeout: int = 30
     unifi_cli_hop: bool = False
+    strict_host_keys: bool = True
 
 
 @dataclass
@@ -159,7 +161,15 @@ def crawl(
         EN-UK: The visited devices and whatever was left unresolved.
     """
     opcoes = options or CrawlOptions()
-    recolher = collect_fn or _default_collect
+    # PT-PT: A verificação da chave de anfitrião entra por ligação parcial,
+    #        para o contrato de `CollectFn` continuar a ser de quatro
+    #        argumentos -- é por aí que os testes injectam a recolha falsa.
+    # EN-UK: Host-key checking is bound in with a partial, so the `CollectFn`
+    #        contract stays at four arguments -- that is the seam the tests
+    #        inject their fake collection through.
+    recolher = collect_fn or partial(
+        _default_collect, strict_host_keys=opcoes.strict_host_keys
+    )
 
     resultado = CrawlResult()
     fila: list[NetworkDevice] = list(seeds)
@@ -317,7 +327,17 @@ def _next_hop(
 
 
 def _default_collect(
-    device: NetworkDevice, credentials: Credentials, timeout: int, unifi_cli_hop: bool
+    device: NetworkDevice,
+    credentials: Credentials,
+    timeout: int,
+    unifi_cli_hop: bool,
+    strict_host_keys: bool = True,
 ) -> CollectionResult:
     """PT-PT: A recolha a sério. / EN-UK: The real collection."""
-    return collector.collect(device, credentials, timeout=timeout, unifi_cli_hop=unifi_cli_hop)
+    return collector.collect(
+        device,
+        credentials,
+        timeout=timeout,
+        unifi_cli_hop=unifi_cli_hop,
+        strict_host_keys=strict_host_keys,
+    )

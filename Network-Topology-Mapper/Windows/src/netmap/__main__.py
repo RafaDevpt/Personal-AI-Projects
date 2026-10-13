@@ -216,6 +216,7 @@ def _cmd_mapear(args: argparse.Namespace, settings: Settings) -> int:
         max_devices=args.max_equipamentos or settings.max_devices,
         timeout=settings.ssh_timeout,
         unifi_cli_hop=args.unifi_cli_hop or settings.unifi_cli_hop,
+        strict_host_keys=settings.verificar_chave_ssh,
     )
 
     equipamentos_unifi, clientes_unifi = _ask_unifi(args, settings)

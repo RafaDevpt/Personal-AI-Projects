@@ -79,6 +79,16 @@ class Settings:
     unifi_verify_tls: bool = True
 
     ssh_timeout: int = 30
+    # PT-PT: Verificar a chave de anfitrião SSH antes de enviar credenciais.
+    #        O Netmiko traz ssh_strict=False por omissão, e aí o paramiko
+    #        fica com a AutoAddPolicy: qualquer chave é aceite sem perguntar,
+    #        com o utilizador, a palavra-passe e o enable secret a seguir
+    #        atrás. A True usa-se RejectPolicy e o ~/.ssh/known_hosts.
+    # EN-UK: Verify the SSH host key before sending credentials. Netmiko
+    #        defaults to ssh_strict=False, where paramiko uses
+    #        AutoAddPolicy: any key accepted without asking, with the
+    #        username, password and enable secret right behind it.
+    verificar_chave_ssh: bool = True
     max_depth: int = 4
     max_devices: int = 150
     unifi_cli_hop: bool = False

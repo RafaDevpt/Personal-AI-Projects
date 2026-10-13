@@ -46,13 +46,64 @@ _BACKUP_COUNT = 3
 
 # PT-PT: Linhas de configuração que carregam segredos. O que interessa é o que
 #        vem depois da palavra-chave, e é isso que é substituído.
+#
+#        **Duas formas escapavam à versão anterior, e são as mais comuns.**
+#
+#        1. O algarismo do tipo de cifra. Num IOS o segredo quase nunca vem
+#           logo a seguir à palavra-chave:
+#
+#               enable secret 5 $1$mERr$Xk3lQ...
+#               username admin password 7 0822455D0A16
+#
+#           O padrão antigo, `(secret\s+)(\S+)`, apanhava o `5` e substituía-o,
+#           deixando o resumo criptográfico escrito no registo. E o tipo 7 nem
+#           resumo é: é reversível com uma linha de script. Agora o algarismo do
+#           tipo é preservado — é útil e não é segredo — e o que vem a seguir é
+#           que desaparece.
+#
+#        2. Separadores que não são espaço. `password: x`, `password=x` e
+#           `"password": "x"` não têm espaço a seguir à palavra-chave, por isso
+#           nenhum padrão pegava e a linha ia inteira para o disco.
+#
+#        Sobre-substituir num registo não faz mal; deixar passar faz.
+#
 # EN-UK: Configuration lines carrying secrets. What matters is whatever follows
 #        the keyword, and that is what gets replaced.
+#
+#        **Two shapes escaped the previous version, and they are the common
+#        ones.**
+#
+#        1. The encryption-type digit. On IOS the secret almost never comes
+#           directly after the keyword:
+#
+#               enable secret 5 $1$mERr$Xk3lQ...
+#               username admin password 7 0822455D0A16
+#
+#           The old pattern, `(secret\s+)(\S+)`, caught the `5` and replaced
+#           that, leaving the hash written to the log. And type 7 is not even a
+#           hash: it is reversible with a one-line script. The type digit is now
+#           preserved — it is useful and it is not secret — and what follows it
+#           is what disappears.
+#
+#        2. Separators that are not whitespace. `password: x`, `password=x` and
+#           `"password": "x"` have no space after the keyword, so no pattern
+#           matched and the whole line went to disk.
+#
+#        Over-redacting a log costs nothing; letting one through costs a lot.
+
+# PT-PT: Palavras que, a seguir a `key`, não são segredo nenhum.
+# EN-UK: Words that, following `key`, are not a secret at all.
+_NAO_SEGREDO = r"(?!generate\b|chain\b|zeroize\b|config-key\b|mypubkey\b)"
+
+_PALAVRAS = r"(?:password|passwd|pwd|secret|community|key-string|pre-shared-key|key)"
+
 _SECRET_PATTERNS = [
-    re.compile(r"(password\s+)(\S+)", re.IGNORECASE),
-    re.compile(r"(secret\s+)(\S+)", re.IGNORECASE),
-    re.compile(r"(community\s+)(\S+)", re.IGNORECASE),
-    re.compile(r"(key\s+\d?\s*)(\S+)", re.IGNORECASE),
+    # PT-PT: palavra-chave [algarismo do tipo] <segredo>
+    # EN-UK: keyword [encryption-type digit] <secret>
+    re.compile(rf"\b({_PALAVRAS}\s+(?:\d+\s+)?){_NAO_SEGREDO}(\S+)", re.IGNORECASE),
+    # PT-PT: palavra-chave: <segredo>   palavra-chave=<segredo>   "chave": "x"
+    # EN-UK: keyword: <secret>          keyword=<secret>          "key": "x"
+    re.compile(rf"\b({_PALAVRAS}\"?\s*[:=]\s*\"?)([^\s\"',}}\]]+)", re.IGNORECASE),
 ]
 
 REDACTED = "***"

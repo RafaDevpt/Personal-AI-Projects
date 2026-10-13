@@ -142,6 +142,7 @@ def collect(
     credentials: Credentials,
     timeout: int = 30,
     unifi_cli_hop: bool = False,
+    strict_host_keys: bool = True,
 ) -> CollectionResult:
     """
     PT-PT: Abre uma sessão, corre os comandos de leitura e interpreta o que vem.
@@ -169,7 +170,7 @@ def collect(
         PT-PT: Se não conseguir ligar-se ou autenticar-se.
         EN-UK: If it cannot connect or authenticate.
     """
-    conexao = _connect(device, credentials, timeout)
+    conexao = _connect(device, credentials, timeout, strict_host_keys)
     try:
         if unifi_cli_hop:
             _hop_to_unifi_cli(conexao)
@@ -210,11 +211,17 @@ def collect(
         _close(conexao, device.label)
 
 
-def _connect(device: NetworkDevice, credentials: Credentials, timeout: int) -> Any:
+def _connect(
+    device: NetworkDevice,
+    credentials: Credentials,
+    timeout: int,
+    strict_host_keys: bool = True,
+) -> Any:
     """PT-PT: Abre a sessão SSH. / EN-UK: Opens the SSH session."""
     try:
         from netmiko import ConnectHandler
         from netmiko.exceptions import NetmikoAuthenticationException, NetmikoTimeoutException
+        from paramiko.ssh_exception import SSHException
     except ImportError as exc:
         raise CollectorError(
             "O netmiko não está instalado. Instale com: pip install netmiko"
@@ -234,6 +241,10 @@ def _connect(device: NetworkDevice, credentials: Credentials, timeout: int) -> A
 
     logger.info("A ligar a %s (%s)", device.label, device.host)
     try:
+        # PT-PT: ssh_strict e system_host_keys passados sempre. A omissão do
+        #        Netmiko aceitaria qualquer chave de anfitrião.
+        # EN-UK: ssh_strict and system_host_keys always passed. Netmiko's
+        #        default would accept any host key.
         return ConnectHandler(
             device_type=tipo,
             host=device.host,
@@ -242,11 +253,22 @@ def _connect(device: NetworkDevice, credentials: Credentials, timeout: int) -> A
             secret=credentials.enable_password or credentials.password,
             conn_timeout=timeout,
             fast_cli=False,
+            ssh_strict=strict_host_keys,
+            system_host_keys=strict_host_keys,
         )
     except NetmikoAuthenticationException as exc:
         raise CollectorError(f"{device.label}: credenciais recusadas.") from exc
     except NetmikoTimeoutException as exc:
         raise CollectorError(f"{device.label}: sem resposta em {timeout}s ({device.host}).") from exc
+    except SSHException as exc:
+        if strict_host_keys and "not found" in str(exc).lower():
+            raise CollectorError(
+                f"{device.label}: a chave de anfitrião de {device.host} não está no "
+                f"~/.ssh/known_hosts, e por isso não foram enviadas credenciais.\n"
+                f"Aceite-a uma vez, depois de a confirmar:\n"
+                f"    ssh-keyscan -H {device.host} >> ~/.ssh/known_hosts"
+            ) from exc
+        raise CollectorError(f"{device.label}: {exc}") from exc
     except Exception as exc:  # noqa: BLE001 - PT-PT: o Netmiko lança de tudo
         raise CollectorError(f"{device.label}: {exc}") from exc
 
