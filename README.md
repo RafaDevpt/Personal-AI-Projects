@@ -40,7 +40,7 @@
 <br /><br />
 
 <a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
-<a href="#️-repositories"><img src="https://img.shields.io/badge/🗂️_Repositories-6E5494?style=for-the-badge&logoColor=white" /></a>
+<a href="#repositories"><img src="https://img.shields.io/badge/🗂️_Repositories-6E5494?style=for-the-badge&logoColor=white" /></a>
 <a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
 
 </div>
@@ -76,6 +76,8 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 </sub>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+
+<a name="repositories"></a>
 
 ## 🗂️ Repositories
 
