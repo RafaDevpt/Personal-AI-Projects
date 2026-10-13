@@ -39,9 +39,9 @@ import re
 from collections.abc import Iterable
 from datetime import datetime, timezone
 from pathlib import Path
-from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 from .languages import DEFAULT_CODE, LanguagePack, resolve
+from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 _log = logging.getLogger(__name__)
 

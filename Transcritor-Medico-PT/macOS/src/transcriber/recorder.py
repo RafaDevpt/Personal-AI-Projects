@@ -68,9 +68,9 @@ import wave
 from array import array
 from datetime import datetime
 from pathlib import Path
-from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 from . import platform_support
+from .privacidade import criar_pasta_restrita, restringir_ao_dono
 
 _log = logging.getLogger(__name__)
 
