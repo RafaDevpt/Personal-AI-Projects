@@ -165,10 +165,10 @@ Each also knows what it *cannot* see, and says so: elevation on Windows, the `sy
 <tr>
 <td width="50%" valign="top">
 
-### 🔧 IT Toolkit
+### [🔧 IT Toolkit](https://github.com/RafaDevpt/it-toolkit)
+[![Repo](https://img.shields.io/badge/repo-it--toolkit-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/it-toolkit)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-IT--Tool--Kit-1F6FEB?style=flat-square)
 
 Desktop suite for daily IT work. Reads and interprets the system's event record — event logs on Windows, the systemd journal on Linux, the unified log on macOS — detects errors and potential issues, **suggests fixes**, and compiles them into a report.
 
@@ -191,10 +191,10 @@ Desktop suite for daily IT work. Reads and interprets the system's event record 
 </td>
 <td width="50%" valign="top">
 
-### 📚 PDF Suite
+### [📚 PDF Suite](https://github.com/RafaDevpt/pdf-suite)
+[![Repo](https://img.shields.io/badge/repo-pdf--suite-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/pdf-suite)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-455_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-PDF--Suite-1F6FEB?style=flat-square)
 
 Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
 
@@ -214,7 +214,8 @@ Two tools, one interface: turn any PDF into a fillable form, and compare or summ
 <tr>
 <td width="50%" valign="top">
 
-### 🖨️ HP Toner Monitor
+### [🖨️ HP Toner Monitor](https://github.com/RafaDevpt/hp-toner-monitor)
+[![Repo](https://img.shields.io/badge/repo-hp--toner--monitor-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/hp-toner-monitor)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-239_passing-2EA043?style=flat-square)
 ![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
@@ -237,7 +238,8 @@ It **drafts** the order e-mail as an `.eml` and never sends it: quantities depen
 </td>
 <td width="50%" valign="top">
 
-### 🩺 Transcritor Médico PT
+### [🩺 Transcritor Médico PT](https://github.com/RafaDevpt/medical-transcriber-pt)
+[![Repo](https://img.shields.io/badge/repo-medical--transcriber--pt-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/medical-transcriber-pt)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
 ![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
@@ -258,10 +260,10 @@ The audio is clinical. It never leaves the machine: transcription and correction
 <tr>
 <td width="50%" valign="top">
 
-### 🌐 Network Config Builder
+### [🌐 Network Config Builder](https://github.com/RafaDevpt/network-config-builder)
+[![Repo](https://img.shields.io/badge/repo-network--config--builder-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/network-config-builder)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-740_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-Network--Config--Builder-1F6FEB?style=flat-square)
 
 Describe a switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. Then reads what is running on the device, diffs it, and pushes.
 
@@ -280,7 +282,8 @@ Describe a switch once — VLANs, ports, services, hardening — and it writes t
 </td>
 <td width="50%" valign="top">
 
-### 🗺️ Network Topology Mapper
+### [🗺️ Network Topology Mapper](https://github.com/RafaDevpt/network-topology-mapper)
+[![Repo](https://img.shields.io/badge/repo-network--topology--mapper-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/network-topology-mapper)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-557_passing-2EA043?style=flat-square)
 ![Read only](https://img.shields.io/badge/read--only-6E5494?style=flat-square)
@@ -305,10 +308,10 @@ The finding that earns its keep: a port with six MACs and no LLDP neighbour has 
 <tr>
 <td width="50%" valign="top">
 
-### 🧪 Laboratório Virtual
+### [🧪 Laboratório Virtual](https://github.com/RafaDevpt/virtual-lab-builder)
+[![Repo](https://img.shields.io/badge/repo-virtual--lab--builder-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/virtual-lab-builder)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-351_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-Virtual--Lab--Builder-1F6FEB?style=flat-square)
 
 Builds virtual machines without the two things that go wrong. It fetches the image from the project's **own** servers with the whole verification chain along the way, and works out the specification from what the host actually has — then says **how** it got to the numbers, so you know when to change them.
 
@@ -343,10 +346,10 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 </td>
 <td width="50%" valign="top">
 
-### 🖥️ VMware Fleet Console
+### [🖥️ VMware Fleet Console](https://github.com/RafaDevpt/vmware-fleet-console)
+[![Repo](https://img.shields.io/badge/repo-vmware--fleet--console-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/vmware-fleet-console)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
 ![Tests](https://img.shields.io/badge/tests-691_passing-2EA043?style=flat-square)
-![Branch](https://img.shields.io/badge/branch-VMware--Fleet--Console-1F6FEB?style=flat-square)
 
 The whole VMware estate on one terminal screen, with no browser and no re-authenticating every time. Connects to a **vCenter** or straight to an **ESXi host**, says whether everything is all right — and handles what comes next: power operations, snapshots, maintenance mode.
 
@@ -394,26 +397,15 @@ And the one always learned too late: **a free-licensed ESXi has a read-only API*
 ## ⚡ Getting Started
 
 <details open>
-<summary><b>Clone a single project branch</b></summary>
+<summary><b>Clone a project</b></summary>
+
+Each project lives in its own repository:
 
 ```bash
-git clone --branch PDF-Suite --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
+git clone https://github.com/RafaDevpt/pdf-suite.git
 ```
 
-Replace `PDF-Suite` with `IT-Tool-Kit`, `Printer-Remote-Toner-Monitor`, `Medical-Audio-to-Text`, `Network-Config-Builder`, `Network-Topology-Mapper`, `Virtual-Lab-Builder` or `VMware-Fleet-Console`. Branch names are **case-sensitive**.
-
-</details>
-
-<details>
-<summary><b>Clone everything and switch locally</b></summary>
-
-```bash
-git clone https://github.com/RafaDevpt/Personal-AI-Projects.git
-```
-
-```bash
-cd Personal-AI-Projects && git branch -a && git checkout PDF-Suite
-```
+Replace `pdf-suite` with `it-toolkit`, `hp-toner-monitor`, `medical-transcriber-pt`, `network-config-builder`, `network-topology-mapper`, `virtual-lab-builder` or `vmware-fleet-console`.
 
 </details>
 
