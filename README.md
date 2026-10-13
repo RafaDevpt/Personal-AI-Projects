@@ -1,16 +1,16 @@
 <!--
   PT-PT: Personal-AI-Projects — README do hub.
          O `main` não contém código de aplicação: é o índice. Cada projeto vive
-         no seu próprio branch, com o seu README, os seus requisitos e o seu
-         ciclo de vida. A tabela de branches abaixo tem de corresponder
-         exactamente a `git branch -r` — se divergir, o Quick Start deixa de
+         no seu próprio repositório, com o seu README, CI, releases e ciclo
+         de vida. A tabela de repositórios abaixo tem de corresponder aos
+         repositórios públicos — se divergir, o Quick Start deixa de
          funcionar para quem clonar.
 
   EN-UK: Personal-AI-Projects — hub README.
          `main` carries no application code: it is the index. Each project
-         lives in its own branch with its own README, requirements and
-         lifecycle. The branch table below must match `git branch -r` exactly —
-         if it drifts, the Quick Start stops working for anyone cloning.
+         lives in its own repository with its own README, CI, releases and
+         lifecycle. The repository table below must match the public
+         repositories — if it drifts, the Quick Start stops working.
 
   Created by Redfox using Claude
 -->
@@ -40,7 +40,7 @@
 <br /><br />
 
 <a href="#-project-index"><img src="https://img.shields.io/badge/📦_Projects-1F6FEB?style=for-the-badge&logoColor=white" /></a>
-<a href="#-branch-strategy"><img src="https://img.shields.io/badge/🌿_Branches-6E5494?style=for-the-badge&logoColor=white" /></a>
+<a href="#️-repositories"><img src="https://img.shields.io/badge/🗂️_Repositories-6E5494?style=for-the-badge&logoColor=white" /></a>
 <a href="#-getting-started"><img src="https://img.shields.io/badge/⚡_Quick_Start-2EA043?style=for-the-badge&logoColor=white" /></a>
 
 </div>
@@ -61,7 +61,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
 | **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[2](#nota-tres)</sup> |
-| **Documented** | Every branch ships its own README, requirements and screenshots |
+| **Documented** | Every repository ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
 </div>
