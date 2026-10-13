@@ -158,6 +158,7 @@ jobs:
   macos:
     name: macOS em macos-latest
     runs-on: macos-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: Laboratorio-Virtual/macOS
