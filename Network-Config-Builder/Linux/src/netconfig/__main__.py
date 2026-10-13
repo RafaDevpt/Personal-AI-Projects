@@ -297,7 +297,7 @@ def _cmd_backup(args: argparse.Namespace, settings: Settings) -> int:
     falhas = 0
     for device in equipamentos:
         try:
-            with SwitchSession(device, credenciais, settings.ssh_timeout) as sessao:
+            with SwitchSession(device, credenciais, settings.ssh_timeout, settings.verificar_chave_ssh) as sessao:
                 caminho = sessao.backup(settings.backup_path)
             print(f"{device.name}: {caminho}")
         except TransportError as exc:
@@ -319,7 +319,7 @@ def _cmd_comparar(args: argparse.Namespace, settings: Settings) -> int:
 
     proposta = get_generator(spec.platform).generate(spec, validate(spec))
     try:
-        with SwitchSession(device, _credentials(), settings.ssh_timeout) as sessao:
+        with SwitchSession(device, _credentials(), settings.ssh_timeout, settings.verificar_chave_ssh) as sessao:
             actual = sessao.read_running_config()
     except TransportError as exc:
         print(f"[FALHA] {exc}", file=sys.stderr)
@@ -359,7 +359,7 @@ def _cmd_enviar(args: argparse.Namespace, settings: Settings) -> int:
         )
 
     try:
-        with SwitchSession(device, _credentials(), settings.ssh_timeout) as sessao:
+        with SwitchSession(device, _credentials(), settings.ssh_timeout, settings.verificar_chave_ssh) as sessao:
             resultado = sessao.push(
                 texto, settings.backup_path, dry_run=not args.confirmar
             )

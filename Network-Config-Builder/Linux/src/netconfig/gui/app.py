@@ -626,7 +626,7 @@ class App(ctk.CTk):
             resultados: list[str] = []
             for device in self.devices:
                 try:
-                    with SwitchSession(device, credenciais, self.settings.ssh_timeout) as sessao:
+                    with SwitchSession(device, credenciais, self.settings.ssh_timeout, self.settings.verificar_chave_ssh) as sessao:
                         caminho = sessao.backup(pasta)
                     resultados.append(f"{device.name}: {caminho.name}")
                 except TransportError as exc:
@@ -710,7 +710,7 @@ class App(ctk.CTk):
         timeout = self.settings.ssh_timeout
 
         def trabalho() -> str:
-            with SwitchSession(device, credenciais, timeout) as sessao:
+            with SwitchSession(device, credenciais, timeout, self.settings.verificar_chave_ssh) as sessao:
                 return sessao.read_running_config()
 
         def concluido(texto: str) -> None:
@@ -772,7 +772,7 @@ class App(ctk.CTk):
         self.status(f"{'A simular' if dry_run else 'A enviar'} em {device.name}...")
 
         def trabalho() -> Any:
-            with SwitchSession(device, credenciais, timeout) as sessao:
+            with SwitchSession(device, credenciais, timeout, self.settings.verificar_chave_ssh) as sessao:
                 return sessao.push(texto, pasta, dry_run=dry_run)
 
         def concluido(resultado: Any) -> None:
