@@ -22,9 +22,11 @@
 <br /><br />
 
 <!-- ── Core stack ─────────────────────────────── -->
-<img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+<img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" />
 <img src="https://img.shields.io/badge/PowerShell-5.1+-5391FE?style=for-the-badge&logo=powershell&logoColor=white" />
 <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" />
+<img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" />
+<img src="https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white" />
 <img src="https://img.shields.io/badge/MIT-2EA043?style=for-the-badge&logo=opensourceinitiative&logoColor=white" />
 
 <br />
@@ -32,7 +34,6 @@
 <!-- ── Live repo telemetry ────────────────────── -->
 <img src="https://img.shields.io/github/last-commit/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=1F6FEB&logo=git&logoColor=white" />
 <img src="https://img.shields.io/github/commit-activity/m/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=6E5494" />
-<img src="https://img.shields.io/github/languages/top/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=3776AB" />
 <img src="https://img.shields.io/github/repo-size/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341" />
 <img src="https://img.shields.io/github/stars/RafaDevpt/Personal-AI-Projects?style=flat-square&labelColor=0D1117&color=E3B341&logo=github" />
 
@@ -59,7 +60,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
-| **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[3](#nota-tres)</sup> |
+| **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[2](#nota-tres)</sup> |
 | **Documented** | Every branch ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
@@ -76,69 +77,31 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
 
-## 🌿 Branch Strategy
+## 🗂️ Repositories
 
-Rather than scattering work across repositories, **each project lives in its own dedicated branch**. One repository, independent lifecycles. `main` holds only the index, the licence and the header asset.
-
-```mermaid
-gitGraph
-    commit id: "Initial commit"
-    commit id: "README + LICENSE"
-    branch Printer-Remote-Toner-Monitor
-    commit id: "LEDM / SNMP"
-    commit id: "Browser fallback"
-    checkout main
-    branch IT-Tool-Kit
-    commit id: "Event log engine"
-    commit id: "Knowledge base"
-    checkout main
-    branch PDF-Suite
-    commit id: "Fillable forms"
-    commit id: "Compare + report"
-    checkout main
-    branch Medical-Audio-to-Text
-    commit id: "Whisper engine"
-    commit id: "PT-PT corrections"
-    checkout main
-    branch Network-Config-Builder
-    commit id: "Vendor generators"
-    commit id: "Read / diff / push"
-    checkout main
-    branch Network-Topology-Mapper
-    commit id: "LLDP crawl"
-    commit id: "MAC correlation"
-    checkout main
-    branch Virtual-Lab-Builder
-    commit id: "Verified images"
-    commit id: "Bring your own"
-    checkout main
-    branch VMware-Fleet-Console
-    commit id: "TUI + pyVmomi"
-    commit id: "Trust on first use"
-    checkout main
-    commit id: "Project index"
-```
+Each project lives in its own repository, with its own CI, releases and issues. This repository is only the index.
 
 <div align="center">
 
-| Branch | Role | Contents | Runs on |
+| Project | Repository | CI | Latest release |
 | :--- | :--- | :--- | :--- |
-| `main` | 🏛️ **Hub** | Overview, documentation, project index | — |
-| `IT-Tool-Kit` | 🔧 Project | Machine diagnostics suite | Windows · Linux · macOS<sup>[2](#nota-windows)</sup> |
-| `PDF-Suite` | 📚 Project | Fillable PDFs + document comparison | Windows · Linux · macOS |
-| `Printer-Remote-Toner-Monitor` | 🖨️ Project | HP printer supply monitoring | Windows · Linux · macOS |
-| `Medical-Audio-to-Text` | 🩺 Project | Offline PT-PT medical dictation | Windows · Linux · macOS |
-| `Network-Config-Builder` | 🌐 Project | Switch configuration for Aruba, Cisco and Ubiquiti | Windows · Linux · macOS |
-| `Network-Topology-Mapper` | 🗺️ Project | Walks the network and maps what is on every port | Windows · Linux · macOS |
-| `Virtual-Lab-Builder` | 🧪 Project | Builds virtual machines from verified official images | Windows · Linux · macOS |
-| `VMware-Fleet-Console` | 🖥️ Project | vCenter and ESXi maintenance from a terminal | Windows · Linux · macOS |
+| 🔧 IT Toolkit — Machine diagnostics suite<sup>[3](#nota-windows)</sup> | [`it-toolkit`](https://github.com/RafaDevpt/it-toolkit) | [![CI](https://github.com/RafaDevpt/it-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/it-toolkit/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/it-toolkit?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/it-toolkit/releases/latest) |
+| 📚 PDF Suite — Fillable PDFs + document comparison | [`pdf-suite`](https://github.com/RafaDevpt/pdf-suite) | [![CI](https://github.com/RafaDevpt/pdf-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/pdf-suite/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/pdf-suite?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/pdf-suite/releases/latest) |
+| 🖨️ HP Toner Monitor — HP printer supply monitoring | [`hp-toner-monitor`](https://github.com/RafaDevpt/hp-toner-monitor) | [![CI](https://github.com/RafaDevpt/hp-toner-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/hp-toner-monitor/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/hp-toner-monitor?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/hp-toner-monitor/releases/latest) |
+| 🩺 Transcritor Médico PT — Offline PT-PT medical dictation | [`medical-transcriber-pt`](https://github.com/RafaDevpt/medical-transcriber-pt) | [![CI](https://github.com/RafaDevpt/medical-transcriber-pt/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/medical-transcriber-pt/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/medical-transcriber-pt?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/medical-transcriber-pt/releases/latest) |
+| 🌐 Network Config Builder — Switch configuration for Aruba, Cisco and Ubiquiti | [`network-config-builder`](https://github.com/RafaDevpt/network-config-builder) | [![CI](https://github.com/RafaDevpt/network-config-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-config-builder/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/network-config-builder?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/network-config-builder/releases/latest) |
+| 🗺️ Network Topology Mapper — Walks the network and maps what is on every port | [`network-topology-mapper`](https://github.com/RafaDevpt/network-topology-mapper) | [![CI](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/network-topology-mapper?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/network-topology-mapper/releases/latest) |
+| 🧪 Laboratório Virtual — Builds virtual machines from verified official images | [`virtual-lab-builder`](https://github.com/RafaDevpt/virtual-lab-builder) | [![CI](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/virtual-lab-builder?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/virtual-lab-builder/releases/latest) |
+| 🖥️ VMware Fleet Console — vCenter and ESXi maintenance from a terminal | [`vmware-fleet-console`](https://github.com/RafaDevpt/vmware-fleet-console) | [![CI](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/vmware-fleet-console?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/vmware-fleet-console/releases/latest) |
 
 </div>
+
+All eight run on Windows · Linux · macOS.
 
 <a name="nota-tres"></a>
 <sub>
 
-**[3]** The cost is stated up front in every project: **a fix to shared code has to be applied three times.** That is the price of three independent versions rather than one with branches, and it is a deliberate choice — each version reads more simply, carries no code that does not concern it, and a user takes to their machine only what they need. Each project's `CONTRIBUTING.md` carries the `diff` command that confirms the three have not drifted apart.
+**[2]** The cost is stated up front in every project: **a fix to shared code has to be applied three times.** That is the price of three independent versions rather than one with branches, and it is a deliberate choice — each version reads more simply, carries no code that does not concern it, and a user takes to their machine only what they need. Each project's `CONTRIBUTING.md` carries the `diff` command that confirms the three have not drifted apart.
 
 How much is actually shared varies by project, and the IT Toolkit is the extreme case: there, the three versions share the report format and the module layout and almost nothing else, because reading a Windows event log and reading a systemd journal are not the same job written twice.
 
@@ -149,7 +112,7 @@ CI runs every version on its own native runner — `windows-latest`, `ubuntu-lat
 <a name="nota-windows"></a>
 <sub>
 
-**[2]** The IT Toolkit used to be Windows-only, and its `Linux/` and `macOS/` folders held an explanation of why: reading Windows event logs through `wevtutil`, inventory through WMI and SMART through `wmic` is not something you port — porting it would mean writing a different application that does the same job elsewhere.
+**[3]** The IT Toolkit used to be Windows-only, and its `Linux/` and `macOS/` folders held an explanation of why: reading Windows event logs through `wevtutil`, inventory through WMI and SMART through `wmic` is not something you port — porting it would mean writing a different application that does the same job elsewhere.
 
 That explanation was right, and in v4.0.0 the other two applications were written. The Linux version reads the systemd journal, `/proc`, `/sys` and `systemctl`; the macOS version reads the unified log, the crash reports in `DiagnosticReports`, `launchd` and `diskutil`. They share the report format, the eight modules and the shape of the knowledge base — and, unlike the sibling projects, very little code, because there is very little that could honestly be shared.
 
@@ -168,7 +131,7 @@ Each also knows what it *cannot* see, and says so: elevation on Windows, the `sy
 ### [🔧 IT Toolkit](https://github.com/RafaDevpt/it-toolkit)
 [![Repo](https://img.shields.io/badge/repo-it--toolkit-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/it-toolkit)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/it-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/it-toolkit/actions/workflows/ci.yml)
 
 Desktop suite for daily IT work. Reads and interprets the system's event record — event logs on Windows, the systemd journal on Linux, the unified log on macOS — detects errors and potential issues, **suggests fixes**, and compiles them into a report.
 
@@ -194,7 +157,7 @@ Desktop suite for daily IT work. Reads and interprets the system's event record 
 ### [📚 PDF Suite](https://github.com/RafaDevpt/pdf-suite)
 [![Repo](https://img.shields.io/badge/repo-pdf--suite-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/pdf-suite)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-455_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/pdf-suite/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/pdf-suite/actions/workflows/ci.yml)
 
 Two tools, one interface: turn any PDF into a fillable form, and compare or summarise multiple documents — supplier proposals, reports, contracts — into a single detailed verdict.
 
@@ -217,7 +180,7 @@ Two tools, one interface: turn any PDF into a fillable form, and compare or summ
 ### [🖨️ HP Toner Monitor](https://github.com/RafaDevpt/hp-toner-monitor)
 [![Repo](https://img.shields.io/badge/repo-hp--toner--monitor-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/hp-toner-monitor)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-239_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/hp-toner-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/hp-toner-monitor/actions/workflows/ci.yml)
 ![Fleet](https://img.shields.io/badge/fleet-24%20printers-6E5494?style=flat-square)
 
 Queries the embedded web server of every HP printer on the fleet, flags any toner **below 15%**, identifies colour and cartridge reference, archives the usage page as PDF and drafts the reorder e-mail.
@@ -241,7 +204,7 @@ It **drafts** the order e-mail as an `.eml` and never sends it: quantities depen
 ### [🩺 Transcritor Médico PT](https://github.com/RafaDevpt/medical-transcriber-pt)
 [![Repo](https://img.shields.io/badge/repo-medical--transcriber--pt-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/medical-transcriber-pt)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-390_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/medical-transcriber-pt/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/medical-transcriber-pt/actions/workflows/ci.yml)
 ![Offline](https://img.shields.io/badge/offline-100%25-6E5494?style=flat-square)
 
 Turns dictated audio into written text in **European Portuguese**, with a correction layer built for clinical vocabulary — drug names, dosages, abbreviations and units that a general-purpose transcriber gets wrong.
@@ -263,7 +226,7 @@ The audio is clinical. It never leaves the machine: transcription and correction
 ### [🌐 Network Config Builder](https://github.com/RafaDevpt/network-config-builder)
 [![Repo](https://img.shields.io/badge/repo-network--config--builder-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/network-config-builder)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-740_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/network-config-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-config-builder/actions/workflows/ci.yml)
 
 Describe a switch once — VLANs, ports, services, hardening — and it writes the configuration file in **Aruba AOS-CX**, **Cisco IOS**, **Ubiquiti EdgeSwitch** or **UniFi** syntax. Then reads what is running on the device, diffs it, and pushes.
 
@@ -285,7 +248,7 @@ Describe a switch once — VLANs, ports, services, hardening — and it writes t
 ### [🗺️ Network Topology Mapper](https://github.com/RafaDevpt/network-topology-mapper)
 [![Repo](https://img.shields.io/badge/repo-network--topology--mapper-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/network-topology-mapper)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-557_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml)
 ![Read only](https://img.shields.io/badge/read--only-6E5494?style=flat-square)
 
 Give it one core switch — or a UniFi controller — and it walks the network on its own, neighbour to neighbour, reading MAC tables, ARP, port state and PoE. Produces the thing nobody has: **every device, which switch and port it is on, and what it appears to be**.
@@ -311,7 +274,7 @@ The finding that earns its keep: a port with six MACs and no LLDP neighbour has 
 ### [🧪 Laboratório Virtual](https://github.com/RafaDevpt/virtual-lab-builder)
 [![Repo](https://img.shields.io/badge/repo-virtual--lab--builder-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/virtual-lab-builder)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-351_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml)
 
 Builds virtual machines without the two things that go wrong. It fetches the image from the project's **own** servers with the whole verification chain along the way, and works out the specification from what the host actually has — then says **how** it got to the numbers, so you know when to change them.
 
@@ -349,7 +312,7 @@ And it knows that **an ISO is the installer while a disk image is the machine**:
 ### [🖥️ VMware Fleet Console](https://github.com/RafaDevpt/vmware-fleet-console)
 [![Repo](https://img.shields.io/badge/repo-vmware--fleet--console-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/vmware-fleet-console)
 ![Status](https://img.shields.io/badge/status-active-2EA043?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-691_passing-2EA043?style=flat-square)
+[![CI](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml)
 
 The whole VMware estate on one terminal screen, with no browser and no re-authenticating every time. Connects to a **vCenter** or straight to an **ESXi host**, says whether everything is all right — and handles what comes next: power operations, snapshots, maintenance mode.
 
