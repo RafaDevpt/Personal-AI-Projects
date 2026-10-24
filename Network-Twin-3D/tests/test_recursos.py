@@ -24,8 +24,10 @@ def test_do_codigo_fonte_encontra_interface_e_exemplo() -> None:
 
 
 def test_compilada_usa_a_pasta_do_pyinstaller(monkeypatch, tmp_path: Path) -> None:
-    monkeypatch.setattr(sys, "frozen", True)
-    monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path))
+    # PT-PT: `raising=False`: fora do PyInstaller estes atributos não existem.
+    # EN-UK: `raising=False`: outside PyInstaller these attributes do not exist.
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path), raising=False)
     assert recursos.web_dir() == tmp_path / "nettwin" / "web"
     assert recursos.example_project() == tmp_path / "exemplo" / "projeto.json"
 
