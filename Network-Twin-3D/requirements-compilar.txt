@@ -1,0 +1,10 @@
+# PT-PT: Para compilar o executável (empacotar/compilar.py).
+#        No Linux a janela usa o Qt WebEngine: vai dentro do executável, e
+#        quem o recebe não precisa de instalar o WebKitGTK.
+# EN-UK: To compile the executable. On Linux the window uses Qt WebEngine,
+#        bundled inside.
+# Created by Redfox using Claude
+-r requirements.txt
+-r requirements-importacao.txt
+pyinstaller>=6.10,<7
+pywebview[qt]>=5.0,<7.0; sys_platform == "linux"

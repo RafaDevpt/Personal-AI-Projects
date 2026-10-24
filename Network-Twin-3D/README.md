@@ -114,13 +114,26 @@ Duplicate a floor for repeated hotel floors. A live 3D preview grows as you draw
 - Everything is local: Three.js is vendored, nothing is fetched from the Internet. The OpenStreetMap lookups (outline, building parts, surroundings) are the only network calls, made only when you press the button, and stored afterwards.
 - Real projects never belong in a public repository — they combine topology, addresses, floor plans, façade photos and the location of every rack. `.gitignore` blocks them; the bundled example is **entirely synthetic**: plans, façade "photos", elevation, surroundings and orthophoto are all invented.
 
-## Installation & usage
+## Download
+
+Ready-to-run executables — **no Python needed** — on the [releases page](https://github.com/RafaDevpt/Personal-AI-Projects/releases) (`network-twin-3d-v…`):
+
+| System | File | Open |
+| :--- | :--- | :--- |
+| Windows 10/11 (x64) | `NetworkTwin3D-…-windows-x64.zip` | `NetworkTwin3D.exe` (unsigned: SmartScreen → *More info → Run anyway*) |
+| macOS (Apple Silicon) | `NetworkTwin3D-…-macos-arm64.zip` | `NetworkTwin3D.app` (unsigned: right-click → *Open* the first time) |
+| Linux (x64, glibc 2.35+) | `NetworkTwin3D-…-linux-x64.tar.gz` | `NetworkTwin3D/NetworkTwin3D` (Qt WebEngine bundled) |
+
+Each one is built on its own system's runner and smoke-tested on the bundled example before the release is published. To build yourself: `pip install -r requirements-compilar.txt && python empacotar/compilar.py`.
+
+## Installation & usage (from source)
 
 ```
 cd Network-Twin-3D
 EXECUTAR.bat                                   # Windows — opens the window
 ./executar.sh                                  # Linux / macOS
 EXECUTAR.bat --validar projeto.json            # headless: exit 0 clean, 1 errors, 2 unreadable
+NetworkTwin3D --validar --exemplo               # the compiled app, on its bundled example
 ```
 
 DXF and PDF import need two optional libraries: `pip install -r requirements-importacao.txt` (images work without them).

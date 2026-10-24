@@ -44,9 +44,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--csv-constatacoes", metavar="FICHEIRO", help="Escreve as constatações em CSV.")
     parser.add_argument("--csv-cabos", metavar="FICHEIRO", help="Escreve a lista de cabos em CSV.")
     parser.add_argument("--debug", action="store_true", help="Abre as ferramentas de programador.")
+    parser.add_argument("--exemplo", action="store_true", help="Usa o hotel de exemplo que vem com a aplicação.")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     args = parser.parse_args(argv)
 
+    if args.exemplo:
+        from .recursos import example_project
+
+        args.projeto = str(example_project())
     sem_janela = args.validar or args.cena or args.csv_constatacoes or args.csv_cabos
     if not sem_janela:
         from .app import run

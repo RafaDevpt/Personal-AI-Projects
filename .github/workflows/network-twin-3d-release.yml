@@ -1,0 +1,168 @@
+# ===========================================================================
+# PT-PT: Compila o Network Twin 3D para Windows, macOS e Linux e publica a
+#        release.
+#
+#        Um executável só corre no sistema onde foi compilado — por isso
+#        cada um sai do runner do seu sistema. Antes de publicar, cada
+#        executável é posto a validar o hotel de exemplo que traz dentro
+#        (`--validar --exemplo`, sem janela): o exemplo tem erros plantados,
+#        o código de saída esperado é 1. Se o executável não tiver o código,
+#        a interface ou o exemplo lá dentro, falha aqui e não na mão de
+#        quem o descarrega.
+#
+#        Corre com uma tag `network-twin-3d-vX.Y.Z` (publica a release) ou à
+#        mão (só deixa os executáveis como artefactos do workflow).
+#
+# EN-UK: Builds Network Twin 3D for Windows, macOS and Linux and publishes the
+#        release. Each executable comes from its own system's runner and is
+#        smoke-tested on the bundled example (expected exit code 1) before
+#        publishing. Runs on a `network-twin-3d-vX.Y.Z` tag (publishes) or by
+#        hand (artifacts only).
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: Network Twin 3D — compilar
+
+on:
+  push:
+    tags: ['network-twin-3d-v*']
+    # PT-PT: Mudanças à compilação também compilam (sem publicar), para se
+    #        ver que funciona antes de marcar uma versão.
+    # EN-UK: Changes to the build also build (without publishing).
+    branches: [network-twin-3d]
+    paths:
+      - 'Network-Twin-3D/empacotar/**'
+      - 'Network-Twin-3D/requirements-compilar.txt'
+      - '.github/workflows/network-twin-3d-release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compilar:
+    name: ${{ matrix.nome }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { runner: windows-latest, nome: windows-x64 }
+          - { runner: macos-latest, nome: macos-arm64 }
+          # PT-PT: 22.04 e não a mais recente: um executável de Linux só corre
+          #        com uma glibc igual ou mais nova do que a da compilação.
+          # EN-UK: 22.04, not the latest: a Linux binary needs a glibc at least
+          #        as new as the build's.
+          - { runner: ubuntu-22.04, nome: linux-x64 }
+
+    defaults:
+      run:
+        working-directory: Network-Twin-3D
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: Network-Twin-3D/requirements-compilar.txt
+
+      - name: Instalar dependências / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-compilar.txt
+
+      - name: Versão / Version
+        run: echo "VERSAO=$(python -c "import sys; sys.path.insert(0, 'src'); import nettwin; print(nettwin.__version__)")" >> "$GITHUB_ENV"
+
+      - name: Compilar / Build
+        run: python empacotar/compilar.py
+
+      # PT-PT: O executável valida o exemplo que traz dentro. / EN-UK: Smoke test.
+      - name: Testar o executável / Smoke-test the executable
+        if: runner.os != 'Windows'
+        run: |
+          if [ "$RUNNER_OS" = "macOS" ]; then exe=dist/NetworkTwin3D.app/Contents/MacOS/NetworkTwin3D; else exe=dist/NetworkTwin3D/NetworkTwin3D; fi
+          set +e
+          "$exe" --validar --exemplo
+          codigo=$?
+          set -e
+          echo "Código de saída: $codigo"
+          test "$codigo" -eq 1
+
+      # PT-PT: Em Windows o executável é de janela (sem consola): espera-se
+      #        por ele com Start-Process para ler o código de saída.
+      # EN-UK: On Windows the executable is GUI-subsystem: wait with
+      #        Start-Process to read the exit code.
+      - name: Testar o executável (Windows) / Smoke-test (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath "dist\NetworkTwin3D\NetworkTwin3D.exe" -ArgumentList "--validar", "--exemplo" -Wait -PassThru
+          Write-Host "Código de saída: $($p.ExitCode)"
+          if ($p.ExitCode -ne 1) { exit 1 }
+
+      - name: Empacotar / Package
+        run: |
+          nome="NetworkTwin3D-${VERSAO}-${{ matrix.nome }}"
+          mkdir -p ../pacotes
+          case "$RUNNER_OS" in
+            Windows) (cd dist && 7z a -tzip "../../pacotes/${nome}.zip" NetworkTwin3D >/dev/null) ;;
+            macOS)   ditto -c -k --keepParent dist/NetworkTwin3D.app "../pacotes/${nome}.zip" ;;
+            Linux)   tar -czf "../pacotes/${nome}.tar.gz" -C dist NetworkTwin3D ;;
+          esac
+          ls -la ../pacotes
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NetworkTwin3D-${{ matrix.nome }}
+          path: pacotes/*
+          if-no-files-found: error
+
+  publicar:
+    name: Publicar a release / Publish the release
+    needs: compilar
+    if: startsWith(github.ref, 'refs/tags/network-twin-3d-v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: pacotes
+          merge-multiple: true
+
+      - name: Notas da release / Release notes
+        run: |
+          versao="${GITHUB_REF_NAME#network-twin-3d-v}"
+          echo "VERSAO=${versao}" >> "$GITHUB_ENV"
+          {
+            echo "## Network Twin 3D ${versao}"
+            echo
+            echo "Executáveis — não precisam de Python. Descarregue o do seu sistema, extraia e abra."
+            echo
+            echo "| Sistema | Ficheiro | Abrir |"
+            echo "| :--- | :--- | :--- |"
+            echo "| **Windows 10/11** (x64) | \`NetworkTwin3D-${versao}-windows-x64.zip\` | \`NetworkTwin3D\\\\NetworkTwin3D.exe\`. Não está assinado: o SmartScreen pode avisar — *Mais informações → Executar mesmo assim*. A janela usa o WebView2, que já vem no Windows |"
+            echo "| **macOS** (Apple Silicon) | \`NetworkTwin3D-${versao}-macos-arm64.zip\` | \`NetworkTwin3D.app\`. Não está assinado: da primeira vez, botão direito → *Abrir* (ou \`xattr -dr com.apple.quarantine NetworkTwin3D.app\`) |"
+            echo "| **Linux** (x64, glibc 2.35+) | \`NetworkTwin3D-${versao}-linux-x64.tar.gz\` | \`NetworkTwin3D/NetworkTwin3D\`. Janela via Qt WebEngine, incluído |"
+            echo
+            echo "Linha de comandos (sem janela): \`NetworkTwin3D --validar projeto.json\` · \`NetworkTwin3D --validar --exemplo\`."
+            echo
+            echo "Cada executável foi testado no runner do seu sistema a validar o hotel de exemplo que traz dentro."
+            echo
+            echo "O que mudou: [CHANGELOG](https://github.com/${GITHUB_REPOSITORY}/blob/network-twin-3d/Network-Twin-3D/CHANGELOG.md) · Guia: [LEIA-ME](https://github.com/${GITHUB_REPOSITORY}/blob/network-twin-3d/Network-Twin-3D/LEIA-ME.md)"
+            echo
+            echo "Created by Redfox using Claude"
+          } > notas.md
+          cat notas.md
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          name: Network Twin 3D ${{ env.VERSAO }}
+          body_path: notas.md
+          files: pacotes/*
+          make_latest: false

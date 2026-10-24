@@ -25,6 +25,27 @@
 
 ## Como abrir
 
+### Executável (sem Python)
+
+Na [página das releases](https://github.com/RafaDevpt/Personal-AI-Projects/releases) (`network-twin-3d-v…`), descarregue o do seu sistema, extraia e abra:
+
+| Sistema | Ficheiro | Abrir |
+| :--- | :--- | :--- |
+| **Windows 10/11** | `…-windows-x64.zip` | `NetworkTwin3D\NetworkTwin3D.exe`. Não está assinado: o SmartScreen pode avisar — *Mais informações → Executar mesmo assim* |
+| **macOS** (Apple Silicon) | `…-macos-arm64.zip` | `NetworkTwin3D.app`. Não está assinado: da primeira vez, botão direito → *Abrir* |
+| **Linux** (glibc 2.35+, ex.: Ubuntu 22.04) | `…-linux-x64.tar.gz` | `NetworkTwin3D/NetworkTwin3D` (janela via Qt WebEngine, incluído) |
+
+Traz tudo dentro: a interface, o hotel de exemplo e a importação de DXF e PDF. Na linha de comandos: `NetworkTwin3D --validar projeto.json`, ou `--validar --exemplo` para o exemplo que vem dentro. Em Windows o executável é de janela: a linha de comandos devolve o código de saída mas não escreve no ecrã — para ver a lista use o `EXECUTAR.bat`.
+
+**Compilar à mão** (o executável sai para o sistema onde se compila):
+
+```
+pip install -r requirements-compilar.txt
+python empacotar/compilar.py            → dist/
+```
+
+### A partir do código-fonte
+
 | Sistema | Como |
 | :--- | :--- |
 | **Windows** | Duplo clique em **`EXECUTAR.bat`** (ou arraste um `projeto.json` para cima dele) |

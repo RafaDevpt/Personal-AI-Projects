@@ -39,14 +39,16 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from . import engine, exports, importers, loaders
+from . import engine, exports, importers, loaders, recursos
 from .models import RACK_MACHINE_KINDS
 from .scene import build_scene, plan_data_url
 
 log = logging.getLogger(__name__)
 
-WEB_DIR = Path(__file__).parent / "web"
-EXAMPLE_PROJECT = Path(__file__).resolve().parents[2] / "exemplo" / "projeto.json"
+# PT-PT: Do código-fonte ou compilada — ver `recursos`.
+# EN-UK: From source or compiled — see `recursos`.
+WEB_DIR = recursos.web_dir()
+EXAMPLE_PROJECT = recursos.example_project()
 
 
 class Api:

@@ -14,6 +14,7 @@ O exterior: fotos e alçados nas fachadas, o mapa à volta e o sol.
 - **Envolvente do OpenStreetMap** (edifícios vizinhos com altura, vias com largura, verde, floresta, água, areia, estacionamento, desporto, árvores), descarregada uma vez para `envolvente.json` e depois usada **offline**. Os edifícios do projeto não se repetem.
 - **Ortofoto** do utilizador no chão, alinhada por dois pontos, pelas coordenadas dos cantos ou à mão.
 - Exemplo com fachadas fotografadas (sintéticas), um alçado, envolvente e ortofoto — tudo inventado.
+- **Executáveis** para Windows, macOS (Apple Silicon) e Linux, sem Python, compilados com o PyInstaller nos runners de cada sistema e testados no exemplo antes de publicar (`empacotar/compilar.py`, workflow `network-twin-3d-release.yml`). `--exemplo` valida o hotel que vem com a aplicação.
 
 ### Corrigido
 - O contorno do OSM no editor gravava a origem no ponto pesquisado em vez do canto (0, 0) do edifício.
