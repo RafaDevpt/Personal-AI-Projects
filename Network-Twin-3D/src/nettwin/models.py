@@ -37,6 +37,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 # ---------------------------------------------------------------------------
 # PT-PT: Gravidade. / EN-UK: Severity.
@@ -325,6 +326,81 @@ class Floor:
         return next((r for r in self.rooms if r.id == room_id), None)
 
 
+# ---------------------------------------------------------------------------
+# PT-PT: Exterior do edifício — volumetria texturada.
+#
+#        Não é fotogrametria: é o método do "Building Maker" — volumes
+#        (contorno × altura, com cobertura) e, em cada parede, a foto ou o
+#        alçado dessa fachada já com a perspectiva corrigida. Com poucas fotos
+#        é o que dá um modelo limpo e reconhecível; a fotogrametria precisa de
+#        dezenas a centenas de fotos e devolve uma malha suja.
+#
+# EN-UK: Building exterior — textured massing. Not photogrammetry: volumes
+#        (outline × height, with a roof) and, on each wall, the photo or
+#        elevation of that façade with perspective corrected.
+# ---------------------------------------------------------------------------
+
+ROOF_KINDS = {
+    "plana": "Plana (terraço)",
+    "uma_agua": "Uma água",
+    "duas_aguas": "Duas águas",
+    "quatro_aguas": "Quatro águas",
+}
+
+FACADE_KINDS = {"foto": "Fotografia", "alcado": "Alçado (desenho)"}
+
+
+@dataclass
+class Facade:
+    """
+    PT-PT: A imagem de uma parede de um volume. `side` é o índice da aresta
+           do contorno (do ponto `side` ao seguinte). `image` é a imagem já
+           retificada; `original` e `corners_px` permitem voltar a acertar os
+           cantos mais tarde.
+    EN-UK: The image of one wall of a volume. `side` is the outline edge index.
+           `image` is already rectified; `original` and `corners_px` allow
+           re-fitting the corners later.
+    """
+
+    side: int
+    image: str  # caminho absoluto / absolute path
+    kind: str = "foto"
+    source: str = ""  # nome do ficheiro de onde veio / file it came from
+    original: str = ""
+    corners_px: list[tuple[float, float]] = field(default_factory=list)
+
+
+@dataclass
+class Volume:
+    """
+    PT-PT: Um bloco do edifício: contorno em metros (no referencial do
+           edifício), da cota `base_m` até `base_m + height_m` (beirado), mais
+           a cobertura por cima.
+    EN-UK: A building block: outline in metres (building frame), from `base_m`
+           to `base_m + height_m` (eaves), plus the roof above.
+    """
+
+    id: str
+    name: str
+    outline: list[tuple[float, float]]
+    base_m: float = 0.0
+    height_m: float = 6.0
+    roof: str = "plana"
+    roof_height_m: float = 0.0
+    ridge: str = "longa"  # cumeeira ao longo do lado longo ou do curto
+    wall_colour: str = ""
+    roof_colour: str = ""
+    facades: list[Facade] = field(default_factory=list)
+
+
+@dataclass
+class Exterior:
+    """PT-PT: O exterior de um edifício. / EN-UK: A building's exterior."""
+
+    volumes: list[Volume] = field(default_factory=list)
+    windows: bool = True  # janelas desenhadas nas paredes sem foto
+
+
 @dataclass
 class Building:
     """PT-PT: O edifício. / EN-UK: The building."""
@@ -335,6 +411,7 @@ class Building:
     source: str = ""  # quem gerou: "manual", "planta", "dxf", "osm", ...
     id: str = ""
     path: str = ""
+    exterior: Exterior | None = None
 
     def floor(self, floor_id: str) -> Floor | None:
         """PT-PT: Piso pelo id. / EN-UK: Floor by id."""
@@ -418,6 +495,69 @@ class Rack:
 
 
 # ---------------------------------------------------------------------------
+# PT-PT: O local — onde ficam os edifícios e o que os rodeia.
+#
+#        Referencial do local: metros a partir de (lat, lon), x para Este, y
+#        para Sul (como as plantas). Cada edifício entra pela sua `origem`
+#        (lat/lon do seu (0, 0) e rotação, no sentido dos ponteiros do
+#        relógio vista de cima).
+#
+# EN-UK: The site — where the buildings stand and what surrounds them. Site
+#        frame: metres from (lat, lon), x East, y South. Each building enters
+#        through its `origin` (lat/lon of its (0, 0) and clockwise rotation).
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class Aerial:
+    """
+    PT-PT: Ortofoto (imagem aérea) do utilizador, posta no chão. `origin_px`
+           é o pixel que fica em (0, 0) do local.
+    EN-UK: The user's orthophoto, laid on the ground. `origin_px` is the pixel
+           at the site's (0, 0).
+    """
+
+    image: str
+    px_per_m: float
+    origin_px: tuple[float, float] = (0.0, 0.0)
+    rotation_deg: float = 0.0
+
+
+@dataclass
+class Surroundings:
+    """
+    PT-PT: A envolvente: edifícios vizinhos, vias, áreas (verde, água…) e
+           árvores, em metros no referencial do local. Vem do OpenStreetMap
+           uma vez e fica gravada — depois disso tudo funciona sem Internet.
+    EN-UK: The surroundings in site metres. Fetched once from OpenStreetMap and
+           stored — everything works offline after that.
+    """
+
+    path: str
+    source: str = ""
+    date: str = ""
+    attribution: str = ""
+    radius_m: float = 0.0
+    buildings: list[dict[str, Any]] = field(default_factory=list)
+    ways: list[dict[str, Any]] = field(default_factory=list)
+    areas: list[dict[str, Any]] = field(default_factory=list)
+    trees: list[tuple[float, float]] = field(default_factory=list)
+    # PT-PT: O ponto (0, 0) da envolvente. / EN-UK: The surroundings' (0, 0).
+    lat: float | None = None
+    lon: float | None = None
+
+
+@dataclass
+class Site:
+    """PT-PT: O local do projeto. / EN-UK: The project site."""
+
+    lat: float | None = None
+    lon: float | None = None
+    surroundings: Surroundings | None = None
+    aerial: Aerial | None = None
+
+
+# ---------------------------------------------------------------------------
 # PT-PT: O gémeo completo. / EN-UK: The complete twin.
 # ---------------------------------------------------------------------------
 
@@ -440,6 +580,7 @@ class Twin:
     # PT-PT: Equipamentos com posição no projeto e também num bastidor.
     # EN-UK: Devices with a project position and also a rack.
     placement_conflicts: list[str] = field(default_factory=list)
+    site: Site | None = None
 
     def building(self, building_id: str = "") -> Building | None:
         """

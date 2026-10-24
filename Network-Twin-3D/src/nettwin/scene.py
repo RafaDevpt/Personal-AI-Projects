@@ -17,13 +17,21 @@ PT-PT: Cena para a interface 3D.
 
        As plantas em imagem não vão dentro da cena: a interface pede-as uma a
        uma (`plan_data_url`). Mandá-las em cada actualização seriam megabytes
-       pela ponte de cada vez que se move um bastidor.
+       pela ponte de cada vez que se move um bastidor. O mesmo para as
+       fachadas e a ortofoto do exterior.
+
+       O **local** junta os edifícios no mesmo referencial (metros a partir
+       de um ponto, x Este, y Sul), cada um pela sua origem geográfica, e a
+       envolvente do OpenStreetMap — já sem os edifícios do próprio projeto,
+       que de outro modo apareciam duas vezes, um dentro do outro.
 
 EN-UK: Scene for the 3D interface. All logic stays on this side, in tested
        Python: the interface only paints. Physical positions come
        precomputed (rack → U height; explicit x/y; otherwise a deterministic
-       grid in the room). Plan images are not embedded: the interface asks for
-       them one by one.
+       grid in the room). Images (plans, façades, orthophoto) are not embedded:
+       the interface asks for them one by one. The **site** puts all
+       buildings in one frame by their geographic origin, plus the OSM
+       surroundings minus the project's own buildings.
 
 Created by Redfox using Claude
 """
@@ -36,7 +44,12 @@ from pathlib import Path
 from typing import Any
 
 from .engine import Result
-from .models import RACK_MACHINE_KINDS, Building, Device, Floor, Rack, Twin
+from .models import RACK_MACHINE_KINDS, ROOF_KINDS, Building, Device, Floor, Rack, Twin
+
+EARTH_RADIUS_M = 6_371_008.8
+# PT-PT: Espaço entre edifícios sem coordenadas, postos em fila.
+# EN-UK: Gap between buildings with no coordinates, laid in a row.
+ROW_GAP_M = 20.0
 
 # PT-PT: Espaço entre equipamentos espalhados numa sala, em metros.
 # EN-UK: Spacing between devices spread in a room, in metres.
@@ -128,6 +141,8 @@ def build_scene(twin: Twin, result: Result, embed_plans: bool = False) -> dict[s
             _rack(r, twin, result, bastidores_pos.get(r.id), por_bastidor.get(r.id, [])) for r in twin.racks
         ],
         "tipos_maquina": RACK_MACHINE_KINDS,
+        "tipos_cobertura": ROOF_KINDS,
+        "local": site_scene(twin, embed_plans),
     }
 
 
@@ -297,7 +312,219 @@ def _building(building: Building, twin: Twin, embed_plans: bool) -> dict[str, An
             }
             for f in building.floors
         ],
+        "exterior": _exterior(building, embed_plans),
     }
+
+
+def _exterior(building: Building, embed: bool) -> dict[str, Any] | None:
+    """
+    PT-PT: O exterior tal como gravado. Sem ele, `None`: a interface gera os
+           volumes dos pisos (a mesma regra no editor e na vista, num sítio só).
+    EN-UK: The exterior as stored. Without it, `None`: the interface derives
+           volumes from the floors (one rule, one place).
+    """
+    ext = building.exterior
+    if ext is None:
+        return None
+    volumes = []
+    for v in ext.volumes:
+        fachadas = []
+        for f in v.facades:
+            caminho = Path(f.image)
+            info: dict[str, Any] = {
+                "lado": f.side,
+                "tipo": f.kind,
+                "fonte": f.source,
+                "ficheiro": caminho.name,
+                "disponivel": caminho.exists(),
+                "tem_original": bool(f.original) and Path(f.original).exists(),
+                "cantos_px": [list(c) for c in f.corners_px],
+            }
+            if embed and caminho.exists():
+                info["url"] = plan_data_url(caminho)
+            fachadas.append(info)
+        volumes.append(
+            {
+                "id": v.id,
+                "nome": v.name,
+                "contorno": [list(p) for p in v.outline],
+                "base_m": v.base_m,
+                "altura_m": v.height_m,
+                "cobertura": {"tipo": v.roof, "altura_m": v.roof_height_m, "cumeeira": v.ridge},
+                "cor_parede": v.wall_colour,
+                "cor_cobertura": v.roof_colour,
+                "fachadas": fachadas,
+            }
+        )
+    return {"janelas": ext.windows, "volumes": volumes}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Local. / EN-UK: Site.
+# ---------------------------------------------------------------------------
+
+
+def site_centre(twin: Twin) -> tuple[float, float] | None:
+    """
+    PT-PT: O ponto (0, 0) do local: o do projeto, ou a origem do primeiro
+           edifício com coordenadas, ou nenhum (sem geografia).
+    EN-UK: The site's (0, 0): the project's, or the first building origin
+           with coordinates, or none.
+    """
+    if twin.site and twin.site.lat is not None and twin.site.lon is not None:
+        return (twin.site.lat, twin.site.lon)
+    for b in twin.buildings:
+        if b.origin:
+            return (b.origin["lat"], b.origin["lon"])
+    return None
+
+
+def geo_to_site(lat: float, lon: float, centre: tuple[float, float]) -> tuple[float, float]:
+    """PT-PT: lat/lon → metros do local (x Este, y Sul). / EN-UK: lat/lon → site metres."""
+    cos_lat = math.cos(math.radians(centre[0]))
+    return (
+        math.radians(lon - centre[1]) * EARTH_RADIUS_M * cos_lat,
+        -math.radians(lat - centre[0]) * EARTH_RADIUS_M,
+    )
+
+
+def building_footprint(building: Building) -> list[list[tuple[float, float]]]:
+    """
+    PT-PT: Os polígonos que o edifício ocupa no chão (no seu referencial):
+           os volumes do exterior, ou os contornos dos pisos acima do chão.
+    EN-UK: The polygons the building occupies (own frame): exterior volumes,
+           or above-ground floor outlines.
+    """
+    if building.exterior and building.exterior.volumes:
+        return [v.outline for v in building.exterior.volumes]
+    acima = [f.outline for f in building.floors if f.level >= 0 and f.outline]
+    return acima or [f.outline for f in building.floors if f.outline]
+
+
+def to_site(point: tuple[float, float], pos: dict[str, float]) -> tuple[float, float]:
+    """
+    PT-PT: Do referencial do edifício para o do local: roda (sentido horário
+           vista de cima, com y para Sul) e desloca.
+    EN-UK: From the building frame to the site frame: rotate (clockwise seen
+           from above, y South) and shift.
+    """
+    t = math.radians(pos["rot"])
+    x, y = point
+    return (pos["x"] + x * math.cos(t) - y * math.sin(t), pos["y"] + x * math.sin(t) + y * math.cos(t))
+
+
+def site_positions(twin: Twin) -> dict[str, dict[str, Any]]:
+    """
+    PT-PT: Onde fica cada edifício no local. Com origem geográfica, é ela que
+           manda; sem ela, os edifícios ficam em fila a seguir aos outros —
+           e a interface diz que não têm coordenadas.
+    EN-UK: Where each building stands on the site. With a geographic origin
+           it rules; without, buildings line up after the others — and the
+           interface says they have no coordinates.
+    """
+    centro = site_centre(twin)
+    posicoes: dict[str, dict[str, Any]] = {}
+    for b in twin.buildings:
+        if b.origin and centro:
+            x, y = geo_to_site(b.origin["lat"], b.origin["lon"], centro)
+            posicoes[b.id] = {"x": round(x, 3), "y": round(y, 3), "rot": b.origin.get("rotacao_graus", 0.0), "geo": True}
+    xs = [
+        to_site(p, posicoes[b.id])[0]
+        for b in twin.buildings if b.id in posicoes
+        for poly in building_footprint(b) for p in poly
+    ]
+    cursor = (max(xs) + ROW_GAP_M) if xs else 0.0
+    for b in twin.buildings:
+        if b.id in posicoes:
+            continue
+        pontos = [p for poly in building_footprint(b) for p in poly]
+        x0 = min(p[0] for p in pontos)
+        y0 = min(p[1] for p in pontos)
+        posicoes[b.id] = {"x": round(cursor - x0, 3), "y": round(-y0, 3), "rot": 0.0, "geo": False}
+        cursor += max(p[0] for p in pontos) - x0 + ROW_GAP_M
+    return posicoes
+
+
+def site_scene(twin: Twin, embed: bool = False) -> dict[str, Any]:
+    """
+    PT-PT: O local para a vista Exterior: centro, posição de cada edifício,
+           envolvente (sem os edifícios do projeto) e ortofoto.
+    EN-UK: The site for the Exterior view: centre, building positions,
+           surroundings (minus project buildings) and orthophoto.
+    """
+    centro = site_centre(twin)
+    posicoes = site_positions(twin)
+    proprios = [
+        [to_site(p, posicoes[b.id]) for p in poly]
+        for b in twin.buildings for poly in building_footprint(b)
+    ]
+    envolvente = None
+    s = twin.site.surroundings if twin.site else None
+    if s is not None:
+        # PT-PT: A envolvente pode ter sido descarregada à volta de outro
+        #        ponto: desloca-se para o centro actual.
+        # EN-UK: The surroundings may have been fetched around another point.
+        dx = dy = 0.0
+        if centro and s.lat is not None and s.lon is not None:
+            dx, dy = geo_to_site(s.lat, s.lon, centro)
+
+        def mover(pontos: list[list[float]]) -> list[list[float]]:
+            return [[round(x + dx, 2), round(y + dy, 2)] for x, y in pontos]
+
+        edificios, retirados = [], 0
+        for e in s.buildings:
+            contorno = mover(e["contorno"])
+            if _overlaps([tuple(p) for p in contorno], proprios):
+                retirados += 1
+                continue
+            edificios.append({**e, "contorno": contorno})
+        envolvente = {
+            "fonte": s.source,
+            "data": s.date,
+            "atribuicao": s.attribution,
+            "raio_m": s.radius_m,
+            "edificios": edificios,
+            "vias": [{**v, "linha": mover(v["linha"])} for v in s.ways],
+            "areas": [{**a, "contorno": mover(a["contorno"])} for a in s.areas],
+            "arvores": [[round(x + dx, 2), round(y + dy, 2)] for x, y in s.trees],
+            "retirados": retirados,
+        }
+    ortofoto = None
+    a = twin.site.aerial if twin.site else None
+    if a is not None:
+        caminho = Path(a.image)
+        ortofoto = {
+            "ficheiro": caminho.name,
+            "disponivel": caminho.exists(),
+            "escala_px_m": a.px_per_m,
+            "origem_px": list(a.origin_px),
+            "rotacao_graus": a.rotation_deg,
+        }
+        if embed and caminho.exists():
+            ortofoto["url"] = plan_data_url(caminho)
+    return {
+        "lat": centro[0] if centro else None,
+        "lon": centro[1] if centro else None,
+        "posicoes": posicoes,
+        "envolvente": envolvente,
+        "ortofoto": ortofoto,
+    }
+
+
+def _overlaps(polygon: list[tuple[float, float]], others: list[list[tuple[float, float]]]) -> bool:
+    """
+    PT-PT: O polígono coincide com algum dos outros? Centro de um dentro do
+           outro, ou um vértice dentro — chega para "é o mesmo edifício".
+    EN-UK: Does the polygon coincide with any other? Centre or a vertex of
+           one inside the other is enough for "same building".
+    """
+    c = _centroid(polygon)
+    for outro in others:
+        if _inside(c[0], c[1], outro) or _inside(*_centroid(outro), polygon):
+            return True
+        if sum(_inside(x, y, outro) for x, y in polygon) * 2 > len(polygon):
+            return True
+    return False
 
 
 def _plan(floor: Floor, embed: bool) -> dict[str, Any] | None:

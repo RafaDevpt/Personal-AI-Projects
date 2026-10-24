@@ -825,5 +825,93 @@
         ]
       }
     }
-  ]
+  ],
+  "exterior": {
+    "janelas": true,
+    "volumes": [
+      {
+        "id": "corpo",
+        "nome": "Corpo principal",
+        "contorno": [
+          [
+            0,
+            0
+          ],
+          [
+            60,
+            0
+          ],
+          [
+            60,
+            24
+          ],
+          [
+            0,
+            24
+          ]
+        ],
+        "base_m": 0,
+        "altura_m": 7.4,
+        "cobertura": {
+          "tipo": "quatro_aguas",
+          "altura_m": 3.4,
+          "cumeeira": "longa"
+        },
+        "cor_parede": "#ece2cd",
+        "cor_cobertura": "#a65a3d",
+        "fachadas": [
+          {
+            "lado": 0,
+            "tipo": "foto",
+            "fonte": "IMG_2040.jpg (sintética)",
+            "imagem": "fachadas/principal-corpo-0.jpg",
+            "original": "fachadas/originais/principal-corpo-0.jpg",
+            "cantos_px": [
+              [
+                140,
+                980
+              ],
+              [
+                2080,
+                820
+              ],
+              [
+                2080,
+                560
+              ],
+              [
+                140,
+                330
+              ]
+            ]
+          },
+          {
+            "lado": 2,
+            "tipo": "foto",
+            "fonte": "IMG_2042.jpg (sintética)",
+            "imagem": "fachadas/principal-corpo-2.jpg",
+            "original": "fachadas/originais/principal-corpo-2.jpg",
+            "cantos_px": [
+              [
+                120,
+                820
+              ],
+              [
+                2060,
+                990
+              ],
+              [
+                2060,
+                330
+              ],
+              [
+                120,
+                560
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  }
 }

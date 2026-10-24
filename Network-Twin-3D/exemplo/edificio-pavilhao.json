@@ -232,5 +232,132 @@
         ]
       }
     }
-  ]
+  ],
+  "exterior": {
+    "janelas": true,
+    "volumes": [
+      {
+        "id": "salao",
+        "nome": "Salão de eventos",
+        "contorno": [
+          [
+            0,
+            0
+          ],
+          [
+            30,
+            0
+          ],
+          [
+            30,
+            16
+          ],
+          [
+            0,
+            16
+          ]
+        ],
+        "base_m": 0,
+        "altura_m": 6.0,
+        "cobertura": {
+          "tipo": "duas_aguas",
+          "altura_m": 2.6,
+          "cumeeira": "longa"
+        },
+        "cor_parede": "#f2efe8",
+        "cor_cobertura": "#7c858f",
+        "fachadas": [
+          {
+            "lado": 0,
+            "tipo": "alcado",
+            "fonte": "alcado-norte.pdf (sintético)",
+            "imagem": "fachadas/pavilhao-salao-0.png",
+            "original": "fachadas/originais/pavilhao-salao-0.png",
+            "cantos_px": [
+              [
+                160,
+                640
+              ],
+              [
+                1960,
+                640
+              ],
+              [
+                1960,
+                280
+              ],
+              [
+                160,
+                280
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "id": "foyer",
+        "nome": "Foyer e camarins",
+        "contorno": [
+          [
+            0,
+            16
+          ],
+          [
+            22,
+            16
+          ],
+          [
+            22,
+            26
+          ],
+          [
+            0,
+            26
+          ]
+        ],
+        "base_m": 0,
+        "altura_m": 9.5,
+        "cobertura": {
+          "tipo": "plana",
+          "altura_m": 0,
+          "cumeeira": "longa"
+        },
+        "cor_parede": "#d9cdb6",
+        "cor_cobertura": "",
+        "fachadas": []
+      },
+      {
+        "id": "copa",
+        "nome": "Copa",
+        "contorno": [
+          [
+            22,
+            16
+          ],
+          [
+            30,
+            16
+          ],
+          [
+            30,
+            20
+          ],
+          [
+            22,
+            20
+          ]
+        ],
+        "base_m": 0,
+        "altura_m": 4.0,
+        "cobertura": {
+          "tipo": "uma_agua",
+          "altura_m": 1.0,
+          "cumeeira": "longa"
+        },
+        "cor_parede": "#d9cdb6",
+        "cor_cobertura": "#8e9095",
+        "fachadas": []
+      }
+    ]
+  }
 }

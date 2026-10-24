@@ -44,14 +44,16 @@ export class Viewer {
     this.scene.environment = new THREE.PMREMGenerator(this.renderer).fromScene(new RoomEnvironment(), 0.04).texture;
     this.scene.environmentIntensity = 0.55;
 
-    this.camera = new THREE.PerspectiveCamera(42, 1, 0.02, 2000);
+    this.camera = new THREE.PerspectiveCamera(42, 1, 0.02, 6000);
     this.camera.position.set(0, 18, 38);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.08;
     this.controls.maxPolarAngle = Math.PI * 0.495;
 
-    this.scene.add(new THREE.HemisphereLight(0xdfe6ff, 0x1a1c20, 0.9));
+    this.hemi = new THREE.HemisphereLight(0xdfe6ff, 0x1a1c20, 0.9);
+    this.scene.add(this.hemi);
+    this.studioBackground = this.scene.background;
     this.sun = new THREE.DirectionalLight(0xffffff, 1.6);
     this.sun.position.set(30, 60, 40);
     this.sun.castShadow = true;
@@ -86,6 +88,27 @@ export class Viewer {
     this.resize();
     this._wirePointer();
     requestAnimationFrame((t) => this._animate(t));
+  }
+
+  /**
+   * PT-PT: Céu do exterior (textura) ou, com null, o fundo de estúdio das
+   *        outras vistas — com as luzes como estavam.
+   * EN-UK: Exterior sky (texture) or, with null, the studio backdrop of the
+   *        other views — lights restored.
+   */
+  setSky(texture) {
+    if (texture) { this.scene.background = texture; return; }
+    this.scene.background = this.studioBackground;
+    this.scene.fog = null;
+    this.scene.environmentIntensity = 0.55;
+    this.hemi.intensity = 0.9;
+    this.hemi.color.set(0xdfe6ff);
+    this.hemi.groundColor.set(0x1a1c20);
+    this.sun.intensity = 1.6;
+    this.sun.color.set(0xffffff);
+    this.sun.castShadow = true;
+    this.bloom.threshold = 0.96;
+    this.bloom.strength = 0.5;
   }
 
   resize() {

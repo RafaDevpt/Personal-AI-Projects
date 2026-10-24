@@ -327,10 +327,26 @@ class Api:
             if piso.plan and Path(piso.plan.image).exists():
                 imagens[piso.id] = plan_data_url(Path(piso.plan.image))
         dados.setdefault("id", edificio.id)
-        return {"ok": True, "edificio": dados, "imagens": imagens, "caminho": edificio.path}
+        # PT-PT: Fachadas: a retificada e o original (para voltar a acertar
+        #        os cantos). Chave "volume:lado" e "original:volume:lado".
+        # EN-UK: Façades: rectified and original. Keys "volume:side" and
+        #        "original:volume:side".
+        exteriores: dict[str, str] = {}
+        for volume in edificio.exterior.volumes if edificio.exterior else []:
+            for f in volume.facades:
+                if Path(f.image).exists():
+                    exteriores[f"{volume.id}:{f.side}"] = plan_data_url(Path(f.image))
+                if f.original and Path(f.original).exists():
+                    exteriores[f"original:{volume.id}:{f.side}"] = plan_data_url(Path(f.original))
+        return {"ok": True, "edificio": dados, "imagens": imagens, "imagens_exterior": exteriores,
+                "caminho": edificio.path}
 
     def guardar_edificio(
-        self, dados: dict[str, Any], imagens: dict[str, str], path: str = ""
+        self,
+        dados: dict[str, Any],
+        imagens: dict[str, str],
+        path: str = "",
+        imagens_exterior: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         PT-PT: Grava o edifício vindo do editor e junta-o ao projeto aberto.
@@ -339,6 +355,10 @@ class Api:
                mudadas; as outras ficam como estão. As imagens vão para uma
                pasta `plantas/` ao lado do ficheiro, e o JSON guarda o caminho
                relativo — a pasta pode mudar de PC.
+
+               `imagens_exterior` faz o mesmo para as fachadas, com as chaves
+               "volume:lado" (retificada) e "original:volume:lado"; vão para
+               `fachadas/` e `fachadas/originais/`.
 
                Antes de gravar, o edifício passa pela mesma validação que a
                leitura: o editor nunca escreve um ficheiro que depois não abre.
@@ -368,6 +388,7 @@ class Api:
                 if url:
                     ficheiro = _write_data_url(url, pasta_plantas / f"{bid}-{piso['id']}")
                     piso.setdefault("planta", {})["imagem"] = ficheiro.relative_to(destino.parent).as_posix()
+            _store_facades(dados, imagens_exterior or {}, destino.parent, bid)
             loaders.building_from_dict(dados, destino.name, base_dir=destino.parent)
             destino.parent.mkdir(parents=True, exist_ok=True)
             destino.write_text(json.dumps(dados, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -459,6 +480,152 @@ class Api:
             return {"ok": True, "contornos": importers.osm_footprints(float(lat), float(lon))}
         except (importers.PlanImportError, ValueError) as exc:
             return {"ok": False, "erro": str(exc)}
+
+    # -----------------------------------------------------------------------
+    # PT-PT: Exterior e local. / EN-UK: Exterior and site.
+    # -----------------------------------------------------------------------
+
+    def imagem_exterior(self, building_id: str, volume_id: str, side: int) -> dict[str, Any]:
+        """
+        PT-PT: A imagem retificada de uma fachada, como data URL, para a
+               textura da parede. Pedida uma vez e guardada pela interface.
+        EN-UK: A façade's rectified image as a data URL, for the wall texture.
+        """
+        edificio = self._twin.building(building_id) if self._twin else None
+        volume = next((v for v in edificio.exterior.volumes if v.id == volume_id), None) \
+            if edificio and edificio.exterior else None
+        fachada = next((f for f in volume.facades if f.side == int(side)), None) if volume else None
+        if fachada is None:
+            return {"ok": False, "erro": "Esta parede não tem fachada em imagem."}
+        if not Path(fachada.image).exists():
+            return {"ok": False, "erro": f"A imagem da fachada não está no disco: {fachada.image}"}
+        try:
+            return {"ok": True, "url": plan_data_url(Path(fachada.image))}
+        except (OSError, ValueError) as exc:
+            return {"ok": False, "erro": str(exc)}
+
+    def imagem_local(self, kind: str) -> dict[str, Any]:
+        """PT-PT: A ortofoto do local, como data URL. / EN-UK: The site orthophoto as a data URL."""
+        aerea = self._twin.site.aerial if self._twin and self._twin.site else None
+        if kind != "ortofoto" or aerea is None:
+            return {"ok": False, "erro": "O local não tem ortofoto."}
+        if not Path(aerea.image).exists():
+            return {"ok": False, "erro": f"A ortofoto não está no disco: {aerea.image}"}
+        try:
+            return {"ok": True, "url": plan_data_url(Path(aerea.image))}
+        except (OSError, ValueError) as exc:
+            return {"ok": False, "erro": str(exc)}
+
+    def volumes_osm(self, lat: float, lon: float) -> dict[str, Any]:
+        """
+        PT-PT: Edifícios e partes (building:part) do OpenStreetMap, com altura
+               e cobertura, em metros à volta de lat/lon.
+        EN-UK: OpenStreetMap buildings and parts with height and roof, in
+               metres around lat/lon.
+        """
+        try:
+            return {"ok": True, "volumes": importers.osm_volumes(float(lat), float(lon))}
+        except (importers.PlanImportError, ValueError) as exc:
+            return {"ok": False, "erro": str(exc)}
+
+    def envolvente_osm(self, lat: float, lon: float, radius_m: int = 250) -> dict[str, Any]:
+        """
+        PT-PT: Descarrega a envolvente à volta de lat/lon e grava-a em
+               `envolvente.json` ao lado do projeto; o ponto passa a ser o
+               centro do local. Precisa de Internet uma vez — depois não.
+        EN-UK: Downloads the surroundings around lat/lon into `envolvente.json`
+               next to the project; the point becomes the site centre. Needs
+               Internet once — never again.
+        """
+        if self.project is None:
+            return {"ok": False, "erro": "Não há projeto aberto."}
+        if self.project_path is None:
+            return {"ok": False, "erro": "Grave o projeto primeiro: a envolvente fica na pasta dele."}
+        try:
+            dados = importers.osm_surroundings(float(lat), float(lon), int(radius_m))
+        except (importers.PlanImportError, ValueError) as exc:
+            return {"ok": False, "erro": str(exc)}
+        destino = self.project_path.parent / "envolvente.json"
+        try:
+            destino.write_text(json.dumps(dados, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+        except OSError as exc:
+            return {"ok": False, "erro": f"Não foi possível gravar {destino.name}: {exc}"}
+
+        def alterar(projeto: dict[str, Any]) -> None:
+            local = projeto.setdefault("local", {})
+            local.update({"lat": float(lat), "lon": float(lon), "envolvente": str(destino)})
+
+        resposta = self._mutate(alterar)
+        resposta["contagem"] = {k: len(dados[k]) for k in ("edificios", "vias", "areas", "arvores")}
+        return resposta
+
+    def definir_local(self, lat: float | None, lon: float | None) -> dict[str, Any]:
+        """
+        PT-PT: Muda (ou apaga, com None) o centro do local.
+        EN-UK: Changes (or clears, with None) the site centre.
+        """
+
+        def alterar(projeto: dict[str, Any]) -> None:
+            local = projeto.setdefault("local", {})
+            if lat is None or lon is None or lat == "" or lon == "":
+                local.pop("lat", None)
+                local.pop("lon", None)
+            else:
+                la, lo = float(lat), float(lon)
+                if not (-90 <= la <= 90 and -180 <= lo <= 180):
+                    raise ValueError("Coordenadas fora do intervalo.")
+                local.update({"lat": la, "lon": lo})
+
+        return self._mutate(alterar)
+
+    def guardar_ortofoto(self, url: str, params: dict[str, Any]) -> dict[str, Any]:
+        """
+        PT-PT: Grava a ortofoto (data URL) ao lado do projeto, com a escala,
+               a origem e a rotação acertadas na interface. `url` vazio mantém
+               a imagem que já lá estava e só muda o alinhamento.
+        EN-UK: Saves the orthophoto next to the project with the scale, origin
+               and rotation set in the interface. Empty `url` keeps the
+               existing image and only changes the alignment.
+        """
+        if self.project is None:
+            return {"ok": False, "erro": "Não há projeto aberto."}
+        if self.project_path is None:
+            return {"ok": False, "erro": "Grave o projeto primeiro: a ortofoto fica na pasta dele."}
+        try:
+            escala = float(params.get("escala_px_m"))
+            origem = [float(params["origem_px"][0]), float(params["origem_px"][1])]
+            rotacao = float(params.get("rotacao_graus") or 0) % 360
+            if escala <= 0:
+                raise ValueError
+        except (TypeError, ValueError, KeyError, IndexError):
+            return {"ok": False, "erro": "Alinhamento inválido: escala positiva, origem [x, y] e rotação."}
+        atual = (self.project.get("local") or {}).get("ortofoto") or {}
+        if url:
+            try:
+                ficheiro = _write_data_url(url, self.project_path.parent / "ortofoto")
+            except (ValueError, OSError) as exc:
+                return {"ok": False, "erro": str(exc)}
+            imagem = str(ficheiro)
+        elif atual.get("imagem"):
+            imagem = atual["imagem"]
+        else:
+            return {"ok": False, "erro": "Escolha primeiro a imagem da ortofoto."}
+
+        def alterar(projeto: dict[str, Any]) -> None:
+            projeto.setdefault("local", {})["ortofoto"] = {
+                "imagem": imagem, "escala_px_m": round(escala, 6),
+                "origem_px": [round(origem[0], 2), round(origem[1], 2)], "rotacao_graus": round(rotacao, 3),
+            }
+
+        return self._mutate(alterar)
+
+    def retirar_ortofoto(self) -> dict[str, Any]:
+        """PT-PT: Tira a ortofoto do local (o ficheiro fica). / EN-UK: Removes the orthophoto (file stays)."""
+
+        def alterar(projeto: dict[str, Any]) -> None:
+            (projeto.get("local") or {}).pop("ortofoto", None)
+
+        return self._mutate(alterar)
 
     def _dxf(self, path: Path, metres_per_unit: float | None) -> dict[str, Any]:
         return importers.read_dxf(path, metres_per_unit).to_dict()
@@ -719,6 +886,36 @@ def _check_fit(
                     raise ValueError(f"{rede} já está montado em {bastidor.get('nome')} U{outra.get('u')}.")
 
 
+def _store_facades(dados: dict[str, Any], imagens: dict[str, str], pasta: Path, bid: str) -> None:
+    """
+    PT-PT: Grava as imagens de fachada novas e põe os caminhos relativos no
+           edifício. Chaves: "volume:lado" (retificada) e "original:volume:lado".
+           Uma chave para um volume ou lado que não existe é erro — melhor do
+           que gravar uma imagem que nunca aparece.
+    EN-UK: Writes new façade images and sets relative paths in the building.
+           A key for a missing volume or side is an error.
+    """
+    if not imagens:
+        return
+    volumes = {str(v.get("id")): v for v in (dados.get("exterior") or {}).get("volumes") or []}
+    for chave, url in imagens.items():
+        partes = chave.split(":")
+        original = partes[0] == "original"
+        if original:
+            partes = partes[1:]
+        if len(partes) != 2 or partes[0] not in volumes or not partes[1].isdigit():
+            raise ValueError(f"Imagem de fachada para um volume ou lado que não existe: {chave}.")
+        vid, lado = partes[0], int(partes[1])
+        fachada = next((f for f in volumes[vid].get("fachadas") or [] if int(f.get("lado", -1)) == lado), None)
+        if fachada is None:
+            raise ValueError(f"O volume {vid} não tem fachada no lado {lado}.")
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+", vid):
+            raise ValueError(f"Id de volume inválido: {vid!r}.")
+        subpasta = pasta / "fachadas" / ("originais" if original else "")
+        ficheiro = _write_data_url(url, subpasta / f"{bid}-{vid}-{lado}")
+        fachada["original" if original else "imagem"] = ficheiro.relative_to(pasta).as_posix()
+
+
 def _write_data_url(url: str, stem: Path) -> Path:
     """
     PT-PT: Grava um data URL de imagem com a extensão certa. Só aceita PNG,
@@ -728,12 +925,14 @@ def _write_data_url(url: str, stem: Path) -> Path:
     """
     correspondencia = re.match(r"^data:(image/(png|jpeg|webp));base64,(.+)$", url, re.DOTALL)
     if not correspondencia:
-        raise ValueError("A planta não é uma imagem PNG, JPEG ou WebP válida.")
+        raise ValueError("A imagem não é PNG, JPEG ou WebP válida.")
     dados = base64.b64decode(correspondencia.group(3), validate=False)
     if len(dados) > 40 * 1024 * 1024:
-        raise ValueError("A planta tem mais de 40 MB; reduza a resolução antes de importar.")
+        raise ValueError("A imagem tem mais de 40 MB; reduza a resolução antes de importar.")
     extensao = {"png": ".png", "jpeg": ".jpg", "webp": ".webp"}[correspondencia.group(2)]
-    destino = stem.with_suffix(extensao)
+    # PT-PT: Acrescentar, não `with_suffix`: um id "v1.2" perdia o ".2".
+    # EN-UK: Append, not `with_suffix`: an id "v1.2" would lose its ".2".
+    destino = stem.parent / (stem.name + extensao)
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_bytes(dados)
     return destino

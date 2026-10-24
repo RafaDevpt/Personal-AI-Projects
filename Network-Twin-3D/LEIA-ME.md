@@ -12,12 +12,14 @@
 2. [Ecrãs e vistas](#ecrãs-e-vistas)
 3. [Bastidores e sala de servidores](#bastidores-e-sala-de-servidores)
 4. [Editor de edifícios (importar plantas)](#editor-de-edifícios-importar-plantas)
-5. [De onde vêm os dados](#de-onde-vêm-os-dados)
-6. [`projeto.json`](#projetojson)
-7. [`edificio-*.json` — o contrato do edifício](#edificio-json--o-contrato-do-edifício)
-8. [O que é verificado](#o-que-é-verificado)
-9. [Sem janela (linha de comandos)](#sem-janela-linha-de-comandos)
-10. [Limites conhecidos](#limites-conhecidos)
+5. [Exterior: fotos, alçados, mapa e sol](#exterior-fotos-alçados-mapa-e-sol)
+6. [De onde vêm os dados](#de-onde-vêm-os-dados)
+7. [`projeto.json`](#projetojson)
+8. [`edificio-*.json` — o contrato do edifício](#edificio-json--o-contrato-do-edifício)
+9. [`envolvente.json`](#envolventejson)
+10. [O que é verificado](#o-que-é-verificado)
+11. [Sem janela (linha de comandos)](#sem-janela-linha-de-comandos)
+12. [Limites conhecidos](#limites-conhecidos)
 
 ---
 
@@ -38,7 +40,7 @@ Pré-requisito: **Python 3.10+**. Na primeira execução cria o ambiente e insta
 .venv/bin/pip install -r requirements-importacao.txt          (Linux / macOS)
 ```
 
-No início, **Abrir o hotel de exemplo** mostra tudo a funcionar com dados sintéticos: dois edifícios, sala de servidores com três bastidores, bastidores de piso, plantas em imagem, e um erro plantado por tipo de verificação.
+No início, **Abrir o hotel de exemplo** mostra tudo a funcionar com dados sintéticos: dois edifícios, sala de servidores com três bastidores, bastidores de piso, plantas em imagem, fachadas fotografadas e um alçado, envolvente, ortofoto, e um erro plantado por tipo de verificação. **Tudo inventado** — nenhum sítio real.
 
 ---
 
@@ -48,7 +50,7 @@ No início, **Abrir o hotel de exemplo** mostra tudo a funcionar com dados sint�
 
 Ao abrir um projeto aparece um cartão por edifício, com a planta em miniatura (todos os pisos sobrepostos), o número de pisos, salas, bastidores e equipamentos, e os erros que lá estão. **Clicar num edifício abre-o inteiro**, com todos os pisos.
 
-Há também os cartões **Rede lógica** (a rede sem edifício) e **Novo edifício** (abre o editor). O logótipo no canto volta sempre ao início.
+Há também os cartões **Exterior e local** (os edifícios por fora, no sítio), **Rede lógica** (a rede sem edifício) e **Novo edifício** (abre o editor). O logótipo no canto volta sempre ao início.
 
 ### Menus do topo
 
@@ -56,7 +58,7 @@ Há também os cartões **Rede lógica** (a rede sem edifício) e **Novo edifíc
 | :--- | :--- |
 | **🏢 Edifício** | Muda de edifício |
 | **≡ Piso** | *Todos os pisos* (empilhados e afastados) ou um piso só — com as paredes à altura real e os nomes das salas |
-| **Rede · Edifício · Bastidor** | As três vistas (atalhos `1` `2` `3`) |
+| **Rede · Edifício · Bastidor · Exterior** | As quatro vistas (atalhos `1` `2` `3` `4`) |
 
 ### Vista do edifício
 
@@ -166,18 +168,90 @@ Os vértices **encaixam** nos das salas vizinhas — é o que faz duas salas par
 
 ---
 
+## Exterior: fotos, alçados, mapa e sol
+
+### O que é — e o que não é
+
+O exterior é uma **volumetria texturada**: cada edifício é feito de **volumes** (contorno × altura, com cobertura), e em cada parede pode ir a **foto ou o alçado** dessa fachada, com a perspectiva corrigida. É o método do antigo *Building Maker* do Google, e é o que dá um modelo limpo e reconhecível com poucas fotos.
+
+**Não é fotogrametria.** Reconstruir a geometria a partir das fotos (varandas, relevos) precisa de dezenas a centenas de fotos sobrepostas e devolve uma malha suja; com meia dúzia de fotos de telemóvel não funciona, nem localmente nem na nuvem. Aqui, a forma vem das plantas e do OpenStreetMap; as fotos dão a pele.
+
+**O Google Maps não entra:** os termos do Google proíbem guardar os dados dele e usá-los fora da API, e é exactamente isso que uma aplicação local precisa de fazer. O **OpenStreetMap** é aberto (ODbL) e só exige a atribuição, que a aplicação mostra.
+
+### Vista Exterior
+
+![Exterior](docs/img/exterior.png)
+
+| Controlo | Faz |
+| :--- | :--- |
+| **Dia** e **Hora** | O sol no sítio certo (latitude/longitude do local) e as sombras. Hora do relógio deste computador. De noite acendem-se as janelas desenhadas |
+| **Raio-X** | Paredes transparentes: vêem-se os pisos, as salas pela cor do tipo, os **bastidores** e os equipamentos, pintados pelo veredicto (clicáveis) |
+| **Mapa · Vizinhos · Árvores · Ortofoto** | Camadas da envolvente. Com a ortofoto à vista, o mapa desenhado sai para não a tapar |
+
+![De noite](docs/img/exterior-noite.png)
+
+Clicar num edifício mostra os volumes, as coberturas, as fachadas com imagem e os avisos, com **Entrar no edifício** e **✎ Editar exterior…**. Sem nada seleccionado, o painel *Detalhe* mostra o **local**: centro, envolvente, ortofoto e posição do sol.
+
+Cada edifício fica no sítio pela sua **origem** (latitude/longitude do seu (0, 0) e rotação). Um edifício sem coordenadas fica em fila ao lado dos outros, com a etiqueta *sem coordenadas*.
+
+![Raio-X](docs/img/raio-x.png)
+
+### Editor → separador Exterior
+
+![Editor — Exterior](docs/img/editor-exterior.png)
+
+1. **Localização** — latitude, longitude e rotação (graus, a partir do Este, no sentido dos ponteiros do relógio vista de cima). No Google Maps: botão direito no canto do edifício → copiar as coordenadas.
+2. **Volumes** — ao entrar, vêm dos pisos acima do chão (pisos seguidos com o mesmo contorno juntam-se). Também:
+   - **🗺 Do OSM…** — as partes do edifício (`building:part`) com altura e telhado, quando alguém as mapeou. Altura com `≈` é estimada pelo tipo de edifício;
+   - **▭ Volume** (`R`) e **⬠ Volume** (`P`) — desenhar sobre a planta do rés-do-chão; os cantos encaixam nos dos pisos e dos outros volumes. `Alt` desliga o encaixe;
+   - **Editar** (`V`) — arrastar vértices, duplo clique numa aresta acrescenta um, `Delete` apaga.
+3. **Cobertura** de cada volume — *plana* (com platibanda), *uma água*, *duas águas* (cumeeira no lado longo ou no curto), *quatro águas*. Altura do telhado `0` = automática (30°; 15° em uma água). As inclinadas assentam no retângulo mínimo do volume: se o contorno não for quase retangular (< 85 %), a cobertura fica plana e aparece um aviso — **divida o edifício em volumes retangulares**, que é como os telhados são construídos.
+4. **Fachadas** — clicar numa aresta (na planta ou nos botões `0 N`, `1 E`… do volume) → **📷 Foto…** ou **📐 Alçado…** (imagem ou PDF) → marcar os 4 cantos:
+
+![Cantos da fachada](docs/img/cantos.png)
+
+| Canto | Onde |
+| :--- | :--- |
+| **1** | Em baixo à esquerda, como se vê a fachada de frente |
+| **2** | Em baixo à direita |
+| **3** | Em cima à direita — no **beirado**, onde começa o telhado |
+| **4** | Em cima à esquerda |
+
+Arrastam-se os pontos (ou clica-se perto: vai o mais próximo); a **lupa** 4× aparece ao arrastar; as linhas de terços mostram se a perspectiva bate; o **Resultado** atualiza-se. *Aplicar à parede* corrige a perspectiva (homografia) e a imagem fica na parede, à proporção real (até 2048 px). O **original** fica guardado: **⌖ Acertar os cantos…** volta a abrir a ferramenta mais tarde.
+
+**Dicas para as fotos:** o mais de frente possível, fachada inteira e os quatro cantos à vista; sem grande angular extrema (a correcção desfaz a perspectiva, não a curvatura da lente); árvores e carros à frente ficam na textura. Fachada grande demais para uma foto? Use o **alçado** — fica mais limpo.
+
+Paredes sem foto levam **janelas desenhadas por piso**, à altura real de cada piso (desliga-se em *Janelas desenhadas*).
+
+### Envolvente (OpenStreetMap)
+
+Vista Exterior → painel *Detalhe* (sem nada seleccionado) → latitude, longitude, raio (150–1000 m) → **Descarregar do OSM**. Vêm os edifícios vizinhos com altura (`height`, `building:levels`, ou estimada pelo tipo), as vias com largura pelo tipo, verde, floresta (com árvores espalhadas), água, areia, estacionamento, desporto e árvores. Grava-se em **`envolvente.json`** ao lado do projeto — **precisa de Internet uma vez; depois funciona offline**. Os edifícios do próprio projeto saem da envolvente (senão apareciam duas vezes). É preciso gravar o projeto antes.
+
+### Ortofoto
+
+Uma imagem aérea sua (da câmara municipal, de um levantamento por drone, de um serviço de ortofotos) posta no chão. Painel do local → **Escolher imagem…** → alinhar:
+
+- **⌖ Dois pontos** (o mais preciso): clicar num ponto da foto (um canto de um edifício) e depois onde ele devia estar, sobre os contornos; repetir para um segundo ponto, longe do primeiro. Escala, rotação e posição saem dos dois pares.
+- **Por coordenadas**: imagem orientada a Norte — latitude do bordo de cima e de baixo, longitude da esquerda e da direita.
+- **À mão**: arrastar a foto; acertar escala e rotação nos campos.
+
+Grava-se como `ortofoto.*` ao lado do projeto.
+
+---
+
 ## De onde vêm os dados
 
 | Fonte | Ficheiro | Diz |
 | :--- | :--- | :--- |
 | **Network Topology Mapper** | exportação **JSON** (botão *Guardar JSON*, ou `--json`) | O que **existe**: cabos (e quem os anunciou), portas, VLAN e PoE em produção, pontos finais |
 | **Network Config Builder** | perfis `.json` (um por equipamento) | O que **devia existir**: VLANs, modo e VLANs de cada porta |
-| **Editor de edifícios** | `edificio-*.json` + `plantas/` | **Onde**: edifícios, pisos, salas, plantas |
+| **Editor de edifícios** | `edificio-*.json` + `plantas/` + `fachadas/` | **Onde**: edifícios, pisos, salas, plantas; volumes, coberturas e fachadas do exterior |
+| **OpenStreetMap** | `envolvente.json` | **À volta**: vizinhos, vias, verde, água, árvores (descarregado uma vez) |
 | **Esta aplicação** | `projeto.json` | Liga tudo + cablagem desenhada, bastidores, posições, orçamentos PoE |
 
 Os perfis casam com os equipamentos descobertos pelo **hostname** (sem distinguir maiúsculas) ou pelo **IP de gestão**.
 
-> **Os projetos reais não vão para o repositório.** Juntam topologia, endereços, plantas e a localização de cada bastidor. O `.gitignore` bloqueia `projetos/`, `*.csv` e `plantas/` fora do exemplo; guarde-os fora daqui.
+> **Os projetos reais não vão para o repositório.** Juntam topologia, endereços, plantas e a localização de cada bastidor. O `.gitignore` bloqueia `projetos/`, `*.csv`, `plantas/`, `fachadas/`, `envolvente*.json` e `ortofoto.*` fora do exemplo; guarde-os fora daqui. **As fotos das fachadas e a ortofoto mostram o edifício por fora — num hotel, também mostram entradas, câmaras e saídas de serviço.**
 
 ---
 
@@ -210,6 +284,11 @@ Os perfis casam com os equipamentos descobertos pelo **hostname** (sem distingui
   ],
   "posicoes": {
     "AP-LOBBY": { "edificio": "principal", "piso": "P0", "sala": "lobby" }
+  },
+  "local": {
+    "lat": 38.7223, "lon": -9.1393,
+    "envolvente": "envolvente.json",
+    "ortofoto": { "imagem": "ortofoto.jpg", "escala_px_m": 2, "origem_px": [504, 484], "rotacao_graus": 356 }
   }
 }
 ```
@@ -224,6 +303,7 @@ Os perfis casam com os equipamentos descobertos pelo **hostname** (sem distingui
 | `bastidores[].u` | A U **mais baixa** que a máquina ocupa (a U 1 é a de baixo) |
 | `bastidores[].x/y` | Metros, opcionais. Sem eles, os bastidores da sala alinham-se em fila |
 | `posicoes` | Para equipamentos **fora** de bastidor (APs, switches de secretária). Com um só edifício, `edificio` pode faltar |
+| `local` | Opcional. Centro do local (sem ele, vale a origem do primeiro edifício com coordenadas), envolvente e ortofoto. `origem_px` é o pixel da ortofoto que fica no centro; `rotacao_graus` no sentido dos ponteiros do relógio. Ficheiros em falta no disco são aviso, não erro |
 
 ---
 
@@ -248,7 +328,23 @@ Os perfis casam com os equipamentos descobertos pelo **hostname** (sem distingui
         { "id": "rececao", "nome": "Receção", "tipo": "publica", "poligono": [[0, 0], [14, 0], [14, 10], [0, 10]] }
       ]
     }
-  ]
+  ],
+  "exterior": {
+    "janelas": true,
+    "volumes": [
+      {
+        "id": "corpo", "nome": "Corpo principal",
+        "contorno": [[0, 0], [60, 0], [60, 24], [0, 24]], "base_m": 0, "altura_m": 7.4,
+        "cobertura": { "tipo": "quatro_aguas", "altura_m": 3.4, "cumeeira": "longa" },
+        "cor_parede": "#ece2cd", "cor_cobertura": "#a65a3d",
+        "fachadas": [
+          { "lado": 0, "tipo": "foto", "fonte": "IMG_2040.jpg",
+            "imagem": "fachadas/principal-corpo-0.jpg", "original": "fachadas/originais/principal-corpo-0.jpg",
+            "cantos_px": [[140, 980], [2080, 820], [2080, 560], [140, 330]] }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -262,8 +358,35 @@ Os perfis casam com os equipamentos descobertos pelo **hostname** (sem distingui
 | `poligono` | ≥ 3 pontos, área não nula, qualquer forma (salas em L servem) |
 | `tipo` da sala | `servidores`, `tecnica`, `escritorio`, `publica`, `quarto`, `eventos`, `restauracao`, `circulacao`, `exterior`, `outra` |
 | `planta` | Opcional. `imagem` relativa ao ficheiro; `escala_px_m` > 0; `origem_px` = o pixel que é o (0, 0). Imagem em falta no disco não é erro (o piso desenha-se sem ela) |
+| `origem` | Opcional. `lat`/`lon` do (0, 0) do edifício e `rotacao_graus` do eixo x a partir do Este, no sentido dos ponteiros do relógio vista de cima |
+| `exterior` | Opcional. Sem ele, os volumes saem dos pisos acima do chão, com cobertura plana |
+| `volumes[].altura_m` | Da base até ao **beirado**; a cobertura vai por cima. `base_m` serve para volumes em cima de outros |
+| `cobertura.tipo` | `plana`, `uma_agua`, `duas_aguas`, `quatro_aguas`. `altura_m` 0 = automática. `cumeeira`: `longa` ou `curta` |
+| `cor_*` | `#rgb`, `#rrggbb` ou um nome simples (`beige`) — o que o OSM usa |
+| `fachadas[].lado` | A aresta do contorno: do ponto `lado` ao seguinte. Uma fachada por lado |
+| `fachadas[].imagem` | Já retificada. `original` + `cantos_px` (inf. esq., inf. dir., sup. dir., sup. esq., em píxeis do original) permitem acertar de novo |
 
 Erros param a leitura com o sítio exacto (ex.: `pisos[0].salas[3].poligono: um polígono precisa de pelo menos 3 pontos`).
+
+---
+
+## `envolvente.json`
+
+Escrito pela aplicação a partir do OpenStreetMap; formato aberto para outra ferramenta escrever.
+
+```json
+{
+  "formato": 1, "tipo": "nettwin-envolvente", "fonte": "OpenStreetMap",
+  "atribuicao": "© contribuidores do OpenStreetMap (ODbL)", "data": "2026-10-24",
+  "centro": { "lat": 38.7223, "lon": -9.1393 }, "raio_m": 250,
+  "edificios": [ { "contorno": [[…]], "altura_m": 6, "base_m": 0, "cobertura": "duas_aguas", "altura_cobertura_m": 2.2, "estimada": true } ],
+  "vias": [ { "linha": [[…]], "largura_m": 6, "tipo": "residential", "nome": "Rua A" } ],
+  "areas": [ { "contorno": [[…]], "tipo": "verde" } ],
+  "arvores": [[12.5, -40.1]]
+}
+```
+
+Metros à volta do `centro` (x Este, y Sul), recortados a um quadrado de lado 2 × raio. Tipos de área: `verde`, `floresta`, `agua`, `areia`, `estacionamento`, `desporto`, `pavimento`. Geometria degenerada é posta de lado sem erro.
 
 ---
 
@@ -328,5 +451,9 @@ EXECUTAR.bat --cena cena.json projeto.json
 - O mapper lê a VLAN de acesso de cada porta, não as listas de trunk: as verificações de trunk comparam **desenho contra desenho** nas duas pontas de um cabo real.
 - Pontos finais são resumidos por equipamento, não desenhados um a um.
 - A detecção de salas em imagem não lê texto (OCR): os nomes dão-se na lista, ou vêm do DXF.
-- Fotografias do **exterior** do edifício não servem para gerar o modelo — isso é fotogrametria, outro problema. O que gera o modelo são **plantas** (imagem, PDF, DXF) e o contorno do OpenStreetMap.
+- As fotos dão a **pele** do exterior, não a forma: não há fotogrametria (varandas e relevos ficam planos na textura). A forma vem das plantas, do desenho dos volumes e do OpenStreetMap.
+- Coberturas inclinadas só em volumes quase retangulares; telhados complexos fazem-se com vários volumes. Cúpulas e mansardas do OSM ficam planas / de quatro águas.
+- O terreno é plano: um hotel em encosta aparece num chão horizontal (use `base_m` para os volumes mais altos).
+- A hora do sol é a do relógio deste computador, não a do fuso do local.
+- A envolvente vem do OSM tal como está mapeado: alturas em falta são estimadas pelo tipo de edifício (marcadas `≈`).
 - Uma base de código para Windows, Linux e macOS (a janela é HTML via pywebview), em vez das três pastas dos outros projetos: aqui o código seria literalmente igual nas três.

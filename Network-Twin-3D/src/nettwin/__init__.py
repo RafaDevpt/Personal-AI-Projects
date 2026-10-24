@@ -8,4 +8,4 @@ EN-UK: Network Twin 3D — a 3D digital twin of the network: what exists versus
 Created by Redfox using Claude
 """
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

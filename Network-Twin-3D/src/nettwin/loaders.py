@@ -36,13 +36,18 @@ from pathlib import Path
 from typing import Any
 
 from .models import (
+    FACADE_KINDS,
     RACK_MACHINE_KINDS,
+    ROOF_KINDS,
+    Aerial,
     Building,
     DesignedPort,
     DesignedVlan,
     Device,
     DeviceKind,
     Endpoint,
+    Exterior,
+    Facade,
     Floor,
     Link,
     ObservedPort,
@@ -51,12 +56,16 @@ from .models import (
     Rack,
     RackMachine,
     Room,
+    Site,
+    Surroundings,
     Twin,
+    Volume,
 )
 
 PROJECT_TYPE = "nettwin-project"
 BUILDING_TYPE = "nettwin-building"
 MAP_TYPE = "netmap-topology"
+SURROUNDINGS_TYPE = "nettwin-envolvente"
 SUPPORTED_VERSION = 1
 
 ROOM_KINDS = {
@@ -208,6 +217,12 @@ def load_project_file(path: Path) -> dict[str, Any]:
         edificios.insert(0, dados["edificio"])
     dados.pop("edificio", None)
     dados["edificios"] = [absoluto(e) for e in edificios]
+    local = dados.get("local")
+    if isinstance(local, dict):
+        if local.get("envolvente"):
+            local["envolvente"] = absoluto(local["envolvente"])
+        if isinstance(local.get("ortofoto"), dict) and local["ortofoto"].get("imagem"):
+            local["ortofoto"]["imagem"] = absoluto(local["ortofoto"]["imagem"])
     return dados
 
 
@@ -238,6 +253,13 @@ def save_project_file(project: dict[str, Any], path: Path) -> Path:
     gravar.pop("edificio", None)
     gravar["edificios"] = [relativo(e) for e in project.get("edificios") or []]
     gravar["perfis"] = [relativo(p) for p in project.get("perfis") or []]
+    if isinstance(project.get("local"), dict):
+        local = json.loads(json.dumps(project["local"]))
+        if local.get("envolvente"):
+            local["envolvente"] = relativo(local["envolvente"])
+        if isinstance(local.get("ortofoto"), dict) and local["ortofoto"].get("imagem"):
+            local["ortofoto"]["imagem"] = relativo(local["ortofoto"]["imagem"])
+        gravar["local"] = local
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(gravar, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return path
@@ -273,6 +295,7 @@ def build_twin(project: dict[str, Any]) -> Twin:
     gemeo.racks = parse_racks(project.get("bastidores") or [])
     _apply_rack_placements(gemeo)
     _assign_layers(gemeo)
+    gemeo.site = parse_site(project.get("local"), gemeo.load_warnings)
     return gemeo
 
 
@@ -887,13 +910,301 @@ def building_from_dict(
         else:
             piso.elevation_m = -sum(p.height_m for p in pisos if piso.level <= p.level < rc.level)
 
-    origem = dados.get("origem")
     return Building(
         name=str(dados.get("nome") or "Edifício"),
         floors=pisos,
-        origin=origem if isinstance(origem, dict) else None,
+        origin=_origin(dados.get("origem"), f"{source_name}: origem"),
         source=str(dados.get("gerado_por") or "manual"),
         id=bid,
+        exterior=_exterior(dados.get("exterior"), f"{source_name}: exterior", base_dir),
+    )
+
+
+def _origin(value: Any, where: str) -> dict[str, float] | None:
+    """
+    PT-PT: Onde fica o (0, 0) do edifício no mundo: latitude, longitude e a
+           rotação do eixo x em relação ao Este, no sentido dos ponteiros do
+           relógio vista de cima. Sem latitude/longitude não há origem — o
+           edifício fica no centro do local.
+    EN-UK: Where the building's (0, 0) is in the world: latitude, longitude and
+           the x axis rotation from East, clockwise seen from above.
+    """
+    if not isinstance(value, dict):
+        return None
+    lat = _float_or_none(value.get("lat"), f"{where}.lat")
+    lon = _float_or_none(value.get("lon"), f"{where}.lon")
+    if lat is None or lon is None:
+        return None
+    if not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        raise LoadError(f"{where}: coordenadas fora do intervalo (latitude −90..90, longitude −180..180).")
+    rotacao = _float_or_none(value.get("rotacao_graus"), f"{where}.rotacao_graus") or 0.0
+    return {"lat": lat, "lon": lon, "rotacao_graus": rotacao % 360}
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Exterior. / EN-UK: Exterior.
+# ---------------------------------------------------------------------------
+
+_ID_RE = re.compile(r"[A-Za-z0-9_.-]+")
+# PT-PT: Cor: #rgb, #rrggbb, ou um nome CSS simples ("red", "beige") — que é
+#        o que o OSM usa em building:colour.
+# EN-UK: Colour: #rgb, #rrggbb or a simple CSS name — what OSM uses.
+_COLOUR_RE = re.compile(r"#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6}|[a-z]{3,20}")
+
+
+def _colour(value: Any, where: str) -> str:
+    texto = str(value or "").strip()
+    if texto and not _COLOUR_RE.fullmatch(texto):
+        raise LoadError(f"{where}: cor {texto!r} inválida (use #rrggbb ou um nome como 'beige').")
+    return texto
+
+
+def _image_path(value: Any, base_dir: Path | None) -> str:
+    caminho = Path(str(value))
+    if base_dir is not None and not caminho.is_absolute():
+        caminho = (base_dir / caminho).resolve()
+    return str(caminho)
+
+
+def _exterior(value: Any, where: str, base_dir: Path | None) -> Exterior | None:
+    """
+    PT-PT: O exterior (opcional). Sem ele, a vista gera os volumes a partir
+           dos pisos acima do chão — por isso ausente não é erro. Presente,
+           valida-se como o resto: um volume torto aqui é um edifício torto
+           na vista.
+    EN-UK: The exterior (optional). Without it the view derives volumes from
+           the floors above ground. When present it is validated strictly.
+    """
+    if value is None or value == {}:
+        return None
+    if not isinstance(value, dict):
+        raise LoadError(f"{where}: devia ser um objecto com 'volumes'.")
+    brutos = value.get("volumes") or []
+    if not isinstance(brutos, list):
+        raise LoadError(f"{where}.volumes: devia ser uma lista.")
+    volumes: list[Volume] = []
+    ids: set[str] = set()
+    for i, bruto in enumerate(brutos):
+        onde = f"{where}.volumes[{i}]"
+        if not isinstance(bruto, dict):
+            raise LoadError(f"{onde}: devia ser um objecto.")
+        vid = str(bruto.get("id") or f"v{i + 1}").strip()
+        if not _ID_RE.fullmatch(vid):
+            raise LoadError(f"{onde}: id {vid!r} inválido (só letras, números, '-', '_' e '.').")
+        if vid in ids:
+            raise LoadError(f"{onde}: id {vid!r} repetido.")
+        ids.add(vid)
+        contorno = _polygon(bruto.get("contorno"), f"{onde}.contorno")
+        base = _float_or_none(bruto.get("base_m"), f"{onde}.base_m") or 0.0
+        altura = _float_or_none(bruto.get("altura_m"), f"{onde}.altura_m")
+        if altura is None or not 0 < altura <= 500:
+            raise LoadError(f"{onde}.altura_m: tem de ser um número entre 0 e 500 (metros até ao beirado).")
+        cobertura = bruto.get("cobertura") or {}
+        if isinstance(cobertura, str):
+            cobertura = {"tipo": cobertura}
+        if not isinstance(cobertura, dict):
+            raise LoadError(f"{onde}.cobertura: devia ser um objecto com 'tipo'.")
+        tipo = str(cobertura.get("tipo") or "plana")
+        if tipo not in ROOF_KINDS:
+            raise LoadError(f"{onde}.cobertura.tipo: {tipo!r} desconhecido. Conhecidos: {', '.join(ROOF_KINDS)}.")
+        altura_cob = _float_or_none(cobertura.get("altura_m"), f"{onde}.cobertura.altura_m") or 0.0
+        if not 0 <= altura_cob <= 100:
+            raise LoadError(f"{onde}.cobertura.altura_m: entre 0 (automática) e 100 m.")
+        cumeeira = str(cobertura.get("cumeeira") or "longa")
+        if cumeeira not in {"longa", "curta"}:
+            raise LoadError(f"{onde}.cobertura.cumeeira: 'longa' ou 'curta'.")
+        volumes.append(
+            Volume(
+                id=vid,
+                name=str(bruto.get("nome") or vid),
+                outline=contorno,
+                base_m=base,
+                height_m=altura,
+                roof=tipo,
+                roof_height_m=altura_cob,
+                ridge=cumeeira,
+                wall_colour=_colour(bruto.get("cor_parede"), f"{onde}.cor_parede"),
+                roof_colour=_colour(bruto.get("cor_cobertura"), f"{onde}.cor_cobertura"),
+                facades=_facades(bruto.get("fachadas"), onde, len(contorno), base_dir),
+            )
+        )
+    return Exterior(volumes=volumes, windows=bool(value.get("janelas", True)))
+
+
+def _facades(value: Any, where: str, sides: int, base_dir: Path | None) -> list[Facade]:
+    if not value:
+        return []
+    if not isinstance(value, list):
+        raise LoadError(f"{where}.fachadas: devia ser uma lista.")
+    fachadas: list[Facade] = []
+    lados: set[int] = set()
+    for j, bruto in enumerate(value):
+        onde = f"{where}.fachadas[{j}]"
+        if not isinstance(bruto, dict):
+            raise LoadError(f"{onde}: devia ser um objecto.")
+        lado = _int_or_none(bruto.get("lado"), f"{onde}.lado")
+        if lado is None or not 0 <= lado < sides:
+            raise LoadError(f"{onde}.lado: tem de ser a aresta 0 a {sides - 1} do contorno.")
+        if lado in lados:
+            raise LoadError(f"{onde}: o lado {lado} já tem fachada.")
+        lados.add(lado)
+        imagem = str(bruto.get("imagem") or "").strip()
+        if not imagem:
+            raise LoadError(f"{onde}: falta a imagem.")
+        tipo = str(bruto.get("tipo") or "foto")
+        if tipo not in FACADE_KINDS:
+            raise LoadError(f"{onde}.tipo: 'foto' ou 'alcado'.")
+        cantos: list[tuple[float, float]] = []
+        if bruto.get("cantos_px"):
+            brutos = bruto["cantos_px"]
+            if not isinstance(brutos, list) or len(brutos) != 4:
+                raise LoadError(f"{onde}.cantos_px: são 4 pontos [x, y] (inf. esq., inf. dir., sup. dir., sup. esq.).")
+            for k, c in enumerate(brutos):
+                if not isinstance(c, (list, tuple)) or len(c) != 2:
+                    raise LoadError(f"{onde}.cantos_px[{k}]: cada ponto é [x, y].")
+                x = _float_or_none(c[0], f"{onde}.cantos_px[{k}].x")
+                y = _float_or_none(c[1], f"{onde}.cantos_px[{k}].y")
+                if x is None or y is None:
+                    raise LoadError(f"{onde}.cantos_px[{k}]: coordenada em falta.")
+                cantos.append((x, y))
+        fachadas.append(
+            Facade(
+                side=lado,
+                image=_image_path(imagem, base_dir),
+                kind=tipo,
+                source=str(bruto.get("fonte") or ""),
+                original=_image_path(bruto["original"], base_dir) if bruto.get("original") else "",
+                corners_px=cantos,
+            )
+        )
+    return fachadas
+
+
+# ---------------------------------------------------------------------------
+# PT-PT: Local e envolvente. / EN-UK: Site and surroundings.
+# ---------------------------------------------------------------------------
+
+AREA_KINDS = {"verde", "floresta", "agua", "areia", "estacionamento", "desporto", "pavimento"}
+
+
+def parse_site(value: Any, warnings: list[str]) -> Site | None:
+    """
+    PT-PT: O bloco `local` do projeto (caminhos já absolutos). Uma envolvente
+           ou ortofoto em falta no disco é um aviso, não um erro: o projeto
+           abre na mesma, só sem o que falta à volta.
+    EN-UK: The project's `local` block (absolute paths). Missing files are a
+           warning, not an error.
+    """
+    if not value:
+        return None
+    if not isinstance(value, dict):
+        raise LoadError("Projeto: 'local' devia ser um objecto com lat, lon, envolvente e ortofoto.")
+    lat = _float_or_none(value.get("lat"), "local.lat")
+    lon = _float_or_none(value.get("lon"), "local.lon")
+    if (lat is None) != (lon is None):
+        raise LoadError("Projeto: local precisa de latitude e longitude (as duas).")
+    if lat is not None and lon is not None and not (-90 <= lat <= 90 and -180 <= lon <= 180):
+        raise LoadError("Projeto: coordenadas do local fora do intervalo.")
+    envolvente = None
+    if value.get("envolvente"):
+        caminho = Path(value["envolvente"])
+        if caminho.exists():
+            envolvente = load_surroundings(caminho)
+        else:
+            warnings.append(f"A envolvente {caminho.name} não está no disco: o exterior aparece sem vizinhança.")
+    ortofoto = None
+    if isinstance(value.get("ortofoto"), dict):
+        o = value["ortofoto"]
+        escala = _float_or_none(o.get("escala_px_m"), "local.ortofoto.escala_px_m")
+        if not o.get("imagem") or escala is None or escala <= 0:
+            raise LoadError("Projeto: local.ortofoto precisa da imagem e de escala_px_m positiva.")
+        origem = o.get("origem_px") or [0, 0]
+        if not isinstance(origem, (list, tuple)) or len(origem) != 2:
+            raise LoadError("Projeto: local.ortofoto.origem_px é [x, y] em pixéis.")
+        ortofoto = Aerial(
+            image=str(o["imagem"]),
+            px_per_m=escala,
+            origin_px=(float(origem[0]), float(origem[1])),
+            rotation_deg=(_float_or_none(o.get("rotacao_graus"), "local.ortofoto.rotacao_graus") or 0.0) % 360,
+        )
+        if not Path(ortofoto.image).exists():
+            warnings.append(f"A ortofoto {Path(ortofoto.image).name} não está no disco.")
+    return Site(lat=lat, lon=lon, surroundings=envolvente, aerial=ortofoto)
+
+
+def load_surroundings(path: Path) -> Surroundings:
+    """
+    PT-PT: Lê a envolvente gravada. Geometria degenerada (menos de 3 pontos,
+           uma via com 1 ponto) é posta de lado em silêncio: o OSM tem destas
+           coisas e uma não deve impedir de ver as outras mil.
+    EN-UK: Reads the stored surroundings. Degenerate geometry is skipped
+           silently: OSM has such things, and one must not hide the other
+           thousand.
+    """
+    dados = _read_json(path, "Envolvente")
+    _check_type(dados, SURROUNDINGS_TYPE, path, "uma envolvente do Network Twin 3D")
+
+    def pontos(valor: Any, minimo: int) -> list[list[float]] | None:
+        if not isinstance(valor, list) or len(valor) < minimo:
+            return None
+        saida = []
+        for p in valor:
+            if not isinstance(p, (list, tuple)) or len(p) != 2:
+                return None
+            try:
+                saida.append([float(p[0]), float(p[1])])
+            except (TypeError, ValueError):
+                return None
+        return saida
+
+    edificios = []
+    for e in dados.get("edificios") or []:
+        contorno = pontos(e.get("contorno") if isinstance(e, dict) else None, 3)
+        if contorno is None:
+            continue
+        altura = _float_or_none(e.get("altura_m"), f"{path.name}: edifício.altura_m") or 6.0
+        edificios.append(
+            {
+                "contorno": contorno,
+                "altura_m": max(1.0, min(altura, 500.0)),
+                "base_m": _float_or_none(e.get("base_m"), f"{path.name}: edifício.base_m") or 0.0,
+                "cobertura": str(e.get("cobertura") or "plana") if str(e.get("cobertura") or "plana") in ROOF_KINDS else "plana",
+                "altura_cobertura_m": _float_or_none(e.get("altura_cobertura_m"), f"{path.name}: altura_cobertura_m") or 0.0,
+                "nome": str(e.get("nome") or ""),
+                "id": str(e.get("id") or ""),
+                "estimada": bool(e.get("estimada", False)),
+                "cor_parede": e.get("cor_parede") if isinstance(e.get("cor_parede"), str) and _COLOUR_RE.fullmatch(e["cor_parede"]) else "",
+                "cor_cobertura": e.get("cor_cobertura") if isinstance(e.get("cor_cobertura"), str) and _COLOUR_RE.fullmatch(e["cor_cobertura"]) else "",
+            }
+        )
+    vias = []
+    for v in dados.get("vias") or []:
+        linha = pontos(v.get("linha") if isinstance(v, dict) else None, 2)
+        if linha is None:
+            continue
+        largura = _float_or_none(v.get("largura_m"), f"{path.name}: via.largura_m") or 5.0
+        vias.append({"linha": linha, "largura_m": max(0.5, min(largura, 60.0)),
+                     "tipo": str(v.get("tipo") or ""), "nome": str(v.get("nome") or "")})
+    areas = []
+    for a in dados.get("areas") or []:
+        contorno = pontos(a.get("contorno") if isinstance(a, dict) else None, 3)
+        if contorno is None or a.get("tipo") not in AREA_KINDS:
+            continue
+        areas.append({"contorno": contorno, "tipo": a["tipo"]})
+    arvores = [tuple(p) for p in (pontos(dados.get("arvores"), 0) or [])]
+    centro = dados.get("centro") if isinstance(dados.get("centro"), dict) else {}
+    return Surroundings(
+        path=str(path),
+        source=str(dados.get("fonte") or ""),
+        date=str(dados.get("data") or ""),
+        attribution=str(dados.get("atribuicao") or ""),
+        radius_m=_float_or_none(dados.get("raio_m"), f"{path.name}: raio_m") or 0.0,
+        buildings=edificios,
+        ways=vias,
+        areas=areas,
+        trees=[(float(x), float(y)) for x, y in arvores],
+        lat=_float_or_none(centro.get("lat"), f"{path.name}: centro.lat"),
+        lon=_float_or_none(centro.get("lon"), f"{path.name}: centro.lon"),
     )
 
 

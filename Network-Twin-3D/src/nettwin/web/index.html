@@ -42,6 +42,7 @@
         <button class="seg" data-view="rede" role="tab">Rede</button>
         <button class="seg" data-view="edificio" role="tab">Edifício</button>
         <button class="seg" data-view="bastidor" role="tab">Bastidor</button>
+        <button class="seg" data-view="exterior" role="tab">Exterior</button>
       </div>
     </div>
 
@@ -84,6 +85,21 @@
         <label class="slider"><span>Planta</span>
           <input type="range" id="plan-opacity" min="0" max="1" step="0.05" value="0.85"></label>
       </div>
+
+      <div class="exterior-tools" id="exterior-tools" hidden>
+        <label class="slider"><span>Dia <b id="sun-day-l"></b></span>
+          <input type="range" id="sun-day" min="0" max="364" step="1"></label>
+        <label class="slider"><span>Hora <b id="sun-hour-l"></b></span>
+          <input type="range" id="sun-hour" min="4" max="23" step="0.25"></label>
+        <div class="chip-row">
+          <button class="chip-btn" id="toggle-xray" title="Paredes transparentes: pisos, bastidores e equipamentos lá dentro">Raio-X</button>
+          <button class="chip-btn active" data-layer="mapa" title="Verde, água, vias (OpenStreetMap)">Mapa</button>
+          <button class="chip-btn active" data-layer="vizinhos" title="Edifícios vizinhos">Vizinhos</button>
+          <button class="chip-btn active" data-layer="arvores" title="Árvores">Árvores</button>
+          <button class="chip-btn active" data-layer="ortofoto" title="Ortofoto no chão">Ortofoto</button>
+        </div>
+      </div>
+      <div class="attribution" id="attribution" hidden></div>
 
       <div class="move-banner" id="move-banner" hidden>
         <span>Clique no chão onde fica o bastidor.</span>

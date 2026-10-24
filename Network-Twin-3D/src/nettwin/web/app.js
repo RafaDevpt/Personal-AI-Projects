@@ -33,6 +33,8 @@ import { Viewer, setDim } from './vista3d.js';
 import { buildNetwork } from './cena-rede.js';
 import { buildBuilding } from './cena-edificio.js';
 import { buildRack, freeRanges } from './cena-bastidor.js';
+import { buildSite, applySun } from './cena-exterior.js';
+import { siteDetail, buildingDetail } from './local-ui.js';
 
 // ---------------------------------------------------------------------------
 // PT-PT: Estado. / EN-UK: State.
@@ -42,7 +44,7 @@ const state = {
   api: null,
   scene: null,
   screen: 'lobby',          // lobby | view
-  view: 'edificio',         // rede | edificio | bastidor
+  view: 'edificio',         // rede | edificio | bastidor | exterior
   building: null,
   floor: null,
   rack: null,
@@ -55,7 +57,25 @@ const state = {
   planOpacity: 0.85,
   moving: null,             // id do bastidor a mover / rack being moved
   planCache: new Map(),
+  facadeCache: new Map(),
+  orthoCache: null,
+  xray: false,
+  layers: { mapa: true, vizinhos: true, arvores: true, ortofoto: true },
+  // PT-PT: Dia do ano (0–364) e hora do relógio. Por omissão: hoje às 15h,
+  //        que dá sombras com leitura.
+  // EN-UK: Day of year and clock hour. Default: today at 15:00.
+  sunDay: dayOfYear(new Date()),
+  sunHour: 15,
+  sunInfo: null,
 };
+
+function dayOfYear(d) { return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 1)) / 864e5); }
+function sunDate() {
+  const y = new Date().getFullYear();
+  const d = new Date(y, 0, 1 + state.sunDay);
+  d.setHours(Math.floor(state.sunHour), Math.round((state.sunHour % 1) * 60), 0, 0);
+  return d;
+}
 
 const viewer = new Viewer($('#stage'), $('#canvas'), $('#labels'));
 window.__viewer = viewer; // PT-PT: só para diagnóstico na consola / EN-UK: console diagnostics only
@@ -101,9 +121,51 @@ function planTexture(buildingId, floor) {
   return promise;
 }
 
+/**
+ * PT-PT: Textura da foto de uma fachada, pedida uma vez e guardada.
+ * EN-UK: A façade photo texture, fetched once and cached.
+ */
+function facadeTexture(buildingId, volumeId, f) {
+  const key = `${buildingId}/${volumeId}/${f.lado}/${f.ficheiro}`;
+  if (state.facadeCache.has(key)) return state.facadeCache.get(key);
+  const promise = (async () => {
+    let url = f.url;
+    if (!url && state.api) {
+      const res = await state.api.imagem_exterior(buildingId, volumeId, f.lado);
+      url = res?.ok ? res.url : null;
+    }
+    if (!url) return null;
+    const tex = await loader.loadAsync(url);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = viewer.renderer.capabilities.getMaxAnisotropy();
+    tex.userData.cached = true;
+    return tex;
+  })().catch(() => null);
+  state.facadeCache.set(key, promise);
+  return promise;
+}
+
+function orthoTexture() {
+  if (state.orthoCache) return state.orthoCache;
+  state.orthoCache = (async () => {
+    let url = state.scene.local?.ortofoto?.url;
+    if (!url && state.api) {
+      const res = await state.api.imagem_local('ortofoto');
+      url = res?.ok ? res.url : null;
+    }
+    if (!url) return null;
+    const tex = await loader.loadAsync(url);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = viewer.renderer.capabilities.getMaxAnisotropy();
+    tex.userData.cached = true;
+    return tex;
+  })().catch(() => null);
+  return state.orthoCache;
+}
+
 function ctx() {
   return {
-    deviceLabel, planTexture,
+    deviceLabel, planTexture, facadeTexture, orthoTexture, xray: state.xray,
     building: state.building, floor: state.floor, rack: state.rack,
     explode: state.explode, showPlan: state.showPlan, planOpacity: state.planOpacity,
     select: (s) => select(s),
@@ -135,8 +197,17 @@ function render() {
   $('#stage-tools').hidden = inLobby;
   $('#no-building').hidden = true;
   $('#building-tools').hidden = true;
+  $('#exterior-tools').hidden = true;
+  $('#attribution').hidden = true;
   $('#unplaced').hidden = true;
+  const exterior = !inLobby && state.view === 'exterior';
+  if (!exterior) {
+    viewer.setSky(null);
+    viewer.camera.near = 0.02;
+    viewer.camera.updateProjectionMatrix();
+  }
   if (inLobby) { renderLobby(); viewer.ground.visible = false; return; }
+  viewer.ground.visible = !exterior;
 
   if (state.view === 'rede') {
     built = buildNetwork(viewer, data, ctx());
@@ -149,9 +220,25 @@ function render() {
   } else if (state.view === 'bastidor') {
     built = buildRack(viewer, data, ctx());
     if (!built.rack) { state.view = 'edificio'; syncNav(); render(); return; }
+  } else if (state.view === 'exterior') {
+    if (!data.edificios.length) { $('#no-building').hidden = false; return; }
+    // PT-PT: À escala do local, o plano próximo de 2 cm dava cintilação no
+    //        chão (precisão do z-buffer); 0,5 m chega para estar à porta.
+    // EN-UK: At site scale a 2 cm near plane flickers (z precision).
+    viewer.camera.near = 0.5;
+    viewer.camera.updateProjectionMatrix();
+    viewer.scene.fog = state.xray ? null : new THREE.Fog(0xbfd0e0, 350, 1900);
+    built = buildSite(viewer, data, ctx());
+    applyLayers();
+    updateSun();
+    $('#exterior-tools').hidden = false;
+    const att = data.local?.envolvente?.atribuicao;
+    $('#attribution').hidden = !att;
+    $('#attribution').textContent = att ?? '';
   }
   applyLabels();
   applyFocus();
+  renderDetail();
 }
 
 function buildingDir() {
@@ -161,7 +248,45 @@ function buildingDir() {
 function fitView() {
   if (state.view === 'bastidor') viewer.fit(built.cabinet ? [built.cabinet.group] : null, { dir: new THREE.Vector3(0.35, 0.22, 1), margin: 1.0, shift: new THREE.Vector3(0.22, 0, 0) });
   else if (state.view === 'edificio') viewer.fit(null, buildingDir());
+  else if (state.view === 'exterior') viewer.fit(built.buildings ? [...built.buildings.values()] : null, { dir: new THREE.Vector3(0.55, 0.42, 1), margin: 1.05 });
   else viewer.fit(null, { dir: new THREE.Vector3(0.18, 0.32, 1), margin: 0.95 });
+}
+
+function updateSun() {
+  if (state.view !== 'exterior' || !built.ownBox) return;
+  // PT-PT: Raio-X é um modo de análise: fundo de estúdio, sem sol nem noite.
+  // EN-UK: X-ray is an analysis mode: studio backdrop, no sun or night.
+  $('#sun-day').disabled = $('#sun-hour').disabled = state.xray;
+  if (state.xray) {
+    viewer.setSky(null); viewer.fitShadow();
+    $('#sun-day-l').textContent = '—'; $('#sun-hour-l').textContent = '—';
+    return;
+  }
+  const local = state.scene.local ?? {};
+  const focus = built.ownBox.isEmpty() ? new THREE.Vector3() : built.ownBox.getCenter(new THREE.Vector3());
+  const radius = built.ownBox.isEmpty() ? 60 : built.ownBox.getSize(new THREE.Vector3()).length() / 2 + 40;
+  state.sunInfo = applySun(viewer, sunDate(), local.lat, local.lon, focus, radius);
+  const d = sunDate();
+  $('#sun-day-l').textContent = d.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' });
+  $('#sun-hour-l').textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function applyLayers() {
+  for (const [k, g] of Object.entries(built.layers ?? {})) g.visible = state.layers[k];
+  // PT-PT: Com ortofoto à vista, o mapa desenhado (verde, vias) sai — senão
+  //        tapava a foto.
+  // EN-UK: With the orthophoto shown, the drawn map goes — it would cover it.
+  if (built.layers && state.scene.local?.ortofoto && state.layers.ortofoto) built.layers.mapa.visible = false;
+  // PT-PT: Em raio-X o chão desenhado sai: a cave (onde costuma estar a sala
+  //        de servidores) fica à vista por baixo do chão transparente.
+  // EN-UK: In X-ray the drawn ground goes so the basement shows.
+  if (built.layers && state.xray) { built.layers.mapa.visible = false; built.layers.ortofoto.visible = false; }
+  $$('[data-layer]').forEach((b) => {
+    b.classList.toggle('active', state.layers[b.dataset.layer]);
+    b.disabled = (b.dataset.layer === 'ortofoto' && !state.scene?.local?.ortofoto)
+      || (['mapa', 'vizinhos', 'arvores'].includes(b.dataset.layer) && !state.scene?.local?.envolvente);
+  });
+  $('#toggle-xray').classList.toggle('active', state.xray);
 }
 
 function renderUnplaced(list) {
@@ -206,13 +331,16 @@ function renderLobby() {
           errs ? el('span', { class: 'stat err' }, el('b', {}, errs), ' erros') : null),
         el('div', { class: 'card-foot' }, `${Math.round(r.area_m2)} m² · ${b.gerado_por}`)));
   });
+  const fora = el('button', { class: 'card card-alt', disabled: !data.edificios.length, onclick: () => { state.screen = 'view'; setView('exterior'); } },
+    el('div', { class: 'card-icon' }, '🌍'), el('div', { class: 'card-body' }, el('h2', {}, 'Exterior e local'),
+      el('div', { class: 'card-foot' }, data.local?.envolvente ? `Com envolvente do OSM · ${data.local.envolvente.edificios.length} vizinhos` : 'Os edifícios por fora, no sítio, com o sol')));
   const rede = el('button', { class: 'card card-alt', onclick: () => { state.screen = 'view'; setView('rede'); } },
     el('div', { class: 'card-icon' }, '⌘'), el('div', { class: 'card-body' }, el('h2', {}, 'Rede lógica'),
       el('div', { class: 'card-foot' }, 'Todas as camadas, sem edifício')));
   const novo = el('button', { class: 'card card-alt', disabled: !state.api, onclick: () => openEditor(null) },
     el('div', { class: 'card-icon' }, '+'), el('div', { class: 'card-body' }, el('h2', {}, 'Novo edifício'),
       el('div', { class: 'card-foot' }, 'Importar planta (imagem, PDF, DXF) ou contorno OSM')));
-  grid.replaceChildren(...cards, rede, novo);
+  grid.replaceChildren(...cards, fora, rede, novo);
 }
 
 const stat = (n, label) => el('span', { class: 'stat' }, el('b', {}, n), ` ${label}`);
@@ -270,7 +398,7 @@ function syncNav() {
     el('option', { value: '', selected: !state.floor }, 'Todos os pisos'),
     ...(b ? [...b.pisos].sort((p, q) => q.nivel - p.nivel) : []).map((f) => el('option', { value: f.id, selected: f.id === state.floor }, `${f.id} · ${f.nome}`)),
   );
-  fsel.disabled = !b || state.view === 'rede';
+  fsel.disabled = !b || state.view === 'rede' || state.view === 'exterior';
   $$('.seg').forEach((s) => {
     s.classList.toggle('active', s.dataset.view === state.view);
     s.setAttribute('aria-selected', s.dataset.view === state.view);
@@ -278,7 +406,13 @@ function syncNav() {
   $('.seg[data-view="bastidor"]').disabled = !data.bastidores.length;
 }
 
-$('#sel-building').addEventListener('change', (e) => { state.building = e.target.value; state.floor = null; state.view = 'edificio'; syncNav(); render(); fitView(); });
+$('#sel-building').addEventListener('change', (e) => {
+  state.building = e.target.value; state.floor = null;
+  // PT-PT: No exterior, escolher um edifício voa até ele em vez de mudar de vista.
+  // EN-UK: In the exterior, picking a building flies to it instead.
+  if (state.view === 'exterior') { select({ kind: 'building', id: state.building }); return; }
+  state.view = 'edificio'; syncNav(); render(); fitView();
+});
 $('#sel-floor').addEventListener('change', (e) => { state.floor = e.target.value || null; state.view = 'edificio'; syncNav(); render(); fitView(); });
 $$('.seg').forEach((b) => b.addEventListener('click', () => setView(b.dataset.view)));
 
@@ -377,6 +511,15 @@ function select(sel, { fly = true } = {}) {
   renderFindings();
   renderDetail();
   if (sel && sel.kind !== 'finding') showTab('detail');
+  if (state.view === 'exterior') {
+    for (const [id, g] of built.buildings ?? []) g.userData.selected = sel?.kind === 'building' && sel.id === id;
+    $$('.bld-label').forEach((x) => x.classList.toggle('active', sel?.kind === 'building' && x.dataset.building === sel.id));
+    if (fly && sel?.kind === 'building' && built.buildings?.get(sel.id)) {
+      state.building = sel.id; syncNav();
+      viewer.fit([built.buildings.get(sel.id)], { dir: new THREE.Vector3(0.6, 0.38, 1), margin: 1.25 });
+    }
+    return;
+  }
   if (!fly || !sel || state.view === 'bastidor') return;
   if (sel.kind === 'room') {
     // PT-PT: Sala: a câmara aproxima-se de cima, com os bastidores lá dentro.
@@ -484,6 +627,10 @@ function findingClicked(f, wasActive) {
 function renderDetail() {
   const box = $('#detail');
   const s = state.selection, data = state.scene;
+  if (data && state.view === 'exterior' && state.screen === 'view' && (!s || s.kind === 'finding')) {
+    box.replaceChildren(...siteDetail(exteriorEnv()).filter(Boolean));
+    return;
+  }
   if (!data || !s || s.kind === 'finding') {
     box.replaceChildren(...(state.view === 'bastidor' && built.rack && state.screen === 'view'
       ? rackDetail(built.rack) : [el('p', { class: 'muted' }, 'Clique num equipamento, cabo, sala ou bastidor.')]));
@@ -495,8 +642,17 @@ function renderDetail() {
     room: () => roomDetail(s),
     rack: () => rackDetail(data.bastidores.find((r) => r.id === s.id)),
     machine: () => machineDetail(data.bastidores.find((r) => r.id === s.rack), s.id),
+    building: () => buildingDetail(exteriorEnv(), data.edificios.find((b) => b.id === s.id)),
   }[s.kind];
-  box.replaceChildren(...(parts ? parts() : []));
+  box.replaceChildren(...(parts ? parts() : []).filter(Boolean));
+}
+
+function exteriorEnv() {
+  return {
+    state, call, toast, select: (x) => select(x), enterBuilding, openEditor,
+    warnings: built.warnings ?? [], sunInfo: state.sunInfo,
+    onOrthoSaved: () => { state.orthoCache = null; },
+  };
 }
 
 const yesNo = (v, yes, no) => el('span', { class: 'badge ' + (v ? 'yes' : 'no') }, v ? yes : no);
@@ -798,7 +954,7 @@ function renderLegend() {
       row(el('span', { class: 'shape' }, '◯'), 'Ponto de acesso (no tecto)'),
       row(el('span', { class: 'shape' }, '⬚'), 'Fantasma — tem perfil mas não foi encontrado')),
     el('div', {}, h3('Salas'), ...Object.entries(ROOM_COLORS).map(([k, c]) => row(el('span', { class: 'room', style: `background:${c}` }), ROOM_NAMES[k]))),
-    el('div', {}, h3('Atalhos'), row(el('code', {}, '1 2 3'), 'Rede · Edifício · Bastidor'), row(el('code', {}, 'F'), 'Enquadrar'),
+    el('div', {}, h3('Atalhos'), row(el('code', {}, '1 2 3 4'), 'Rede · Edifício · Bastidor · Exterior'), row(el('code', {}, 'F'), 'Enquadrar'),
       row(el('code', {}, 'T'), 'Vista de cima'), row(el('code', {}, 'Esc'), 'Limpar selecção / cancelar')),
   );
 }
@@ -832,7 +988,10 @@ function load(res) {
   const first = !state.scene;
   const changedProject = !first && state.scene.projeto.nome !== res.cena.projeto.nome;
   state.scene = res.cena;
-  if (first || changedProject) { state.screen = 'lobby'; state.planCache.clear(); state.selection = null; state.rack = null; }
+  if (first || changedProject) { state.screen = 'lobby'; state.planCache.clear(); state.facadeCache.clear(); state.selection = null; state.rack = null; }
+  // PT-PT: A ortofoto pode ter mudado (trocada ou retirada): pede-se de novo.
+  // EN-UK: The orthophoto may have changed: fetch again.
+  state.orthoCache = null;
   const data = state.scene;
   if (!data.edificios.some((b) => b.id === state.building)) { state.building = data.edificios[0]?.id ?? null; state.floor = null; }
   const b = data.edificios.find((x) => x.id === state.building);
@@ -854,6 +1013,7 @@ function stillExists(sel) {
   if (sel.kind === 'rack') return d.bastidores.some((x) => x.id === sel.id);
   if (sel.kind === 'machine') return d.bastidores.some((x) => x.id === sel.rack && x.maquinas.some((m) => m.id === sel.id));
   if (sel.kind === 'room') return d.edificios.some((b) => b.id === sel.building);
+  if (sel.kind === 'building') return d.edificios.some((b) => b.id === sel.id);
   return sel.id < d.constatacoes.length;
 }
 
@@ -880,7 +1040,7 @@ function applyLabels() {
 // EN-UK: Building editor (loaded only when opened).
 // ---------------------------------------------------------------------------
 
-async function openEditor(buildingId) {
+async function openEditor(buildingId, mode = 'pisos') {
   if (!state.api) { toast('O editor só funciona na aplicação.'); return; }
   const { openEditor: open } = await import('./editor.js');
   let initial = null;
@@ -893,11 +1053,15 @@ async function openEditor(buildingId) {
     api: state.api,
     initial,
     toast,
+    mode,
     onSaved: (res, savedId) => {
       if (res.cena) {
         state.planCache.clear();
+        state.facadeCache.clear();
+        const wasExterior = state.view === 'exterior' && state.screen === 'view';
         load(res);
-        if (res.cena.edificios.some((b) => b.id === savedId)) enterBuilding(savedId);
+        if (wasExterior) { render(); select({ kind: 'building', id: savedId }); }
+        else if (res.cena.edificios.some((b) => b.id === savedId)) enterBuilding(savedId);
       }
       toast(`Edifício gravado em ${res.caminho}`, true);
     },
@@ -915,8 +1079,10 @@ $('#empty-open').addEventListener('click', () => call('abrir_projeto'));
 $('#btn-new').addEventListener('click', () => call('novo_projeto'));
 $('#empty-new').addEventListener('click', () => call('novo_projeto'));
 $('#empty-example').addEventListener('click', () => call('abrir_exemplo'));
-$('#btn-reload').addEventListener('click', () => { state.planCache.clear(); call('recarregar'); });
-$('#btn-editor').addEventListener('click', () => openEditor(state.screen === 'view' && state.view === 'edificio' ? state.building : null));
+$('#btn-reload').addEventListener('click', () => { state.planCache.clear(); state.facadeCache.clear(); call('recarregar'); });
+$('#btn-editor').addEventListener('click', () => openEditor(
+  state.screen === 'view' && ['edificio', 'exterior'].includes(state.view) ? state.building : null,
+  state.view === 'exterior' ? 'exterior' : 'pisos'));
 $('#btn-save').addEventListener('click', async () => {
   const res = await call('guardar');
   if (res?.ok) { $('#dirty').hidden = true; toast(`Projeto gravado em ${res.caminho}`, true); }
@@ -935,6 +1101,12 @@ $('#toggle-plan').addEventListener('click', (e) => { state.showPlan = !state.sho
 $('#btn-fit').addEventListener('click', fitView);
 $('#btn-top').addEventListener('click', () => viewer.fit(null, { dir: new THREE.Vector3(0, 1, 0.02), margin: 0.85 }));
 $('#explode').addEventListener('input', (e) => { state.explode = Number(e.target.value); render(); });
+$('#sun-day').value = state.sunDay;
+$('#sun-hour').value = state.sunHour;
+$('#sun-day').addEventListener('input', (e) => { state.sunDay = Number(e.target.value); updateSun(); });
+$('#sun-hour').addEventListener('input', (e) => { state.sunHour = Number(e.target.value); updateSun(); });
+$('#toggle-xray').addEventListener('click', () => { state.xray = !state.xray; render(); });
+$$('[data-layer]').forEach((b) => b.addEventListener('click', () => { state.layers[b.dataset.layer] = !state.layers[b.dataset.layer]; applyLayers(); }));
 $('#plan-opacity').addEventListener('input', (e) => {
   state.planOpacity = Number(e.target.value);
   viewer.world.traverse((o) => { if (o.material?.userData.plan) o.material.opacity = state.planOpacity; });
@@ -945,6 +1117,7 @@ window.addEventListener('keydown', (e) => {
   if (e.key === '1') setView('rede');
   if (e.key === '2') setView('edificio');
   if (e.key === '3') setView('bastidor');
+  if (e.key === '4') setView('exterior');
   if (e.key.toLowerCase() === 'f') fitView();
   if (e.key.toLowerCase() === 't') $('#btn-top').click();
 });
@@ -980,6 +1153,9 @@ async function boot() {
       state.floor = params.get('piso') || null;
       if (params.get('explode')) state.explode = Number(params.get('explode'));
       if (params.get('bastidor')) state.rack = params.get('bastidor');
+      if (params.get('hora')) state.sunHour = Number(params.get('hora'));
+      if (params.get('dia')) state.sunDay = Number(params.get('dia'));
+      if (params.get('raiox')) state.xray = true;
       syncNav(); render(); fitView();
     } else if (params.get('vista')) { setView(params.get('vista')); }
     if (params.get('sel')) select({ kind: 'device', id: params.get('sel') });
@@ -987,6 +1163,8 @@ async function boot() {
     if (params.get('sala')) { const [f, r] = params.get('sala').split('/'); select({ kind: 'room', building: state.building, floor: f, id: r }); }
     if (params.get('rack-sel')) select({ kind: 'rack', id: params.get('rack-sel') }, { fly: false });
     if (params.get('maquina')) select({ kind: 'machine', rack: state.rack, id: params.get('maquina') }, { fly: false });
+    if (params.get('sel-edificio')) { showTab('detail'); select({ kind: 'building', id: params.get('sel-edificio') }, { fly: !!params.get('voar') }); }
+    if (params.get('painel')) showTab(params.get('painel'));
     if (params.get('editor')) {
       const { openEditor: open } = await import('./editor.js');
       const b = state.scene.edificios.find((x) => x.id === (params.get('editor-edificio') || state.scene.edificios[0].id));
@@ -998,8 +1176,15 @@ async function boot() {
           ...(f.planta ? { planta: { escala_px_m: f.planta.escala_px_m, origem_px: f.planta.origem_px } } : {}),
         })),
       };
+      if (b.exterior) {
+        bruto.exterior = {
+          janelas: b.exterior.janelas,
+          volumes: b.exterior.volumes.map((v) => ({ ...v, fachadas: v.fachadas.map((f) => ({ lado: f.lado, tipo: f.tipo, fonte: f.fonte, cantos_px: f.cantos_px, imagem: f.ficheiro })) })),
+        };
+      }
       const imagens = Object.fromEntries(b.pisos.filter((f) => f.planta?.url).map((f) => [f.id, f.planta.url]));
-      open($('#editor'), { api: null, initial: { edificio: bruto, imagens, caminho: 'demo' }, toast, onSaved: () => {}, demo: params.get('editor') });
+      const imagensExt = Object.fromEntries((b.exterior?.volumes ?? []).flatMap((v) => v.fachadas.filter((f) => f.url).map((f) => [`${v.id}:${f.lado}`, f.url])));
+      open($('#editor'), { api: null, initial: { edificio: bruto, imagens, imagens_exterior: imagensExt, caminho: 'demo' }, toast, onSaved: () => {}, demo: params.get('editor') });
     }
     setTimeout(() => { window.__nettwinReady = true; }, 700);
   } catch (err) {

@@ -34,6 +34,8 @@ import { OrbitControls } from 'three/addons/OrbitControls.js';
 import { ROOM_COLORS, ROOM_NAMES, $, el, centroid, pointInPolygon } from './comum.js';
 import * as P from './plantas.js';
 import { extrude } from './cena-edificio.js';
+import * as X from './editor-exterior.js';
+import { localToGeo } from './exterior-geo.js';
 
 const VIRTUAL_PX_M = 25;          // escala do desenho sem imagem
 const WORK_MAX_PX = 2000;         // lado maior da imagem de trabalho da detecção
@@ -53,7 +55,7 @@ export function openEditor(host, opts) {
 }
 
 class Editor {
-  constructor(host, { api, initial, toast, onSaved, demo }) {
+  constructor(host, { api, initial, toast, onSaved, demo, mode }) {
     this.host = host;
     this.api = api;
     this.toast = toast;
@@ -78,6 +80,9 @@ class Editor {
     this.dxf = null;
     this.osm = null;
     this.dirty = false;
+    this.mode = 'pisos';          // pisos | exterior
+    this.startMode = mode ?? 'pisos';
+    X.initExterior(this, initial);
   }
 
   get floor() { return this.b.pisos.find((f) => f.id === this.floorId); }
@@ -105,6 +110,9 @@ class Editor {
         el('div', { class: 'ed-title' }, el('b', {}, '✎ Editor de edifícios'), el('span', { class: 'muted' }, this.path || 'novo edifício')),
         el('label', { class: 'ed-field' }, 'Id', this.inId = el('input', { type: 'text', value: this.b.id, size: 12, oninput: (e) => { this.b.id = e.target.value.trim(); this.dirty = true; } })),
         el('label', { class: 'ed-field grow' }, 'Nome', el('input', { type: 'text', value: this.b.nome, oninput: (e) => { this.b.nome = e.target.value; this.dirty = true; } })),
+        this.modesEl = el('div', { class: 'segmented ed-modes' },
+          el('button', { class: 'seg', 'data-mode': 'pisos', onclick: () => this.setMode('pisos') }, 'Pisos e salas'),
+          el('button', { class: 'seg', 'data-mode': 'exterior', onclick: () => this.setMode('exterior') }, 'Exterior')),
         el('button', { class: 'btn', onclick: () => this.importPlan() }, '⇪ Importar planta…'),
         el('button', { class: 'btn', onclick: () => this.showOsm() }, '🗺 Contorno OSM…'),
         el('button', { class: 'btn primary', disabled: !this.api, onclick: () => this.save() }, 'Guardar edifício'),
@@ -128,11 +136,32 @@ class Editor {
     window.addEventListener('keydown', this._keys);
     window.addEventListener('keyup', this._keyUp);
     this._initPreview();
-    this.renderSide();
-    this.renderTools();
-    this.resize();
-    this.fitView();
+    this.setMode(this.startMode, true);
     if (this.demo) this.runDemo(this.demo);
+  }
+
+  /**
+   * PT-PT: Muda entre "Pisos e salas" e "Exterior". Os dois editam o mesmo
+   *        edifício e gravam-se juntos.
+   * EN-UK: Switches between "Floors and rooms" and "Exterior". Both edit the
+   *        same building and save together.
+   */
+  setMode(mode, first = false) {
+    if (mode === 'exterior') X.enterExterior(this);
+    else this.mode = 'pisos';
+    this.modesEl.querySelectorAll('.seg').forEach((b) => b.classList.toggle('active', b.dataset.mode === this.mode));
+    this.previewBox.querySelector('.ed-preview-title').textContent = this.mode === 'exterior' ? 'Exterior em 3D' : 'Pré-visualização 3D';
+    this.previewBox.classList.toggle('big', this.mode === 'exterior');
+    const [pw, ph] = this.mode === 'exterior' ? [520, 340] : [320, 210];
+    this.renderer.setSize(pw, ph);
+    this.cam3.aspect = pw / ph;
+    this.cam3.updateProjectionMatrix();
+    this._fitted = false;
+    this.draft = []; this.calib = []; this.sel = null;
+    this.renderSide(); this.renderTools();
+    if (first) this.resize();
+    this.fitView();
+    this.updatePreview(true);
   }
 
   close() {
@@ -160,7 +189,12 @@ class Editor {
     const r = this.stageEl.getBoundingClientRect();
     let box;
     const img = this.image?.img;
-    if (img?.width) box = [0, 0, img.width, img.height];
+    if (this.mode === 'exterior') {
+      const pts = [...this.b.pisos.flatMap((f) => f.contorno), ...(this.b.exterior?.volumes ?? []).flatMap((v) => v.contorno)].map((p) => this.m2px(p));
+      if (img?.width) pts.push([0, 0], [img.width, img.height]);
+      if (!pts.length) pts.push([0, 0], [VIRTUAL_PX_M * 40 + 80, VIRTUAL_PX_M * 25 + 80]);
+      box = [Math.min(...pts.map((p) => p[0])) - 60, Math.min(...pts.map((p) => p[1])) - 60, Math.max(...pts.map((p) => p[0])) + 60, Math.max(...pts.map((p) => p[1])) + 60];
+    } else if (img?.width) box = [0, 0, img.width, img.height];
     else {
       const pts = [...this.floor.contorno, ...this.floor.salas.flatMap((s) => s.poligono)].map((p) => this.m2px(p));
       if (!pts.length) pts.push([0, 0], [VIRTUAL_PX_M * 40 + 80, VIRTUAL_PX_M * 25 + 80]);
@@ -176,6 +210,7 @@ class Editor {
   // -------------------------------------------------------------------------
 
   renderSide() {
+    if (this.mode === 'exterior') { X.renderSide(this); return; }
     const floors = [...this.b.pisos].sort((a, c) => c.nivel - a.nivel);
     const f = this.floor;
     this.sidebar.replaceChildren(
@@ -286,6 +321,7 @@ class Editor {
   // -------------------------------------------------------------------------
 
   renderTools() {
+    if (this.mode === 'exterior') { X.renderTools(this); return; }
     const im = this.image;
     const fr = this.frame();
     const tool = (id, label, key, title) => el('button', {
@@ -628,7 +664,10 @@ class Editor {
     const xs = r.contorno.map((p) => p[0]), ys = r.contorno.map((p) => p[1]);
     const x0 = Math.min(...xs), y0 = Math.min(...ys);
     const contorno = r.contorno.map(([x, y]) => [round(x - x0), round(y - y0)]);
-    this.b.origem = { lat: this.osm.lat, lon: this.osm.lon, rotacao_graus: 0 };
+    // PT-PT: A origem é o novo (0, 0): o ponto pedido deslocado de (x0, y0).
+    // EN-UK: The origin is the new (0, 0): the queried point shifted by (x0, y0).
+    const [la, lo] = localToGeo(x0, y0, Number(this.osm.lat), Number(this.osm.lon));
+    this.b.origem = { lat: Math.round(la * 1e7) / 1e7, lon: Math.round(lo * 1e7) / 1e7, rotacao_graus: 0 };
     if (!this.b.nome && r.nome) this.b.nome = r.nome;
     this.b.gerado_por = this.b.gerado_por === 'manual' ? 'osm' : this.b.gerado_por;
     if (allFloors) {
@@ -657,6 +696,9 @@ class Editor {
       if (!f.salas.length && f.contorno.length < 3) erros.push(`Piso ${f.id}: sem salas nem contorno.`);
       if (this.images.has(f.id) && !f.planta) erros.push(`Piso ${f.id}: a planta não está calibrada (📏).`);
     }
+    erros.push(...X.validate(this));
+    const o = this.b.origem;
+    if (o && (Number.isFinite(o.lat) !== Number.isFinite(o.lon))) erros.push('Localização: falta a latitude ou a longitude.');
     return erros;
   }
 
@@ -672,11 +714,13 @@ class Editor {
     for (const [fid, im] of this.images) if (im.changed) imagens[fid] = await normalisedImage(im);
     // PT-PT: Pisos com imagem inalterada guardam o caminho que já tinham.
     // EN-UK: Floors with an unchanged image keep their existing path.
-    const res = await this.api.guardar_edificio(dados, imagens, this.path);
+    if (dados.origem && !Number.isFinite(dados.origem.lat)) delete dados.origem;
+    const res = await this.api.guardar_edificio(dados, imagens, this.path, X.imagesToSave(this));
     if (!res?.ok) { if (!res?.cancelado) this.toast(res?.erro ?? 'Não foi possível gravar.'); return; }
     this.dirty = false;
     this.path = res.caminho;
     for (const im of this.images.values()) im.changed = false;
+    for (const im of this.extImages.values()) im.changed = false;
     this.onSaved(res, this.b.id);
     this.close();
   }
@@ -717,6 +761,7 @@ class Editor {
     const [ox, oy] = this.px2screen([fr.ox, fr.oy]);
     g.strokeStyle = '#5b8de8'; g.lineWidth = 1.5;
     g.beginPath(); g.arc(ox, oy, 7, 0, Math.PI * 2); g.moveTo(ox - 11, oy); g.lineTo(ox + 11, oy); g.moveTo(ox, oy - 11); g.lineTo(ox, oy + 11); g.stroke();
+    if (this.mode === 'exterior') { X.draw(this, g); return; }
 
     const path = (poly) => { g.beginPath(); poly.forEach((p, i) => { const [x, y] = this.px2screen(this.m2px(p)); if (i) g.lineTo(x, y); else g.moveTo(x, y); }); g.closePath(); };
     for (const s of f.salas) {
@@ -776,6 +821,7 @@ class Editor {
   _wireCanvas() {
     const c = this.canvas;
     let drag = null;
+    const extState = { drag: null };
     const pos = (e) => { const r = c.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
     const toM = (scr) => this.px2m(this.screen2px(scr));
     c.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -792,6 +838,7 @@ class Editor {
       c.setPointerCapture(e.pointerId);
       const scr = pos(e);
       if (e.button === 2 || e.button === 1 || this.space) { drag = { pan: true, from: scr, view: { ...this.view } }; return; }
+      if (this.mode === 'exterior') { extState.drag = null; X.pointer(this, 'down', e, scr, toM, extState); return; }
       const m = this.snap(toM(scr), e.shiftKey);
       if (this.tool === 'select') {
         const hit = this.hitVertex(scr);
@@ -825,6 +872,7 @@ class Editor {
         this.draw();
         return;
       }
+      if (this.mode === 'exterior') { X.pointer(this, 'move', e, scr, toM, extState); return; }
       const m = this.snap(toM(scr), e.shiftKey);
       if (drag?.vertex !== undefined) {
         const poly = this.selectedPoly();
@@ -840,7 +888,8 @@ class Editor {
         this.draw();
       }
     });
-    c.addEventListener('pointerup', () => {
+    c.addEventListener('pointerup', (e) => {
+      if (this.mode === 'exterior' && !drag?.pan) { X.pointer(this, 'up', e, pos(e), toM, extState); extState.drag = null; drag = null; return; }
       if (drag?.vertex !== undefined) { this.renderSide(); this.updatePreview(); }
       if (drag?.rect && this.rectDraft) {
         const [a, , b] = this.rectDraft;
@@ -855,6 +904,7 @@ class Editor {
       drag = null;
     });
     c.addEventListener('dblclick', (e) => {
+      if (this.mode === 'exterior') { X.pointer(this, 'dbl', e, pos(e), toM, extState); return; }
       if (this.tool !== 'select') return;
       // PT-PT: Duplo clique numa aresta: novo vértice. / EN-UK: Double-click an edge: new vertex.
       const poly = this.selectedPoly();
@@ -915,6 +965,7 @@ class Editor {
     if (this.host.hidden) return;
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) { if (e.key === 'Enter' && this.tool === 'calib') e.target.closest('.ed-calib')?.querySelector('button')?.click(); return; }
     if (e.key === ' ') { this.space = true; e.preventDefault(); return; }
+    if (this.mode === 'exterior') { X.onKey(this, e); return; }
     const keys = { v: 'select', w: 'wand', r: 'rect', p: 'poly', o: 'outline', c: 'calib', g: 'origin' };
     if (keys[e.key.toLowerCase()] && !e.ctrlKey) { this.setTool(keys[e.key.toLowerCase()]); return; }
     if (e.key === 'Enter') this.finishDraft();
@@ -939,11 +990,17 @@ class Editor {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(320, 210);
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene3 = new THREE.Scene();
     this.scene3.background = new THREE.Color(0x111316);
     this.scene3.add(new THREE.HemisphereLight(0xdfe6ff, 0x222222, 1.2));
-    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-    sun.position.set(30, 60, 40);
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+    sun.position.set(40, 60, 30);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    Object.assign(sun.shadow.camera, { left: -80, right: 80, top: 80, bottom: -80, near: 1, far: 300 });
     this.scene3.add(sun);
     this.cam3 = new THREE.PerspectiveCamera(40, 320 / 210, 0.1, 2000);
     this.ctrl3 = new OrbitControls(this.cam3, canvas);
@@ -960,6 +1017,19 @@ class Editor {
 
   _buildPreview(refit) {
     for (const c of [...this.group3.children]) { this.group3.remove(c); c.traverse((o) => { o.geometry?.dispose(); o.material?.dispose?.(); }); }
+    if (this.mode === 'exterior') {
+      X.preview(this, this.group3);
+      if (refit || !this._fitted) {
+        const box = new THREE.Box3().setFromObject(this.group3.children[0] ?? this.group3);
+        const sph = box.getBoundingSphere(new THREE.Sphere());
+        this.cam3.position.copy(sph.center).add(new THREE.Vector3(0.75, 0.55, 1).normalize().multiplyScalar(sph.radius * 2.2));
+        this.ctrl3.target.copy(sph.center);
+        this.ctrl3.update();
+        this._fitted = true;
+      }
+      this.renderer.render(this.scene3, this.cam3);
+      return;
+    }
     const floors = [...this.b.pisos].sort((a, c) => a.nivel - c.nivel);
     let y = 0;
     const all = floors.flatMap((f) => [...f.contorno, ...f.salas.flatMap((s) => s.poligono)]);
@@ -1006,6 +1076,18 @@ class Editor {
     const go = () => {
       const im = this.image;
       if (im && !im.img.complete) { setTimeout(go, 200); return; }
+      if (mode === 'exterior' || mode === 'fachada') {
+        this.setMode('exterior');
+        const v = this.b.exterior.volumes[0];
+        if (v) { this.ext.vol = v.id; this.ext.side = mode === 'fachada' ? (v.fachadas?.[0]?.lado ?? 0) : null; this.renderSide(); this.renderTools(); this.draw(); }
+      }
+      if (mode === 'cantos') {
+        this.setMode('exterior');
+        const v = this.b.exterior.volumes[0];
+        const f = v?.fachadas?.[0];
+        const url = new URLSearchParams(location.search).get('foto');
+        if (v && url) X.openCorners(this, v, f?.lado ?? 0, url, f?.cantos_px, f?.tipo ?? 'foto', 'demo');
+      }
       if (mode === 'detetar') {
         this.floorId = 'P0';
         this.floor.salas = [];

@@ -9,13 +9,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "network-twin-3d"
-version = "0.2.0"
+version = "0.3.0"
 description = "Gemeo digital da rede em 3D: o que existe vs o que foi desenhado / 3D network digital twin: as-built vs as-designed"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "Rafael Santos (Redfox)" }]
-keywords = ["networking", "digital-twin", "3d", "vlan", "lldp", "topology", "rack", "floor-plan", "dxf", "pywebview", "threejs"]
+keywords = ["networking", "digital-twin", "3d", "vlan", "lldp", "topology", "rack", "floor-plan", "dxf", "pywebview", "threejs", "openstreetmap", "homography", "facade"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: System Administrators",

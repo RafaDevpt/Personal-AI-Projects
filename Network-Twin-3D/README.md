@@ -7,7 +7,7 @@
 
 # 🧊 Network Twin 3D
 
-**The network as it is, against the network as it was designed — in 3D, inside the buildings, down to the rack unit, with every cable checked at both ends**
+**The network as it is, against the network as it was designed — in 3D, inside and outside the buildings, down to the rack unit, with every cable checked at both ends**
 
 ![Status](https://img.shields.io/badge/status-alpha-DFA83F?style=for-the-badge)
 [![CI](https://img.shields.io/github/actions/workflow/status/RafaDevpt/Personal-AI-Projects/network-twin-3d.yml?branch=network-twin-3d&style=for-the-badge&label=CI)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml)
@@ -34,6 +34,7 @@ Network Twin 3D does both:
 - **Validates** — 30 checks over every cable, port, rack and placement: native VLAN mismatches, VLANs that die on a trunk, trunk on one side and access on the other, designed uplinks that are not there, single points of failure, PoE over budget, machines overlapping in a rack… Every finding comes with the fix.
 - **Places** — every switch, AP and rack in its building, floor and room; the original floor plan as the floor texture; racks at real scale with the machines mounted unit by unit.
 - **Imports** — floor plans from an image, PDF or **DXF (AutoCAD)**, with automatic room and outline detection, or a building outline from **OpenStreetMap**.
+- **Dresses the outside** — façade **photos or elevation drawings** perspective-corrected onto the walls, real roofs, the **surroundings** from OpenStreetMap, your own orthophoto on the ground, and the **sun** at any date and time.
 
 ## Start: pick a building
 
@@ -63,6 +64,36 @@ The network by layers — edge, core, distribution, access, APs — independent 
 
 ![Finding focus](docs/img/constatacao.png)
 
+## Exterior view
+
+![Exterior view](docs/img/exterior.png)
+
+All buildings where they stand, each placed by its geographic origin. Each is made of **volumes** (outline × height) with a **roof** — flat with parapet, mono-pitch, gable or hip — and each wall carries its **photo or elevation**, perspective-corrected. Walls with no photo get windows drawn per floor, at each floor's real height; at night they light up. Around them, the **surroundings** from OpenStreetMap: neighbours with height, roads by width, green, water, trees.
+
+| Control | What it does |
+| :--- | :--- |
+| **Day / Hour** | The sun for the site's latitude and longitude, with shadows — which façade gets the afternoon sun |
+| **X-ray** | Walls go transparent: floors, rooms, **racks** and devices inside, coloured by verdict and clickable. The basement shows through the ground |
+| **Map · Neighbours · Trees · Orthophoto** | Surroundings layers |
+
+![X-ray](docs/img/raio-x.png)
+
+### From photos to façades
+
+![Corner tool](docs/img/cantos.png)
+
+Pick a volume edge in the editor's **Exterior** tab, load a photo (or an elevation, image or PDF) and drag the **four corners** of the façade — with a 4× loupe, perspective guides and a live preview. A homography straightens the photo onto the wall at its real proportions. The original is kept, so the corners can be re-fitted later. Trees and cars in front stay in the texture, as they would.
+
+**What it is not:** photogrammetry. Rebuilding geometry from photos needs dozens to hundreds of overlapping shots and returns a messy mesh; with a handful of phone photos it does not work, local or cloud. The *shape* comes from the plans, the drawn volumes and OpenStreetMap; the photos are the *skin*. This is the method of Google's old Building Maker, and it gives a clean, recognisable model.
+
+**Why not Google Maps:** its terms forbid storing its data or using it outside its API — exactly what a local app needs to do. OpenStreetMap is open (ODbL) and only asks for attribution, which the app shows. Surroundings are downloaded **once** into `envolvente.json` and work **offline** from then on.
+
+![Editor — Exterior](docs/img/editor-exterior.png)
+
+Volumes come from the floors above ground, from drawing on the ground-floor plan, or from OpenStreetMap `building:part`s with their heights and roof shapes. Pitched roofs sit on the volume's minimum rectangle; a volume that is not close to rectangular keeps a flat roof and says why — split it into rectangular volumes, which is how roofs are built anyway.
+
+An **orthophoto** of your own (council, drone survey) goes on the ground, aligned by **two point pairs**, by the corner coordinates of a north-up image, or by hand.
+
 ## Building editor
 
 ![Building editor](docs/img/editor.png)
@@ -80,8 +111,8 @@ Duplicate a floor for repeated hotel floors. A live 3D preview grows as you draw
 
 ## Private by construction
 
-- Everything is local: Three.js is vendored, nothing is fetched from the Internet (the optional OpenStreetMap lookup is the only network call, and it says so).
-- Real projects never belong in a public repository — they combine topology, addresses, floor plans and the location of every rack. `.gitignore` blocks them; the bundled example is **entirely synthetic**, plans included.
+- Everything is local: Three.js is vendored, nothing is fetched from the Internet. The OpenStreetMap lookups (outline, building parts, surroundings) are the only network calls, made only when you press the button, and stored afterwards.
+- Real projects never belong in a public repository — they combine topology, addresses, floor plans, façade photos and the location of every rack. `.gitignore` blocks them; the bundled example is **entirely synthetic**: plans, façade "photos", elevation, surroundings and orthophoto are all invented.
 
 ## Installation & usage
 
@@ -103,15 +134,18 @@ Needs the **JSON export** of Network Topology Mapper (format 1), which records w
 ## Tests
 
 ```
-pip install -r requirements-dev.txt && python -m pytest      # 98 tests: engine, loaders, racks, bridge, importers
-node --test "tests/js/*.test.mjs"                             # room detection on a plan drawn in memory
+pip install -r requirements-dev.txt && python -m pytest      # engine, loaders, racks, exterior, bridge, importers
+node --test "tests/js/*.test.mjs"                             # room detection; homography, rectification, roofs, sun
 ```
 
 ## Known limits
 
 - The mapper reads each port's access VLAN, not trunk allowed lists: trunk checks compare **design against design** on both ends of a real cable.
 - Room detection does not read text (no OCR): rooms are named in the list, or by the DXF.
-- Photos of a building's **exterior** do not generate the model — that is photogrammetry, a different problem. Plans and OSM outlines do.
+- Photos give the exterior its **skin**, not its shape: no photogrammetry, so balconies and reliefs stay flat in the texture.
+- Pitched roofs only on near-rectangular volumes; complex roofs are built from several volumes.
+- Flat terrain: a hillside hotel stands on level ground (use a volume's base height for the higher blocks).
+- The sun uses this computer's clock time zone, not the site's.
 - One codebase for Windows, Linux and macOS rather than the three folders of the sibling projects: the window is HTML through pywebview, so the three copies would be identical.
 
 ## License

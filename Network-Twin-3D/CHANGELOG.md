@@ -2,6 +2,23 @@
 
 <!-- Created by Redfox using Claude -->
 
+## [0.3.0] — 2026-10-24
+
+O exterior: fotos e alçados nas fachadas, o mapa à volta e o sol.
+
+### Acrescentado
+- **Vista Exterior** (4.ª vista, atalho `4`): os edifícios por fora, cada um no sítio pela sua origem geográfica, com o **sol** no dia e hora escolhidos (sombras; à noite acendem-se as janelas) e **Raio-X** (paredes transparentes, pisos, salas, bastidores e equipamentos pelo veredicto, cave à vista).
+- **Volumes** por edifício (contorno × altura, base) com **coberturas** plana (com platibanda), uma água, duas águas (cumeeira no lado longo ou no curto) e quatro águas; sem exterior gravado, os volumes saem dos pisos acima do chão.
+- **Fachadas a partir de fotos ou alçados** (imagem ou PDF): marcam-se os 4 cantos, com lupa e pré-visualização, e a perspectiva é corrigida por homografia; o original fica guardado para acertar os cantos mais tarde. Paredes sem foto levam janelas desenhadas por piso, à altura real.
+- **Separador Exterior no editor**: localização (latitude, longitude, rotação), volumes gerados dos pisos, desenhados ou vindos do **OpenStreetMap** (`building:part` com altura e telhado), cores, e pré-visualização 3D.
+- **Envolvente do OpenStreetMap** (edifícios vizinhos com altura, vias com largura, verde, floresta, água, areia, estacionamento, desporto, árvores), descarregada uma vez para `envolvente.json` e depois usada **offline**. Os edifícios do projeto não se repetem.
+- **Ortofoto** do utilizador no chão, alinhada por dois pontos, pelas coordenadas dos cantos ou à mão.
+- Exemplo com fachadas fotografadas (sintéticas), um alçado, envolvente e ortofoto — tudo inventado.
+
+### Corrigido
+- O contorno do OSM no editor gravava a origem no ponto pesquisado em vez do canto (0, 0) do edifício.
+- Imagens com ids que têm `.` (por exemplo `v1.2`) perdiam parte do nome ao gravar.
+
 ## [0.2.0] — 2026-10-24
 
 Bastidores, vários edifícios e o editor de plantas.

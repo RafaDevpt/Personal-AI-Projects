@@ -26,6 +26,9 @@ mapa-rede-*.json
 edificio-*.json
 cena*.json
 plantas/
+fachadas/
+envolvente*.json
+ortofoto.*
 *.dxf
 *.dwg
 
@@ -33,6 +36,9 @@ plantas/
 # EN-UK: The example is synthetic and the only exception to the rules above.
 !exemplo/edificio-*.json
 !exemplo/plantas/
+!exemplo/fachadas/
+!exemplo/envolvente.json
+!exemplo/ortofoto.jpg
 
 # Python
 __pycache__/
