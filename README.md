@@ -95,7 +95,7 @@ Each project lives in its own repository, with its own CI, releases and issues. 
 | 🗺️ Network Topology Mapper — Walks the network and maps what is on every port | [`network-topology-mapper`](https://github.com/RafaDevpt/network-topology-mapper) | [![CI](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/network-topology-mapper?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/network-topology-mapper/releases/latest) |
 | 🧪 Laboratório Virtual — Builds virtual machines from verified official images | [`virtual-lab-builder`](https://github.com/RafaDevpt/virtual-lab-builder) | [![CI](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/virtual-lab-builder?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/virtual-lab-builder/releases/latest) |
 | 🖥️ VMware Fleet Console — vCenter and ESXi maintenance from a terminal | [`vmware-fleet-console`](https://github.com/RafaDevpt/vmware-fleet-console) | [![CI](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/vmware-fleet-console?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/vmware-fleet-console/releases/latest) |
-| 🧊 Network Twin 3D — The network as built against as designed, in 3D inside the buildings<sup>[4](#nota-twin)</sup> | [`network-twin-3d`](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D) *(branch)* | [![CI](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml/badge.svg?branch=network-twin-3d)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml?query=branch%3Anetwork-twin-3d) | — |
+| 🧊 Network Twin 3D — The network as built against as designed, in 3D inside and outside the buildings<sup>[4](#nota-twin)</sup> | [`network-twin-3d`](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D) *(branch)* | [![CI](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml/badge.svg?branch=network-twin-3d)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml?query=branch%3Anetwork-twin-3d) | — |
 
 </div>
 
@@ -372,9 +372,9 @@ And the one always learned too late: **a free-licensed ESXi has a read-only API*
 [![CI](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml/badge.svg?branch=network-twin-3d)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml?query=branch%3Anetwork-twin-3d)
 ![Offline](https://img.shields.io/badge/offline-6E5494?style=flat-square)
 
-The other two network tools, put together and put in the building. Crosses what the **Topology Mapper** found (as built) with what the **Config Builder** holds (as designed), and checks every cable **at both ends** — then shows it in 3D: buildings, floors and rooms on the original floor plans, **racks at real scale with every machine in its U**, cables up risers and between buildings.
+The other two network tools, put together and put in the building. Crosses what the **Topology Mapper** found (as built) with what the **Config Builder** holds (as designed), and checks every cable **at both ends** — then shows it in 3D: buildings, floors and rooms on the original floor plans, **racks at real scale with every machine in its U**, cables up risers and between buildings. And from outside: **façade photos straightened onto the walls**, real roofs, the surroundings from OpenStreetMap and the sun at any hour.
 
-`Python` · `pywebview` · `Three.js` · `ezdxf` · `OpenStreetMap`
+`Python` · `pywebview` · `Three.js` · `ezdxf` · `OpenStreetMap` · `homography`
 
 <details>
 <summary><b>What it checks</b></summary>
@@ -390,14 +390,23 @@ Click a finding and everything else dims while the camera flies to the problem �
 
 Plans come in as an **image, PDF or DXF**. Calibrate the scale with two clicks, and it detects every room and the outline on its own — text and door arcs are recognised as *not walls* by their shape, so they do not split rooms. DXF closed polylines become rooms with real measurements; OpenStreetMap gives the outline and, when it knows, the number of floors.
 
-What it does **not** do is build a model from photos of the façade: that is photogrammetry, and it says so rather than pretending.
+</details>
+
+<details>
+<summary><b>From façade photos to the outside of the building</b></summary>
+
+Mark the four corners of a façade on a phone photo — or an elevation drawing — and a **homography** straightens it onto that wall at its real proportions; the original is kept to re-fit later. Walls with no photo get windows drawn per floor, lit at night. Roofs — flat, mono-pitch, gable, hip — come from the editor or from OpenStreetMap `building:part`s.
+
+The surroundings (neighbours with height, roads, green, water, trees) come from **OpenStreetMap once** and then work **offline**. Not Google Maps: its terms forbid storing the data or using it outside its API. An orthophoto of your own goes on the ground, aligned by two points.
+
+The photos are the **skin**, not the shape: this is not photogrammetry, which needs hundreds of overlapping shots and returns a messy mesh. The shape comes from the plans and the volumes — the method of Google's old Building Maker — and it says so rather than pretending.
 
 </details>
 
 <details>
 <summary><b>Why it is never published with real data</b></summary>
 
-A project joins the topology, the configuration, the floor plans and the location of every rack — the full map someone would need to attack the network, or to walk into the server room. Real projects stay outside any repository; the bundled hotel is entirely synthetic, plans included.
+A project joins the topology, the configuration, the floor plans, the façade photos and the location of every rack — the full map someone would need to attack the network, or to walk into the server room. Real projects stay outside any repository; the bundled hotel is entirely synthetic — plans, façade "photos", surroundings and orthophoto included.
 
 </details>
 
