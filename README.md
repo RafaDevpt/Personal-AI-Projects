@@ -60,7 +60,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 | **Offline first** | No external API dependency where a rule-based approach will do.<sup>[1](#nota-offline)</sup> |
 | **Safe by default** | Read-only operations unless explicitly told otherwise |
 | **Single-file deploy** | A launcher and a folder — no installers, no admin rights |
-| **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[2](#nota-tres)</sup> |
+| **Three versions, one per system** | Every project ships `Windows/`, `Linux/` and `macOS/` folders — each a complete, self-contained application with its own `src/`, tests and launcher. No operating-system branching inside any of them: a test in each version fails if somebody adds one<sup>[2](#nota-tres)</sup> — Network Twin 3D is the one exception<sup>[4](#nota-twin)</sup> |
 | **Documented** | Every repository ships its own README, requirements and screenshots |
 | **Bilingual source** | Every module, class and function documented in PT-PT and EN-UK |
 
@@ -81,7 +81,7 @@ Every tool here started as a real friction point in day-to-day hospitality IT op
 
 ## 🗂️ Repositories
 
-Each project lives in its own repository, with its own CI, releases and issues. This repository is only the index.
+Each project lives in its own repository, with its own CI, releases and issues. This repository is only the index — with one exception, Network Twin 3D, which lives on a branch here.<sup>[4](#nota-twin)</sup>
 
 <div align="center">
 
@@ -95,10 +95,11 @@ Each project lives in its own repository, with its own CI, releases and issues. 
 | 🗺️ Network Topology Mapper — Walks the network and maps what is on every port | [`network-topology-mapper`](https://github.com/RafaDevpt/network-topology-mapper) | [![CI](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/network-topology-mapper/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/network-topology-mapper?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/network-topology-mapper/releases/latest) |
 | 🧪 Laboratório Virtual — Builds virtual machines from verified official images | [`virtual-lab-builder`](https://github.com/RafaDevpt/virtual-lab-builder) | [![CI](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/virtual-lab-builder/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/virtual-lab-builder?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/virtual-lab-builder/releases/latest) |
 | 🖥️ VMware Fleet Console — vCenter and ESXi maintenance from a terminal | [`vmware-fleet-console`](https://github.com/RafaDevpt/vmware-fleet-console) | [![CI](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/vmware-fleet-console/actions/workflows/ci.yml) | [![Release](https://img.shields.io/github/v/release/RafaDevpt/vmware-fleet-console?style=flat-square&label=&color=1F6FEB)](https://github.com/RafaDevpt/vmware-fleet-console/releases/latest) |
+| 🧊 Network Twin 3D — The network as built against as designed, in 3D inside the buildings<sup>[4](#nota-twin)</sup> | [`network-twin-3d`](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D) *(branch)* | [![CI](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml/badge.svg?branch=network-twin-3d)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml?query=branch%3Anetwork-twin-3d) | — |
 
 </div>
 
-All eight run on Windows · Linux · macOS.
+All nine run on Windows · Linux · macOS.
 
 <a name="nota-tres"></a>
 <sub>
@@ -119,6 +120,13 @@ CI runs every version on its own native runner — `windows-latest`, `ubuntu-lat
 That explanation was right, and in v4.0.0 the other two applications were written. The Linux version reads the systemd journal, `/proc`, `/sys` and `systemctl`; the macOS version reads the unified log, the crash reports in `DiagnosticReports`, `launchd` and `diskutil`. They share the report format, the eight modules and the shape of the knowledge base — and, unlike the sibling projects, very little code, because there is very little that could honestly be shared.
 
 Each also knows what it *cannot* see, and says so: elevation on Windows, the `systemd-journal` group on Linux, Full Disk Access on macOS. On all three the command runs, returns zero and shows less — and a report that fails to flag that looks like a clean machine.
+
+</sub>
+
+<a name="nota-twin"></a>
+<sub>
+
+**[4]** **Network Twin 3D** breaks two rules of this index on purpose. It lives on the [`network-twin-3d`](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D) branch of this repository rather than in a repository of its own, and it is **one codebase** rather than three folders: the window is HTML and Three.js inside pywebview, so a `Windows/`, `Linux/` and `macOS/` copy would be three identical files. The operating-system differences that remain — file dialogs, line endings of the launchers — are handled by pywebview and `.gitattributes`, and CI still runs the whole suite on the three native runners.
 
 </sub>
 
@@ -355,6 +363,49 @@ And the one always learned too late: **a free-licensed ESXi has a read-only API*
 
 </td>
 </tr>
+<tr>
+<td width="50%" valign="top">
+
+### [🧊 Network Twin 3D](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D)
+[![Branch](https://img.shields.io/badge/branch-network--twin--3d-1F6FEB?style=flat-square&logo=github)](https://github.com/RafaDevpt/Personal-AI-Projects/tree/network-twin-3d/Network-Twin-3D)
+![Status](https://img.shields.io/badge/status-alpha-DFA83F?style=flat-square)
+[![CI](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml/badge.svg?branch=network-twin-3d)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/network-twin-3d.yml?query=branch%3Anetwork-twin-3d)
+![Offline](https://img.shields.io/badge/offline-6E5494?style=flat-square)
+
+The other two network tools, put together and put in the building. Crosses what the **Topology Mapper** found (as built) with what the **Config Builder** holds (as designed), and checks every cable **at both ends** — then shows it in 3D: buildings, floors and rooms on the original floor plans, **racks at real scale with every machine in its U**, cables up risers and between buildings.
+
+`Python` · `pywebview` · `Three.js` · `ezdxf` · `OpenStreetMap`
+
+<details>
+<summary><b>What it checks</b></summary>
+
+30 checks in nine families — links, VLANs, ports, PoE, redundancy, devices, building, racks, and what the mapper itself reported — each with the fix. Native VLAN mismatches, a VLAN that dies on a trunk, trunk on one side and access on the other, designed uplinks that are not there, single points of failure, PoE over budget, two machines in the same U.
+
+Click a finding and everything else dims while the camera flies to the problem — another building, or inside the rack, if that is where it is.
+
+</details>
+
+<details>
+<summary><b>From floor plan to 3D building</b></summary>
+
+Plans come in as an **image, PDF or DXF**. Calibrate the scale with two clicks, and it detects every room and the outline on its own — text and door arcs are recognised as *not walls* by their shape, so they do not split rooms. DXF closed polylines become rooms with real measurements; OpenStreetMap gives the outline and, when it knows, the number of floors.
+
+What it does **not** do is build a model from photos of the façade: that is photogrammetry, and it says so rather than pretending.
+
+</details>
+
+<details>
+<summary><b>Why it is never published with real data</b></summary>
+
+A project joins the topology, the configuration, the floor plans and the location of every rack — the full map someone would need to attack the network, or to walk into the server room. Real projects stay outside any repository; the bundled hotel is entirely synthetic, plans included.
+
+</details>
+
+</td>
+<td width="50%" valign="top">
+
+</td>
+</tr>
 </table>
 
 <img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
@@ -371,6 +422,13 @@ git clone https://github.com/RafaDevpt/pdf-suite.git
 ```
 
 Replace `pdf-suite` with `it-toolkit`, `hp-toner-monitor`, `medical-transcriber-pt`, `network-config-builder`, `network-topology-mapper`, `virtual-lab-builder` or `vmware-fleet-console`.
+
+Network Twin 3D lives on a branch of this repository:
+
+```bash
+git clone -b network-twin-3d --single-branch https://github.com/RafaDevpt/Personal-AI-Projects.git
+cd Personal-AI-Projects/Network-Twin-3D
+```
 
 </details>
 
