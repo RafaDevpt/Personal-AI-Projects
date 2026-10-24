@@ -1,0 +1,236 @@
+{
+  "formato": 1,
+  "tipo": "nettwin-building",
+  "id": "pavilhao",
+  "nome": "Pavilhão de Eventos",
+  "gerado_por": "manual",
+  "origem": {
+    "lat": 38.7219,
+    "lon": -9.1385,
+    "rotacao_graus": 0
+  },
+  "pisos": [
+    {
+      "id": "PV0",
+      "nome": "Piso 0",
+      "nivel": 0,
+      "altura_m": 6.0,
+      "contorno": [
+        [
+          0,
+          0
+        ],
+        [
+          30,
+          0
+        ],
+        [
+          30,
+          20
+        ],
+        [
+          22,
+          20
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          0,
+          26
+        ]
+      ],
+      "salas": [
+        {
+          "id": "salao",
+          "nome": "Salão de Eventos",
+          "tipo": "eventos",
+          "poligono": [
+            [
+              0,
+              0
+            ],
+            [
+              30,
+              0
+            ],
+            [
+              30,
+              16
+            ],
+            [
+              0,
+              16
+            ]
+          ]
+        },
+        {
+          "id": "foyer",
+          "nome": "Foyer",
+          "tipo": "publica",
+          "poligono": [
+            [
+              0,
+              16
+            ],
+            [
+              14,
+              16
+            ],
+            [
+              14,
+              26
+            ],
+            [
+              0,
+              26
+            ]
+          ]
+        },
+        {
+          "id": "copa",
+          "nome": "Copa",
+          "tipo": "restauracao",
+          "poligono": [
+            [
+              14,
+              16
+            ],
+            [
+              30,
+              16
+            ],
+            [
+              30,
+              20
+            ],
+            [
+              22,
+              20
+            ],
+            [
+              22,
+              26
+            ],
+            [
+              14,
+              26
+            ]
+          ]
+        },
+        {
+          "id": "regie",
+          "nome": "Régie / Bastidor",
+          "tipo": "tecnica",
+          "poligono": [
+            [
+              0,
+              23
+            ],
+            [
+              4,
+              23
+            ],
+            [
+              4,
+              26
+            ],
+            [
+              0,
+              26
+            ]
+          ]
+        }
+      ],
+      "planta": {
+        "imagem": "plantas/pavilhao-PV0.png",
+        "escala_px_m": 25,
+        "origem_px": [
+          40,
+          40
+        ]
+      }
+    },
+    {
+      "id": "PV1",
+      "nome": "Piso 1 (mezanino)",
+      "nivel": 1,
+      "altura_m": 3.5,
+      "contorno": [
+        [
+          0,
+          16
+        ],
+        [
+          22,
+          16
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          0,
+          26
+        ]
+      ],
+      "salas": [
+        {
+          "id": "camarins",
+          "nome": "Camarins",
+          "tipo": "outra",
+          "poligono": [
+            [
+              0,
+              16
+            ],
+            [
+              12,
+              16
+            ],
+            [
+              12,
+              26
+            ],
+            [
+              0,
+              26
+            ]
+          ]
+        },
+        {
+          "id": "cabine",
+          "nome": "Cabine de Som e Luz",
+          "tipo": "tecnica",
+          "poligono": [
+            [
+              12,
+              16
+            ],
+            [
+              22,
+              16
+            ],
+            [
+              22,
+              26
+            ],
+            [
+              12,
+              26
+            ]
+          ]
+        }
+      ],
+      "planta": {
+        "imagem": "plantas/pavilhao-PV1.png",
+        "escala_px_m": 25,
+        "origem_px": [
+          40,
+          40
+        ]
+      }
+    }
+  ]
+}

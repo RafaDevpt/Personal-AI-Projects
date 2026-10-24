@@ -1,0 +1,94 @@
+# ===========================================================================
+# PT-PT: Integração contínua do Network Twin 3D.
+#
+#        Uma única base de código para os três sistemas (a janela é HTML via
+#        pywebview), testada nos três. O motor, a leitura e as exportações não
+#        tocam na janela, por isso os testes correm sem ecrã — e o modo
+#        `--validar` é exercitado sobre o exemplo em cada sistema, que é o que
+#        prova que os caminhos e a codificação funcionam em Windows também.
+#
+# EN-UK: Continuous integration for Network Twin 3D. One codebase for three
+#        systems, tested on all three. Engine, loading and exports never touch
+#        the window, so tests run headless; `--validar` runs on the example on
+#        every system.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: Network Twin 3D
+
+on:
+  push:
+    branches: [network-twin-3d]
+    paths: ['Network-Twin-3D/**', '.github/workflows/network-twin-3d.yml']
+  pull_request:
+    branches: [network-twin-3d]
+    paths: ['Network-Twin-3D/**', '.github/workflows/network-twin-3d.yml']
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: ${{ matrix.runner }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.runner }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-latest, ubuntu-latest, macos-latest]
+        python: ['3.11']
+        include:
+          - runner: ubuntu-latest
+            python: '3.10'
+
+    defaults:
+      run:
+        working-directory: Network-Twin-3D
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Preparar Python / Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: Network-Twin-3D/requirements-dev.txt
+
+      # PT-PT: Os testes não abrem a janela; o pywebview instala-se só para o
+      #        import do módulo app funcionar. Sem GTK em Linux, não faz mal.
+      # EN-UK: Tests never open the window; pywebview is installed only so the
+      #        app module imports. No GTK on Linux is fine.
+      - name: Instalar dependências / Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint (ruff)
+        run: python -m ruff check .
+
+      - name: Testes (pytest) / Tests (pytest)
+        run: python -m pytest
+
+      # PT-PT: A deteção de salas corre no browser; testa-se com o Node.
+      # EN-UK: Room detection runs in the browser; tested with Node.
+      - name: Preparar Node / Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Testes JS / JS tests
+        shell: bash
+        run: node --test "tests/js/*.test.mjs"
+
+      # PT-PT: O exemplo tem erros plantados: o código de saída esperado é 1.
+      # EN-UK: The example has planted errors: the expected exit code is 1.
+      - name: Validar o exemplo / Validate the example
+        shell: bash
+        env:
+          PYTHONPATH: src
+          PYTHONIOENCODING: utf-8
+        run: |
+          set +e
+          python -m nettwin --validar exemplo/projeto.json
+          codigo=$?
+          set -e
+          test "$codigo" -eq 1

@@ -1,0 +1,1210 @@
+{
+  "formato": 1,
+  "tipo": "netmap-topology",
+  "gerado_em": "2026-10-20T09:14:02",
+  "iniciado_em": "2026-10-20T09:03:40",
+  "devices": [
+    {
+      "label": "SW-CORE",
+      "host": "10.10.10.2",
+      "name": "SW-CORE",
+      "platform": "cisco_ios",
+      "model": "C9300-48P",
+      "version": "",
+      "source": "Semente",
+      "reached": true,
+      "error": "",
+      "depth": 0,
+      "ports": [
+        {
+          "name": "Gi1/0/1",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/45",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/46",
+          "description": "",
+          "link_up": false,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/47",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/48",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/44",
+          "description": "",
+          "link_up": false,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/10",
+          "description": "SRV-PMS",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        }
+      ],
+      "neighbours": [
+        {
+          "local_port": "Gi1/0/1",
+          "remote_name": "FW-EDGE",
+          "remote_port": "port1",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "router"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/45",
+          "remote_name": "SW-P0-A",
+          "remote_port": "Gi1/0/48",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/47",
+          "remote_name": "SW-P0-B",
+          "remote_port": "Gi1/0/47",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/48",
+          "remote_name": "SW-P1",
+          "remote_port": "1/1/48",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        }
+      ]
+    },
+    {
+      "label": "SW-P0-A",
+      "host": "10.10.10.11",
+      "name": "SW-P0-A",
+      "platform": "cisco_ios",
+      "model": "C9200-24P",
+      "version": "",
+      "source": "LLDP",
+      "reached": true,
+      "error": "",
+      "depth": 1,
+      "ports": [
+        {
+          "name": "Gi1/0/48",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/47",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/1",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": 14.2,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/2",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": 13.8,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/5",
+          "description": "PC RECECAO 1",
+          "link_up": true,
+          "vlan": 30,
+          "speed": "1000",
+          "poe_watts": 0.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/6",
+          "description": "PC RECECAO 2",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": 5.1,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/7",
+          "description": "POS",
+          "link_up": true,
+          "vlan": 60,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/8",
+          "description": "IMPRESSORA",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        }
+      ],
+      "neighbours": [
+        {
+          "local_port": "Gi1/0/47",
+          "remote_name": "SW-P0-B",
+          "remote_port": "Gi1/0/46",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/1",
+          "remote_name": "AP-LOBBY",
+          "remote_port": "eth0",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge",
+            "wlan-ap"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/2",
+          "remote_name": "AP-RESTAURANTE",
+          "remote_port": "eth0",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge",
+            "wlan-ap"
+          ],
+          "source": "LLDP"
+        }
+      ]
+    },
+    {
+      "label": "SW-P0-B",
+      "host": "10.10.10.12",
+      "name": "SW-P0-B",
+      "platform": "cisco_ios",
+      "model": "C9200-48P",
+      "version": "",
+      "source": "LLDP",
+      "reached": true,
+      "error": "",
+      "depth": 1,
+      "ports": [
+        {
+          "name": "Gi1/0/47",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/48",
+          "description": "",
+          "link_up": false,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/46",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "Gi1/0/10",
+          "description": "PC ESCRITORIO",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": 6.5,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/11",
+          "description": "",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": 5.4,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/20",
+          "description": "PC COZINHA",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": 0.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "Gi1/0/30",
+          "description": "POS BAR",
+          "link_up": true,
+          "vlan": 60,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        }
+      ],
+      "neighbours": [
+        {
+          "local_port": "Gi1/0/47",
+          "remote_name": "SW-CORE",
+          "remote_port": "Gi1/0/47",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "Gi1/0/46",
+          "remote_name": "SW-P0-A",
+          "remote_port": "Gi1/0/47",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        }
+      ]
+    },
+    {
+      "label": "SW-P1",
+      "host": "10.10.10.13",
+      "name": "SW-P1",
+      "platform": "aruba_cx",
+      "model": "6100 48G CL4",
+      "version": "",
+      "source": "LLDP",
+      "reached": true,
+      "error": "",
+      "depth": 1,
+      "ports": [
+        {
+          "name": "1/1/48",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "1/1/47",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "1/1/12",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": 24.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/13",
+          "description": "",
+          "link_up": false,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "1/1/14",
+          "description": "QUARTO 105",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 24.5,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/1",
+          "description": "QUARTO 101",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/2",
+          "description": "QUARTO 102",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/3",
+          "description": "QUARTO 103",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/4",
+          "description": "QUARTO 104",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/5",
+          "description": "QUARTO 105",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/6",
+          "description": "QUARTO 106",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/7",
+          "description": "QUARTO 107",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/8",
+          "description": "QUARTO 108",
+          "link_up": true,
+          "vlan": 50,
+          "speed": "1000",
+          "poe_watts": 36.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/24",
+          "description": "SALA REUNIOES",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        }
+      ],
+      "neighbours": [
+        {
+          "local_port": "1/1/48",
+          "remote_name": "SW-CORE",
+          "remote_port": "Gi1/0/48",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "1/1/47",
+          "remote_name": "SW-EVENTOS",
+          "remote_port": "1/1/24",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "1/1/12",
+          "remote_name": "AP-P1-1",
+          "remote_port": "eth0",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge",
+            "wlan-ap"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "1/1/14",
+          "remote_name": "AP-P1-2",
+          "remote_port": "eth0",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge",
+            "wlan-ap"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "1/1/24",
+          "remote_name": "SW-SALA-REUNIOES",
+          "remote_port": "8",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        }
+      ]
+    },
+    {
+      "label": "SW-EVENTOS",
+      "host": "10.10.10.14",
+      "name": "SW-EVENTOS",
+      "platform": "aruba_cx",
+      "model": "6000 12G CL4",
+      "version": "",
+      "source": "LLDP",
+      "reached": true,
+      "error": "",
+      "depth": 2,
+      "ports": [
+        {
+          "name": "1/1/24",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        },
+        {
+          "name": "1/1/1",
+          "description": "",
+          "link_up": true,
+          "vlan": null,
+          "speed": "1000",
+          "poe_watts": 15.0,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/5",
+          "description": "",
+          "link_up": true,
+          "vlan": 40,
+          "speed": "1000",
+          "poe_watts": 7.2,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/6",
+          "description": "",
+          "link_up": true,
+          "vlan": 40,
+          "speed": "1000",
+          "poe_watts": 6.9,
+          "poe_enabled": true
+        },
+        {
+          "name": "1/1/10",
+          "description": "MESA DE SOM",
+          "link_up": true,
+          "vlan": 20,
+          "speed": "1000",
+          "poe_watts": null,
+          "poe_enabled": false
+        }
+      ],
+      "neighbours": [
+        {
+          "local_port": "1/1/24",
+          "remote_name": "SW-P1",
+          "remote_port": "1/1/47",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge"
+          ],
+          "source": "LLDP"
+        },
+        {
+          "local_port": "1/1/1",
+          "remote_name": "AP-EVENTOS",
+          "remote_port": "eth0",
+          "remote_chassis": "",
+          "management_ip": "",
+          "capabilities": [
+            "bridge",
+            "wlan-ap"
+          ],
+          "source": "LLDP"
+        }
+      ]
+    },
+    {
+      "label": "SW-SALA-REUNIOES",
+      "host": "10.10.10.40",
+      "name": "SW-SALA-REUNIOES",
+      "platform": "desconhecida",
+      "model": "",
+      "version": "",
+      "source": "LLDP",
+      "reached": false,
+      "error": "Autenticação recusada (credenciais de leitura não aceites).",
+      "depth": 2,
+      "ports": [],
+      "neighbours": []
+    }
+  ],
+  "links": [
+    {
+      "a_device": "FW-EDGE",
+      "a_port": "port1",
+      "b_device": "SW-CORE",
+      "b_port": "Gi1/0/1",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-CORE"
+      ]
+    },
+    {
+      "a_device": "SW-CORE",
+      "a_port": "Gi1/0/45",
+      "b_device": "SW-P0-A",
+      "b_port": "Gi1/0/48",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-CORE"
+      ]
+    },
+    {
+      "a_device": "SW-CORE",
+      "a_port": "Gi1/0/47",
+      "b_device": "SW-P0-B",
+      "b_port": "Gi1/0/47",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-CORE",
+        "SW-P0-B"
+      ]
+    },
+    {
+      "a_device": "SW-CORE",
+      "a_port": "Gi1/0/48",
+      "b_device": "SW-P1",
+      "b_port": "1/1/48",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-CORE",
+        "SW-P1"
+      ]
+    },
+    {
+      "a_device": "SW-P0-A",
+      "a_port": "Gi1/0/47",
+      "b_device": "SW-P0-B",
+      "b_port": "Gi1/0/46",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P0-A",
+        "SW-P0-B"
+      ]
+    },
+    {
+      "a_device": "SW-EVENTOS",
+      "a_port": "1/1/24",
+      "b_device": "SW-P1",
+      "b_port": "1/1/47",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-EVENTOS",
+        "SW-P1"
+      ]
+    },
+    {
+      "a_device": "AP-LOBBY",
+      "a_port": "eth0",
+      "b_device": "SW-P0-A",
+      "b_port": "Gi1/0/1",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P0-A"
+      ]
+    },
+    {
+      "a_device": "AP-RESTAURANTE",
+      "a_port": "eth0",
+      "b_device": "SW-P0-A",
+      "b_port": "Gi1/0/2",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P0-A"
+      ]
+    },
+    {
+      "a_device": "AP-P1-1",
+      "a_port": "eth0",
+      "b_device": "SW-P1",
+      "b_port": "1/1/12",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P1"
+      ]
+    },
+    {
+      "a_device": "AP-P1-2",
+      "a_port": "eth0",
+      "b_device": "SW-P1",
+      "b_port": "1/1/14",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P1"
+      ]
+    },
+    {
+      "a_device": "AP-EVENTOS",
+      "a_port": "eth0",
+      "b_device": "SW-EVENTOS",
+      "b_port": "1/1/1",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-EVENTOS"
+      ]
+    },
+    {
+      "a_device": "SW-P1",
+      "a_port": "1/1/24",
+      "b_device": "SW-SALA-REUNIOES",
+      "b_port": "8",
+      "source": "LLDP",
+      "announced_by": [
+        "SW-P1"
+      ]
+    }
+  ],
+  "endpoints": [
+    {
+      "mac": "02:00:5e:00:01:01",
+      "ip": "10.10.10.21",
+      "hostname": "AP-LOBBY",
+      "vendor": "",
+      "role": "Ponto de acesso",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/1",
+      "port_description": "",
+      "vlan": 10,
+      "poe_watts": 14.2,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:01:02",
+      "ip": "10.10.10.22",
+      "hostname": "AP-RESTAURANTE",
+      "vendor": "",
+      "role": "Ponto de acesso",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/2",
+      "port_description": "",
+      "vlan": 10,
+      "poe_watts": 13.8,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:01:03",
+      "ip": "10.10.10.23",
+      "hostname": "AP-P1-1",
+      "vendor": "",
+      "role": "Ponto de acesso",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/12",
+      "port_description": "",
+      "vlan": 10,
+      "poe_watts": 24.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:01:04",
+      "ip": "10.10.10.24",
+      "hostname": "AP-P1-2",
+      "vendor": "",
+      "role": "Ponto de acesso",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/14",
+      "port_description": "",
+      "vlan": 10,
+      "poe_watts": 24.5,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:01:05",
+      "ip": "10.10.10.25",
+      "hostname": "AP-EVENTOS",
+      "vendor": "",
+      "role": "Ponto de acesso",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-EVENTOS",
+      "port": "1/1/1",
+      "port_description": "",
+      "vlan": 10,
+      "poe_watts": 15.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:02:01",
+      "ip": "10.10.30.57",
+      "hostname": "PC-RECECAO-1",
+      "vendor": "",
+      "role": "Posto de trabalho",
+      "confidence": "Média",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/5",
+      "port_description": "",
+      "vlan": 30,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:02:02",
+      "ip": "10.10.20.12",
+      "hostname": "PC-RECECAO-2",
+      "vendor": "",
+      "role": "Posto de trabalho",
+      "confidence": "Média",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/6",
+      "port_description": "",
+      "vlan": 20,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:02:03",
+      "ip": "10.10.60.10",
+      "hostname": "POS-REST-1",
+      "vendor": "",
+      "role": "Desconhecido",
+      "confidence": "Baixa",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/7",
+      "port_description": "",
+      "vlan": 60,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:02:04",
+      "ip": "10.10.20.30",
+      "hostname": "IMP-RECECAO",
+      "vendor": "",
+      "role": "Impressora",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P0-A",
+      "port": "Gi1/0/8",
+      "port_description": "",
+      "vlan": 20,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:03:01",
+      "ip": "10.10.50.31",
+      "hostname": "",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P0-B",
+      "port": "Gi1/0/10",
+      "port_description": "",
+      "vlan": 20,
+      "poe_watts": 6.5,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:03:02",
+      "ip": "10.10.20.44",
+      "hostname": "PC-COZINHA",
+      "vendor": "",
+      "role": "Posto de trabalho",
+      "confidence": "Média",
+      "signals": [],
+      "switch": "SW-P0-B",
+      "port": "Gi1/0/20",
+      "port_description": "",
+      "vlan": 20,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "Porta partilhada por 4 equipamentos: provável switch não gerido.",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:03:03",
+      "ip": "10.10.20.45",
+      "hostname": "",
+      "vendor": "",
+      "role": "Desconhecido",
+      "confidence": "Nenhuma",
+      "signals": [],
+      "switch": "SW-P0-B",
+      "port": "Gi1/0/20",
+      "port_description": "",
+      "vlan": 20,
+      "poe_watts": null,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:04:01",
+      "ip": "10.10.40.11",
+      "hostname": "CAM-SALAO-1",
+      "vendor": "",
+      "role": "Câmara",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-EVENTOS",
+      "port": "1/1/5",
+      "port_description": "",
+      "vlan": 40,
+      "poe_watts": 7.2,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:04:02",
+      "ip": "10.10.40.12",
+      "hostname": "CAM-SALAO-2",
+      "vendor": "",
+      "role": "Câmara",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-EVENTOS",
+      "port": "1/1/6",
+      "port_description": "",
+      "vlan": 40,
+      "poe_watts": 6.9,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:01",
+      "ip": "10.10.50.101",
+      "hostname": "TEL-101",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/1",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:02",
+      "ip": "10.10.50.102",
+      "hostname": "TEL-102",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/2",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:03",
+      "ip": "10.10.50.103",
+      "hostname": "TEL-103",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/3",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:04",
+      "ip": "10.10.50.104",
+      "hostname": "TEL-104",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/4",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:05",
+      "ip": "10.10.50.105",
+      "hostname": "TEL-105",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/5",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:06",
+      "ip": "10.10.50.106",
+      "hostname": "TEL-106",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/6",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:07",
+      "ip": "10.10.50.107",
+      "hostname": "TEL-107",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/7",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    },
+    {
+      "mac": "02:00:5e:00:05:08",
+      "ip": "10.10.50.108",
+      "hostname": "TEL-108",
+      "vendor": "",
+      "role": "Telefone IP",
+      "confidence": "Alta",
+      "signals": [],
+      "switch": "SW-P1",
+      "port": "1/1/8",
+      "port_description": "",
+      "vlan": 50,
+      "poe_watts": 36.0,
+      "wireless": false,
+      "access_point": "",
+      "ambiguous": false,
+      "note": "",
+      "located": true
+    }
+  ],
+  "issues": [
+    {
+      "severity": "AVISO",
+      "subject": "SW-SALA-REUNIOES",
+      "message": "Autenticação recusada (credenciais de leitura não aceites)."
+    },
+    {
+      "severity": "AVISO",
+      "subject": "SW-P0-B/Gi1/0/20",
+      "message": "4 equipamentos nesta porta e nenhum vizinho LLDP: parece haver um switch não gerido do outro lado."
+    }
+  ]
+}

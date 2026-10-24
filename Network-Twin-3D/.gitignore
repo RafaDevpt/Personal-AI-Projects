@@ -1,0 +1,55 @@
+# ===========================================================================
+# PT-PT: O que nunca deve entrar no repositório.
+#
+#        A entrada que mais importa são os projetos reais. Um projeto do
+#        Network Twin 3D junta o mapa da rede, a configuração desenhada e a
+#        planta do edifício com cada switch posto na sala onde está: é o mapa
+#        completo que alguém precisaria para atacar a rede — ou para entrar no
+#        bastidor. O repositório é público; só o exemplo sintético vive aqui.
+#
+#        Guarde os projetos reais fora do repositório. Estas regras são a
+#        segunda linha de defesa.
+#
+# EN-UK: What must never enter the repository. Above all, real projects: a
+#        project joins the network map, the designed configuration and the
+#        building plan with every switch in its room. The repository is
+#        public; only the synthetic example lives here.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+
+# PT-PT: Projetos e exportações reais. / EN-UK: Real projects and exports.
+projetos/
+projects/
+*.csv
+mapa-rede-*.json
+edificio-*.json
+cena*.json
+plantas/
+*.dxf
+*.dwg
+
+# PT-PT: O exemplo é sintético e é a única excepção às regras acima.
+# EN-UK: The example is synthetic and the only exception to the rules above.
+!exemplo/edificio-*.json
+!exemplo/plantas/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# PT-PT: Sistema e editores. / EN-UK: OS and editors.
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

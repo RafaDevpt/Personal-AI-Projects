@@ -1,0 +1,3 @@
+# PT-PT: Dependencias de execucao. / EN-UK: Runtime dependencies.
+# Created by Redfox using Claude
+pywebview>=5.0,<7.0

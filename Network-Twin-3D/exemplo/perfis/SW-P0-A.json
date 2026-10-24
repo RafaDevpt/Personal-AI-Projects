@@ -1,0 +1,192 @@
+{
+  "formato": 1,
+  "platform": "cisco_ios",
+  "management": {
+    "hostname": "SW-P0-A",
+    "mgmt_vlan": 10,
+    "mgmt_ip_cidr": "10.10.10.11/24",
+    "gateway": "10.10.10.1",
+    "domain": "hotel-exemplo.local",
+    "dns_servers": [
+      "10.10.10.5"
+    ]
+  },
+  "vlans": [
+    {
+      "vid": 10,
+      "name": "GESTAO",
+      "description": "Gestão de rede",
+      "ip_cidr": "10.10.10.0/24"
+    },
+    {
+      "vid": 20,
+      "name": "STAFF",
+      "description": "Postos de trabalho",
+      "ip_cidr": "10.10.20.0/24"
+    },
+    {
+      "vid": 30,
+      "name": "HOSPEDES",
+      "description": "Wi-Fi de hóspedes",
+      "ip_cidr": "10.10.30.0/23"
+    },
+    {
+      "vid": 40,
+      "name": "CCTV",
+      "description": "Câmaras",
+      "ip_cidr": "10.10.40.0/24"
+    },
+    {
+      "vid": 50,
+      "name": "VOZ",
+      "description": "Telefones IP",
+      "ip_cidr": "10.10.50.0/24"
+    },
+    {
+      "vid": 60,
+      "name": "POS",
+      "description": "Pontos de venda (PCI)",
+      "ip_cidr": "10.10.60.0/24"
+    },
+    {
+      "vid": 999,
+      "name": "NATIVA-NULA",
+      "description": "VLAN nativa sem uso",
+      "ip_cidr": ""
+    }
+  ],
+  "interfaces": [
+    {
+      "name": "GigabitEthernet1/0/48",
+      "description": "UPLINK SW-CORE",
+      "mode": "trunk",
+      "access_vlan": null,
+      "native_vlan": 999,
+      "tagged_vlans": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "voice_vlan": null,
+      "poe": false,
+      "enabled": true,
+      "edge_port": false
+    },
+    {
+      "name": "GigabitEthernet1/0/47",
+      "description": "ANEL SW-P0-B",
+      "mode": "trunk",
+      "access_vlan": null,
+      "native_vlan": 999,
+      "tagged_vlans": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "voice_vlan": null,
+      "poe": false,
+      "enabled": true,
+      "edge_port": false
+    },
+    {
+      "name": "GigabitEthernet1/0/1",
+      "description": "AP-LOBBY",
+      "mode": "trunk",
+      "access_vlan": null,
+      "native_vlan": 10,
+      "tagged_vlans": [
+        30
+      ],
+      "voice_vlan": null,
+      "poe": true,
+      "enabled": true,
+      "edge_port": false
+    },
+    {
+      "name": "GigabitEthernet1/0/2",
+      "description": "AP-RESTAURANTE",
+      "mode": "trunk",
+      "access_vlan": null,
+      "native_vlan": 10,
+      "tagged_vlans": [
+        30
+      ],
+      "voice_vlan": null,
+      "poe": true,
+      "enabled": true,
+      "edge_port": false
+    },
+    {
+      "name": "GigabitEthernet1/0/5",
+      "description": "PC RECECAO 1",
+      "mode": "access",
+      "access_vlan": 20,
+      "native_vlan": null,
+      "tagged_vlans": [],
+      "voice_vlan": 50,
+      "poe": true,
+      "enabled": true,
+      "edge_port": true
+    },
+    {
+      "name": "GigabitEthernet1/0/6",
+      "description": "PC RECECAO 2",
+      "mode": "access",
+      "access_vlan": 20,
+      "native_vlan": null,
+      "tagged_vlans": [],
+      "voice_vlan": 50,
+      "poe": true,
+      "enabled": true,
+      "edge_port": true
+    },
+    {
+      "name": "GigabitEthernet1/0/7",
+      "description": "POS RESTAURANTE",
+      "mode": "access",
+      "access_vlan": 60,
+      "native_vlan": null,
+      "tagged_vlans": [],
+      "voice_vlan": null,
+      "poe": true,
+      "enabled": true,
+      "edge_port": true
+    },
+    {
+      "name": "GigabitEthernet1/0/8",
+      "description": "IMPRESSORA RECECAO",
+      "mode": "access",
+      "access_vlan": 20,
+      "native_vlan": null,
+      "tagged_vlans": [],
+      "voice_vlan": null,
+      "poe": false,
+      "enabled": true,
+      "edge_port": true
+    }
+  ],
+  "services": {
+    "ntp_servers": [
+      "10.10.10.5"
+    ],
+    "syslog_servers": [],
+    "timezone": "WET",
+    "snmp_community": "",
+    "snmp_location": "",
+    "snmp_contact": ""
+  },
+  "security": {
+    "admin_user": "admin",
+    "banner": "",
+    "disable_telnet": true,
+    "disable_http": true,
+    "rapid_stp": true
+  },
+  "notes": "Exemplo sintético — Network Twin 3D"
+}

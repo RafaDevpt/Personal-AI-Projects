@@ -1,0 +1,1 @@
+three.js r186 — https://github.com/mrdoob/three.js (MIT). Copiado sem alterações de build/ e examples/jsm/ (controls, renderers, environments, postprocessing, shaders).

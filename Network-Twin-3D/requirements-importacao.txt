@@ -1,0 +1,7 @@
+# PT-PT: Opcional — editor de edifícios: DXF (CAD) e PDF.
+#        Instalar com: .venv\Scripts\pip install -r requirements-importacao.txt
+# EN-UK: Optional — building editor: DXF (CAD) and PDF.
+# Created by Redfox using Claude
+ezdxf>=1.3
+pypdfium2>=4.0
+pillow>=10.0

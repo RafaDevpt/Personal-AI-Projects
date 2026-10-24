@@ -1,0 +1,430 @@
+{
+  "formato": 1,
+  "tipo": "nettwin-project",
+  "nome": "Hotel Exemplo (dados sintéticos)",
+  "mapa": "mapa-rede.json",
+  "perfis": [
+    "perfis/SW-CORE.json",
+    "perfis/SW-P0-A.json",
+    "perfis/SW-P0-B.json",
+    "perfis/SW-P1.json",
+    "perfis/SW-EVENTOS.json",
+    "perfis/SW-GARAGEM.json"
+  ],
+  "edificios": [
+    "edificio-principal.json",
+    "edificio-pavilhao.json"
+  ],
+  "cablagem": [
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/1",
+      "b": "FW-EDGE",
+      "b_port": "port1"
+    },
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/45",
+      "b": "SW-P0-A",
+      "b_port": "Gi1/0/48"
+    },
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/47",
+      "b": "SW-P0-B",
+      "b_port": "Gi1/0/47"
+    },
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/46",
+      "b": "SW-P0-B",
+      "b_port": "Gi1/0/48",
+      "nota": "Segundo uplink — redundância do P0-B"
+    },
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/48",
+      "b": "SW-P1",
+      "b_port": "1/1/48"
+    },
+    {
+      "a": "SW-P0-A",
+      "a_port": "Gi1/0/47",
+      "b": "SW-P0-B",
+      "b_port": "Gi1/0/46",
+      "nota": "Anel entre os dois switches do P0"
+    },
+    {
+      "a": "SW-CORE",
+      "a_port": "Gi1/0/44",
+      "b": "SW-GARAGEM",
+      "b_port": "0/24"
+    },
+    {
+      "a": "SW-P1",
+      "a_port": "1/1/47",
+      "b": "SW-EVENTOS",
+      "b_port": "1/1/24"
+    },
+    {
+      "a": "SW-P0-A",
+      "a_port": "Gi1/0/1",
+      "b": "AP-LOBBY",
+      "b_port": "eth0"
+    },
+    {
+      "a": "SW-P0-A",
+      "a_port": "Gi1/0/2",
+      "b": "AP-RESTAURANTE",
+      "b_port": "eth0"
+    },
+    {
+      "a": "SW-P1",
+      "a_port": "1/1/12",
+      "b": "AP-P1-1",
+      "b_port": "eth0"
+    },
+    {
+      "a": "SW-P1",
+      "a_port": "1/1/13",
+      "b": "AP-P1-2",
+      "b_port": "eth0"
+    },
+    {
+      "a": "SW-EVENTOS",
+      "a_port": "1/1/1",
+      "b": "AP-EVENTOS",
+      "b_port": "eth0"
+    }
+  ],
+  "equipamentos": {
+    "FW-EDGE": {
+      "tipo": "router",
+      "camada": "borda"
+    },
+    "SW-P0-A": {
+      "orcamento_poe_w": 370
+    },
+    "SW-P0-B": {
+      "orcamento_poe_w": 740
+    },
+    "SW-P1": {
+      "orcamento_poe_w": 370
+    },
+    "SW-EVENTOS": {
+      "orcamento_poe_w": 139
+    }
+  },
+  "posicoes": {
+    "SW-GARAGEM": {
+      "edificio": "principal",
+      "piso": "P-1",
+      "sala": "garagem"
+    },
+    "AP-LOBBY": {
+      "edificio": "principal",
+      "piso": "P0",
+      "sala": "lobby"
+    },
+    "AP-RESTAURANTE": {
+      "edificio": "principal",
+      "piso": "P0",
+      "sala": "restaurante"
+    },
+    "AP-P1-1": {
+      "edificio": "principal",
+      "piso": "P1",
+      "sala": "corredor-p1",
+      "x": 15.0,
+      "y": 11.5
+    },
+    "AP-P1-2": {
+      "edificio": "principal",
+      "piso": "P1",
+      "sala": "corredor-p1",
+      "x": 45.0,
+      "y": 11.5
+    },
+    "SW-SALA-REUNIOES": {
+      "edificio": "principal",
+      "piso": "P1",
+      "sala": "sala-reunioes"
+    },
+    "AP-EVENTOS": {
+      "edificio": "pavilhao",
+      "piso": "PV0",
+      "sala": "salao"
+    }
+  },
+  "bastidores": [
+    {
+      "id": "srv-a1",
+      "nome": "SRV-A1 (rede)",
+      "edificio": "principal",
+      "piso": "P-1",
+      "sala": "sala-servidores",
+      "x": 3.0,
+      "y": 3.0,
+      "altura_u": 42,
+      "equipamentos": [
+        {
+          "nome": "Patch panel fibra",
+          "tipo": "patch_panel",
+          "u": 42,
+          "altura_u": 1
+        },
+        {
+          "nome": "Patch panel A",
+          "tipo": "patch_panel",
+          "u": 41,
+          "altura_u": 1
+        },
+        {
+          "nome": "Organizador",
+          "tipo": "organizador",
+          "u": 40,
+          "altura_u": 1
+        },
+        {
+          "nome": "SW-CORE",
+          "tipo": "switch",
+          "u": 39,
+          "altura_u": 1,
+          "equipamento_rede": "SW-CORE",
+          "modelo": "C9300-48P"
+        },
+        {
+          "nome": "Organizador",
+          "tipo": "organizador",
+          "u": 38,
+          "altura_u": 1
+        },
+        {
+          "nome": "FW-EDGE",
+          "tipo": "firewall",
+          "u": 36,
+          "altura_u": 2,
+          "equipamento_rede": "FW-EDGE",
+          "modelo": "Firewall 2U (exemplo)"
+        },
+        {
+          "nome": "Router operador",
+          "tipo": "router",
+          "u": 34,
+          "altura_u": 1
+        },
+        {
+          "nome": "Prateleira — modems",
+          "tipo": "prateleira",
+          "u": 32,
+          "altura_u": 2
+        },
+        {
+          "nome": "PDU",
+          "tipo": "pdu",
+          "u": 30,
+          "altura_u": 1
+        },
+        {
+          "nome": "UPS rede",
+          "tipo": "ups",
+          "u": 1,
+          "altura_u": 3,
+          "modelo": "UPS 3U 3 kVA (exemplo)"
+        }
+      ]
+    },
+    {
+      "id": "srv-a2",
+      "nome": "SRV-A2 (servidores)",
+      "edificio": "principal",
+      "piso": "P-1",
+      "sala": "sala-servidores",
+      "x": 3.7,
+      "y": 3.0,
+      "altura_u": 42,
+      "equipamentos": [
+        {
+          "nome": "KVM",
+          "tipo": "kvm",
+          "u": 30,
+          "altura_u": 1
+        },
+        {
+          "nome": "ESX-01",
+          "tipo": "servidor",
+          "u": 26,
+          "altura_u": 2,
+          "modelo": "Servidor 2U (exemplo)"
+        },
+        {
+          "nome": "ESX-02",
+          "tipo": "servidor",
+          "u": 24,
+          "altura_u": 2,
+          "modelo": "Servidor 2U (exemplo)"
+        },
+        {
+          "nome": "SRV-PMS",
+          "tipo": "servidor",
+          "u": 21,
+          "altura_u": 2,
+          "modelo": "Servidor 2U (exemplo)"
+        },
+        {
+          "nome": "NAS-BACKUP",
+          "tipo": "storage",
+          "u": 16,
+          "altura_u": 4,
+          "modelo": "NAS 4U (exemplo)"
+        },
+        {
+          "nome": "PDU",
+          "tipo": "pdu",
+          "u": 12,
+          "altura_u": 1
+        },
+        {
+          "nome": "UPS servidores",
+          "tipo": "ups",
+          "u": 1,
+          "altura_u": 4,
+          "modelo": "UPS 4U 6 kVA (exemplo)"
+        }
+      ]
+    },
+    {
+      "id": "srv-a3",
+      "nome": "SRV-A3 (reserva)",
+      "edificio": "principal",
+      "piso": "P-1",
+      "sala": "sala-servidores",
+      "x": 4.4,
+      "y": 3.0,
+      "altura_u": 42,
+      "equipamentos": []
+    },
+    {
+      "id": "bst-p0",
+      "nome": "Bastidor P0",
+      "edificio": "principal",
+      "piso": "P0",
+      "sala": "bastidor-p0",
+      "altura_u": 24,
+      "equipamentos": [
+        {
+          "nome": "Patch panel P0-1",
+          "tipo": "patch_panel",
+          "u": 24,
+          "altura_u": 1
+        },
+        {
+          "nome": "Patch panel P0-2",
+          "tipo": "patch_panel",
+          "u": 23,
+          "altura_u": 1
+        },
+        {
+          "nome": "Organizador",
+          "tipo": "organizador",
+          "u": 22,
+          "altura_u": 1
+        },
+        {
+          "nome": "SW-P0-A",
+          "tipo": "switch",
+          "u": 21,
+          "altura_u": 1,
+          "equipamento_rede": "SW-P0-A",
+          "modelo": "C9200-24P"
+        },
+        {
+          "nome": "SW-P0-B",
+          "tipo": "switch",
+          "u": 20,
+          "altura_u": 1,
+          "equipamento_rede": "SW-P0-B",
+          "modelo": "C9200-48P"
+        },
+        {
+          "nome": "UPS P0",
+          "tipo": "ups",
+          "u": 1,
+          "altura_u": 2
+        }
+      ]
+    },
+    {
+      "id": "bst-p1",
+      "nome": "Bastidor P1",
+      "edificio": "principal",
+      "piso": "P1",
+      "sala": "bastidor-p1",
+      "altura_u": 18,
+      "equipamentos": [
+        {
+          "nome": "Patch panel P1-1",
+          "tipo": "patch_panel",
+          "u": 18,
+          "altura_u": 1
+        },
+        {
+          "nome": "Patch panel P1-2",
+          "tipo": "patch_panel",
+          "u": 18,
+          "altura_u": 1
+        },
+        {
+          "nome": "Organizador",
+          "tipo": "organizador",
+          "u": 17,
+          "altura_u": 1
+        },
+        {
+          "nome": "SW-P1",
+          "tipo": "switch",
+          "u": 16,
+          "altura_u": 1,
+          "equipamento_rede": "SW-P1",
+          "modelo": "6100 48G CL4"
+        },
+        {
+          "nome": "UPS P1",
+          "tipo": "ups",
+          "u": 1,
+          "altura_u": 2
+        }
+      ]
+    },
+    {
+      "id": "bst-pv",
+      "nome": "Bastidor Pavilhão",
+      "edificio": "pavilhao",
+      "piso": "PV0",
+      "sala": "regie",
+      "altura_u": 12,
+      "equipamentos": [
+        {
+          "nome": "Patch panel fibra",
+          "tipo": "patch_panel",
+          "u": 12,
+          "altura_u": 1
+        },
+        {
+          "nome": "SW-EVENTOS",
+          "tipo": "switch",
+          "u": 10,
+          "altura_u": 1,
+          "equipamento_rede": "SW-EVENTOS",
+          "modelo": "6000 12G CL4"
+        },
+        {
+          "nome": "UPS",
+          "tipo": "ups",
+          "u": 1,
+          "altura_u": 2
+        }
+      ]
+    }
+  ]
+}

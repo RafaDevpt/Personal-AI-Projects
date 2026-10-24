@@ -1,0 +1,150 @@
+<!doctype html>
+<!--
+  PT-PT: Network Twin 3D — interface. Tudo local: Three.js vem de vendor/, sem CDN.
+  EN-UK: Network Twin 3D — interface. Everything local: Three.js from vendor/, no CDN.
+  Created by Redfox using Claude
+-->
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Network Twin 3D</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <button class="brand" id="btn-home" title="Início — escolher edifício">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>
+        <span class="brand-name">Network Twin 3D</span>
+        <span class="project-line"><span id="project-name">Sem projeto</span><span id="dirty" class="dirty" hidden>● por gravar</span></span>
+      </span>
+    </button>
+
+    <div class="nav" id="nav" hidden>
+      <label class="select-wrap" title="Edifício">
+        <span class="select-icon">🏢</span>
+        <select id="sel-building" aria-label="Edifício"></select>
+      </label>
+      <label class="select-wrap" title="Piso">
+        <span class="select-icon">≡</span>
+        <select id="sel-floor" aria-label="Piso"></select>
+      </label>
+      <div class="segmented" role="tablist" aria-label="Vista">
+        <button class="seg" data-view="rede" role="tab">Rede</button>
+        <button class="seg" data-view="edificio" role="tab">Edifício</button>
+        <button class="seg" data-view="bastidor" role="tab">Bastidor</button>
+      </div>
+    </div>
+
+    <div class="counts" id="counts" aria-live="polite"></div>
+
+    <div class="actions">
+      <button class="btn accent" id="btn-editor" data-needs-api>✎ Editor de edifícios</button>
+      <button class="btn" id="btn-save" data-needs-api data-needs-project>Guardar</button>
+      <div class="menu">
+        <button class="btn" id="btn-project" aria-haspopup="true">Projeto ▾</button>
+        <div class="menu-list" id="project-menu" hidden>
+          <button id="btn-open" data-needs-api>Abrir projeto…</button>
+          <button id="btn-new" data-needs-api>Novo a partir de ficheiros…</button>
+          <button id="btn-reload" data-needs-api data-needs-project>Recarregar do disco</button>
+          <hr>
+          <button data-export="constatacoes" data-needs-api data-needs-project>Exportar constatações (CSV)</button>
+          <button data-export="cabos" data-needs-api data-needs-project>Exportar lista de cabos (CSV)</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="stage" id="stage">
+      <canvas id="canvas"></canvas>
+      <div id="labels" class="labels"></div>
+
+      <div class="stage-tools" id="stage-tools" hidden>
+        <button class="chip-btn active" id="toggle-labels" title="Rótulos">Rótulos</button>
+        <button class="chip-btn active" id="toggle-flow" title="Animação de tráfego nos cabos">Tráfego</button>
+        <button class="chip-btn active" id="toggle-bloom" title="Brilho dos LEDs (desligar em PCs lentos)">Brilho</button>
+        <button class="chip-btn active" id="toggle-plan" title="Planta original no chão">Planta</button>
+        <button class="chip-btn" id="btn-top" title="Vista de cima (planta)">Vista de cima</button>
+        <button class="chip-btn" id="btn-fit" title="Enquadrar tudo (F)">Enquadrar</button>
+      </div>
+
+      <div class="building-tools" id="building-tools" hidden>
+        <label class="slider"><span>Afastar pisos</span>
+          <input type="range" id="explode" min="0" max="14" step="0.5" value="5"></label>
+        <label class="slider"><span>Planta</span>
+          <input type="range" id="plan-opacity" min="0" max="1" step="0.05" value="0.85"></label>
+      </div>
+
+      <div class="move-banner" id="move-banner" hidden>
+        <span>Clique no chão onde fica o bastidor.</span>
+        <button class="btn" id="move-cancel">Cancelar (Esc)</button>
+      </div>
+
+      <div class="unplaced" id="unplaced" hidden></div>
+
+      <!-- PT-PT: Ecrã de início: escolher o edifício. / EN-UK: Start screen: pick a building. -->
+      <div class="lobby" id="lobby">
+        <div class="lobby-inner">
+          <div class="lobby-head">
+            <h1 id="lobby-title">Gémeo digital da rede</h1>
+            <p id="lobby-sub">O que <strong>existe</strong> (Network Topology Mapper) contra o que foi <strong>desenhado</strong> (Network Config Builder), posto nos edifícios — com cada cabo verificado nas duas pontas.</p>
+          </div>
+          <div class="lobby-grid" id="lobby-grid"></div>
+          <div class="empty-actions" id="empty-actions">
+            <button class="btn primary" id="empty-example" data-needs-api>Abrir o hotel de exemplo</button>
+            <button class="btn" id="empty-open" data-needs-api>Abrir projeto…</button>
+            <button class="btn" id="empty-new" data-needs-api>Novo a partir de ficheiros…</button>
+          </div>
+          <p class="hint" id="empty-hint"></p>
+        </div>
+      </div>
+
+      <div class="no-building" id="no-building" hidden>
+        <p><strong>Este projeto ainda não tem edifícios.</strong></p>
+        <p>Use o <strong>Editor de edifícios</strong> para importar uma planta (imagem, PDF ou DXF) ou o contorno do OpenStreetMap.</p>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="findings" role="tab">Constatações</button>
+        <button class="tab" data-tab="detail" role="tab">Detalhe</button>
+        <button class="tab" data-tab="legend" role="tab">Legenda</button>
+      </nav>
+      <div class="tab-body" data-body="findings">
+        <div class="filters">
+          <div class="sev-filters" id="sev-filters"></div>
+          <input type="search" id="search" placeholder="Procurar equipamento, VLAN, código…" aria-label="Procurar">
+        </div>
+        <ol class="findings" id="findings"></ol>
+      </div>
+      <div class="tab-body" data-body="detail" hidden>
+        <div id="detail" class="detail"><p class="muted">Clique num equipamento, cabo, sala ou bastidor.</p></div>
+      </div>
+      <div class="tab-body" data-body="legend" hidden>
+        <div class="legend" id="legend"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status">Pronto.</span>
+    <span class="credit">Created by Redfox using Claude</span>
+  </footer>
+
+  <div class="editor-overlay" id="editor" hidden></div>
+  <div class="toast" id="toast" role="alert" hidden></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
