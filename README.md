@@ -51,7 +51,7 @@
 
 > **A collection of personal AI-assisted projects built to automate tasks, improve productivity and support both professional and personal activities.**
 
-Every tool here started as a real friction point in day-to-day hospitality IT operations — a manual check repeated 24 times, a form nobody could edit, a report someone typed by hand every Monday — and ended up as a small, self-contained application.
+Every tool here started as a real friction point in day-to-day IT operations — a manual check repeated 24 times, a form nobody could edit, a report someone typed by hand every Monday — and ended up as a small, self-contained application.
 
 <div align="center">
 
@@ -468,13 +468,12 @@ Terraform builds the image, rebuilding only when the code or dependencies change
 <tr>
 <td valign="top" width="60%">
 
-Built and maintained by **Rafael Santos** — IT Manager in luxury hospitality, working across PMS, POS, networking and compliance, with a habit of turning manual operations into tooling.
+Built and maintained by **Redfox**, with a habit of turning manual operations into tooling.
 
 These projects are personal work, published under the MIT licence so anyone facing the same problems can reuse them.
 
 <br />
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/rafaelsantosit/)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RafaDevpt)
 
 </td>
