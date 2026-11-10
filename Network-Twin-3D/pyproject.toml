@@ -14,7 +14,7 @@ description = "Gemeo digital da rede em 3D: o que existe vs o que foi desenhado 
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-authors = [{ name = "Rafael Santos (Redfox)" }]
+authors = [{ name = "Redfox" }]
 keywords = ["networking", "digital-twin", "3d", "vlan", "lldp", "topology", "rack", "floor-plan", "dxf", "pywebview", "threejs", "openstreetmap", "homography", "facade"]
 classifiers = [
     "Development Status :: 3 - Alpha",
