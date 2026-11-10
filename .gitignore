@@ -1,0 +1,20 @@
+# PT-PT: O hub so guarda o indice. Nada de segredos, credenciais ou dados.
+# EN-UK: The hub only holds the index. No secrets, credentials or data.
+# Created by Redfox using Claude
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+credentials*
+credenciais*
+secrets*
+*.log
+logs/
+output/
+outputs/
+saida/
+data/
+dados/
