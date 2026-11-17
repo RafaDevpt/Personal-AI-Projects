@@ -1,5 +1,5 @@
-# Compila a Contas Certas 2026 e publica o resultado em study-guides/contas-certas,
-# que o GitHub Pages serve em https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/
+# Compila a Contas Certas 2026 e guarda o site como artefacto, para ser copiado para
+# study-guides/contas-certas (servido em https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/)
 # Created by Redfox using Claude
 name: Build Contas Certas
 
@@ -9,8 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
-  pages: write
+  contents: read
 
 concurrency:
   group: contas-certas
@@ -35,27 +34,11 @@ jobs:
       - name: Compilar
         run: npm run build
 
-      - name: Publicar em study-guides/contas-certas
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        run: |
-          git config --global user.name "Redfox"
-          git config --global user.email "RafaDevpt@users.noreply.github.com"
-          git clone --depth 1 --branch study-guides "https://x-access-token:${TOKEN}@github.com/${REPO}.git" site
-          rm -rf site/contas-certas
-          cp -r dist site/contas-certas
-          cd site
-          git add -A
-          if git diff --cached --quiet; then echo "Sem alterações para publicar"; exit 0; fi
-          git commit -m "Contas Certas: build ${GITHUB_SHA::7}"
-          git push
-
-      - name: Pedir nova publicação ao GitHub Pages
-        continue-on-error: true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-        run: |
-          curl -sS -X POST -H "Authorization: Bearer ${TOKEN}" -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/repos/${REPO}/pages/builds"
+      # A regra "Protect" do repositório não deixa o bot do Actions escrever em branches,
+      # por isso o resultado fica como artefacto e é publicado em study-guides por quem tem permissão.
+      - name: Guardar o site compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: contas-certas-dist
+          path: dist
+          retention-days: 7

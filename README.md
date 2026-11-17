@@ -18,7 +18,7 @@ Todos os cálculos correm no browser: nenhum dado sai do dispositivo.
 | `contas-certas-src` | Código-fonte (React + Vite + Tailwind, SPA estática) |
 | `study-guides` | Site publicado no GitHub Pages; a pasta `contas-certas/` é gerada pelo workflow |
 
-Cada push para `contas-certas-src` corre `.github/workflows/build-contas-certas.yml`, que compila a app e copia o resultado para `study-guides/contas-certas/`.
+Cada push para `contas-certas-src` corre `.github/workflows/build-contas-certas.yml`, que compila a app e guarda o site como artefacto `contas-certas-dist`. Esse artefacto é copiado para `study-guides/contas-certas/` (a regra "Protect" do repositório não deixa o bot do Actions escrever em branches).
 
 A versão original foi feita no Lovable (TanStack Start com SSR). Aqui foi convertida numa SPA estática: rotas por hash (`#/salario`, `#/irs`, `#/regras`) e caminhos relativos, para funcionar numa subpasta do GitHub Pages.
 
