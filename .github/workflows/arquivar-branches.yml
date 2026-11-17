@@ -1,0 +1,30 @@
+# Workflow de uso único: cria as tags archive/branch-* com o histórico dos
+# branches antigos antes de serem apagados. É removido logo a seguir.
+# Created by Redfox using Claude
+name: Arquivar branches antigos
+
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/arquivar-branches.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  arquivar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Criar tags de arquivo
+        run: |
+          git config user.name "Redfox"
+          git config user.email "RafaDevpt@users.noreply.github.com"
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+          for b in network-twin-3d contas-certas-src study-guides; do
+            git tag -a "archive/branch-$b" "origin/$b" \
+              -m "Arquivo do branch $b antes da reorganização num main único (2026-11-17). Created by Redfox using Claude"
+          done
+          git push origin 'refs/tags/archive/branch-*'
