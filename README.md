@@ -8,6 +8,12 @@ EN-UK: Interactive study guides, served by GitHub Pages from this branch (`study
 | :--- | :--- | :--- |
 | AB-650 — Administering Microsoft 365 and AI Services | [`ab-650/`](ab-650/) | PT · EN |
 
+| Tool | Path | Languages |
+| :--- | :--- | :--- |
+| Contas Certas 2026 — salário líquido e IRS 2026 (Portugal) | [`contas-certas/`](contas-certas/) | PT |
+
+`contas-certas/` é gerado: o código-fonte está no ramo `contas-certas-src` e o build fica na tag `contas-certas-build`. Não editar esta pasta à mão. / `contas-certas/` is generated from the `contas-certas-src` branch; do not edit it by hand.
+
 ## Publishing / Publicação
 
 GitHub Pages → *Deploy from a branch* → branch `study-guides`, folder `/ (root)`.
