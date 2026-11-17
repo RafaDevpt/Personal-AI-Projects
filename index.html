@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-PT">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contas Certas 2026 — Salário líquido e IRS</title>
+    <meta name="description" content="Simulador de salário líquido e assistente de IRS 2026 para Portugal. Tudo calculado no seu dispositivo." />
+    <meta name="author" content="Redfox" />
+    <meta property="og:title" content="Contas Certas 2026" />
+    <meta property="og:description" content="Salário líquido e IRS 2026, calculados no seu dispositivo." />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#0F766E" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <script>
+      // Aplica o tema escuro antes de pintar a página (sem pedidos externos).
+      try{var s=JSON.parse(localStorage.getItem("contas-certas-2026:definicoes")||"{}");if(s.tema==="escuro")document.documentElement.classList.add("dark")}catch(e){}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

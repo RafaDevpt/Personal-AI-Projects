@@ -1,0 +1,7 @@
+node_modules
+dist
+public/ocr
+.env
+.env.*
+*.log
+.DS_Store

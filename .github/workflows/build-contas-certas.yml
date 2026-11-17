@@ -1,0 +1,61 @@
+# Compila a Contas Certas 2026 e publica o resultado em study-guides/contas-certas,
+# que o GitHub Pages serve em https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/
+# Created by Redfox using Claude
+name: Build Contas Certas
+
+on:
+  push:
+    branches: [contas-certas-src]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: contas-certas
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+
+      - name: Preparar OCR (tesseract.js + língua portuguesa)
+        run: npm run prepare:ocr
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Publicar em study-guides/contas-certas
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          git config --global user.name "Redfox"
+          git config --global user.email "RafaDevpt@users.noreply.github.com"
+          git clone --depth 1 --branch study-guides "https://x-access-token:${TOKEN}@github.com/${REPO}.git" site
+          rm -rf site/contas-certas
+          cp -r dist site/contas-certas
+          cd site
+          git add -A
+          if git diff --cached --quiet; then echo "Sem alterações para publicar"; exit 0; fi
+          git commit -m "Contas Certas: build ${GITHUB_SHA::7}"
+          git push
+
+      - name: Pedir nova publicação ao GitHub Pages
+        continue-on-error: true
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          curl -sS -X POST -H "Authorization: Bearer ${TOKEN}" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/pages/builds"
