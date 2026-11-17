@@ -1,4 +1,4 @@
-# Compila a Contas Certas 2026 e guarda o site como artefacto, para ser copiado para
+# Compila a Contas Certas 2026 e guarda o site na tag contas-certas-build, para ser copiado para
 # study-guides/contas-certas (servido em https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/)
 # Created by Redfox using Claude
 name: Build Contas Certas
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: contas-certas
@@ -34,11 +34,18 @@ jobs:
       - name: Compilar
         run: npm run build
 
-      # A regra "Protect" do repositório não deixa o bot do Actions escrever em branches,
-      # por isso o resultado fica como artefacto e é publicado em study-guides por quem tem permissão.
-      - name: Guardar o site compilado
-        uses: actions/upload-artifact@v4
-        with:
-          name: contas-certas-dist
-          path: dist
-          retention-days: 7
+      # A regra "Protect" do repositório não deixa o bot do Actions escrever em branches.
+      # O site compilado fica na tag "contas-certas-build" (as tags não estão protegidas) e quem
+      # tem permissão copia-o para study-guides/contas-certas.
+      - name: Guardar o site compilado na tag contas-certas-build
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd dist
+          git init -q
+          git config user.name "Redfox"
+          git config user.email "RafaDevpt@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Contas Certas build ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/tags/contas-certas-build
