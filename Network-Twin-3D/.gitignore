@@ -59,3 +59,21 @@ htmlcov/
 Thumbs.db
 .vscode/
 .idea/
+
+# --- PT-PT: Segredos, credenciais e dados / EN-UK: Secrets, credentials and data
+# Created by Redfox using Claude
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+credentials*
+credenciais*
+secrets*
+*.log
+logs/
+output/
+outputs/
+saida/
