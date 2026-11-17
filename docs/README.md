@@ -22,6 +22,7 @@ A pasta `docs/` é o site público do repositório, servido pelo **GitHub Pages*
 | :--- | :--- | :--- | :--- |
 | [`index.html`](index.html) | Página inicial dos guias e ferramentas | PT · EN | Escrita à mão |
 | [`ab-650/`](ab-650/) | 📘 Guia interativo da certificação AB-650 | PT · EN | Escrita à mão (um único ficheiro HTML) |
+| [`claude/`](claude/) | 🤖 Guia interativo de três cursos da Anthropic Academy | PT · EN | Escrita à mão (um único ficheiro HTML) |
 | [`contas-certas/`](contas-certas/) | 💶 Aplicação Contas Certas 2026 | PT | **Gerada** a partir de [`projects/contas-certas`](../projects/contas-certas/) — não editar à mão |
 
 ## 📘 Como são feitos os guias

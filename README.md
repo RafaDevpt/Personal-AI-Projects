@@ -58,6 +58,7 @@ flowchart LR
     P --> NT["🧊 Network Twin 3D<br/>Python · Three.js"]
     P --> CC["💶 Contas Certas 2026<br/>React · TypeScript"]
     D --> AB["📘 Guia AB-650"]
+    D --> CL["🤖 Guia Claude"]
     D --> CW["💶 Contas Certas (site)"]
     CC -. "build" .-> CW
     R --> T1["🔧 IT Toolkit"]
@@ -70,7 +71,7 @@ flowchart LR
     classDef proj fill:#1a1430,stroke:#a78bfa,color:#f1f5f9;
     classDef site fill:#241a0b,stroke:#f59e0b,color:#f1f5f9;
     classDef ext fill:#0b1a24,stroke:#38bdf8,color:#f1f5f9;
-    class hub hubc; class P,D,R zone; class NT,CC proj; class AB,CW site; class T1,T2,T3,T4 ext;
+    class hub hubc; class P,D,R zone; class NT,CC proj; class AB,CL,CW site; class T1,T2,T3,T4 ext;
 ```
 
 <br />
@@ -150,7 +151,7 @@ Guias interativos de certificações e cursos, pensados para estudo e para consu
 | Guia | Conteúdo | Abrir |
 | :--- | :--- | :--- |
 | 📘 **AB-650** — Microsoft 365 and AI Services Administrator | 58 tópicos, 8 casos reais, 34 armadilhas, 47 perguntas | [abrir →](https://rafadevpt.github.io/Personal-AI-Projects/ab-650/) |
-| 🤖 **Claude** — Claude Code 101 · Claude Enterprise · Claude API | Em preparação | — |
+| 🤖 **Claude** — Claude Code 101 · Claude Enterprise · Claude API | 58 tópicos, 8 casos reais, 34 armadilhas, 34 perguntas | [abrir →](https://rafadevpt.github.io/Personal-AI-Projects/claude/) |
 
 <p align="center"><a href="https://rafadevpt.github.io/Personal-AI-Projects/"><img src="https://img.shields.io/badge/página_dos_guias_→-f59e0b?style=for-the-badge&labelColor=0b1220" /></a></p>
 
@@ -267,6 +268,7 @@ Personal-AI-Projects/            ← branch único: main
 ├── docs/                        ← site do GitHub Pages
 │   ├── index.html               ← página inicial dos guias e ferramentas
 │   ├── ab-650/                  ← guia AB-650
+│   ├── claude/                  ← guia Claude Code · Enterprise · API
 │   └── contas-certas/           ← build publicado da Contas Certas (gerado)
 └── .github/workflows/           ← CI do Network Twin 3D e build da Contas Certas
 ```
