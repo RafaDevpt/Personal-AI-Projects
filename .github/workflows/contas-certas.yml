@@ -1,0 +1,69 @@
+# ===========================================================================
+# PT-PT: Compilação da Contas Certas 2026.
+#        Compila a SPA estática a partir de projects/contas-certas e guarda o
+#        resultado na tag `contas-certas-build`. A regra "Protect" do
+#        repositório não deixa o bot do Actions escrever em branches, por isso a
+#        cópia para docs/contas-certas (servida pelo GitHub Pages) é feita por
+#        quem tem permissão de escrita.
+# EN-UK: Builds the Contas Certas 2026 static SPA from projects/contas-certas
+#        and stores the output in the `contas-certas-build` tag. The repository
+#        "Protect" ruleset blocks the Actions bot from writing to branches, so a
+#        maintainer copies the build into docs/contas-certas.
+#
+# Created by Redfox using Claude
+# ===========================================================================
+name: Contas Certas 2026
+
+on:
+  push:
+    branches: [main]
+    paths: ['projects/contas-certas/**', '.github/workflows/contas-certas.yml']
+  pull_request:
+    branches: [main]
+    paths: ['projects/contas-certas/**', '.github/workflows/contas-certas.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: contas-certas
+  cancel-in-progress: true
+
+jobs:
+  compilar:
+    name: Compilar / Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: projects/contas-certas
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependências / Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Preparar OCR / Prepare OCR (tesseract.js + por)
+        run: npm run prepare:ocr
+
+      - name: Compilar / Build
+        run: npm run build
+
+      # Só em pushes para o main: num pull request o build serve apenas de verificação.
+      - name: Guardar o build na tag contas-certas-build / Store build in tag
+        if: github.event_name != 'pull_request'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd dist
+          git init -q
+          git config user.name "Redfox"
+          git config user.email "RafaDevpt@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Contas Certas build ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${REPO}.git" HEAD:refs/tags/contas-certas-build

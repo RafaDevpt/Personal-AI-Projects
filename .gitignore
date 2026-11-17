@@ -1,5 +1,5 @@
-# PT-PT: O hub so guarda o indice. Nada de segredos, credenciais ou dados.
-# EN-UK: The hub only holds the index. No secrets, credentials or data.
+# PT-PT: Nada de segredos, credenciais ou dados reais em nenhuma pasta.
+# EN-UK: No secrets, credentials or real data in any folder.
 # Created by Redfox using Claude
 .env
 .env.*

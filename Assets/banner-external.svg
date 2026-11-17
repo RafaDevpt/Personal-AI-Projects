@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200" role="img" aria-label="Repositórios dedicados">
+  <title>Repositórios dedicados</title>
+  <!-- Created by Redfox using Claude -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#0b1a24"/></linearGradient>
+    <radialGradient id="r" cx="0.85" cy="0.5" r="0.5"><stop offset="0" stop-color="#38bdf8" stop-opacity=".22"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></radialGradient>
+    <pattern id="p" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff" fill-opacity=".07"/></pattern>
+  </defs>
+  <rect width="1200" height="200" rx="18" fill="url(#g)"/>
+  <rect width="1200" height="200" rx="18" fill="url(#p)"/>
+  <rect width="1200" height="200" rx="18" fill="url(#r)"/>
+  <rect x="22" y="28" width="6" height="144" rx="3" fill="#38bdf8"/>
+  <text x="56" y="62" font-family="Cascadia Code,Consolas,monospace" font-size="15" letter-spacing="3" fill="#38bdf8">8 PROJETOS · WIN · LINUX · MAC</text>
+  <text x="56" y="116" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="48" font-weight="800" fill="#f1f5f9">Repositórios dedicados</text>
+  <text x="56" y="154" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="21" fill="#94a3b8">Oito ferramentas de IT, cada uma com repositório, CI e releases.</text>
+  <g transform="translate(1000 100)" fill="none" stroke="#38bdf8" stroke-width="3"><rect x="-70" y="-50" width="60" height="44" rx="8" fill="#38bdf8" fill-opacity=".14"/><rect x="10" y="-50" width="60" height="44" rx="8" fill="#38bdf8" fill-opacity=".22"/><rect x="-70" y="10" width="60" height="44" rx="8" fill="#38bdf8" fill-opacity=".22"/><rect x="10" y="10" width="60" height="44" rx="8" fill="#38bdf8" fill-opacity=".14"/></g>
+</svg>

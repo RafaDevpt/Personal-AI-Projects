@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guias de estudo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;800&family=Atkinson+Hyperlegible+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* Índice dos guias de estudo. Mesmo sistema visual dos guias: fundo claro suave, texto escuro sem preto puro, modo escuro automático. */
+:root{--bg:#edf1f4;--surface:#f9fafb;--ink:#1c2631;--ink-2:#4b5866;--line:#d3dae2;--accent:#1d5f86;--accent-soft:#dde9f1;
+  --font:"Atkinson Hyperlegible Next","Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;--mono:"Atkinson Hyperlegible Mono",Consolas,monospace;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#161b21;--surface:#1d232b;--ink:#dde4ea;--ink-2:#a3afbb;--line:#323b47;--accent:#7fb4d8;--accent-soft:#22313e;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 var(--font)}
+main{max-width:860px;margin:0 auto;padding:56px 22px 70px}
+h1{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;line-height:1.15;margin:0;text-wrap:balance}
+.lead{color:var(--ink-2);max-width:62ch;margin:12px 0 34px}
+.list{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:start;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+a.item:hover{border-color:var(--accent)}
+.item:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.code{grid-row:span 2;font:600 .82rem var(--mono);color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:6px;white-space:nowrap}
+.item b{font-size:1.05rem}
+.item span{color:var(--ink-2);font-size:.92rem}
+.soon{opacity:.6}
+footer{margin-top:40px;color:var(--ink-2);font-size:.88rem}
+</style>
+</head>
+<body>
+<main>
+  <h1>Guias de estudo · Study guides</h1>
+  <p class="lead">Guias interativos para certificações e cursos, com explicações, casos reais, armadilhas e treino. Interactive guides for certifications and courses, with explanations, real cases, traps and practice. PT / EN.</p>
+  <div class="list">
+    <a class="item" href="ab-650/"><span class="code">AB-650</span><b>Administering Microsoft 365 and AI Services</b><span>Microsoft 365 and AI Services Administrator Associate · 58 tópicos, 8 casos, 47 perguntas</span></a>
+    <a class="item" href="contas-certas/"><span class="code">IRS 2026</span><b>Contas Certas 2026</b><span>Simulador de salário líquido e assistente de IRS 2026 (Portugal) · cálculos feitos no teu dispositivo · só PT</span></a>
+    <div class="item soon"><span class="code">Claude</span><b>Claude Code 101 · Claude Enterprise · Building with the Claude API</b><span>Em preparação · Coming soon</span></div>
+  </div>
+  <footer>Created by Redfox using Claude</footer>
+</main>
+</body>
+</html>

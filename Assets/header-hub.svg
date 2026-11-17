@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" width="1200" height="360" role="img" aria-label="Personal AI Projects — Redfox">
+  <title>Personal AI Projects — Redfox</title>
+  <!-- Created by Redfox using Claude -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="0.55" stop-color="#111a2e"/>
+      <stop offset="1" stop-color="#1a1430"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0.18" cy="0.3" r="0.45">
+      <stop offset="0" stop-color="#2dd4bf" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#2dd4bf" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0.85" cy="0.75" r="0.5">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <style>
+      .t{font-family:'Segoe UI',Inter,system-ui,-apple-system,sans-serif}
+      .mono{font-family:'Cascadia Code',Consolas,'SFMono-Regular',monospace}
+      .node{animation:pulse 3.2s ease-in-out infinite}
+      .n2{animation-delay:.8s}.n3{animation-delay:1.6s}.n4{animation-delay:2.4s}
+      .flow{stroke-dasharray:6 10;animation:dash 6s linear infinite}
+      @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+      @keyframes dash{to{stroke-dashoffset:-160}}
+      @media (prefers-reduced-motion:reduce){.node,.flow{animation:none}}
+    </style>
+  </defs>
+
+  <rect width="1200" height="360" rx="22" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="22" fill="url(#grid)"/>
+  <rect width="1200" height="360" rx="22" fill="url(#glowA)"/>
+  <rect width="1200" height="360" rx="22" fill="url(#glowB)"/>
+
+  <!-- Rede de nós à direita / node network on the right -->
+  <g stroke-width="2" fill="none">
+    <path class="flow" d="M770 120 L880 80 L1010 130 L1110 90" stroke="#2dd4bf" stroke-opacity=".7"/>
+    <path class="flow" d="M770 120 L860 210 L1000 240 L1110 200" stroke="#a78bfa" stroke-opacity=".7"/>
+    <path class="flow" d="M880 80 L860 210 M1010 130 L1000 240" stroke="#f59e0b" stroke-opacity=".55"/>
+  </g>
+  <g>
+    <circle class="node" cx="770" cy="120" r="9" fill="#2dd4bf"/>
+    <circle class="node n2" cx="880" cy="80" r="7" fill="#2dd4bf"/>
+    <circle class="node n3" cx="1010" cy="130" r="8" fill="#f59e0b"/>
+    <circle class="node n4" cx="1110" cy="90" r="6" fill="#2dd4bf"/>
+    <circle class="node n2" cx="860" cy="210" r="8" fill="#a78bfa"/>
+    <circle class="node n3" cx="1000" cy="240" r="9" fill="#a78bfa"/>
+    <circle class="node" cx="1110" cy="200" r="6" fill="#f59e0b"/>
+  </g>
+
+  <!-- Janela de terminal / terminal window -->
+  <g transform="translate(770 268)">
+    <rect width="360" height="64" rx="10" fill="#0b1220" stroke="#ffffff" stroke-opacity=".12"/>
+    <circle cx="18" cy="16" r="5" fill="#f87171"/><circle cx="34" cy="16" r="5" fill="#fbbf24"/><circle cx="50" cy="16" r="5" fill="#34d399"/>
+    <text x="18" y="48" class="mono" font-size="15" fill="#cbd5e1"><tspan fill="#2dd4bf">redfox@hub</tspan>:~$ ls projects/ docs/</text>
+  </g>
+
+  <!-- Título / title -->
+  <text x="64" y="96" class="mono" font-size="16" fill="#2dd4bf" letter-spacing="3">REDFOX · RAFADEVPT</text>
+  <text x="64" y="166" class="t" font-size="62" font-weight="800" fill="#f1f5f9">Personal AI Projects</text>
+  <text x="64" y="212" class="t" font-size="22" fill="#94a3b8">Ferramentas de IT, gémeos digitais de rede e guias de estudo,</text>
+  <text x="64" y="242" class="t" font-size="22" fill="#94a3b8">construídos com apoio de IA para o trabalho do dia a dia.</text>
+
+  <!-- Etiquetas / chips -->
+  <g class="t" font-size="15" font-weight="600">
+    <rect x="64" y="276" width="142" height="34" rx="17" fill="#2dd4bf" fill-opacity=".14" stroke="#2dd4bf" stroke-opacity=".5"/>
+    <text x="135" y="298" text-anchor="middle" fill="#5eead4">IT Operations</text>
+    <rect x="218" y="276" width="150" height="34" rx="17" fill="#a78bfa" fill-opacity=".14" stroke="#a78bfa" stroke-opacity=".5"/>
+    <text x="293" y="298" text-anchor="middle" fill="#c4b5fd">Networking 3D</text>
+    <rect x="380" y="276" width="150" height="34" rx="17" fill="#f59e0b" fill-opacity=".14" stroke="#f59e0b" stroke-opacity=".5"/>
+    <text x="455" y="298" text-anchor="middle" fill="#fcd34d">Study Guides</text>
+    <rect x="542" y="276" width="130" height="34" rx="17" fill="#38bdf8" fill-opacity=".14" stroke="#38bdf8" stroke-opacity=".5"/>
+    <text x="607" y="298" text-anchor="middle" fill="#7dd3fc">Web Tools</text>
+  </g>
+</svg>
