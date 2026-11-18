@@ -10,8 +10,8 @@
   <rect width="1200" height="200" rx="18" fill="url(#p)"/>
   <rect width="1200" height="200" rx="18" fill="url(#r)"/>
   <rect x="22" y="28" width="6" height="144" rx="3" fill="#2dd4bf"/>
-  <text x="56" y="62" font-family="Cascadia Code,Consolas,monospace" font-size="15" letter-spacing="3" fill="#2dd4bf">PUBLICADO · WEB</text>
+  <text x="56" y="62" font-family="Cascadia Code,Consolas,monospace" font-size="15" letter-spacing="3" fill="#2dd4bf">PUBLISHED · WEB</text>
   <text x="56" y="116" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="48" font-weight="800" fill="#f1f5f9">Contas Certas 2026</text>
-  <text x="56" y="154" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="21" fill="#94a3b8">Salário líquido e IRS 2026, calculados no próprio dispositivo.</text>
+  <text x="56" y="154" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="21" fill="#94a3b8">Portuguese net salary and 2026 income tax, calculated on the device.</text>
   <g transform="translate(1000 100)"><rect x="-56" y="-56" width="112" height="112" rx="28" fill="#2dd4bf" fill-opacity=".16" stroke="#2dd4bf" stroke-width="3"/><text x="0" y="24" text-anchor="middle" font-family="Segoe UI,system-ui,sans-serif" font-size="68" font-weight="800" fill="#2dd4bf">€</text></g>
 </svg>

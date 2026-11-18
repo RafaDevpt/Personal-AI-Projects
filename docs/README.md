@@ -1,47 +1,45 @@
 <!--
-  docs/ — site do GitHub Pages
+  docs/ — GitHub Pages site
   Created by Redfox using Claude
 -->
 
 <div align="center">
 
-<img src="../Assets/banner-study-guides.svg" width="100%" alt="Guias de estudo e ferramentas web" />
+<img src="../Assets/banner-study-guides.svg" width="100%" alt="Study guides and web tools" />
 
-<a href="https://rafadevpt.github.io/Personal-AI-Projects/"><img src="https://img.shields.io/badge/abrir_o_site_→-f59e0b?style=for-the-badge&labelColor=0b1220" /></a>
-<a href="../README.md"><img src="https://img.shields.io/badge/←_voltar_ao_índice-30363d?style=for-the-badge" /></a>
+<a href="https://rafadevpt.github.io/Personal-AI-Projects/"><img src="https://img.shields.io/badge/open_the_site_→-f59e0b?style=for-the-badge&labelColor=0b1220" /></a>
+<a href="../README.md"><img src="https://img.shields.io/badge/←_back_to_the_index-30363d?style=for-the-badge" /></a>
 
 </div>
 
-## 🌐 O que é esta pasta
+## 🌐 What this folder is
 
-A pasta `docs/` é o site público do repositório, servido pelo **GitHub Pages** em [rafadevpt.github.io/Personal-AI-Projects](https://rafadevpt.github.io/Personal-AI-Projects/). Cada subpasta é uma página autónoma: abre-se diretamente no browser e não precisa de servidor.
+The `docs/` folder is the repository's public site, served by **GitHub Pages** at [rafadevpt.github.io/Personal-AI-Projects](https://rafadevpt.github.io/Personal-AI-Projects/). Each subfolder is a self-contained page: it opens directly in the browser and needs no server.
 
-> **EN-UK summary.** `docs/` is the repository's public site, served by GitHub Pages. Each subfolder is a self-contained page.
-
-| Página | Tipo | Idiomas | Origem |
+| Page | Type | Languages | Source |
 | :--- | :--- | :--- | :--- |
-| [`index.html`](index.html) | Página inicial dos guias e ferramentas | PT · EN | Escrita à mão |
-| [`ab-650/`](ab-650/) | 📘 Guia interativo da certificação AB-650 | PT · EN | Escrita à mão (um único ficheiro HTML) |
-| [`claude/`](claude/) | 🤖 Guia interativo de três cursos da Anthropic Academy | PT · EN | Escrita à mão (um único ficheiro HTML) |
-| [`contas-certas/`](contas-certas/) | 💶 Aplicação Contas Certas 2026 | PT | **Gerada** a partir de [`projects/contas-certas`](../projects/contas-certas/) — não editar à mão |
+| [`index.html`](index.html) | Home page for the guides and tools | EN · PT | Hand-written |
+| [`ab-650/`](ab-650/) | 📘 Interactive guide to the AB-650 certification | EN · PT | Hand-written (a single HTML file) |
+| [`claude/`](claude/) | 🤖 Interactive guide to three Anthropic Academy courses | EN · PT | Hand-written (a single HTML file) |
+| [`contas-certas/`](contas-certas/) | 💶 Contas Certas 2026 application | PT | **Generated** from [`projects/contas-certas`](../projects/contas-certas/) — not to be edited by hand |
 
-## 📘 Como são feitos os guias
+## 📘 How the guides are made
 
-Os guias seguem o programa oficial de cada certificação ou curso e estão pensados para leitura longa sem cansar a vista:
+The guides follow the official syllabus of each certification or course and are designed for long reading sessions without eye strain:
 
-| Escolha | Porquê |
+| Choice | Why |
 | :--- | :--- |
-| Tema claro por omissão, escuro opcional | O texto escuro sobre fundo claro lê-se melhor de dia; à noite, o escuro é mais confortável |
-| Sem preto nem branco puros | Reduz o contraste excessivo que cansa em sessões longas |
-| Letra Atkinson Hyperlegible, 17 px, entrelinha 1,65 | Letras fáceis de distinguir e linhas arejadas |
-| Linhas até cerca de 68 caracteres | O olho não se perde a mudar de linha |
-| Índice lateral e tópicos recolhíveis | Leitura em blocos curtos, com progresso marcado |
+| Light theme by default, dark theme optional | Dark text on a light background reads better by day; at night, the dark theme is more comfortable |
+| No pure black or pure white | Reduces the excessive contrast that tires the eyes in long sessions |
+| Atkinson Hyperlegible typeface, 17 px, line height 1.65 | Letters that are easy to tell apart and airy lines |
+| Lines of about 68 characters at most | The eye does not lose its place when moving to the next line |
+| Side index and collapsible topics | Reading in short blocks, with progress tracked |
 
-Cada tópico tem quatro partes: **o que é**, **factos-chave**, **caso real** e **armadilha**. O separador **Treino** tem perguntas de cenário com explicação.
+Every topic has four parts: **what it is**, **key facts**, **real case** and **trap**. The **Practice** tab has scenario questions with explanations.
 
-## ⚙️ Publicação
+## ⚙️ Publishing
 
-O GitHub Pages está configurado para **Deploy from a branch → `main` → `/docs`**. Cada commit em `docs/` publica o site em poucos minutos. O ficheiro `.nojekyll` desliga o processamento Jekyll, para os ficheiros serem servidos tal como estão.
+GitHub Pages is set to **Deploy from a branch → `main` → `/docs`**. Every commit to `docs/` publishes the site within a few minutes. The `.nojekyll` file switches off Jekyll processing, so the files are served exactly as they are.
 
 <br />
 

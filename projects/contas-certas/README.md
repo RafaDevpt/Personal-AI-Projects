@@ -8,119 +8,117 @@
 <img src="../../Assets/banner-contas-certas.svg" width="100%" alt="Contas Certas 2026" />
 
 [![Build](https://img.shields.io/github/actions/workflow/status/RafaDevpt/Personal-AI-Projects/contas-certas.yml?branch=main&style=flat-square&label=build&labelColor=0b1220)](https://github.com/RafaDevpt/Personal-AI-Projects/actions/workflows/contas-certas.yml)
-![Estado](https://img.shields.io/badge/estado-publicado-2dd4bf?style=flat-square&labelColor=0b1220)
+![Status](https://img.shields.io/badge/status-published-2dd4bf?style=flat-square&labelColor=0b1220)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white&labelColor=0b1220)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white&labelColor=0b1220)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white&labelColor=0b1220)
-![Privacidade](https://img.shields.io/badge/dados-ficam_no_dispositivo-2dd4bf?style=flat-square&labelColor=0b1220)
+![Privacy](https://img.shields.io/badge/data-stays_on_the_device-2dd4bf?style=flat-square&labelColor=0b1220)
 
-<a href="https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/"><img src="https://img.shields.io/badge/abrir_a_aplicação_→-2dd4bf?style=for-the-badge&labelColor=0b1220" /></a>
-<a href="../../README.md"><img src="https://img.shields.io/badge/←_voltar_ao_índice-30363d?style=for-the-badge" /></a>
+<a href="https://rafadevpt.github.io/Personal-AI-Projects/contas-certas/"><img src="https://img.shields.io/badge/open_the_app_→-2dd4bf?style=for-the-badge&labelColor=0b1220" /></a>
+<a href="../../README.md"><img src="https://img.shields.io/badge/←_back_to_the_index-30363d?style=for-the-badge" /></a>
 
 </div>
 
-## 💶 O que é
+## 💶 What it is
 
-A **Contas Certas 2026** é uma aplicação web que responde a duas perguntas simples, em português europeu: *quanto se recebe ao fim do mês* e *se, em 2027, a declaração de IRS vai dar reembolso ou imposto a pagar*. Destina-se a pessoas sem formação fiscal, por isso cada campo tem uma explicação curta e os resultados aparecem à medida que se escreve.
+**Contas Certas 2026** is a web application that answers two simple questions, in European Portuguese: *how much is paid at the end of the month*, and *whether the 2027 income tax (IRS) return will produce a refund or a bill*. It is aimed at people with no tax background, so every field carries a short explanation and the results appear as the user types.
 
-Todos os cálculos são feitos no browser. A aplicação não tem servidor, contas nem registos, e os ficheiros que a pessoa carrega (declarações, capturas do e-fatura) são lidos apenas no próprio dispositivo.
+Every calculation happens in the browser. The application has no server, no accounts and no logs, and the files a user uploads (employer statements, e-fatura screenshots) are read only on the user's own device.
 
-> **EN-UK summary.** A Portuguese (Portugal) net-salary and 2026 income-tax simulator. Everything runs in the browser: no server, no accounts, and uploaded files are parsed on the device.
-
-## ✨ Funcionalidades
+## ✨ Features
 
 <table>
 <tr>
 <td width="33%" valign="top">
 
-### 💼 Salário líquido
-- Do bruto para o líquido e do líquido para o bruto
-- Tabelas de retenção de 2026 (I, II e III)
-- Subsídio de refeição em cartão ou dinheiro
-- Duodécimos, IRS Jovem e dependentes
-- Retenção reduzida a 50% em novembro de 2026
-- Custo total para a empresa
+### 💼 Net salary
+- Gross to net and net to gross
+- 2026 withholding tables (I, II and III)
+- Meal allowance on card or in cash
+- Twelfths, IRS Jovem and dependants
+- Withholding reduced by 50% in November 2026
+- Total cost to the employer
 
 </td>
 <td width="33%" valign="top">
 
 ### 🧾 IRS 2026
-- Assistente em 4 passos
-- Compara tributação conjunta e separada
-- Lê a declaração anual da empresa (PDF)
-- Lê o e-fatura por PDF ou captura (OCR local)
-- Deduções, PPR, rendas, incapacidade
-- Avisos quando falta informação
+- A four-step assistant
+- Compares joint and separate taxation
+- Reads the employer's annual statement (PDF)
+- Reads e-fatura by PDF or screenshot (local OCR)
+- Deductions, PPR, rent, disability
+- Warnings when information is missing
 
 </td>
 <td width="33%" valign="top">
 
-### 📜 Regras 2026
-- Todos os parâmetros fiscais usados
-- Cada valor com a fonte legal
-- Escalões, tabelas, deduções e limites
-- Uma única fonte de valores no código: `rules2026.ts`
+### 📜 2026 rules
+- Every tax parameter used
+- Each value with its legal source
+- Bands, tables, deductions and limits
+- A single source of values in the code: `rules2026.ts`
 
 </td>
 </tr>
 </table>
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
 ```mermaid
 flowchart LR
-    U(["👤 Pessoa"]) --> UI["⚛️ React + TanStack Router<br/>rotas #/salario · #/irs · #/regras"]
-    UI --> F["🧮 Motor fiscal<br/>src/lib/fiscal"]
-    F --> R["📜 rules2026.ts<br/>todos os valores e fontes"]
-    UI --> I["📄 Importação<br/>src/lib/import"]
-    I --> PDF["pdf.js<br/>texto de PDFs"]
-    I --> OCR["tesseract.js<br/>OCR em português"]
-    UI --> LS[("💾 localStorage<br/>só neste browser")]
+    U(["👤 User"]) --> UI["⚛️ React + TanStack Router<br/>routes #/salario · #/irs · #/regras"]
+    UI --> F["🧮 Tax engine<br/>src/lib/fiscal"]
+    F --> R["📜 rules2026.ts<br/>every value and source"]
+    UI --> I["📄 Import<br/>src/lib/import"]
+    I --> PDF["pdf.js<br/>PDF text"]
+    I --> OCR["tesseract.js<br/>Portuguese OCR"]
+    UI --> LS[("💾 localStorage<br/>this browser only")]
 
     classDef a fill:#0f2420,stroke:#2dd4bf,color:#f1f5f9;
     classDef b fill:#111a2e,stroke:#94a3b8,color:#f1f5f9;
     class UI,F,I a; class R,PDF,OCR,LS,U b;
 ```
 
-| Pasta | Conteúdo |
+| Folder | Contents |
 | :--- | :--- |
-| `src/routes/` | As quatro páginas: início, salário, IRS e regras |
-| `src/lib/fiscal/` | Motor de cálculo: retenção, salário, IRS e parâmetros de 2026 |
-| `src/lib/import/` | Leitura da declaração da empresa e do e-fatura (PDF e OCR) |
-| `src/components/` | Campos de formulário, resultados e componentes de interface |
-| `scripts/prepare-ocr.mjs` | Copia o motor de OCR para `public/ocr` e descarrega os dados da língua portuguesa |
+| `src/routes/` | The four pages: home, salary, IRS and rules |
+| `src/lib/fiscal/` | Calculation engine: withholding, salary, IRS and the 2026 parameters |
+| `src/lib/import/` | Reading of the employer statement and e-fatura (PDF and OCR) |
+| `src/components/` | Form fields, results and interface components |
+| `scripts/prepare-ocr.mjs` | Copies the OCR engine into `public/ocr` and downloads the Portuguese language data |
 
-## 🚀 Publicação
+## 🚀 Publishing
 
 ```mermaid
 flowchart LR
-    A["✏️ Alteração em<br/>projects/contas-certas"] --> B["⚙️ Workflow<br/>contas-certas.yml"]
+    A["✏️ Change in<br/>projects/contas-certas"] --> B["⚙️ Workflow<br/>contas-certas.yml"]
     B --> C["🏷️ Tag<br/>contas-certas-build"]
     C --> D["📁 docs/contas-certas"]
     D --> E["🌐 GitHub Pages"]
 ```
 
-1. Cada alteração em `projects/contas-certas` corre o workflow [`contas-certas.yml`](../../.github/workflows/contas-certas.yml), que instala as dependências, prepara o OCR e compila a aplicação.
-2. O resultado fica guardado na tag `contas-certas-build`. A regra de proteção do repositório não deixa o bot do GitHub Actions escrever em branches, por isso o build não é copiado automaticamente.
-3. O mantenedor copia o conteúdo da tag para `docs/contas-certas` e faz commit. O GitHub Pages publica a nova versão em poucos minutos.
+1. Every change in `projects/contas-certas` runs the [`contas-certas.yml`](../../.github/workflows/contas-certas.yml) workflow, which installs the dependencies, prepares the OCR and builds the application.
+2. The result is stored in the `contas-certas-build` tag. The repository's protection rule does not allow the GitHub Actions bot to write to branches, so the build is not copied automatically.
+3. The maintainer copies the tag's contents into `docs/contas-certas` and commits them. GitHub Pages publishes the new version within a few minutes.
 
-A aplicação usa rotas por hash (`#/salario`) e caminhos relativos, para funcionar numa subpasta do GitHub Pages sem configuração no servidor.
+The application uses hash routes (`#/salario`) and relative paths, so it works in a GitHub Pages subfolder with no server configuration.
 
-## 💻 Correr localmente
+## 💻 Running locally
 
 ```bash
 cd projects/contas-certas
 npm install
-npm run prepare:ocr     # motor de OCR e dados da língua portuguesa
+npm run prepare:ocr     # OCR engine and Portuguese language data
 npm run dev             # http://localhost:5173
 ```
 
-## 📌 Origem e limites
+## 📌 Origin and limits
 
-- A versão original foi construída no Lovable com TanStack Start (SSR). Esta pasta contém a conversão para uma SPA estática, com o mesmo motor de cálculo e a mesma interface.
-- As alterações feitas no Lovable não chegam aqui sozinhas: têm de ser sincronizadas.
-- Âmbito: trabalho por conta de outrem (categoria A), residentes no Continente.
-- **Simulação indicativa.** O valor que conta é o que as Finanças calcularem no Portal das Finanças.
+- The original version was built in Lovable with TanStack Start (SSR). This folder holds the conversion to a static SPA, with the same calculation engine and the same interface.
+- Changes made in Lovable do not reach this folder on their own: they have to be synchronised.
+- Scope: employed work (category A), residents of mainland Portugal.
+- **Indicative simulation.** The figure that counts is the one the Tax Authority calculates on the Portal das Finanças.
 
 <br />
 

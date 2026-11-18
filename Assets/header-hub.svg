@@ -61,8 +61,8 @@
   <!-- Título / title -->
   <text x="64" y="96" class="mono" font-size="16" fill="#2dd4bf" letter-spacing="3">REDFOX · RAFADEVPT</text>
   <text x="64" y="166" class="t" font-size="62" font-weight="800" fill="#f1f5f9">Personal AI Projects</text>
-  <text x="64" y="212" class="t" font-size="22" fill="#94a3b8">Ferramentas de IT, gémeos digitais de rede e guias de estudo,</text>
-  <text x="64" y="242" class="t" font-size="22" fill="#94a3b8">construídos com apoio de IA para o trabalho do dia a dia.</text>
+  <text x="64" y="212" class="t" font-size="22" fill="#94a3b8">IT tools, network digital twins and study guides,</text>
+  <text x="64" y="242" class="t" font-size="22" fill="#94a3b8">built with the help of AI for everyday work.</text>
 
   <!-- Etiquetas / chips -->
   <g class="t" font-size="15" font-weight="600">

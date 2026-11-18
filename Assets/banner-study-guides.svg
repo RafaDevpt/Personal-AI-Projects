@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200" role="img" aria-label="Guias de estudo">
-  <title>Guias de estudo</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" width="1200" height="200" role="img" aria-label="Study guides">
+  <title>Study guides</title>
   <!-- Created by Redfox using Claude -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#241a0b"/></linearGradient>
@@ -10,8 +10,8 @@
   <rect width="1200" height="200" rx="18" fill="url(#p)"/>
   <rect width="1200" height="200" rx="18" fill="url(#r)"/>
   <rect x="22" y="28" width="6" height="144" rx="3" fill="#f59e0b"/>
-  <text x="56" y="62" font-family="Cascadia Code,Consolas,monospace" font-size="15" letter-spacing="3" fill="#f59e0b">PUBLICADO · GITHUB PAGES</text>
-  <text x="56" y="116" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="48" font-weight="800" fill="#f1f5f9">Guias de estudo</text>
-  <text x="56" y="154" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="21" fill="#94a3b8">Guias interativos de certificações e cursos, em PT e EN.</text>
+  <text x="56" y="62" font-family="Cascadia Code,Consolas,monospace" font-size="15" letter-spacing="3" fill="#f59e0b">PUBLISHED · GITHUB PAGES</text>
+  <text x="56" y="116" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="48" font-weight="800" fill="#f1f5f9">Study guides</text>
+  <text x="56" y="154" font-family="Segoe UI,Inter,system-ui,sans-serif" font-size="21" fill="#94a3b8">Interactive guides for certifications and courses, in PT and EN.</text>
   <g transform="translate(1000 100)" fill="none" stroke="#f59e0b" stroke-width="3"><path d="M-64 -44 Q-32 -60 0 -44 L0 56 Q-32 40 -64 56 Z" fill="#f59e0b" fill-opacity=".14"/><path d="M64 -44 Q32 -60 0 -44 L0 56 Q32 40 64 56 Z" fill="#f59e0b" fill-opacity=".22"/><path d="M-50 -24 H-14 M-50 -4 H-14 M-50 16 H-24 M14 -24 H50 M14 -4 H50 M14 16 H40" stroke-width="2.5"/></g>
 </svg>
