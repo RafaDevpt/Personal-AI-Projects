@@ -47,6 +47,10 @@ jobs:
       - name: Instalar dependências / Install dependencies
         run: npm install --no-audit --no-fund
 
+      # Leitura das capturas do e-fatura: um valor errado sem aviso faz falhar o build.
+      - name: Testes / Tests (leitura do e-fatura)
+        run: npm test
+
       - name: Preparar OCR / Prepare OCR (tesseract.js + por)
         run: npm run prepare:ocr
 

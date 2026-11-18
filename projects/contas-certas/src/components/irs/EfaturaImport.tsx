@@ -7,6 +7,7 @@ import type { EfaturaBloco } from "@/lib/fiscal/irs";
 import { SETORES_IVA } from "@/lib/fiscal/rules2026";
 import { formatEUR } from "@/lib/format";
 import { eErroEfatura, parseEfatura, type CampoEfatura, type EfaturaLido } from "@/lib/import/efatura";
+import { juntarLeituras, parseEfaturaPosicional } from "@/lib/import/efaturaPosicional";
 import { cn } from "@/lib/utils";
 
 const QUADRADOS: { key: CampoEfatura; label: string }[] = [
@@ -45,30 +46,39 @@ export function EfaturaImport({ idPrefix, bloco, onAplicar }: {
     try {
       for (const ficheiro of validos) {
         const pdf = ehPdf(ficheiro);
-        let texto: string;
+        // Lê por posição (cada valor fica com o mosaico onde está). No PDF, se a posição não chegar,
+        // tenta ainda a leitura por texto corrido.
+        let r: EfaturaLido | { erro: "nada_encontrado" };
         try {
-          texto = pdf
-            ? await (await import("@/lib/import/pdfText")).extrairTextoPdf(ficheiro)
-            : await (await import("@/lib/import/ocr")).extrairTextoImagem(ficheiro);
+          if (pdf) {
+            const mod = await import("@/lib/import/pdfText");
+            const palavras = await mod.extrairPalavrasPdf(ficheiro);
+            if (palavras.length === 0) {
+              setErros((xs) => [...xs, "Este PDF é uma imagem digitalizada. Carregue antes uma captura de ecrã."]);
+              continue;
+            }
+            r = parseEfaturaPosicional(palavras);
+            if (eErroEfatura(r)) r = parseEfatura(await mod.extrairTextoPdf(ficheiro));
+          } else {
+            const leituras = await (await import("@/lib/import/ocr")).lerPalavrasImagem(ficheiro);
+            const lidas = leituras.map(parseEfaturaPosicional).filter((x): x is EfaturaLido => !eErroEfatura(x));
+            r = juntarLeituras(lidas) ?? { erro: "nada_encontrado" };
+          }
         } catch {
           setErros((xs) => [...xs, pdf
             ? "Não foi possível abrir este PDF (pode estar danificado ou protegido). Escreva os valores à mão."
             : "Não foi possível ler a imagem neste dispositivo. Escreva os valores à mão."]);
           continue;
         }
-        if (pdf && !texto.trim()) {
-          setErros((xs) => [...xs, "Este PDF é uma imagem digitalizada. Carregue antes uma captura de ecrã."]);
-          continue;
-        }
-        const r = parseEfatura(texto);
         if (eErroEfatura(r)) {
           setErros((xs) => [...xs, "Não encontrámos os quadrados do e-fatura neste ficheiro. Confirme que se veem os nomes e os valores, ou escreva-os à mão."]);
           continue;
         }
         // Capturas sobrepostas não substituem campos já lidos ou corrigidos pela pessoa.
+        const novo: EfaturaLido = r;
         setLido((anterior) => ({
-          valores: [...(anterior?.valores ?? []), ...r.valores.filter((v) => !anterior?.valores.some((a) => a.campo === v.campo))],
-          total: anterior?.total ?? r.total,
+          valores: [...(anterior?.valores ?? []), ...novo.valores.filter((v) => !anterior?.valores.some((a) => a.campo === v.campo))],
+          total: anterior?.total ?? novo.total,
         }));
       }
     } finally {
@@ -100,7 +110,7 @@ export function EfaturaImport({ idPrefix, bloco, onAplicar }: {
         <label htmlFor={inputId} className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-card px-4 text-[15px] font-semibold text-primary ring-1 ring-primary/30 hover:bg-primary-soft peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-ring peer-disabled:opacity-50">
           <Upload className="size-5 shrink-0" aria-hidden /> <span>Preencher com captura de ecrã ou PDF</span>
         </label>
-        <p className="mt-2 text-[13px] text-muted-foreground">No e-fatura, abra «Deduções Provisórias em IRS», tire uma captura de ecrã (ou guarde a página em PDF) e carregue-a aqui. Se os quadrados não couberem todos numa captura, carregue duas.</p>
+        <p className="mt-2 text-[13px] text-muted-foreground">No e-fatura, abra «Deduções Provisórias em IRS», tire uma captura de ecrã (ou guarde a página em PDF) e carregue-a aqui. Se os quadrados não couberem todos numa captura, carregue duas. Use o ficheiro original da captura (PNG): fotografias do ecrã e imagens reenviadas por mensagem perdem nitidez.</p>
         <p className="mt-1 text-[13px] font-medium text-muted-foreground">O ficheiro é lido só neste dispositivo — não é enviado para lado nenhum.</p>
       </div>
       {lendo && <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" aria-hidden /> A ler… numa imagem pode demorar até um minuto.</p>}
@@ -110,12 +120,14 @@ export function EfaturaImport({ idPrefix, bloco, onAplicar }: {
         <div className="space-y-3 rounded-2xl bg-muted/50 p-4">
           <p className="text-[15px] font-semibold">Confirme os valores lidos</p>
           <Aviso tipo="info">Leitura automática: confira cada valor com o que vê no e-fatura antes de aplicar.</Aviso>
+          {lido.valores.some((v) => v.duvida) && <Aviso tipo="amber">Há valores marcados com ⚠ que a leitura não conseguiu confirmar. Corrija-os antes de aplicar.</Aviso>}
           <div className="grid gap-4 sm:grid-cols-3">
             {lido.valores.map((v) => (
               <Field key={v.campo} label={nome(v.campo)} htmlFor={`${idPrefix}-lido-${v.campo}`}>
-                <MoneyInput id={`${idPrefix}-lido-${v.campo}`} value={v.valor} onChange={(valor) => setLido((r) => r ? { ...r, valores: r.valores.map((x) => x.campo === v.campo ? { ...x, valor } : x) } : r)} />
+                <MoneyInput id={`${idPrefix}-lido-${v.campo}`} value={v.valor} onChange={(valor) => setLido((r) => r ? { ...r, valores: r.valores.map((x) => x.campo === v.campo ? { ...x, valor, duvida: undefined } : x) } : r)} />
                 <p className="break-words text-[13px] text-muted-foreground">Lido em: “{v.origem}”</p>
                 {v.escolhidoEntreDois && <p className="text-[13px] text-muted-foreground">Havia dois valores; ficou o menor, que é a dedução (não a despesa).</p>}
+                {v.duvida && <p className="text-[13px] font-semibold text-pagar-ink">⚠ {v.duvida}</p>}
               </Field>
             ))}
           </div>

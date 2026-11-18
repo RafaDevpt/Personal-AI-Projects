@@ -104,6 +104,25 @@ flowchart LR
 
 The application uses hash routes (`#/salario`) and relative paths, so it works in a GitHub Pages subfolder with no server configuration.
 
+## 🔎 Reading e-fatura screenshots
+
+The IRS assistant can fill in the deduction boxes from a screenshot or a saved PDF of the e-fatura *Deduções Provisórias em IRS* page. The page is a grid of tiles, so the reader works by **position**, not by reading order:
+
+| Step | What happens |
+| :--- | :--- |
+| 1. Prepare | The image is converted to greyscale, inverted when the background is dark and contrast-stretched (`src/lib/import/ocr.ts`) |
+| 2. Read | Tesseract runs in sparse-text mode and returns every word with its bounding box; small text gets a second, enlarged pass |
+| 3. Match | Each amount is tied to the category name above it or beside it, within the same tile; «Dedução»/«Despesa» labels decide which amount is the deduction (`src/lib/import/efaturaPosicional.ts`) |
+| 4. Check | Every deduction is checked against the legal percentage and cap in `rules2026.ts`; implausible values, disagreements between passes and lone unlabelled amounts are flagged with ⚠ for the user to confirm |
+
+Nothing is applied without the user's confirmation, and an amount that cannot be read reliably is left blank rather than guessed.
+
+The regression tests in `tests/efatura/` replay OCR output from synthetic screenshots with fictitious data (light and dark mode, desktop and phone, cropped, heavily compressed and PDF). A wrong value without a warning fails the build.
+
+```bash
+npm test
+```
+
 ## 💻 Running locally
 
 ```bash

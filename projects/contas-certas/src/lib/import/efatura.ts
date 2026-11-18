@@ -14,6 +14,10 @@ export interface ValorLido {
   origem: string;
   /** Havia dois valores junto ao nome (dedução e despesa): ficou o menor, porque a dedução nunca é maior do que a despesa. */
   escolhidoEntreDois: boolean;
+  /** Motivo para conferir este valor com atenção (ex.: maior do que a lei permite). */
+  duvida?: string | undefined;
+  /** Quão segura é a leitura (só na leitura por posição): 3 = rótulo explícito, 2 = dois valores, 1 = valor solto. */
+  confianca?: number | undefined;
 }
 
 export interface EfaturaLido {

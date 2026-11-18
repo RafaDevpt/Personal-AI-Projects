@@ -7,7 +7,8 @@
     "prepare:ocr": "node scripts/prepare-ocr.mjs",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types --no-warnings --import ./tests/registar-ts.mjs --test tests/efatura/efatura.test.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
