@@ -58,14 +58,15 @@ flowchart LR
     R --> T1["🔧 IT Toolkit"]
     R --> T2["📚 PDF Suite"]
     R --> T3["🖨️ HP Toner Monitor"]
-    R --> T4["…and five more"]
+    R --> T4["🛰️ AI Command Centre"]
+    R --> T5["…and five more"]
 
     classDef hubc fill:#0b1220,stroke:#2dd4bf,color:#f1f5f9;
     classDef zone fill:#111a2e,stroke:#94a3b8,color:#f1f5f9;
     classDef proj fill:#1a1430,stroke:#a78bfa,color:#f1f5f9;
     classDef site fill:#241a0b,stroke:#f59e0b,color:#f1f5f9;
     classDef ext fill:#0b1a24,stroke:#38bdf8,color:#f1f5f9;
-    class hub hubc; class P,D,R zone; class NT,CC proj; class AB,CL,CW site; class T1,T2,T3,T4 ext;
+    class hub hubc; class P,D,R zone; class NT,CC proj; class AB,CL,CW site; class T1,T2,T3,T4,T5 ext;
 ```
 
 <br />
@@ -155,7 +156,7 @@ Interactive guides to certifications and courses, built for study and for quick 
 
 ## 🗂️ Dedicated repositories
 
-The larger tools have their own repositories, with CI on all three operating systems and versioned releases. Each one runs on Windows, Linux and macOS.
+The larger tools have their own repositories, with CI and versioned releases. The desktop tools run on Windows, Linux and macOS; AI Command Centre is a self-hosted server application for Linux with Docker.
 
 <table>
 <tr>
@@ -246,6 +247,18 @@ A terminal console for vCenter and ESXi: the full inventory and its health on a 
 
 </td>
 </tr>
+<tr>
+<td colspan="2" valign="top">
+
+### 🛰️ [AI Command Centre](https://github.com/RafaDevpt/ai-command-centre)
+[![CI](https://github.com/RafaDevpt/ai-command-centre/actions/workflows/ci.yml/badge.svg)](https://github.com/RafaDevpt/ai-command-centre/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/RafaDevpt/ai-command-centre?style=flat-square&label=&color=a78bfa)](https://github.com/RafaDevpt/ai-command-centre/releases/latest)
+
+A self-hosted control room for AI: local models, OpenAI Codex and Claude Code in one web app and PWA, with a team mode where a coordinator splits the work, the agents do it in parallel and every risky action waits for approval.
+
+`Python` · `FastAPI` · `React` · `PostgreSQL` · `Docker`
+
+</td>
+</tr>
 </table>
 
 <br />
@@ -276,7 +289,7 @@ Earlier versions of projects that now have their own repository are preserved as
 | 🔌 **Offline first** | Nothing depends on an external API when a local rule will do |
 | 🛡️ **Safe by default** | Read-only operations unless explicitly told otherwise |
 | 🔐 **No secrets** | No credentials, personal data or work data in any repository; configuration comes from environment variables and the examples are fictitious |
-| 🖥️ **Three systems** | The tools run on Windows, Linux and macOS, with CI on each |
+| 🖥️ **Three systems** | The desktop tools run on Windows, Linux and macOS, with CI on each; server applications run on Linux with Docker |
 | 📖 **Documented** | Every project has a README, requirements and screenshots |
 
 ## ⚖️ Licence
